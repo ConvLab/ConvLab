@@ -41,3 +41,14 @@ rule-based NLG to convert the user response DA into natural langauge format (see
 
 The outputs of system policy, MDBT and simulator are logged into ./session.txt, where the turns and sessions
 are seperated by separators for clarity.
+
+## Citing
+If you use ConvLab in your research, please cite [ConvLab: Multi-Domain End-to-End Dialog System Platform](https://arxiv.org/abs/1904.08637).
+```
+@inproceedings{lee2019convlab,
+  title={ConvLab: Multi-Domain End-to-End Dialog System Platform},
+  author={Lee, Sungjin and Zhu, Qi and Takanobu, Ryuichi and Li, Xiang and Zhang, Yaoqin and Zhang, Zheng and Li, Jinchao and Peng, Baolin and Li, Xiujun and Huang, Minlie and others},
+  booktitle={Proceedings of the 57th Annual Meeting of the Association for Computational Linguistics},
+  year={2019}
+}
+```
