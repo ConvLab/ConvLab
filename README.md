@@ -1,4 +1,4 @@
-# DialogZone
+# ConvLab
 This is a toolkit for developing task-oriented dialog system. We
 followed the conventional pipeline framework, where there are 4 seperate
 components: NLU, DST, Policy and NLG.
