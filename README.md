@@ -1,4 +1,4 @@
-# ConvLab
+# DialogZone
 This is a toolkit for developing task-oriented dialog system. We
 followed the conventional pipeline framework, where there are 4 seperate
 components: NLU, DST, Policy and NLG.
@@ -17,12 +17,14 @@ system in an RL-based manner.
 
 <!---
 - Trained NLG model can be downloaded [here](https://www.dropbox.com/s/7d6rr57hmdcz9pd/lstm_tanh_%5B1549590993.11%5D_24_28_1000_0.447.pkl?dl=0).
--->
+  -->
 - Trained NLG model can be downloaded [here](https://www.dropbox.com/s/u1n8jlgr89jnn2f/lstm_tanh_%5B1552674040.43%5D_7_7_400_0.436.pkl?dl=0). 
 - Trained NLU model can be downloaded [here](https://www.dropbox.com/s/y2aclsz9t7nmxnr/bi_lstm_%5B1552541377.53%5D_7_7_360_0.912.pkl?dl=0).
 - Trained S2S UserSim model can be downloaded [here](https://www.dropbox.com/s/2jxkqp2ad07asps/lstm_%5B1550147645.59%5D_20_29_0.448.p?dl=0).
-- Trained MLST NLU model can be downloaded [here](https://1drv.ms/u/s!AmXaP0QRGLFchVZqB047pJdS-tiT). Unzip the downloaded file in the tasktk/nlu/mlst directory. 
-- Trained JointNLU model can be downloaded [here](https://1drv.ms/u/s!AmXaP0QRGLFchVn7DNj4s7fghLTo). Unzip the downloaded file in the tasktk/nlu/joint_nlu directory. 
+- Trained MLST NLU model can be downloaded [here](https://1drv.ms/u/s!AmXaP0QRGLFchVtHJ99dYJuRKqE_). Unzip the downloaded file in the tasktk/modules/nlu/mlst directory. 
+- Trained JointNLU model can be downloaded [here](https://1drv.ms/u/s!AmXaP0QRGLFchVoiN2c1QkvK8vfq). Unzip the downloaded file in the tasktk/modules/nlu/joint_nlu directory. 
+- Trained SVM NLU model can be downloaded [here](https://drive.google.com/file/d/1y0v0Eq6p2dpVfGzPPeLciOkAkNAvQSqV/view?usp=sharing). Unzip the downloaded file in the tasktk/modules/nlu/SVM/output_multiwoz directory. 
+- Trained MDRG model can be downloaded [here](https://1drv.ms/u/s!AmXaP0QRGLFchVzGUZIat0-Ym52a). Unzip the downloaded file in the data directory. 
 
 ## Document
 
