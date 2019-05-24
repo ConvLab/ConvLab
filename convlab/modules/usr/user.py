@@ -23,7 +23,7 @@ class UserSimulator:
         self.current_action = None
         self.policy.init_session()
 
-    def response(self, input):
+    def response(self, input, context=[]):
         """
         Generate the response of user.
         Args:
@@ -37,7 +37,7 @@ class UserSimulator:
         """
 
         if self.nlu_model is not None:
-            sys_act = self.nlu_model.parse(input)
+            sys_act = self.nlu_model.parse(input, context)
         else:
             sys_act = input
         self.sys_act = sys_act

@@ -14,7 +14,7 @@ class SVMNLU(NLU):
         self.c = Classifier.classifier(self.config)
         self.c.load(self.config.get("train", "output"))
 
-    def parse(self, utterance):
+    def parse(self, utterance, context=None):
         sentinfo = {
             "turn-id": 0,
             "asr-hyps": [

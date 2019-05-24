@@ -2,7 +2,7 @@
 # Licensed under the MIT license.
 
 from convlab.modules.usr import UserSimulator
-from convlab.modules.nlu.multiwoz import ErrorNLU, JointNLU, MlstNLU, SVMNLU
+from convlab.modules.nlu.multiwoz import ErrorNLU, OneNetLU, MILU, SVMNLU
 
 from convlab.modules.dst.multiwoz import MDBTTracker, RuleDST
 from convlab.modules.policy.system.multiwoz import RuleBasedMultiwozBot, RuleInformBot
