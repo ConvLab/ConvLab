@@ -73,39 +73,30 @@ class MultiWozEnvironment(object):
         self.simulator = UserSimulator(self.nlu, self.agenda, self.nlg)
         self.simulator.init_session()
         self.action_vocab = ActionVocab(num_actions=action_dim)
-
+        self.history = []
 
         self.stat = {'success':0, 'fail':0}
 
     def reset(self, train_mode, config):
         self.simulator.init_session()
-        #self.env_info = [State({}, 0, False)] 
-        self.env_info = [State("", 0, False)] if self.nlg else [State({}, 0, False)] 
+        self.history = []
+        user_response, user_act, session_over, reward = self.simulator.response("null", self.history)
+        str_user_response = '{}'.format(user_response)
+        self.history.extend(["null", str_user_response])
+        self.env_info = [State(user_response, 0., session_over)] 
         return self.env_info 
 
     def step(self, action):
-        # if len(self.dst.state['history']) == 0:
-        #     action = {'general-greet': ['none']}
-            # action = self.action_vocab.vocab.index(sys_response)
-        # else:
-        #     sys_response = action_decoder(self.dst.state, action, self.action_vocab)
-        # logger.info("System: {}".format(str(action)))
-        # User simulator
-        user_response, user_act, session_over, reward = self.simulator.response(action)
-        # logger.info("User: {}".format(str(user_response)))
-        # logger.info("-" * 100)
-        # logger.info("Reward: {}".format(reward))
+        user_response, user_act, session_over, reward = self.simulator.response(action, self.history)
+        str_sys_response = '{}'.format(action)
+        str_user_response = '{}'.format(user_response)
+        self.history.extend([str_sys_response, str_user_response])
         if session_over:
             dialog_status = self.simulator.policy.goal.task_complete()
             if dialog_status:
                 self.stat['success'] += 1
             else: self.stat['fail'] += 1
-
-        str_sys_response = '{}'.format(action)
-        str_user_response = '{}'.format(user_response)
-
         self.env_info = [State(user_response, reward, session_over)] 
-
         return self.env_info 
 
     def rule_policy(self, state, algorithm, body):

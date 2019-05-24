@@ -76,11 +76,11 @@ class MDBTTracker(Tracker):
     def restore(self):
         self.restore_model(self.sess, tf.train.Saver())
 
-    def update(self, sess=None, user_act=None):
+    def update(self, user_act=None):
         """Update the dialog state."""
         if type(user_act) is not str:
             raise Exception('Expected user_act to be <class \'str\'> type, but get {}.'.format(type(user_act)))
-        self.state['history'] = self.normalize_history(self.state['history'])
+        # self.state['history'] = self.normalize_history(self.state['history'])
         prev_state = self.state
         if not os.path.exists(os.path.join(DATA_PATH, "results")):
             os.makedirs(os.path.join(DATA_PATH, "results"))
@@ -93,7 +93,10 @@ class MDBTTracker(Tracker):
          true_predictions, [y, _]) = model_variables
 
         # generate fake dialogue based on history (this os to reuse the original MDBT code)
-        actual_history = prev_state['history']  # [[sys, user], [sys, user], ...]
+        # actual_history = prev_state['history']  # [[sys, user], [sys, user], ...]
+        actual_history = copy.deepcopy(prev_state['history'])  # [[sys, user], [sys, user], ...]
+        actual_history[-1].append(user_act)
+        actual_history = self.normalize_history(actual_history)
         if len(actual_history) == 0:
             actual_history = [['', user_act if len(user_act)>0 else 'fake user act']]
         fake_dialogue = {}
