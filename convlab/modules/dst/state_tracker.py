@@ -10,7 +10,7 @@ class Tracker:
         """The constructor of Tracker class."""
         pass
 
-    def update(self, sess=None, user_act=None):
+    def update(self, user_act=None):
         """
         Update dialog state based on new user dialog act.
         Args:

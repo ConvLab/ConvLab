@@ -76,7 +76,6 @@ class MDBTTracker(Tracker):
     def restore(self):
         self.restore_model(self.sess, tf.train.Saver())
 
-    # def update(self, sess=None, user_act=None):
     def update(self, user_act=None):
         """Update the dialog state."""
         if type(user_act) is not str:
