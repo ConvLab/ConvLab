@@ -1,9 +1,10 @@
 {
-  "nlu_dst": {
+  "onenet_dst": {
     "agent": [{
       "name": "DialogAgent",
       "nlu": {
-        "name": "JointNLU"
+        "name": "OneNetLU",
+        "model_file": "https://convlab.blob.core.windows.net/models/onenet.tar.gz"
       },
       "dst": {
         "name": "RuleDST"
@@ -34,8 +35,8 @@
         "name": "RuleBasedMultiwozBot"
       },
       "nlu": {
-        "name": "JointNLU",
-        "model_file": "https://convlab.blob.core.windows.net/models/joint_nlu.zip"
+        "name": "OneNetLU",
+        "model_file": "https://convlab.blob.core.windows.net/models/onenet.tar.gz"
       },
       "nlg": {
         "name": "MultiwozTemplateNLG",
@@ -107,7 +108,8 @@
         "name": "RuleBasedMultiwozBot"
       },
       "nlu": {
-        "name": "JointNLU"
+        "name": "OneNetLU",
+        "model_file": "https://convlab.blob.core.windows.net/models/onenet.tar.gz"
       },
       "nlg": {
         "name": "MultiwozTemplateNLG",
@@ -146,5 +148,84 @@
         }
       }]
     }
-  }
+  },
+  "milu_dst": {
+    "agent": [{
+      "name": "DialogAgent",
+      "nlu": {
+        "name": "MILU",
+        "model_file": "https://convlab.blob.core.windows.net/models/milu.tar.gz",
+        "context_size": 0
+      },
+      "dst": {
+        "name": "RuleDST"
+      },
+      "nlg": {
+        "name": "MultiwozTemplateNLG",
+        "is_user": false
+      },
+      "algorithm": {
+        "name": "ExternalPolicy",
+        "policy": {
+          "name": "RuleBasedMultiwozBot"
+        },
+        "action_pdtype": "Argmax",
+        "action_policy": "epsilon_greedy"
+      },
+      "memory": {
+        "name": "Replay",
+        "max_size": 1 
+      }
+    }],
+    "env": [{
+      "name": "multiwoz",
+      "user_policy": {
+        "name": "UserPolicyAgendaMultiWoz"
+      },
+      "sys_policy": {
+        "name": "RuleBasedMultiwozBot"
+      },
+      "nlu": {
+        "name": "MILU",
+        "model_file": "https://convlab.blob.core.windows.net/models/milu.tar.gz",
+        "context_size": 0
+      },
+      "nlg": {
+        "name": "MultiwozTemplateNLG",
+        "is_user": true
+      },
+      "action_dim": 0,
+      "observation_dim": 0,
+      "max_t": 40,
+      "max_tick": 1000
+    }],
+    "body": {
+      "product": "outer",
+      "num": 1
+    },
+    "meta": {
+      "distributed": false,
+      "eval_frequency": 1000,
+      "max_tick_unit": "total_t",
+      "max_trial": 1,
+      "max_session": 1,
+      "search": "RandomSearch",
+      "resources": {
+        "num_cpus": 1,
+        "num_gpus": 0
+      }
+    },
+    "search": {
+      "agent": [{
+        "algorithm": {
+          "gamma__choice": [0.95, 0.99]
+        },
+        "net": {
+          "optim_spec": {
+            "lr__choice": [0.001, 0.01]
+          }
+        }
+      }]
+    }
+  },
 }

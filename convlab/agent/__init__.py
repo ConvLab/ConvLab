@@ -215,7 +215,7 @@ class DialogAgent(Agent):
             self.dst.init_session()
         if hasattr(self.algorithm, "reset"):
             self.algorithm.reset()
-        input_act, state, encoded_state = self.state_update(observation)
+        input_act, state, encoded_state = self.state_update(observation, "null")  # "null" action to be compatible with MDBT
         self.body.state, self.body.encoded_state = state, encoded_state
         self.body.memory.epi_reset(encoded_state)
 
@@ -229,10 +229,17 @@ class DialogAgent(Agent):
         logger.act(f'Agent {self.a} system action: {action}')
         return decoded_action
     
-    def state_update(self, observation):
-        input_act = self.nlu.parse(observation) if self.nlu else observation
-        state = self.dst.update(None, input_act) if self.dst else input_act 
+    def state_update(self, observation, action):
+        self.dst.state['history'].append([str(action)])
+        input_act = self.nlu.parse(observation, sum(self.dst.state['history'], [])) if self.nlu else observation
+        # state = self.dst.update(None, input_act) if self.dst else input_act 
+        state = self.dst.update(input_act) if self.dst else input_act 
         encoded_state = self.state_encoder.encode(state) if self.state_encoder else state 
+        self.dst.state['history'][-1].append(str(observation))
+        if self.nlu and self.dst:  
+            self.dst.state['user_action'] = input_act 
+        elif self.dst and not isinstance(self.dst, dst.MDBTTracker):  # for act-in act-out agent
+            self.dst.state['user_action'] = observation 
         logger.nl(f'Agent {self.a} user utterance: {observation}')
         logger.act(f'Agent {self.a} user action: {input_act}')
         logger.state(f'Agent {self.a} dialog state: {state}')
@@ -246,19 +253,8 @@ class DialogAgent(Agent):
     @lab_api
     def update(self, action, reward, observation, done):
         '''Update per timestep after env transitions, e.g. memory, algorithm, update agent params, train net'''
-        input_act, state, encoded_state = self.state_update(observation)
+        input_act, state, encoded_state = self.state_update(observation, action)
         self.body.state, self.body.encoded_state = state, encoded_state
-        # if (not self.nlu and self.dst) and not isinstance(self.dst, dst.MDBTTracker):  # for act-in act-out agent
-        #     self.dst.state['history'].append([str(action), str(observation)])
-        #     self.dst.state['user_action'] = observation
-        if self.nlu and self.dst:  
-            self.dst.state['history'].append([str(action), str(observation)])
-            self.dst.state['user_action'] = input_act 
-        elif self.dst and not isinstance(self.dst, dst.MDBTTracker):  # for act-in act-out agent
-            self.dst.state['history'].append([str(action), str(observation)])
-            self.dst.state['user_action'] = observation 
-        else:  # for NL-in act-out agent
-            self.dst.state['history'].append([str(action), str(observation)])
         if self.algorithm.__class__.__name__ == 'ExternalPolicy':
             loss, explore_var = 0, 0
             self.body.memory.update(0, reward, 0, done)

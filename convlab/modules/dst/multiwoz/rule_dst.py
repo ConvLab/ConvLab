@@ -21,7 +21,7 @@ class RuleDST(Tracker):
         prefix = os.path.dirname(os.path.dirname(convlab.__file__))
         self.value_dict = json.load(open(prefix+'/data/multiwoz/db/db_values.json'))
 
-    def update(self, sess=None, user_act=None):
+    def update(self, user_act=None):
         # print('------------------{}'.format(user_act))
         if type(user_act) is not dict:
             raise Exception('Expect user_act to be <class \'dict\'> type but get {}.'.format(type(user_act)))
