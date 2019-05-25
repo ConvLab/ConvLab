@@ -390,9 +390,9 @@ class Model:
                         loss.backward()
                         grad = torch.nn.utils.clip_grad_norm(self.m.parameters(), 2.0)
                         optim.step()
-                        epoch_loss += loss.data.cpu().numpy()[0]
+                        epoch_loss += loss.item()
                         cnt += 1
-                        logging.debug('{} loss {}, grad:{}'.format(mode,loss.data[0],grad))
+                        logging.debug('{} loss {}, grad:{}'.format(mode,loss.item(),grad))
 
                     prev_z = turn_batch['bspan']
 

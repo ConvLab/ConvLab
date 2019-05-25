@@ -681,7 +681,7 @@ class TSD(nn.Module):
         # rewards = (rewards - rewards.mean()) / (rewards.std() + np.finfo(np.float32).eps)
 
         for log_prob, reward in zip(log_probas, rewards):
-            policy_loss.append(-log_prob * reward)
+            policy_loss.append((-log_prob * reward).unsqueeze(0))
         l = len(policy_loss)
         policy_loss = torch.cat(policy_loss).sum()
         return policy_loss / l
