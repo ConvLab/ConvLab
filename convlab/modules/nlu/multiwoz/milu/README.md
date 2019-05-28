@@ -1,12 +1,12 @@
-# OneNet
-We use a variant of OneNet which is a unified neural network that jointly performs domain, intent, and slot predictions to reduce error propagation and facilitate information sharing.
-For further details, please refer to the [paper](https://arxiv.org/abs/1801.05149).
+# MILU
+MILU is a joint neural model that allows you to simultaneously predict multiple dialog act items (a dialog act item takes a form of domain-intent(slot, value). Since it is common that, in a multi-domain setting, an utterance has multiple dialog act items, MILU is likely to yield higher performance than conventional sigle-intent models.
+
 
 ## Example usage
 We based our implementation on the [AllenNLP library](https://github.com/allenai/allennlp). For an introduction to this library, you should check [these tutorials](https://allennlp.org/tutorials).
 
 ```bash
-$ python train.py configs/basic.json -s serialization_dir
+$ python train.py configs/[base|context3].jsonnet -s serialization_dir
 $ python evaluate.py serialization_dir/model.tar.gz {test_file} --cuda-device {CUDA_DEVICE}
 ```
 
@@ -17,12 +17,10 @@ We use the multiwoz data (data/multiwoz/[train|val|test.json.zip).
 
 ## References
 ```
-@inproceedings{kim2017onenet,
-  title={Onenet: Joint domain, intent, slot prediction for spoken language understanding},
-  author={Kim, Young-Bum and Lee, Sungjin and Stratos, Karl},
-  booktitle={2017 IEEE Automatic Speech Recognition and Understanding Workshop (ASRU)},
-  pages={547--553},
-  year={2017},
-  organization={IEEE}
+@inproceedings{lee2019convlab,
+  title={ConvLab: Multi-Domain End-to-End Dialog System Platform},
+  author={Lee, Sungjin and Zhu, Qi and Takanobu, Ryuichi and Li, Xiang and Zhang, Yaoqin and Zhang, Zheng and Li, Jinchao and Peng, Baolin and Li, Xiujun and Huang, Minlie and others},
+  booktitle={Proceedings of the 57th Annual Meeting of the Association for Computational Linguistics},
+  year={2019}
 }
 ```
