@@ -106,36 +106,6 @@ class OneNetDatasetReader(DatasetReader):
                     dai = turn["dialog_act"][di][0]
                     domain = di.split("-")[0]
                     intent = di.split("-", 1)[-1] + "+" + dai[0] + "*" + dai[1]
-                # print(turn["dialog_act"])
-                # print(domain)
-                # print(intent)
-                # print(tags)
-                #     for dacts in turn["dialog_act"]:
-                #         for dact in turn["dialog_act"][dacts]:
-                #             if dacts not in dialog_act:
-                #                 dialog_act[dacts] = turn["dialog_act"][dacts]
-                #                 break
-                #             elif dact[0] not in [sv[0] for sv in dialog_act[dacts]]:
-                #                 dialog_act[dacts].append(dact)
-                # domains = set()
-                # intents = set() 
-                # for dacts in turn["dialog_act"]:
-                #     for dact in turn["dialog_act"][dacts]:
-                #         domains.add(dacts.split("-")[0])
-                # intents = []
-                # for dacts in turn["dialog_act"]:
-                #     for dact in turn["dialog_act"][dacts]:
-                #         if dacts not in dialog_act or  dact[0] not in [sv[0] for sv in dialog_act[dacts]]:
-                #             intents.append(dacts+"+"+dact[0]+"*"+dact[1])
-
-                #         if dact[0] == "none": 
-                #             intents.add(dacts.split("-")[1])
-                #         else:
-                #             intents.add(dacts.split("-")[1]+"+"+dact[0])
-                # if domain == "None" and len(domains) > 0:
-                #     domain = random.choice(list(domains))
-                # if intent == "None" and len(intents) > 0:
-                #     intent = random.choice(list(intents))
 
                 dialog_act = {}
                 for dacts in turn["span_info"]:
@@ -153,7 +123,6 @@ class OneNetDatasetReader(DatasetReader):
 
                 tokens = [Token(token) for token in tokens]
 
-                # yield self.text_to_instance(tokens, tags, domain, intent, turn["dialog_act"])
                 yield self.text_to_instance(tokens, tags, domain, intent, dialog_act)
 
 
