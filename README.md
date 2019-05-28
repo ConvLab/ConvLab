@@ -53,6 +53,10 @@ $ python run.py demo.json onenet_rule_rule_template eval
 $ python run.py demo.json onenet_rule_dqn_template train
 ```
 
+## Creating a new spec file
+A spec file is used to fully specify experiments including a dialog agent and a user simulator. It is a JSON of multiple experiment specs, each containing the keys agent, env, body, meta, search.
+We based our implementation on [SLM-Lab] (https://github.com/kengz/SLM-Lab/tree/master/slm_lab). For an introduction to these concepts, you should check [these docs](https://kengz.gitbooks.io/slm-lab/content/).
+
 ## Contributions
 The ConvLab team welcomes contributions from the community. Pull requests must have one approving review and no requested changes before they are merged. The ConvLab team reserve the right to reject or revert contributions that we don't think are good additions.
 
