@@ -7,13 +7,12 @@ import math
 import numpy as np
 
 from overrides import overrides
-from pathlib import Path
 
-from allennlp.common.file_utils import cached_path
 from allennlp.data.dataset_readers.dataset_reader import DatasetReader
 from allennlp.data.fields import ArrayField, LabelField, Field
 from allennlp.data.instance import Instance
 
+from convlab.lib.util import cached_path
 from convlab.modules.dst.multiwoz.rule_dst import RuleDST
 from convlab.modules.policy.system.multiwoz.util import ActionVocab, state_encoder
 
@@ -42,8 +41,7 @@ class MlePolicyDatasetReader(DatasetReader):
     @overrides
     def _read(self, file_path):
         # if `file_path` is a URL, redirect to the cache
-        cache_dir = str(Path( Path.home() / '.convlab') / "cache")
-        file_path = cached_path(file_path, cache_dir)
+        file_path = cached_path(file_path)
 
         if file_path.endswith("zip"):
             archive = zipfile.ZipFile(file_path, "r")

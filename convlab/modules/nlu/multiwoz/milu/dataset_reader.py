@@ -9,14 +9,15 @@ import json
 import zipfile
 
 from overrides import overrides
-from pathlib import Path
 
-from allennlp.common.file_utils import cached_path
 from allennlp.data.dataset_readers.dataset_reader import DatasetReader
 from allennlp.data.fields import TextField, SequenceLabelField, MultiLabelField, MetadataField, Field
 from allennlp.data.instance import Instance
 from allennlp.data.token_indexers import TokenIndexer, SingleIdTokenIndexer
 from allennlp.data.tokenizers import Token
+
+from convlab.lib.util import cached_path
+
 
 logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
 
@@ -58,8 +59,7 @@ class MILUDatasetReader(DatasetReader):
     @overrides
     def _read(self, file_path):
         # if `file_path` is a URL, redirect to the cache
-        cache_dir = str(Path( Path.home() / '.convlab') / "cache")
-        file_path = cached_path(file_path, cache_dir)
+        file_path = cached_path(file_path)
 
         if file_path.endswith("zip"):
             archive = zipfile.ZipFile(file_path, "r")
