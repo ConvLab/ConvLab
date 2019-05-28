@@ -43,12 +43,14 @@ class MILUDatasetReader(DatasetReader):
         are pre-tokenised in the data file.
     """
     def __init__(self,
-                 max_context: int = 0,
+                 context_size: int = 0,
+                 random_context_size: bool = True,
                  token_delimiter: str = None,
                  token_indexers: Dict[str, TokenIndexer] = None,
                  lazy: bool = False) -> None:
         super().__init__(lazy)
-        self._max_context = max_context
+        self._context_size = context_size
+        self._random_context_size = random_context_size
         self._token_indexers = token_indexers or {'tokens': SingleIdTokenIndexer()}
         self._token_delimiter = token_delimiter
 
@@ -91,19 +93,13 @@ class MILUDatasetReader(DatasetReader):
                             break
                     else:
                         tags.append("O")
+
                 intents = []
                 for dacts in turn["dialog_act"]:
                     for dact in turn["dialog_act"][dacts]:
                         if dacts not in dialog_act or dact[0] not in [sv[0] for sv in dialog_act[dacts]]:
                             if dact[1] in ["none", "?", "yes", "no", "do nt care", "do n't care"]:
                                 intents.append(dacts+"+"+dact[0]+"*"+dact[1])
-                            # else:
-                            #     print(dial_name)
-                            #     print(turn["text"])
-                            #     print(dact)
-                            #     print(turn["dialog_act"])
-                            #     print(turn["span_info"])
-                            
 
                 for dacts in turn["dialog_act"]:
                     for dact in turn["dialog_act"][dacts]:
@@ -113,7 +109,7 @@ class MILUDatasetReader(DatasetReader):
                         elif dact[0] not in [sv[0] for sv in dialog_act[dacts]]:
                             dialog_act[dacts].append(dact)
 
-                num_context = random.randint(0, self._max_context)
+                num_context = random.randint(0, self._context_size) if self._random_context_size else self._context_size
                 if len(context_tokens_list) > 0 and num_context > 0:
                     wrapped_context_tokens = [Token(token) for context_tokens in context_tokens_list[-num_context:] for token in context_tokens]
                 else:

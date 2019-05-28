@@ -13,14 +13,12 @@ from allennlp.models.archival import load_archive
 from allennlp.data import DatasetReader
 from allennlp.data.tokenizers.word_splitter import SpacyWordSplitter
 from allennlp.data.dataset_readers.dataset_utils.span_utils import bio_tags_to_spans
-from zipfile import ZipFile
-from pathlib import Path
 
 from convlab.modules.nlu.nlu import NLU
 from convlab.modules.nlu.multiwoz.milu import model, dataset_reader
 
 DEFAULT_CUDA_DEVICE = -1
-DEFAULT_DIRECTORY = os.path.join(str(Path.home()), ".convlab")
+DEFAULT_DIRECTORY = "models"
 DEFAULT_ARCHIVE_FILE = os.path.join(DEFAULT_DIRECTORY, "milu.tar.gz")
 
 class MILU(NLU):
