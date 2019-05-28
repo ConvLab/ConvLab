@@ -2,6 +2,40 @@
 an open-source multi-domain end-to-end dialog system platform, aiming to enable researchers to quickly set up experiments with reusable components and compare a large set of different approaches, ranging from conventional pipeline systems to end-to-end neural models, in common environments.
 
 ## Package Overview
+<table>
+<tr>
+    <td><b> convlab </b></td>
+    <td> an open-source multi-domain end-to-end dialog research library </td>
+</tr>
+<tr>
+    <td><b> convlab.agent </b></td>
+    <td>  </td>
+</tr>
+<tr>
+    <td><b> convlab.env </b></td>
+    <td>  </td>
+</tr>
+<tr>
+    <td><b> convlab.experiment </b></td>
+    <td>  </td>
+</tr>
+<tr>
+    <td><b> convlab.modules </b></td>
+    <td> a collection of state-of-the-art component models </td>
+</tr>
+<tr>
+    <td><b> convlab.human_eval </b></td>
+    <td>  </td>
+</tr>
+<tr>
+    <td><b> convlab.lib </b></td>
+    <td> </td>
+</tr>
+<tr>
+    <td><b> convlab.spec </b></td>
+    <td>  </td>
+</tr>
+</table>
 
 ## Installation
 
