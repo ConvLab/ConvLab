@@ -40,7 +40,7 @@ SPEC_FORMAT = {
         "max_tick_unit": str,
         "max_session": int,
         "max_trial": (type(None), int),
-        "search": str,
+        # "search": str,
     },
     "name": str,
 }
