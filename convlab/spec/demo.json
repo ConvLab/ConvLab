@@ -42,8 +42,6 @@
         "name": "MultiwozTemplateNLG",
         "is_user": true
       },
-      "action_dim": 0,
-      "observation_dim": 0,
       "max_t": 40,
       "max_tick": 1000
     }],
@@ -57,23 +55,10 @@
       "max_tick_unit": "total_t",
       "max_trial": 1,
       "max_session": 1,
-      "search": "RandomSearch",
       "resources": {
         "num_cpus": 1,
         "num_gpus": 0
       }
-    },
-    "search": {
-      "agent": [{
-        "algorithm": {
-          "gamma__choice": [0.95, 0.99]
-        },
-        "net": {
-          "optim_spec": {
-            "lr__choice": [0.001, 0.01]
-          }
-        }
-      }]
     }
   },
   "onenet_rule_dqn_template": {
@@ -176,23 +161,10 @@
       "max_tick_unit": "total_t",
       "max_trial": 1,
       "max_session": 1,
-      "search": "RandomSearch",
       "resources": {
         "num_cpus": 1,
         "num_gpus": 0
       }
-    },
-    "search": {
-      "agent": [{
-        "algorithm": {
-          "gamma__choice": [0.95, 0.99]
-        },
-        "net": {
-          "optim_spec": {
-            "lr__choice": [0.001, 0.01]
-          }
-        }
-      }]
     }
   }
 }
