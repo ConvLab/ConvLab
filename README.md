@@ -44,6 +44,15 @@ Once you've downloaded ConvLab and installed required packages, you can run the 
 $ python run.py {spec file} {spec name} {mode}
 ```
 
+For example:
+```
+# to evaluate a dialog system consisting of NLU(OneNet), DST(Rule), Policy(Rule), NLG(Template) on the MultiWOZ environment
+python run.py demo.json onenet_rule_rule_template eval
+
+# to train a DQN policy with NLU(OneNet), DST(Rule), NLG(Template) on the MultiWOZ environment
+python run.py demo.json onenet_rule_dqn_template train
+```
+
 ## Contributions
 The ConvLab team welcomes contributions from the community. Pull requests must have one approving review and no requested changes before they are merged. The ConvLab team reserve the right to reject or revert contributions that we don't think are good additions.
 
