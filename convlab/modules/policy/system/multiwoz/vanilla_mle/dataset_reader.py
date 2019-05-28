@@ -7,6 +7,7 @@ import math
 import numpy as np
 
 from overrides import overrides
+from pathlib import Path
 
 from allennlp.common.file_utils import cached_path
 from allennlp.data.dataset_readers.dataset_reader import DatasetReader
@@ -41,7 +42,8 @@ class MlePolicyDatasetReader(DatasetReader):
     @overrides
     def _read(self, file_path):
         # if `file_path` is a URL, redirect to the cache
-        file_path = cached_path(file_path)
+        cache_dir = str(Path( Path.home() / '.convlab') / "cache")
+        file_path = cached_path(file_path, cache_dir)
 
         if file_path.endswith("zip"):
             archive = zipfile.ZipFile(file_path, "r")
@@ -64,19 +66,19 @@ class MlePolicyDatasetReader(DatasetReader):
                     for domain_act in turn["dialog_act"]:
                         domain, act_type = domain_act.split('-', 1)
                         if act_type in ['NoOffer', 'OfferBook']:
-                            delex_act[domain_act] = ['none'] 
+                            delex_act[domain_act] = ['none']
                         elif act_type in ['Select']:
                             for sv in turn["dialog_act"][domain_act]:
                                 if sv[0] != "none":
-                                    delex_act[domain_act] = [sv[0]] 
+                                    delex_act[domain_act] = [sv[0]]
                                     break
                         else:
-                            delex_act[domain_act] = [sv[0] for sv in turn["dialog_act"][domain_act]] 
+                            delex_act[domain_act] = [sv[0] for sv in turn["dialog_act"][domain_act]]
                     state_vector = state_encoder(self.dst.state)
                     action_index = self.find_best_delex_act(delex_act)
 
                     yield self.text_to_instance(state_vector, action_index)
-    
+
     def find_best_delex_act(self, action):
         def _score(a1, a2):
             score = 0
@@ -90,10 +92,10 @@ class MlePolicyDatasetReader(DatasetReader):
                     score += len(set(a1[domain_act]) - set(a2[domain_act]))
             return score
 
-        best_p_action_index = -1 
-        best_p_score = math.inf 
-        best_pn_action_index = -1 
-        best_pn_score = math.inf 
+        best_p_action_index = -1
+        best_p_score = math.inf
+        best_pn_action_index = -1
+        best_pn_score = math.inf
         for i, v_action in enumerate(self.action_list):
             if v_action == action:
                 return i
