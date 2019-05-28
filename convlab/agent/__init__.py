@@ -232,10 +232,9 @@ class DialogAgent(Agent):
     def state_update(self, observation, action):
         self.dst.state['history'].append([str(action)])
         input_act = self.nlu.parse(observation, sum(self.dst.state['history'], [])) if self.nlu else observation
-        # state = self.dst.update(None, input_act) if self.dst else input_act 
         state = self.dst.update(input_act) if self.dst else input_act 
-        encoded_state = self.state_encoder.encode(state) if self.state_encoder else state 
         self.dst.state['history'][-1].append(str(observation))
+        encoded_state = self.state_encoder.encode(state) if self.state_encoder else state 
         if self.nlu and self.dst:  
             self.dst.state['user_action'] = input_act 
         elif self.dst and not isinstance(self.dst, dst.MDBTTracker):  # for act-in act-out agent
