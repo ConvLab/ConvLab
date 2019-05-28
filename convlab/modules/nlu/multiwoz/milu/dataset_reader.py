@@ -9,6 +9,7 @@ import json
 import zipfile
 
 from overrides import overrides
+from pathlib import Path
 
 from allennlp.common.file_utils import cached_path
 from allennlp.data.dataset_readers.dataset_reader import DatasetReader
@@ -57,7 +58,8 @@ class MILUDatasetReader(DatasetReader):
     @overrides
     def _read(self, file_path):
         # if `file_path` is a URL, redirect to the cache
-        file_path = cached_path(file_path)
+        cache_dir = str(Path( Path.home() / '.convlab') / "cache")
+        file_path = cached_path(file_path, cache_dir)
 
         if file_path.endswith("zip"):
             archive = zipfile.ZipFile(file_path, "r")
@@ -84,7 +86,7 @@ class MILUDatasetReader(DatasetReader):
                 spans = turn["span_info"]
                 tags = []
                 for i in range(len(tokens)):
-                    for span in spans: 
+                    for span in spans:
                         if i == span[3]:
                             tags.append("B-"+span[0]+"+"+span[1])
                             break
@@ -121,7 +123,7 @@ class MILUDatasetReader(DatasetReader):
                 yield self.text_to_instance(wrapped_context_tokens, wrapped_tokens, tags, intents, dialog_act)
 
 
-    def text_to_instance(self, context_tokens: List[Token], tokens: List[Token], tags: List[str] = None, 
+    def text_to_instance(self, context_tokens: List[Token], tokens: List[Token], tags: List[str] = None,
         intents: List[str] = None, dialog_act: Dict[str, Any] = None) -> Instance:  # type: ignore
         """
         We take `pre-tokenized` input here, because we don't have a tokenizer in this class.
@@ -137,7 +139,7 @@ class MILUDatasetReader(DatasetReader):
         if intents is not None:
             fields["intents"] = MultiLabelField(intents, label_namespace="intent_labels")
         if dialog_act is not None:
-            fields["metadata"] = MetadataField({"words": [x.text for x in tokens], 
+            fields["metadata"] = MetadataField({"words": [x.text for x in tokens],
             'dialog_act': dialog_act})
         else:
             fields["metadata"] = MetadataField({"words": [x.text for x in tokens], 'dialog_act': {}})
