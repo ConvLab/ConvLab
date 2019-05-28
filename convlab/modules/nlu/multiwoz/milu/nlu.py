@@ -8,12 +8,12 @@ import os
 from pprint import pprint
 
 from allennlp.common.checks import check_for_gpu
-from allennlp.common.file_utils import cached_path
 from allennlp.models.archival import load_archive
 from allennlp.data import DatasetReader
 from allennlp.data.tokenizers.word_splitter import SpacyWordSplitter
 from allennlp.data.dataset_readers.dataset_utils.span_utils import bio_tags_to_spans
 
+from convlab.lib.util import cached_path
 from convlab.modules.nlu.nlu import NLU
 from convlab.modules.nlu.multiwoz.milu import model, dataset_reader
 
@@ -24,7 +24,7 @@ DEFAULT_ARCHIVE_FILE = os.path.join(DEFAULT_DIRECTORY, "milu.tar.gz")
 class MILU(NLU):
     """Multi-intent language understanding model."""
 
-    def __init__(self, 
+    def __init__(self,
                 archive_file=DEFAULT_ARCHIVE_FILE,
                 cuda_device=DEFAULT_CUDA_DEVICE,
                 model_file=None,
@@ -38,11 +38,12 @@ class MILU(NLU):
         if not os.path.isfile(archive_file):
             if not model_file:
                 raise Exception("No model for MILU is specified!")
+
             archive_file = cached_path(model_file)
 
         archive = load_archive(archive_file,
                             cuda_device=cuda_device)
-        self.tokenizer = SpacyWordSplitter(language="en_core_web_sm") 
+        self.tokenizer = SpacyWordSplitter(language="en_core_web_sm")
         dataset_reader_params = archive.config["dataset_reader"]
         self.dataset_reader = DatasetReader.from_params(dataset_reader_params)
         self.model = archive.model
@@ -58,7 +59,7 @@ class MILU(NLU):
             output (dict): The dialog act of utterance.
         """
         if len(utterance) == 0:
-            return {} 
+            return {}
 
         if self.context_size > 0 and len(context) > 0:
             context_tokens = sum([self.tokenizer.split_words(utterance+" SENT_END") for utterance in context[-self.context_size:]], [])
