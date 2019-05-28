@@ -45,7 +45,7 @@ $ python run.py {spec file} {spec name} {mode}
 ```
 
 For example:
-```
+```bash
 # to evaluate a dialog system consisting of NLU(OneNet), DST(Rule), Policy(Rule), NLG(Template) on the MultiWOZ environment
 python run.py demo.json onenet_rule_rule_template eval
 
