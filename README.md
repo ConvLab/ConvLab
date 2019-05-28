@@ -47,10 +47,10 @@ $ python run.py {spec file} {spec name} {mode}
 For example:
 ```bash
 # to evaluate a dialog system consisting of NLU(OneNet), DST(Rule), Policy(Rule), NLG(Template) on the MultiWOZ environment
-python run.py demo.json onenet_rule_rule_template eval
+$ python run.py demo.json onenet_rule_rule_template eval
 
 # to train a DQN policy with NLU(OneNet), DST(Rule), NLG(Template) on the MultiWOZ environment
-python run.py demo.json onenet_rule_dqn_template train
+$ python run.py demo.json onenet_rule_dqn_template train
 ```
 
 ## Contributions
