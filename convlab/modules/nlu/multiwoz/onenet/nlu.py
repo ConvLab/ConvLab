@@ -6,14 +6,13 @@
 
 import os
 from pprint import pprint
-from pathlib import Path
 
 from allennlp.common.checks import check_for_gpu
 from allennlp.models.archival import load_archive
 from allennlp.data import DatasetReader
 from allennlp.data.tokenizers.word_splitter import SpacyWordSplitter
-from allennlp.common.file_utils import cached_path
 
+from convlab.lib.util import cached_path
 from convlab.modules.nlu.multiwoz.onenet import model, dataset_reader
 
 DEFAULT_CUDA_DEVICE=-1
@@ -33,8 +32,7 @@ class OneNetLU(object):
         if not os.path.isfile(archive_file):
             if not model_file:
                 raise Exception("No model for JointNLU is specified!")
-            cache_dir = str(Path( Path.home() / '.convlab') / "cache")
-            archive_file = cached_path(model_file, cache_dir)
+            archive_file = cached_path(model_file)
 
 
         archive = load_archive(archive_file,
