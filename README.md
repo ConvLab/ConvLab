@@ -40,6 +40,11 @@ an open-source multi-domain end-to-end dialog system platform, aiming to enable 
 ## Installation
 
 ## Running ConvLab
+Once you've installed ConvLab, you can run the command-line interface with the `python run.py` command.
+
+```bash
+$ python run.py [spec file] [experiment name] [train|eval]
+```
 
 ## Contributions
 The ConvLab team welcomes contributions from the community. Pull requests must have one approving review and no requested changes before they are merged. The ConvLab team reserve the right to reject or revert contributions that we don't think are good additions.
