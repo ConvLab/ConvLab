@@ -13,13 +13,10 @@ from allennlp.data import DatasetReader
 from allennlp.data.tokenizers.word_splitter import SpacyWordSplitter
 from allennlp.common.file_utils import cached_path
 
-from zipfile import ZipFile
-from pathlib import Path
-
 from convlab.modules.nlu.multiwoz.onenet import model, dataset_reader
 
 DEFAULT_CUDA_DEVICE=-1
-DEFAULT_DIRECTORY = os.path.join(str(Path.home()), ".convlab")
+DEFAULT_DIRECTORY = "models"
 DEFAULT_ARCHIVE_FILE = os.path.join(DEFAULT_DIRECTORY, "onenet.tar.gz")
 
 class OneNetLU(object):
