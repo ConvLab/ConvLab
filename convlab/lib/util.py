@@ -11,6 +11,7 @@ import numpy as np
 import operator
 import os
 import pandas as pd
+from pathlib import Path
 import pydash as ps
 import regex as re
 import subprocess
@@ -19,6 +20,9 @@ import torch
 import torch.multiprocessing as mp
 import ujson
 import yaml
+
+import allennlp.common.file_utils.cached_path as allennlp_cached_path
+
 
 NUM_CPUS = mp.cpu_count()
 FILE_TS_FORMAT = '%Y_%m_%d_%H%M%S'
@@ -796,3 +800,10 @@ def mpl_debug_image(im):
     plt.figure()
     plt.imshow(im)
     plt.show()
+
+
+def cached_path(file_path, cache_dir=None)
+    if not cached_dir:
+        cache_dir = str(Path(Path.home() / '.convlab') / "cache")
+
+    return allennlp_cached_path(file_path, cache_dir)
