@@ -4,14 +4,13 @@
 from contextlib import contextmanager
 from datetime import datetime
 from importlib import reload
-# from convlab import ROOT_DIR, EVAL_MODES
+from convlab import ROOT_DIR, EVAL_MODES
 # import cv2
 import json
 import numpy as np
 import operator
 import os
 import pandas as pd
-from pathlib import Path
 import pydash as ps
 import regex as re
 import subprocess
@@ -21,11 +20,7 @@ import torch.multiprocessing as mp
 import ujson
 import yaml
 
-# import allennlp.common.file_utils.cached_path as allennlp_cached_path
-from allennlp.common.file_utils import cached_path as allennlp_cached_path
 
-ROOT_DIR = os.path.normpath(os.path.join(os.path.dirname(os.path.dirname(__file__)), '..'))
-EVAL_MODES = ('enjoy', 'eval')
 TRAIN_MODES = ('search', 'train', 'dev')
 
 NUM_CPUS = mp.cpu_count()
@@ -804,10 +799,3 @@ def mpl_debug_image(im):
     plt.figure()
     plt.imshow(im)
     plt.show()
-
-
-def cached_path(file_path, cached_dir=None):
-    if not cached_dir:
-        cached_dir = str(Path(Path.home() / '.convlab') / "cache")
-
-    return allennlp_cached_path(file_path, cached_dir)
