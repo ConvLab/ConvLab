@@ -443,7 +443,9 @@ class TSD(nn.Module):
         for t in range(self.max_ts):
             proba, last_hidden, _ = self.m_decoder(pz_dec_outs, u_enc_out, u_input_np, m_tm1,
                                                    degree_input, last_hidden, bspan_index_np)
+            proba = torch.cat((proba[:, :2], proba[:, 3:]), 1)
             mt_proba, mt_index = torch.topk(proba, 1)  # [B,1]
+            mt_index.add_(mt_index.ge(2).long())
             mt_index = mt_index.data.view(-1)
             decoded.append(mt_index.clone())
             for i in range(mt_index.size(0)):
@@ -681,7 +683,7 @@ class TSD(nn.Module):
         # rewards = (rewards - rewards.mean()) / (rewards.std() + np.finfo(np.float32).eps)
 
         for log_prob, reward in zip(log_probas, rewards):
-            policy_loss.append(-log_prob * reward)
+            policy_loss.append((-log_prob * reward).unsqueeze(0))
         l = len(policy_loss)
         policy_loss = torch.cat(policy_loss).sum()
         return policy_loss / l

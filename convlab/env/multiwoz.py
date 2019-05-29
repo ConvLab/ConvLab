@@ -173,12 +173,12 @@ class MultiWozEnv(BaseEnv):
 
     def __init__(self, spec, e=None, env_space=None):
         super(MultiWozEnv, self).__init__(spec, e, env_space)
+        self.action_dim = self.observation_dim = 0
         util.set_attr(self, self.env_spec, [
             'observation_dim',
             'action_dim',
         ])
         worker_id = int(f'{os.getpid()}{self.e+int(ps.unique_id())}'[-4:])
-        # TODO dynamically compose components according to env_spec
         self.u_env = MultiWozEnvironment(self.env_spec, worker_id, self.action_dim)
         self.patch_gym_spaces(self.u_env)
         self._set_attr_from_u_env(self.u_env)
@@ -195,10 +195,10 @@ class MultiWozEnv(BaseEnv):
         For standardization, use gym spaces to represent observation and action spaces.
         This method iterates through the multiple brains (multiagent) then constructs and returns lists of observation_spaces and action_spaces
         '''
-        observation_shape = (self.env_spec.get('observation_dim'),)
+        observation_shape = (self.observation_dim,)
         observation_space = spaces.Box(low=0, high=1, shape=observation_shape, dtype=np.int32)
         set_gym_space_attr(observation_space)
-        action_space = spaces.Discrete(self.env_spec.get('action_dim'))
+        action_space = spaces.Discrete(self.action_dim)
         set_gym_space_attr(action_space)
         # set for singleton
         u_env.observation_space = observation_space
