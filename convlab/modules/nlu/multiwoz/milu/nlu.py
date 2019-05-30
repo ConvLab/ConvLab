@@ -13,7 +13,7 @@ from allennlp.data import DatasetReader
 from allennlp.data.tokenizers.word_splitter import SpacyWordSplitter
 from allennlp.data.dataset_readers.dataset_utils.span_utils import bio_tags_to_spans
 
-from convlab.lib.util import cached_path
+from convlab.lib.file_util import cached_path
 from convlab.modules.nlu.nlu import NLU
 from convlab.modules.nlu.multiwoz.milu import model, dataset_reader
 
