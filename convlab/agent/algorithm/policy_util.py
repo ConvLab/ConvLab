@@ -187,7 +187,7 @@ def rule_guide_epsilon_greedy(state, algorithm, body):
 
 
 def rule_guide_default(state, algorithm, body):
-    action, action_pd = default(state, algorithm, body)
+    action = default(state, algorithm, body)
 
     if body.env.clock.epi < algorithm.rule_guide_max_epi and \
         body.env.clock.epi % algorithm.rule_guide_frequency == 0: 
