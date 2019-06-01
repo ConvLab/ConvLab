@@ -111,7 +111,7 @@ class MultiwozTemplateNLG(NLG):
 
     def _postprocess(self,sen):
         sen = sen.strip().capitalize()
-        if sen[-1] != '?' and sen[-1] != '.':
+        if len(sen) > 0 and sen[-1] != '?' and sen[-1] != '.':
             sen += '.'
         sen += ' '
         return sen
