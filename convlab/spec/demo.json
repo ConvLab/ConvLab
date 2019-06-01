@@ -153,10 +153,10 @@
         "rule_guide_frequency": 3,
         "explore_var_spec": {
           "name": "linear_decay",
-          "start_val": 0.0,
-          "end_val": 0.0,
-          "start_step": 0,
-          "end_step": 800,
+          "start_val": 0.1,
+          "end_val": 0.05,
+          "start_step": 1000,
+          "end_step": 50000
         },
         "gamma": 0.9,
         "training_batch_iter": 1000,
@@ -168,7 +168,7 @@
       "memory": {
         "name": "Replay",
         "batch_size": 16,
-        "max_size": 10000,
+        "max_size": 50000,
         "use_cer": false 
       },
       "net": {
@@ -199,7 +199,7 @@
       "action_dim": 300,
       "observation_dim": 393,
       "max_t": 40,
-      "max_frame": 5000,
+      "max_frame": 50000,
       "nlu": {
         "name": "OneNetLU",
         "model_file": "https://convlab.blob.core.windows.net/models/onenet.tar.gz"
