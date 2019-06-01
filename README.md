@@ -53,7 +53,7 @@ $ python run.py demo.json onenet_rule_rule_template eval
 $ python run.py demo.json onenet_rule_dqn_template train
 
 # to use the policy trained above
-$ python run.py output/onenet_rule_dqn_template_{timestamp}/onenet_rule_dqn_template_spec.json onenet_rule_dqn_template enjoy@onenet_rule_dqn_template_t0_s0
+$ python run.py output/onenet_rule_dqn_template_{timestamp}/onenet_rule_dqn_template_spec.json onenet_rule_dqn_template eval@onenet_rule_dqn_template_t0_s0
 ```
 
 ## Creating a new spec file
