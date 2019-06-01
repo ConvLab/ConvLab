@@ -154,7 +154,10 @@ class MultiwozTemplateNLG(NLG):
                         sentence = random.choice(template[dialog_act][slot])
                         sentence = sentence.replace('#{}-{}#'.format(dialog_act.upper(), slot.upper()), str(value))
                     else:
-                        sentence = 'The {} is {} . '.format(slot2word[slot], str(value))
+                        if slot in slot2word:
+                            sentence = 'The {} is {} . '.format(slot2word[slot], str(value))
+                        else:
+                            sentence = ''
                     sentence = self._postprocess(sentence)
                     sentences += sentence
         return sentences.strip()
