@@ -2,8 +2,6 @@ from collections import deque
 from contextlib import contextmanager
 from datetime import datetime
 from importlib import reload
-from convlab import ROOT_DIR, EVAL_MODES
-# import cv2
 import json
 import numpy as np
 import operator
@@ -18,6 +16,11 @@ import torch
 import torch.multiprocessing as mp
 import ujson
 import yaml
+import pickle
+from pprint import pformat
+
+from convlab import ROOT_DIR, EVAL_MODES
+
 
 NUM_CPUS = mp.cpu_count()
 FILE_TS_FORMAT = '%Y_%m_%d_%H%M%S'
