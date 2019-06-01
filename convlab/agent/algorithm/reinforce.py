@@ -54,6 +54,8 @@ class Reinforce(Algorithm):
         util.set_attr(self, self.algorithm_spec, [
             'action_pdtype',
             'action_policy',
+            'rule_guide_max_epi', 
+            'rule_guide_frequency',
             # theoretically, REINFORCE does not have policy update; but in this implementation we have such option
             'explore_var_spec',
             'gamma',  # the discount factor
