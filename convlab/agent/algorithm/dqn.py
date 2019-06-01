@@ -61,6 +61,8 @@ class VanillaDQN(SARSA):
         util.set_attr(self, self.algorithm_spec, [
             'action_pdtype',
             'action_policy',
+            'rule_guide_max_epi',
+            'rule_guide_frequency',
             # explore_var is epsilon, tau or etc. depending on the action policy
             # these control the trade off between exploration and exploitaton
             'explore_var_spec',

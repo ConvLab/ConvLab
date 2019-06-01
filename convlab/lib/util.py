@@ -21,6 +21,7 @@ import torch.multiprocessing as mp
 import ujson
 import yaml
 
+from pathlib import Path
 from allennlp.common.file_utils import cached_path as allennlp_cached_path
 
 ROOT_DIR = os.path.normpath(os.path.join(os.path.dirname(__file__), '..'))
@@ -216,7 +217,7 @@ def get_lab_mode():
 def get_prepath(spec, unit='experiment'):
     spec_name = spec['name']
     meta_spec = spec['meta']
-    predir = f'data/{spec_name}_{meta_spec["experiment_ts"]}'
+    predir = f'output/{spec_name}_{meta_spec["experiment_ts"]}'
     prename = f'{spec_name}'
     trial_index = meta_spec['trial']
     session_index = meta_spec['session']
@@ -316,8 +317,8 @@ def parallelize(fn, args, num_cpus=NUM_CPUS):
 def prepath_split(prepath):
     '''
     Split prepath into useful names. Works with predir (prename will be None)
-    prepath: data/dqn_pong_2018_12_02_082510/dqn_pong_t0_s0
-    predir: data/dqn_pong_2018_12_02_082510
+    prepath: output/dqn_pong_2018_12_02_082510/dqn_pong_t0_s0
+    predir: output/dqn_pong_2018_12_02_082510
     prefolder: dqn_pong_2018_12_02_082510
     prename: dqn_pong_t0_s0
     spec_name: dqn_pong
@@ -325,7 +326,7 @@ def prepath_split(prepath):
     ckpt: ckpt-best of dqn_pong_t0_s0_ckpt-best if available
     '''
     prepath = prepath.strip('_')
-    tail = prepath.split('data/')[-1]
+    tail = prepath.split('output/')[-1]
     ckpt = find_ckpt(tail)
     if ckpt is not None:  # separate ckpt
         tail = tail.replace(f'_ckpt-{ckpt}', '')
@@ -333,7 +334,7 @@ def prepath_split(prepath):
         prefolder, prename = tail.split('/', 1)
     else:
         prefolder, prename = tail, None
-    predir = f'data/{prefolder}'
+    predir = f'output/{prefolder}'
     spec_name = RE_FILE_TS.sub('', prefolder).strip('_')
     experiment_ts = RE_FILE_TS.findall(prefolder)[0]
     return predir, prefolder, prename, spec_name, experiment_ts, ckpt
@@ -361,7 +362,7 @@ def prepath_to_idxs(prepath):
 def prepath_to_spec(prepath):
     '''
     Given a prepath, read the correct spec recover the meta_spec that will return the same prepath for eval lab modes
-    example: data/a2c_cartpole_2018_06_13_220436/a2c_cartpole_t0_s0
+    example: output/a2c_cartpole_2018_06_13_220436/a2c_cartpole_t0_s0
     '''
     predir, _, prename, _, experiment_ts, ckpt = prepath_split(prepath)
     sidx_res = re.search('_s\d+', prename)
@@ -742,6 +743,7 @@ def debug_image(im):
         im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
     cv2.imshow('debug image', im)
     cv2.waitKey(0)
+
 
 def cached_path(file_path, cached_dir=None):
     if not cached_dir:
