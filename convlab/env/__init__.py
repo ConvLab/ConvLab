@@ -7,7 +7,8 @@ Contains graduated components from experiments for building/using environment.
 Provides the rich experience for agent embodiment, reflects the curriculum and allows teaching (possibly allows teacher to enter).
 To be designed by human and evolution module, based on the curriculum and fitness metrics.
 '''
-from convlab.env.base import Clock, ENV_DATA_NAMES
+# from convlab.env.base import Clock, ENV_DATA_NAMES
+from convlab.env.base import Clock 
 from convlab.lib import logger, util
 from convlab.lib.decorator import lab_api
 import pydash as ps
@@ -16,13 +17,13 @@ import pydash as ps
 logger = logger.get_logger(__name__)
 
 
-def make_env(spec, e=None, env_space=None):
+def make_env(spec, e=None):
     if spec['env'][0]['name'] == 'movie':
         from convlab.env.movie import MovieEnv
-        env = MovieEnv(spec, e, env_space)
+        env = MovieEnv(spec, e)
     elif spec['env'][0]['name'] == 'multiwoz':
         from convlab.env.multiwoz import MultiWozEnv
-        env = MultiWozEnv(spec, e, env_space)
+        env = MultiWozEnv(spec, e)
 
     return env
 
