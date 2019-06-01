@@ -52,7 +52,7 @@ $ python run.py demo.json onenet_rule_rule_template eval
 # to train a DQN policy with NLU(OneNet), DST(Rule), NLG(Template) on the MultiWOZ environment
 $ python run.py demo.json onenet_rule_dqn_template train
 
-# to use the policy pretrained above
+# to use the policy trained above
 $ python run.py output/onenet_rule_dqn_template_{timestamp}/onenet_rule_dqn_template_spec.json onenet_rule_dqn_template enjoy@onenet_rule_dqn_template_t0_s0
 ```
 
