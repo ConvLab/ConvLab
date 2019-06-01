@@ -735,17 +735,9 @@ def debug_image(im):
     cv2.waitKey(0)
 
 
-<<<<<<< HEAD
-def cached_path(file_path, cached_dir=None):
-    if not cached_dir:
-        cached_dir = str(Path(Path.home() / '.convlab') / "cache")
-
-    return allennlp_cached_path(file_path, cached_dir)
-=======
 def mpl_debug_image(im):
     '''Uses matplotlib to plot image with bigger size, axes, and false color on greyscaled images'''
     import matplotlib.pyplot as plt
     plt.figure()
     plt.imshow(im)
     plt.show()
->>>>>>> 20e6125f284f5a06167a138cb8459ba09ec65f02
