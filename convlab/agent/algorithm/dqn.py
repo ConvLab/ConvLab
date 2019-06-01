@@ -61,6 +61,8 @@ class VanillaDQN(SARSA):
         util.set_attr(self, self.algorithm_spec, [
             'action_pdtype',
             'action_policy',
+            'rule_guide_max_epi',
+            "rule_guide_frequency",
             # explore_var is epsilon, tau or etc. depending on the action policy
             # these control the trade off between exploration and exploitaton
             'explore_var_spec',
@@ -134,10 +136,15 @@ class VanillaDQN(SARSA):
         clock = self.body.env.clock
         if self.to_train == 1:
             total_loss = torch.tensor(0.0)
+            # for _ in range(self.training_iter):
+            #     batch = self.sample()
+            #     clock.set_batch_size(len(batch))
+            #     for _ in range(self.training_batch_iter):
+            num_batches = int(self.body.memory.size / self.body.memory.batch_size)
             for _ in range(self.training_iter):
-                batch = self.sample()
-                clock.set_batch_size(len(batch))
-                for _ in range(self.training_batch_iter):
+                # clock.set_batch_size(len(batch))
+                for _ in range(min(self.training_batch_iter, num_batches)):
+                    batch = self.sample()
                     loss = self.calc_q_loss(batch)
                     self.net.train_step(loss, self.optim, self.lr_scheduler, clock=clock, global_net=self.global_net)
                     total_loss += loss

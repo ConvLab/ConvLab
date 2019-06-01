@@ -177,50 +177,50 @@ def calc_trial_metrics(session_metrics_list, info_prepath=None):
     @returns dict:metrics Consists of scalar metrics and series local metrics
     '''
     # calculate mean of session metrics
-    scalar_list = [sm['scalar'] for sm in session_metrics_list]
-    mean_scalar = pd.DataFrame(scalar_list).mean().to_dict()
+    # scalar_list = [sm['scalar'] for sm in session_metrics_list]
+    # mean_scalar = pd.DataFrame(scalar_list).mean().to_dict()
 
-    local_strs_list = [sm['local']['strengths'] for sm in session_metrics_list]
-    local_se_list = [sm['local']['sample_efficiencies'] for sm in session_metrics_list]
-    local_te_list = [sm['local']['training_efficiencies'] for sm in session_metrics_list]
-    local_sta_list = [sm['local']['stabilities'] for sm in session_metrics_list]
+    # local_strs_list = [sm['local']['strengths'] for sm in session_metrics_list]
+    # local_se_list = [sm['local']['sample_efficiencies'] for sm in session_metrics_list]
+    # local_te_list = [sm['local']['training_efficiencies'] for sm in session_metrics_list]
+    # local_sta_list = [sm['local']['stabilities'] for sm in session_metrics_list]
     mean_returns_list = [sm['local']['mean_returns'] for sm in session_metrics_list]
     frames = session_metrics_list[0]['local']['frames']
     opt_steps = session_metrics_list[0]['local']['opt_steps']
     # calculate consistency
-    con, local_cons = calc_consistency(local_strs_list)
+    # con, local_cons = calc_consistency(local_strs_list)
 
     # all the scalar trial metrics
-    scalar = {
-        'strength': mean_scalar['strength'],
-        'max_strength': mean_scalar['max_strength'],
-        'final_strength': mean_scalar['final_strength'],
-        'sample_efficiency': mean_scalar['sample_efficiency'],
-        'training_efficiency': mean_scalar['training_efficiency'],
-        'stability': mean_scalar['stability'],
-        'consistency': con,
-    }
-    assert set(scalar.keys()) == set(METRICS_COLS)
+    # scalar = {
+    #     'strength': mean_scalar['strength'],
+    #     'max_strength': mean_scalar['max_strength'],
+    #     'final_strength': mean_scalar['final_strength'],
+    #     'sample_efficiency': mean_scalar['sample_efficiency'],
+    #     'training_efficiency': mean_scalar['training_efficiency'],
+    #     'stability': mean_scalar['stability'],
+    #     'consistency': con,
+    # }
+    # assert set(scalar.keys()) == set(METRICS_COLS)
     # for plotting: gather all local series of sessions
     local = {
-        'strengths': local_strs_list,
-        'sample_efficiencies': local_se_list,
-        'training_efficiencies': local_te_list,
-        'stabilities': local_sta_list,
-        'consistencies': local_cons,  # this is a list
+        # 'strengths': local_strs_list,
+        # 'sample_efficiencies': local_se_list,
+        # 'training_efficiencies': local_te_list,
+        # 'stabilities': local_sta_list,
+        # 'consistencies': local_cons,  # this is a list
         'mean_returns': mean_returns_list,
         'frames': frames,
         'opt_steps': opt_steps,
     }
     metrics = {
-        'scalar': scalar,
+        # 'scalar': scalar,
         'local': local,
     }
     if info_prepath is not None:  # auto-save if info_prepath is given
         util.write(metrics, f'{info_prepath}_trial_metrics.pkl')
-        util.write(scalar, f'{info_prepath}_trial_metrics_scalar.json')
+        # util.write(scalar, f'{info_prepath}_trial_metrics_scalar.json')
         # save important metrics in info_prepath directly
-        util.write(scalar, f'{info_prepath.replace("info/", "")}_trial_metrics_scalar.json')
+        # util.write(scalar, f'{info_prepath.replace("info/", "")}_trial_metrics_scalar.json')
     return metrics
 
 

@@ -262,6 +262,6 @@ def tick(spec, unit):
     meta_spec['prepath'] = prepath = util.get_prepath(spec, unit)
     for folder in ('graph', 'info', 'log', 'model'):
         folder_prepath = util.insert_folder(prepath, folder)
-        os.makedirs(os.path.dirname(folder_prepath), exist_ok=True)
+        os.makedirs(os.path.dirname(util.smart_path(folder_prepath)), exist_ok=True)
         meta_spec[f'{folder}_prepath'] = folder_prepath
     return spec

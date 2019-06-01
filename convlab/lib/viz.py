@@ -138,7 +138,6 @@ def plot_session(session_spec, session_metrics, session_df, df_mode='eval'):
         # ('stabilities', 'frames')
     ]
     for name, time in name_time_pairs:
-        print(local_metrics[name], local_metrics[time])
         fig = plot_sr(
             local_metrics[name], local_metrics[time], title, name, time)
         save_image(fig, f'{graph_prepath}_session_graph_{df_mode}_{name}_vs_{time}.png')

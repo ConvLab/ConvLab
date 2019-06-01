@@ -81,10 +81,10 @@ class Session:
                 agent.save(ckpt='best')
             if len(body.train_df) > 1:  # need > 1 row to calculate stability
                 metrics = analysis.analyze_session(self.spec, body.train_df, 'train')
-                body.log_metrics(metrics['scalar'], 'train')
+                # body.log_metrics(metrics['scalar'], 'train')
             if len(body.eval_df) > 1:  # need > 1 row to calculate stability
                 metrics = analysis.analyze_session(self.spec, body.eval_df, 'eval')
-                body.log_metrics(metrics['scalar'], 'eval')
+                # body.log_metrics(metrics['scalar'], 'eval')
 
     def run_eval(self):
         returns = []
@@ -115,6 +115,7 @@ class Session:
                 # logger.info(f'A dialog session is done')
                 logger.nl(f'A dialog session is done')
                 self.try_ckpt(self.agent, self.env)
+                t =  clock.get()
                 if clock.get() < clock.max_frame:  # reset and continue
                     clock.tick('epi')
                     obs = self.env.reset()
@@ -163,14 +164,16 @@ class Trial:
 
     def parallelize_sessions(self, global_nets=None):
         mp_dict = mp.Manager().dict()
-        workers = []
-        for _s in range(self.spec['meta']['max_session']):
-            spec_util.tick(self.spec, 'session')
-            w = mp.Process(target=mp_run_session, args=(deepcopy(self.spec), global_nets, mp_dict))
-            w.start()
-            workers.append(w)
-        for w in workers:
-            w.join()
+        spec_util.tick(self.spec, 'session')
+        mp_run_session(deepcopy(self.spec), global_nets, mp_dict)
+        # workers = []
+        # for _s in range(self.spec['meta']['max_session']):
+        #     spec_util.tick(self.spec, 'session')
+        #     w = mp.Process(target=mp_run_session, args=(deepcopy(self.spec), global_nets, mp_dict))
+        #     w.start()
+        #     workers.append(w)
+        # for w in workers:
+        #     w.join()
         session_metrics_list = [mp_dict[idx] for idx in sorted(mp_dict.keys())]
         return session_metrics_list
 
@@ -201,7 +204,8 @@ class Trial:
             session_metrics_list = self.run_distributed_sessions()
         metrics = analysis.analyze_trial(self.spec, session_metrics_list)
         self.close()
-        return metrics['scalar']
+        # return metrics['scalar']
+        return metrics
 
 
 class Experiment:

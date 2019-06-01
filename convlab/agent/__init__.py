@@ -170,7 +170,7 @@ class DialogAgent(Agent):
         if util.in_eval_lab_modes() or self.algorithm.__class__.__name__ == 'ExternalPolicy':  # eval does not update agent for training
             self.body.state, self.body.encoded_state = next_state, encoded_state
             return
-        self.body.memory.update(self.body.state, action, reward, next_state, done)
+        self.body.memory.update(self.body.encoded_state, self.body.action, reward, encoded_state, done)
         self.body.state, self.body.encoded_state = next_state, encoded_state
         loss = self.algorithm.train()
         if not np.isnan(loss):  # set for log_summary()
