@@ -1,10 +1,5 @@
-# Modified by Microsoft Corporation.
-# Licensed under the MIT license.
-
-'''
-The random agent algorithm
-For basic dev purpose.
-'''
+# The random agent algorithm
+# For basic dev purpose
 from convlab.agent.algorithm.base import Algorithm
 from convlab.lib import logger
 from convlab.lib.decorator import lab_api
@@ -23,16 +18,21 @@ class Random(Algorithm):
         '''Initialize other algorithm parameters'''
         self.to_train = 0
         self.training_frequency = 1
+        self.training_start_step = 0
 
     @lab_api
     def init_nets(self, global_nets=None):
         '''Initialize the neural network from the spec'''
-        pass
+        self.net_names = []
 
     @lab_api
     def act(self, state):
         '''Random action'''
-        action = self.body.action_space.sample()
+        body = self.body
+        if body.env.is_venv and not util.in_eval_lab_modes():
+            action = np.array([body.action_space.sample() for _ in range(body.env.num_envs)])
+        else:
+            action = body.action_space.sample()
         return action
 
     @lab_api
@@ -44,6 +44,7 @@ class Random(Algorithm):
     @lab_api
     def train(self):
         self.sample()
+        self.body.env.clock.tick('opt_step')  # to simulate metrics calc
         loss = np.nan
         return loss
 

@@ -1,15 +1,9 @@
-# Modified by Microsoft Corporation.
-# Licensed under the MIT license.
-
 from convlab.agent.net import net_util
 from convlab.agent.net.base import Net
-from convlab.lib import logger, math_util, util
-import numpy as np
+from convlab.lib import math_util, util
 import pydash as ps
 import torch
 import torch.nn as nn
-
-logger = logger.get_logger(__name__)
 
 
 class ConvNet(Net, nn.Module):
@@ -34,7 +28,9 @@ class ConvNet(Net, nn.Module):
         ],
         "fc_hid_layers": [512],
         "hid_layers_activation": "relu",
+        "out_layer_activation": "tanh",
         "init_fn": null,
+        "normalize": false,
         "batch_norm": false,
         "clip_grad_val": 1.0,
         "loss_spec": {
@@ -59,12 +55,15 @@ class ConvNet(Net, nn.Module):
     def __init__(self, net_spec, in_dim, out_dim):
         '''
         net_spec:
-        conv_hid_layers: list containing dimensions of the convolutional hidden layers. Asssumed to all come before the flat layers.
+        conv_hid_layers: list containing dimensions of the convolutional hidden layers, each is a list representing hid_layer = out_d, kernel, stride, padding, dilation.
+            Asssumed to all come before the flat layers.
             Note: a convolutional layer should specify the in_channel, out_channels, kernel_size, stride (of kernel steps), padding, and dilation (spacing between kernel points) E.g. [3, 16, (5, 5), 1, 0, (2, 2)]
             For more details, see http://pytorch.org/docs/master/nn.html#conv2d and https://github.com/vdumoulin/conv_arithmetic/blob/master/README.md
         fc_hid_layers: list of fc layers following the convolutional layers
         hid_layers_activation: activation function for the hidden layers
+        out_layer_activation: activation function for the output layer, same shape as out_dim
         init_fn: weight initialization function
+        normalize: whether to divide by 255.0 to normalize image input
         batch_norm: whether to add batch normalization after each convolutional layer, excluding the input layer.
         clip_grad_val: clip gradient norm if value is not None
         loss_spec: measure of error between model predictions and correct outputs
@@ -77,10 +76,12 @@ class ConvNet(Net, nn.Module):
         '''
         assert len(in_dim) == 3  # image shape (c,w,h)
         nn.Module.__init__(self)
-        super(ConvNet, self).__init__(net_spec, in_dim, out_dim)
+        super().__init__(net_spec, in_dim, out_dim)
         # set default
         util.set_attr(self, dict(
+            out_layer_activation=None,
             init_fn=None,
+            normalize=False,
             batch_norm=True,
             clip_grad_val=None,
             loss_spec={'name': 'MSELoss'},
@@ -95,7 +96,9 @@ class ConvNet(Net, nn.Module):
             'conv_hid_layers',
             'fc_hid_layers',
             'hid_layers_activation',
+            'out_layer_activation',
             'init_fn',
+            'normalize',
             'batch_norm',
             'clip_grad_val',
             'loss_spec',
@@ -107,33 +110,35 @@ class ConvNet(Net, nn.Module):
             'gpu',
         ])
 
-        # conv layer
+        # conv body
         self.conv_model = self.build_conv_layers(self.conv_hid_layers)
         self.conv_out_dim = self.get_conv_output_size()
 
-        # fc layer
-        if not ps.is_empty(self.fc_hid_layers):
-            # fc layer from flattened conv
-            self.fc_model = self.build_fc_layers(self.fc_hid_layers)
-            tail_in_dim = self.fc_hid_layers[-1]
-        else:
+        # fc body
+        if ps.is_empty(self.fc_hid_layers):
             tail_in_dim = self.conv_out_dim
+        else:
+            # fc body from flattened conv
+            self.fc_model = net_util.build_fc_model([self.conv_out_dim] + self.fc_hid_layers, self.hid_layers_activation)
+            tail_in_dim = self.fc_hid_layers[-1]
 
         # tails. avoid list for single-tail for compute speed
         if ps.is_integer(self.out_dim):
-            self.model_tail = nn.Linear(tail_in_dim, self.out_dim)
+            self.model_tail = net_util.build_fc_model([tail_in_dim, self.out_dim], self.out_layer_activation)
         else:
-            self.model_tails = nn.ModuleList([nn.Linear(tail_in_dim, out_d) for out_d in self.out_dim])
+            if not ps.is_list(self.out_layer_activation):
+                self.out_layer_activation = [self.out_layer_activation] * len(out_dim)
+            assert len(self.out_layer_activation) == len(self.out_dim)
+            tails = []
+            for out_d, out_activ in zip(self.out_dim, self.out_layer_activation):
+                tail = net_util.build_fc_model([tail_in_dim, out_d], out_activ)
+                tails.append(tail)
+            self.model_tails = nn.ModuleList(tails)
 
         net_util.init_layers(self, self.init_fn)
-        for module in self.modules():
-            module.to(self.device)
         self.loss_fn = net_util.get_loss_fn(self, self.loss_spec)
-        self.optim = net_util.get_optim(self, self.optim_spec)
-        self.lr_scheduler = net_util.get_lr_scheduler(self, self.lr_scheduler_spec)
-
-    def __str__(self):
-        return super(ConvNet, self).__str__() + f'\noptim: {self.optim}'
+        self.to(self.device)
+        self.train()
 
     def get_conv_output_size(self):
         '''Helper function to calculate the size of the flattened features after the final convolutional layer'''
@@ -152,7 +157,8 @@ class ConvNet(Net, nn.Module):
             hid_layer = [tuple(e) if ps.is_list(e) else e for e in hid_layer]  # guard list-to-tuple
             # hid_layer = out_d, kernel, stride, padding, dilation
             conv_layers.append(nn.Conv2d(in_d, *hid_layer))
-            conv_layers.append(net_util.get_activation_fn(self.hid_layers_activation))
+            if self.hid_layers_activation is not None:
+                conv_layers.append(net_util.get_activation_fn(self.hid_layers_activation))
             # Don't include batch norm in the first layer
             if self.batch_norm and i != 0:
                 conv_layers.append(nn.BatchNorm2d(in_d))
@@ -160,20 +166,13 @@ class ConvNet(Net, nn.Module):
         conv_model = nn.Sequential(*conv_layers)
         return conv_model
 
-    def build_fc_layers(self, fc_hid_layers):
-        '''
-        Builds all of the fc layers in the network and store in a Sequential model
-        '''
-        assert not ps.is_empty(fc_hid_layers)
-        dims = [self.conv_out_dim] + fc_hid_layers
-        fc_model = net_util.build_sequential(dims, self.hid_layers_activation)
-        return fc_model
-
     def forward(self, x):
         '''
         The feedforward step
-        Note that PyTorch takes (c,w,h) but gym provides (w,h,c), so preprocessing must be done before passing to network
+        Note that PyTorch takes (c,h,w) but gym provides (h,w,c), so preprocessing must be done before passing to network
         '''
+        if self.normalize:
+            x = x / 255.0
         x = self.conv_model(x)
         x = x.view(x.size(0), -1)  # to (batch_size, -1)
         if hasattr(self, 'fc_model'):
@@ -186,36 +185,6 @@ class ConvNet(Net, nn.Module):
             return outs
         else:
             return self.model_tail(x)
-
-    def training_step(self, x=None, y=None, loss=None, retain_graph=False, lr_clock=None):
-        '''Takes a single training step: one forward and one backwards pass'''
-        if hasattr(self, 'model_tails') and x is not None:
-            raise ValueError('Loss computation from x,y not supported for multitails')
-        self.lr_scheduler.step(epoch=ps.get(lr_clock, 'total_t'))
-        self.train()
-        self.optim.zero_grad()
-        if loss is None:
-            out = self(x)
-            loss = self.loss_fn(out, y)
-        assert not torch.isnan(loss).any(), loss
-        if net_util.to_assert_trained():
-            assert_trained = net_util.gen_assert_trained(self)
-        loss.backward(retain_graph=retain_graph)
-        if self.clip_grad_val is not None:
-            nn.utils.clip_grad_norm_(self.parameters(), self.clip_grad_val)
-        self.optim.step()
-        if net_util.to_assert_trained():
-            assert_trained(self, loss)
-            self.store_grad_norms()
-        logger.debug(f'Net training_step loss: {loss}')
-        return loss
-
-    def wrap_eval(self, x):
-        '''
-        Completes one feedforward step, ensuring net is set to evaluation model returns: network output given input x
-        '''
-        self.eval()
-        return self(x)
 
 
 class DuelingConvNet(ConvNet):
@@ -242,6 +211,7 @@ class DuelingConvNet(ConvNet):
         "fc_hid_layers": [512],
         "hid_layers_activation": "relu",
         "init_fn": "xavier_uniform_",
+        "normalize": false,
         "batch_norm": false,
         "clip_grad_val": 1.0,
         "loss_spec": {
@@ -270,6 +240,7 @@ class DuelingConvNet(ConvNet):
         # set default
         util.set_attr(self, dict(
             init_fn=None,
+            normalize=False,
             batch_norm=False,
             clip_grad_val=None,
             loss_spec={'name': 'MSELoss'},
@@ -285,6 +256,7 @@ class DuelingConvNet(ConvNet):
             'fc_hid_layers',
             'hid_layers_activation',
             'init_fn',
+            'normalize',
             'batch_norm',
             'clip_grad_val',
             'loss_spec',
@@ -299,31 +271,32 @@ class DuelingConvNet(ConvNet):
         # Guard against inappropriate algorithms and environments
         assert isinstance(out_dim, int)
 
-        # conv layer
+        # conv body
         self.conv_model = self.build_conv_layers(self.conv_hid_layers)
         self.conv_out_dim = self.get_conv_output_size()
 
-        # fc layer
-        if not ps.is_empty(self.fc_hid_layers):
-            # fc layer from flattened conv
-            self.fc_model = self.build_fc_layers(self.fc_hid_layers)
-            tail_in_dim = self.fc_hid_layers[-1]
-        else:
+        # fc body
+        if ps.is_empty(self.fc_hid_layers):
             tail_in_dim = self.conv_out_dim
+        else:
+            # fc layer from flattened conv
+            self.fc_model = net_util.build_fc_model([self.conv_out_dim] + self.fc_hid_layers, self.hid_layers_activation)
+            tail_in_dim = self.fc_hid_layers[-1]
 
         # tails. avoid list for single-tail for compute speed
         self.v = nn.Linear(tail_in_dim, 1)  # state value
-        self.adv = nn.Linear(tail_in_dim, out_dim[0])  # action dependent raw advantage
+        self.adv = nn.Linear(tail_in_dim, out_dim)  # action dependent raw advantage
+        self.model_tails = nn.ModuleList(self.v, self.adv)
 
         net_util.init_layers(self, self.init_fn)
-        for module in self.modules():
-            module.to(self.device)
         self.loss_fn = net_util.get_loss_fn(self, self.loss_spec)
-        self.optim = net_util.get_optim(self, self.optim_spec)
-        self.lr_scheduler = net_util.get_lr_scheduler(self, self.lr_scheduler_spec)
+        self.to(self.device)
+        self.train()
 
     def forward(self, x):
         '''The feedforward step'''
+        if self.normalize:
+            x = x / 255.0
         x = self.conv_model(x)
         x = x.view(x.size(0), -1)  # to (batch_size, -1)
         if hasattr(self, 'fc_model'):

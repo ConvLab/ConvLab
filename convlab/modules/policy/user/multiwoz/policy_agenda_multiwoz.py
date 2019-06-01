@@ -84,6 +84,10 @@ class UserPolicyAgendaMultiWoz(UserPolicy):
         """
         self.__turn += 2
 
+        # At the beginning of a dialog when there is no NLU.
+        if sys_action == "null":
+            sys_action = {}
+
         if self.__turn > self.max_turn:
             self.agenda.close_session()
         else:

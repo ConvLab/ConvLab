@@ -64,7 +64,7 @@ class RuleBasedMultiwozBot(SysPolicy):
 
         DA = {}
 
-        if(len(state['user_action']) > 0):
+        if 'user_action' in state and (len(state['user_action']) > 0):
             user_action = state['user_action']
         else:
             user_action = check_diff(self.last_state, state)
