@@ -1,7 +1,2 @@
-# Modified by Microsoft Corporation.
-# Licensed under the MIT license.
-
-'''
-The experiment module
-Handles experimentation logic: control, design, monitoring, analysis, evolution
-'''
+# The experiment module
+# Handles experimentation logic: control, analysis

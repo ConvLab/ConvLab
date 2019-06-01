@@ -94,3 +94,5 @@ output
 # log
 *.log
 
+# data
+convlab/data

@@ -1,15 +1,8 @@
-# Modified by Microsoft Corporation.
-# Licensed under the MIT license.
-
 from convlab.agent.net import net_util
 from convlab.agent.net.base import Net
-from convlab.lib import logger, util
-import numpy as np
+from convlab.lib import util
 import pydash as ps
-import torch
 import torch.nn as nn
-
-logger = logger.get_logger(__name__)
 
 
 class RecurrentNet(Net, nn.Module):
@@ -30,6 +23,7 @@ class RecurrentNet(Net, nn.Module):
         "cell_type": "GRU",
         "fc_hid_layers": [],
         "hid_layers_activation": "relu",
+        "out_layer_activation": null,
         "rnn_hidden_size": 32,
         "rnn_num_layers": 1,
         "bidirectional": False,
@@ -61,6 +55,7 @@ class RecurrentNet(Net, nn.Module):
         cell_type: any of RNN, LSTM, GRU
         fc_hid_layers: list of fc layers preceeding the RNN layers
         hid_layers_activation: activation function for the fc hidden layers
+        out_layer_activation: activation function for the output layer, same shape as out_dim
         rnn_hidden_size: rnn hidden_size
         rnn_num_layers: number of recurrent layers
         bidirectional: if RNN should be bidirectional
@@ -76,9 +71,10 @@ class RecurrentNet(Net, nn.Module):
         gpu: whether to train using a GPU. Note this will only work if a GPU is available, othewise setting gpu=True does nothing
         '''
         nn.Module.__init__(self)
-        super(RecurrentNet, self).__init__(net_spec, in_dim, out_dim)
+        super().__init__(net_spec, in_dim, out_dim)
         # set default
         util.set_attr(self, dict(
+            out_layer_activation=None,
             cell_type='GRU',
             rnn_num_layers=1,
             bidirectional=False,
@@ -96,6 +92,7 @@ class RecurrentNet(Net, nn.Module):
             'cell_type',
             'fc_hid_layers',
             'hid_layers_activation',
+            'out_layer_activation',
             'rnn_hidden_size',
             'rnn_num_layers',
             'bidirectional',
@@ -110,16 +107,18 @@ class RecurrentNet(Net, nn.Module):
             'polyak_coef',
             'gpu',
         ])
-        # fc layer: state processing model
-        if not ps.is_empty(self.fc_hid_layers):
-            fc_dims = [self.in_dim] + self.fc_hid_layers
-            self.fc_model = net_util.build_sequential(fc_dims, self.hid_layers_activation)
-            self.rnn_input_dim = fc_dims[-1]
-        else:
+        # restore proper in_dim from env stacked state_dim (stack_len, *raw_state_dim)
+        self.in_dim = in_dim[1:] if len(in_dim) > 2 else in_dim[1]
+        # fc body: state processing model
+        if ps.is_empty(self.fc_hid_layers):
             self.rnn_input_dim = self.in_dim
+        else:
+            fc_dims = [self.in_dim] + self.fc_hid_layers
+            self.fc_model = net_util.build_fc_model(fc_dims, self.hid_layers_activation)
+            self.rnn_input_dim = fc_dims[-1]
 
         # RNN model
-        self.rnn_model = getattr(nn, self.cell_type)(
+        self.rnn_model = getattr(nn, net_util.get_nn_name(self.cell_type))(
             input_size=self.rnn_input_dim,
             hidden_size=self.rnn_hidden_size,
             num_layers=self.rnn_num_layers,
@@ -127,19 +126,21 @@ class RecurrentNet(Net, nn.Module):
 
         # tails. avoid list for single-tail for compute speed
         if ps.is_integer(self.out_dim):
-            self.model_tail = nn.Linear(self.rnn_hidden_size, self.out_dim)
+            self.model_tail = net_util.build_fc_model([self.rnn_hidden_size, self.out_dim], self.out_layer_activation)
         else:
-            self.model_tails = nn.ModuleList([nn.Linear(self.rnn_hidden_size, out_d) for out_d in self.out_dim])
+            if not ps.is_list(self.out_layer_activation):
+                self.out_layer_activation = [self.out_layer_activation] * len(out_dim)
+            assert len(self.out_layer_activation) == len(self.out_dim)
+            tails = []
+            for out_d, out_activ in zip(self.out_dim, self.out_layer_activation):
+                tail = net_util.build_fc_model([self.rnn_hidden_size, out_d], out_activ)
+                tails.append(tail)
+            self.model_tails = nn.ModuleList(tails)
 
         net_util.init_layers(self, self.init_fn)
-        for module in self.modules():
-            module.to(self.device)
         self.loss_fn = net_util.get_loss_fn(self, self.loss_spec)
-        self.optim = net_util.get_optim(self, self.optim_spec)
-        self.lr_scheduler = net_util.get_lr_scheduler(self, self.lr_scheduler_spec)
-
-    def __str__(self):
-        return super(RecurrentNet, self).__str__() + f'\noptim: {self.optim}'
+        self.to(self.device)
+        self.train()
 
     def forward(self, x):
         '''The feedforward step. Input is batch_size x seq_len x state_dim'''
@@ -163,33 +164,3 @@ class RecurrentNet(Net, nn.Module):
             return outs
         else:
             return self.model_tail(hid_x)
-
-    def training_step(self, x=None, y=None, loss=None, retain_graph=False, lr_clock=None):
-        '''Takes a single training step: one forward and one backwards pass'''
-        if hasattr(self, 'model_tails') and x is not None:
-            raise ValueError('Loss computation from x,y not supported for multitails')
-        self.lr_scheduler.step(epoch=ps.get(lr_clock, 'total_t'))
-        self.train()
-        self.optim.zero_grad()
-        if loss is None:
-            out = self(x)
-            loss = self.loss_fn(out, y)
-        assert not torch.isnan(loss).any(), loss
-        if net_util.to_assert_trained():
-            assert_trained = net_util.gen_assert_trained(self)
-        loss.backward(retain_graph=retain_graph)
-        if self.clip_grad_val is not None:
-            nn.utils.clip_grad_norm_(self.parameters(), self.clip_grad_val)
-        self.optim.step()
-        if net_util.to_assert_trained():
-            assert_trained(self, loss)
-            self.store_grad_norms()
-        logger.debug(f'Net training_step loss: {loss}')
-        return loss
-
-    def wrap_eval(self, x):
-        '''
-        Completes one feedforward step, ensuring net is set to evaluation model returns: network output given input x
-        '''
-        self.eval()
-        return self(x)
