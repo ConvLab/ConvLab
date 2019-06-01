@@ -197,9 +197,9 @@ def override_dev_spec(spec):
     return spec
 
 
-def override_enjoy_spec(spec):
-    spec['meta']['max_session'] = 1
-    return spec
+#def override_enjoy_spec(spec):
+#    spec['meta']['max_session'] = 1
+#    return spec
 
 
 def override_eval_spec(spec):
