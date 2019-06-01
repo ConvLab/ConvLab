@@ -12,7 +12,7 @@ from allennlp.data.dataset_readers.dataset_reader import DatasetReader
 from allennlp.data.fields import ArrayField, LabelField, Field
 from allennlp.data.instance import Instance
 
-from convlab.lib.util import cached_path
+from convlab.lib.file_util import cached_path
 from convlab.modules.dst.multiwoz.rule_dst import RuleDST
 from convlab.modules.policy.system.multiwoz.util import ActionVocab, state_encoder
 

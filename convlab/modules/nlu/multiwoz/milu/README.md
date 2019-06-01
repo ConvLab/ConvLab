@@ -6,8 +6,8 @@ MILU is a joint neural model that allows you to simultaneously predict multiple 
 We based our implementation on the [AllenNLP library](https://github.com/allenai/allennlp). For an introduction to this library, you should check [these tutorials](https://allennlp.org/tutorials).
 
 ```bash
-$ python train.py configs/[base|context3].jsonnet -s serialization_dir
-$ python evaluate.py serialization_dir/model.tar.gz {test_file} --cuda-device {CUDA_DEVICE}
+$ PYTHONPATH=../../../../.. python train.py configs/[base|context3].jsonnet -s serialization_dir
+$ PYTHONPATH=../../../../.. python evaluate.py serialization_dir/model.tar.gz {test_file} --cuda-device {CUDA_DEVICE}
 ```
 
 If you want to perform end-to-end evaluation, you can include the trained model by adding the model path (serialization_dir/model.tar.gz) to your ConvLab spec file.

@@ -16,7 +16,7 @@ from allennlp.data.instance import Instance
 from allennlp.data.token_indexers import TokenIndexer, SingleIdTokenIndexer
 from allennlp.data.tokenizers import Token
 
-from convlab.lib.util import cached_path
+from convlab.lib.file_util import cached_path
 
 logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
 

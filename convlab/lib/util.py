@@ -2,15 +2,13 @@ from collections import deque
 from contextlib import contextmanager
 from datetime import datetime
 from importlib import reload
-from pprint import pformat
-# from convlab import ROOT_DIR, EVAL_MODES
-import cv2
+from convlab import ROOT_DIR, EVAL_MODES
+# import cv2
 import json
 import numpy as np
 import operator
 import os
 import pandas as pd
-import pickle
 import pydash as ps
 import regex as re
 import subprocess
@@ -20,14 +18,6 @@ import torch
 import torch.multiprocessing as mp
 import ujson
 import yaml
-
-from pathlib import Path
-from allennlp.common.file_utils import cached_path as allennlp_cached_path
-
-ROOT_DIR = os.path.normpath(os.path.join(os.path.dirname(__file__), '..'))
-
-EVAL_MODES = ('enjoy', 'eval')
-TRAIN_MODES = ('search', 'train', 'dev')
 
 NUM_CPUS = mp.cpu_count()
 FILE_TS_FORMAT = '%Y_%m_%d_%H%M%S'
@@ -745,8 +735,17 @@ def debug_image(im):
     cv2.waitKey(0)
 
 
+<<<<<<< HEAD
 def cached_path(file_path, cached_dir=None):
     if not cached_dir:
         cached_dir = str(Path(Path.home() / '.convlab') / "cache")
 
     return allennlp_cached_path(file_path, cached_dir)
+=======
+def mpl_debug_image(im):
+    '''Uses matplotlib to plot image with bigger size, axes, and false color on greyscaled images'''
+    import matplotlib.pyplot as plt
+    plt.figure()
+    plt.imshow(im)
+    plt.show()
+>>>>>>> 20e6125f284f5a06167a138cb8459ba09ec65f02
