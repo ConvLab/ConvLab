@@ -170,24 +170,6 @@ def boltzmann(state, algorithm, body):
     return action
 
 
-# def rule_guide_epsilon_greedy(state, algorithm, body):
-#     action = default(state, algorithm, body)
-
-#     if util.in_eval_lab_modes():
-#         return action 
-
-#     epsilon = body.explore_var
-#     if epsilon > np.random.rand():
-#         action = random(state, algorithm, body)
-#     if body.env.clock.epi < algorithm.rule_guide_max_epi and \
-#         body.env.clock.epi % algorithm.rule_guide_frequency == 0: 
-#         if hasattr(body, 'state'):
-#             action = rule_guide(body.state, algorithm, body)
-#         else:
-#             action = rule_guide(state, algorithm, body)
-#     return action 
-
-
 def warmup_epsilon_greedy(state, algorithm, body):
     action = default(state, algorithm, body)
 
@@ -203,21 +185,6 @@ def warmup_epsilon_greedy(state, algorithm, body):
         else:
             action = rule_guide(state, algorithm, body)
     return action 
-
-
-# def rule_guide_default(state, algorithm, body):
-#     action = default(state, algorithm, body)
-
-#     if util.in_eval_lab_modes():
-#         return action 
-
-#     if body.env.clock.epi < algorithm.rule_guide_max_epi and \
-#         body.env.clock.epi % algorithm.rule_guide_frequency == 0: 
-#         if hasattr(body, 'state'):
-#             action = rule_guide(body.state, algorithm, body)
-#         else:
-#             action = rule_guide(state, algorithm, body)
-#     return action 
 
 
 def warmup_default(state, algorithm, body):
