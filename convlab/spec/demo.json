@@ -944,7 +944,7 @@
         "name": "WarmUpReinforce",
         "action_pdtype": "default",
         "action_policy": "warmup_default",
-        "warmup_epi": 5000,
+        "warmup_epi": 1000,
         "explore_var_spec": null,
         "gamma": 0.98,
         "entropy_coef_spec": {
