@@ -13,7 +13,7 @@ $ PYTHONPATH=../../../../.. python evaluate.py serialization_dir/model.tar.gz {t
 If you want to perform end-to-end evaluation, you can include the trained model by adding the model path (serialization_dir/model.tar.gz) to your ConvLab spec file.
 
 ## Data
-We use the multiwoz data (data/multiwoz/[train|val|test.json.zip).
+We use the multiwoz data (data/multiwoz/[train|val|test].json.zip).
 
 ## References
 ```
