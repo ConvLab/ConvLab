@@ -1002,7 +1002,7 @@
       "eval_frequency": 1000,
       "max_tick_unit": "total_t",
       "max_trial": 1,
-      "max_session": 1,
+      "max_session": 3,
       "resources": {
         "num_cpus": 1,
         "num_gpus": 0
