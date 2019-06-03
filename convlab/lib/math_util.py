@@ -17,7 +17,10 @@ def normalize(v):
 
 def standardize(v):
     '''Method to standardize a rank-1 np array'''
-    assert len(v) > 1, 'Cannot standardize vector of size 1'
+    # assert len(v) > 1, 'Cannot standardize vector of size 1'
+    if len(v) == 1:
+        return v
+
     v_std = (v - v.mean()) / (v.std() + 1e-08)
     return v_std
 

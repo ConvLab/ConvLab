@@ -505,9 +505,7 @@
       "algorithm": {
         "name": "DQN",
         "action_pdtype": "Argmax",
-        "action_policy": "rule_guide_epsilon_greedy",
-        "rule_guide_max_epi": 1,
-        "rule_guide_frequency": 3,
+        "action_policy": "epsilon_greedy",
         "explore_var_spec": {
           "name": "linear_decay",
           "start_val": 0.1,
@@ -595,9 +593,7 @@
       "algorithm": {
         "name": "Reinforce",
         "action_pdtype": "default",
-        "action_policy": "rule_guide_default",
-        "rule_guide_max_epi": 1,
-        "rule_guide_frequency": 3,
+        "action_policy": "default",
         "explore_var_spec": null,
         "gamma": 0.98,
         "entropy_coef_spec": {
@@ -662,6 +658,93 @@
       }
     }
   },
+  "rule_a2c": {
+    "agent": [{
+      "name": "DialogAgent",
+      "dst": {
+        "name": "RuleDST"
+      },
+      "state_encoder": {
+        "name": "MultiWozStateEncoder"
+      },
+      "action_decoder": {
+        "name": "MultiWozVocabActionDecoder"
+      },
+      "algorithm": {
+        "name": "ActorCritic",
+        "action_pdtype": "default",
+        "action_policy": "default",
+        "explore_var_spec": null,
+        "gamma": 0.99,
+        "lam": 1.0,
+        "num_step_returns": null,
+        "entropy_coef_spec": {
+          "name": "linear_decay",
+          "start_val": 0.01,
+          "end_val": 0.001,
+          "start_step": 100,
+          "end_step": 50000,
+        },
+        "policy_loss_coef": 1.0,
+        "val_loss_coef": 0.01,
+        "training_frequency": 1,
+      },
+      "memory": {
+        "name": "OnPolicyReplay"
+      },
+      "net": {
+        "type": "MLPNet",
+        "shared": false,
+        "hid_layers": [100],
+        "hid_layers_activation": "relu",
+        "clip_grad_val": 10.0,
+        "use_same_optim": false,
+        "actor_optim_spec": {
+          "name": "Adam",
+          "lr": 0.001
+        },
+        "critic_optim_spec": {
+          "name": "Adam",
+          "lr": 0.005
+        },
+        "lr_scheduler_spec": {
+          "name": "StepLR",
+          "step_size": 2000,
+          "gamma": 0.999,
+        },
+        "gpu": false
+      }
+    }],
+    "env": [{
+      "name": "multiwoz",
+      "action_dim": 300,
+      "observation_dim": 393,
+      "max_t": 40,
+      "max_frame": 50000,
+      "user_policy": {
+        "name": "UserPolicyAgendaMultiWoz"
+      },
+      "sys_policy": {
+        "name": "RuleBasedMultiwozBot"
+      },
+    }],
+    "body": {
+      "product": "outer",
+      "num": 1
+    },
+    "meta": {
+      "distributed": false,
+      "num_eval": 100,
+      "eval_frequency": 1000,
+      "max_tick_unit": "total_t",
+      "max_trial": 1,
+      "max_session": 1,
+      "resources": {
+        "num_cpus": 1,
+        "num_gpus": 0
+      }
+    }
+  },
   "rule_ppo": {
     "agent": [{
       "name": "DialogAgent",
@@ -678,8 +761,6 @@
         "name": "PPO",
         "action_pdtype": "default",
         "action_policy": "default",
-        "rule_guide_max_epi": 1,
-        "rule_guide_frequency": 3,
         "explore_var_spec": null,
         "gamma": 0.99,
         "lam": 0.95,
@@ -756,5 +837,176 @@
         "num_gpus": 0
       }
     }
-  }
+  },
+  "rule_wdqn": {
+    "agent": [{
+      "name": "DialogAgent",
+      "dst": {
+        "name": "RuleDST"
+      },
+      "state_encoder": {
+        "name": "MultiWozStateEncoder"
+      },
+      "action_decoder": {
+        "name": "MultiWozVocabActionDecoder"
+      },
+      "algorithm": {
+        "name": "WarmUpDQN",
+        "action_pdtype": "Argmax",
+        "action_policy": "warmup_epsilon_greedy",
+        "warmup_epi": 5000,
+        "explore_var_spec": {
+          "name": "linear_decay",
+          "start_val": 0.1,
+          "end_val": 0.01,
+          "start_step": 0,
+          "end_step": 500000,
+        },
+        "gamma": 0.9,
+        "training_batch_iter": 1,
+        "training_iter": 1000,
+        "training_frequency": 300,
+        "training_start_step": 32
+      },
+      "memory": {
+        "name": "Replay",
+        "warmup_name": "Replay",
+        "batch_size": 16,
+        "max_size": 50000,
+        "use_cer": false 
+      },
+      "net": {
+        "type": "MLPNet",
+        "hid_layers": [100],
+        "hid_layers_activation": "relu",
+        "clip_grad_val": null,
+        "loss_spec": {
+          "name": "MSELoss"
+        },
+        "optim_spec": {
+          "name": "Adam",
+          "lr": 0.001
+        },
+        "lr_scheduler_spec": {
+          "name": "StepLR",
+          "step_size": 1000,
+          "gamma": 0.999,
+        },
+        "update_type": "replace",
+        "update_frequency": 1000,
+        "polyak_coef": 0,
+        "gpu": false
+      }
+    }],
+    "env": [{
+      "name": "multiwoz",
+      "action_dim": 300,
+      "observation_dim": 393,
+      "max_t": 40,
+      "max_frame": 50000,
+      "user_policy": {
+        "name": "UserPolicyAgendaMultiWoz"
+      },
+      "sys_policy": {
+        "name": "RuleBasedMultiwozBot"
+      }
+    }],
+    "body": {
+      "product": "outer",
+      "num": 1
+    },
+    "meta": {
+      "distributed": false,
+      "num_eval": 100,
+      "eval_frequency": 2000,
+      "max_tick_unit": "total_t",
+      "max_trial": 1,
+      "max_session": 1,
+      "resources": {
+        "num_cpus": 1,
+        "num_gpus": 0
+      }
+    }
+  },
+  "rule_wreinforce": {
+    "agent": [{
+      "name": "DialogAgent",
+      "dst": {
+        "name": "RuleDST"
+      },
+      "state_encoder": {
+        "name": "MultiWozStateEncoder"
+      },
+      "action_decoder": {
+        "name": "MultiWozVocabActionDecoder"
+      },
+      "algorithm": {
+        "name": "WarmUpReinforce",
+        "action_pdtype": "default",
+        "action_policy": "warmup_default",
+        "warmup_epi": 5000,
+        "explore_var_spec": null,
+        "gamma": 0.98,
+        "entropy_coef_spec": {
+          "name": "linear_decay",
+          "start_val": 0.01,
+          "end_val": 0.001,
+          "start_step": 1000,
+          "end_step": 50000
+        },
+        "training_frequency": 1
+      },
+      "memory": {
+        "name": "OnPolicyReplay"
+      },
+      "net": {
+        "type": "MLPNet",
+        "hid_layers": [100],
+        "hid_layers_activation": "relu",
+        "clip_grad_val": null,
+        "loss_spec": {
+          "name": "MSELoss"
+        },
+        "optim_spec": {
+          "name": "Adam",
+          "lr": 0.001
+        },
+        "lr_scheduler_spec": {
+          "name": "StepLR",
+          "step_size": 1000,
+          "gamma": 0.999,
+        },
+        "gpu": false
+      }
+    }],
+    "env": [{
+      "name": "multiwoz",
+      "action_dim": 300,
+      "observation_dim": 393,
+      "max_t": 40,
+      "max_frame": 50000,
+      "user_policy": {
+        "name": "UserPolicyAgendaMultiWoz"
+      },
+      "sys_policy": {
+        "name": "RuleBasedMultiwozBot"
+      },
+    }],
+    "body": {
+      "product": "outer",
+      "num": 1
+    },
+    "meta": {
+      "distributed": false,
+      "num_eval": 100,
+      "eval_frequency": 1000,
+      "max_tick_unit": "total_t",
+      "max_trial": 1,
+      "max_session": 1,
+      "resources": {
+        "num_cpus": 1,
+        "num_gpus": 0
+      }
+    }
+  },
 }

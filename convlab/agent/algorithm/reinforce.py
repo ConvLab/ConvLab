@@ -54,8 +54,6 @@ class Reinforce(Algorithm):
         util.set_attr(self, self.algorithm_spec, [
             'action_pdtype',
             'action_policy',
-            'rule_guide_max_epi', 
-            'rule_guide_frequency',
             # theoretically, REINFORCE does not have policy update; but in this implementation we have such option
             'explore_var_spec',
             'gamma',  # the discount factor
@@ -158,7 +156,7 @@ class Reinforce(Algorithm):
             self.net.train_step(loss, self.optim, self.lr_scheduler, clock=clock, global_net=self.global_net)
             # reset
             self.to_train = 0
-            logger.debug(f'Trained {self.name} at epi: {clock.epi}, frame: {clock.frame}, t: {clock.t}, total_reward so far: {self.body.total_reward}, loss: {loss:g}')
+            logger.info(f'Trained {self.name} at epi: {clock.epi}, frame: {clock.frame}, t: {clock.t}, total_reward so far: {self.body.total_reward}, loss: {loss:g}')
             return loss.item()
         else:
             return np.nan
@@ -169,3 +167,41 @@ class Reinforce(Algorithm):
         if self.entropy_coef_spec is not None:
             self.body.entropy_coef = self.entropy_coef_scheduler.update(self, self.body.env.clock)
         return self.body.explore_var
+
+
+class WarmUpReinforce(Reinforce):
+    '''
+    Implementation of REINFORCE (Williams, 1992) with baseline for discrete or continuous actions http://www-anw.cs.umass.edu/~barto/courses/cs687/williams92simple.pdf
+    Adapted from https://github.com/pytorch/examples/blob/master/reinforcement_learning/reinforce.py
+    Algorithm:
+        0. Collect n episodes of data
+        1. At each timestep in an episode
+            - Calculate the advantage of that timestep
+            - Multiply the advantage by the negative of the log probability of the action taken
+        2. Sum all the values above.
+        3. Calculate the gradient of this value with respect to all of the parameters of the network
+        4. Update the network parameters using the gradient
+
+    e.g. algorithm_spec:
+    "algorithm": {
+        "name": "Reinforce",
+        "action_pdtype": "default",
+        "action_policy": "default",
+        "warmup_epi": 300,
+        "explore_var_spec": null,
+        "gamma": 0.99,
+        "entropy_coef_spec": {
+          "name": "linear_decay",
+          "start_val": 0.01,
+          "end_val": 0.001,
+          "start_step": 100,
+          "end_step": 5000,
+        },
+        "training_frequency": 1,
+    }
+    '''
+    def __init__(self, agent, global_nets=None):
+        super().__init__(agent, global_nets)
+        util.set_attr(self, self.algorithm_spec, [
+            'warmup_epi',
+        ])

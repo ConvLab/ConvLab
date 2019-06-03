@@ -115,6 +115,7 @@ class DialogAgent(Agent):
         self.body.memory = MemoryClass(self.agent_spec['memory'], self.body)
         AlgorithmClass = getattr(algorithm, ps.get(self.agent_spec, 'algorithm.name'))
         self.algorithm = AlgorithmClass(self, global_nets)
+        self.warmup_epi = ps.get(self.agent_spec, 'algorithm.warmup_epi') or -1 
         self.body.state, self.body.encoded_state, self.body.action = None, None, None
         logger.info(util.self_desc(self))
 
@@ -170,7 +171,10 @@ class DialogAgent(Agent):
         if util.in_eval_lab_modes() or self.algorithm.__class__.__name__ == 'ExternalPolicy':  # eval does not update agent for training
             self.body.state, self.body.encoded_state = next_state, encoded_state
             return
-        self.body.memory.update(self.body.encoded_state, self.body.action, reward, encoded_state, done)
+        if not hasattr(self.body, 'warmup_memory') or self.body.env.clock.epi > self.warmup_epi:
+            self.body.memory.update(self.body.encoded_state, self.body.action, reward, encoded_state, done)
+        else:
+            self.body.warmup_memory.update(self.body.encoded_state, self.body.action, reward, encoded_state, done)
         self.body.state, self.body.encoded_state = next_state, encoded_state
         loss = self.algorithm.train()
         if not np.isnan(loss):  # set for log_summary()
