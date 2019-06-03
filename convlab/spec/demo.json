@@ -154,9 +154,9 @@
         "explore_var_spec": {
           "name": "linear_decay",
           "start_val": 0.1,
-          "end_val": 0.05,
+          "end_val": 0.01,
           "start_step": 1000,
-          "end_step": 50000
+          "end_step": 500000
         },
         "gamma": 0.9,
         "training_batch_iter": 1000,
@@ -199,7 +199,7 @@
       "action_dim": 300,
       "observation_dim": 393,
       "max_t": 40,
-      "max_frame": 50000,
+      "max_frame": 500000,
       "nlu": {
         "name": "OneNetLU",
         "model_file": "https://convlab.blob.core.windows.net/models/onenet.tar.gz"
@@ -511,9 +511,9 @@
         "explore_var_spec": {
           "name": "linear_decay",
           "start_val": 0.1,
-          "end_val": 0.05,
+          "end_val": 0.01,
           "start_step": 0,
-          "end_step": 50000,
+          "end_step": 500000,
         },
         "gamma": 0.9,
         "training_batch_iter": 1000,
@@ -555,7 +555,7 @@
       "action_dim": 300,
       "observation_dim": 393,
       "max_t": 40,
-      "max_frame": 50000,
+      "max_frame": 500000,
       "user_policy": {
         "name": "UserPolicyAgendaMultiWoz"
       },

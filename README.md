@@ -49,12 +49,24 @@ For example:
 # to evaluate a dialog system consisting of NLU(OneNet), DST(Rule), Policy(Rule), NLG(Template) on the MultiWOZ environment
 $ python run.py demo.json onenet_rule_rule_template eval
 
+# to see natural language utterances 
+$ LOG_LEVEL=NL python run.py demo.json onenet_rule_rule_template eval
+
+# to see natural language utterances and dialog acts 
+$ LOG_LEVEL=ACT python run.py demo.json onenet_rule_rule_template eval
+
+# to see natural language utterances, dialog acts and state representation
+$ LOG_LEVEL=STATE python run.py demo.json onenet_rule_rule_template eval
+
 # to train a DQN policy with NLU(OneNet), DST(Rule), NLG(Template) on the MultiWOZ environment
 $ python run.py demo.json onenet_rule_dqn_template train
 
 # to use the policy trained above
 $ python run.py output/onenet_rule_dqn_template_{timestamp}/onenet_rule_dqn_template_spec.json onenet_rule_dqn_template eval@onenet_rule_dqn_template_t0_s0
 ```
+
+Note that currently ConvLab can only train the policy component by interacting with a user simulator. 
+For other components, ConvLab supports offline supervise learning. For example, you can train a NLU model using the local training script as in [OneNet](https://github.com/ConvLab/ConvLab/tree/dev/convlab/modules/nlu/multiwoz/onenet).
 
 ## Creating a new spec file
 A spec file is used to fully specify experiments including a dialog agent and a user simulator. It is a JSON of multiple experiment specs, each containing the keys agent, env, body, meta, search.
