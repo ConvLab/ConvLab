@@ -98,6 +98,6 @@ if __name__ == '__main__':
         # avoid xvfb on MacOS: https://github.com/nipy/nipype/issues/1400
         main()
     else:
-        with Xvfb() as xvfb:  # safety context for headless machines
-            main()
+        #with Xvfb() as xvfb:  # safety context for headless machines
+        main()
 
