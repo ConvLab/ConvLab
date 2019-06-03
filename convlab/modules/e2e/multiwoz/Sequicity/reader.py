@@ -767,7 +767,7 @@ class MultiWozReader(_ReaderBase):
         self.result_file = ''
 
     def _get_tokenized_data(self, raw_data, db_data, construct_vocab):
-        requestable_keys = ['address', 'name', 'phone', 'postcode', 'food', 'area', 'pricerange', 'id', 'time', 'type']
+        requestable_keys = ['addr', 'area', 'fee', 'name', 'phone', 'post', 'price', 'type', 'department', 'internet', 'parking', 'stars', 'food', 'arrive', 'day', 'depart', 'dest', 'leave', 'ticket', 'id']
         
         tokenized_data = []
         vk_map = self._value_key_map(db_data)
@@ -837,18 +837,26 @@ class MultiWozReader(_ReaderBase):
             string = re.sub(r'_+', '_', string)
             string = re.sub(r'children', 'child_-s', string)
             return string
-        requestable_dict = {'address':'address', 
+        requestable_dict = {'address':'addr', 
+                            'area':'area',
+                            'entrance fee':'fee',
                             'name':'name',
-                            'department':'name',
                             'phone':'phone', 
-                            'postcode':'postcode', 
-                            'food':'food', 
-                            'area':'area', 
-                            'pricerange':'pricerange', 
-                            'trainId':'id', 
-                            'arriveBy':'time',
-                            'leaveAt':'time',
-                            'type':'type'}
+                            'postcode':'post',
+                            'pricerange':'price', 
+                            'type':'type',
+                            'department':'department',
+                            'internet':'internet',
+                            'parking':'parking',
+                            'stars':'stars',
+                            'food':'food',
+                            'arriveBy':'arrive',
+                            'day':'day',
+                            'departure':'depart',
+                            'destination':'dest',
+                            'leaveAt':'leave',
+                            'price':'ticket',
+                            'trainId':'id'}
         value_key = {}
         for db_entry in db_data:
             for k, v in db_entry.items():

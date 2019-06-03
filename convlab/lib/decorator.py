@@ -1,6 +1,3 @@
-# Modified by Microsoft Corporation.
-# Licensed under the MIT license.
-
 from functools import wraps
 from convlab.lib import logger
 import time
@@ -41,6 +38,6 @@ def timeit(fn):
         start = time.time()
         output = fn(*args, **kwargs)
         end = time.time()
-        logger.debug3(f'Timed: {fn.__name__} {round((end - start) * 1000, 4)}ms')
+        logger.debug(f'Timed: {fn.__name__} {round((end - start) * 1000, 4)}ms')
         return output
     return time_fn

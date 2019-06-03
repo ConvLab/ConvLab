@@ -9,7 +9,7 @@ import numpy as np
 import pydash as ps
 from gym import spaces
 
-from convlab.env.base import BaseEnv, ENV_DATA_NAMES, set_gym_space_attr
+from convlab.env.base import BaseEnv, set_gym_space_attr
 # from convlab.env.registration import get_env_path
 from convlab.lib import logger, util
 from convlab.lib.decorator import lab_api
@@ -91,11 +91,11 @@ class MultiWozEnvironment(object):
         str_sys_response = '{}'.format(action)
         str_user_response = '{}'.format(user_response)
         self.history.extend([str_sys_response, str_user_response])
-        if session_over:
-            dialog_status = self.simulator.policy.goal.task_complete()
-            if dialog_status:
-                self.stat['success'] += 1
-            else: self.stat['fail'] += 1
+        # if session_over:
+        #     dialog_status = self.simulator.policy.goal.task_complete()
+        #     if dialog_status:
+        #         self.stat['success'] += 1
+        #     else: self.stat['fail'] += 1
         self.env_info = [State(user_response, reward, session_over)] 
         return self.env_info 
 
@@ -150,8 +150,9 @@ class MultiWozEnvironment(object):
         return action 
 
     def close(self):
-        print('\nstatistics: %s' % (self.stat))
-        print('\nsuccess rate: %s' % (self.stat['success']/(self.stat['success']+self.stat['fail'])))
+        pass
+        # print('\nstatistics: %s' % (self.stat))
+        # print('\nsuccess rate: %s' % (self.stat['success']/(self.stat['success']+self.stat['fail'])))
 
 
 class MultiWozEnv(BaseEnv):
@@ -171,8 +172,8 @@ class MultiWozEnv(BaseEnv):
     }],
     '''
 
-    def __init__(self, spec, e=None, env_space=None):
-        super(MultiWozEnv, self).__init__(spec, e, env_space)
+    def __init__(self, spec, e=None):
+        super(MultiWozEnv, self).__init__(spec, e)
         self.action_dim = self.observation_dim = 0
         util.set_attr(self, self.env_spec, [
             'observation_dim',
@@ -182,11 +183,6 @@ class MultiWozEnv(BaseEnv):
         self.u_env = MultiWozEnvironment(self.env_spec, worker_id, self.action_dim)
         self.patch_gym_spaces(self.u_env)
         self._set_attr_from_u_env(self.u_env)
-        # assert self.max_t is not None
-        if env_space is None:  # singleton mode
-            pass
-        else:
-            self.space_init(env_space)
 
         logger.info(util.self_desc(self))
 
@@ -210,69 +206,33 @@ class MultiWozEnv(BaseEnv):
 
     @lab_api
     def reset(self):
-        _reward = np.nan
+        # _reward = np.nan
         env_info_dict = self.u_env.reset(train_mode=(util.get_lab_mode() != 'dev'), config=self.env_spec.get('multiwoz'))
         a, b = 0, 0  # default singleton aeb
         env_info_a = self._get_env_info(env_info_dict, a)
         state = env_info_a.states[b]
-        self.done = done = False
-        logger.debug(f'Env {self.e} reset reward: {_reward}, state: {state}, done: {done}')
-        return _reward, state, done
+        # self.done = done = False
+        # logger.debug(f'Env {self.e} reset reward: {_reward}, state: {state}, done: {done}')
+        # return _reward, state, done
+        self.done = False
+        logger.debug(f'Env {self.e} reset state: {state}')
+        return state
 
     @lab_api
     def step(self, action):
         env_info_dict = self.u_env.step(action)
         a, b = 0, 0  # default singleton aeb
         env_info_a = self._get_env_info(env_info_dict, a)
-        reward = env_info_a.rewards[b] * self.reward_scale
+        reward = env_info_a.rewards[b]  # * self.reward_scale
         state = env_info_a.states[b]
         done = env_info_a.local_done[b]
         self.done = done = done or self.clock.t > self.max_t
         logger.debug(f'Env {self.e} step reward: {reward}, state: {state}, done: {done}')
-        return reward, state, done
+        return state, reward, done, env_info_a 
 
     @lab_api
     def close(self):
         self.u_env.close()
 
-    # NOTE optional extension for multi-agent-env
-
-    @lab_api
-    def space_init(self, env_space):
-        '''Post init override for space env. Note that aeb is already correct from __init__'''
-        self.env_space = env_space
-        self.aeb_space = env_space.aeb_space
-        self.observation_spaces = [self.observation_space]
-        self.action_spaces = [self.action_space]
-
-    @lab_api
-    def space_reset(self):
-        self._check_u_brain_to_agent()
-        self.done = False
-        env_info_dict = self.u_env.reset(train_mode=(util.get_lab_mode() != 'dev'), config=self.env_spec.get('multiwoz'))
-        _reward_e, state_e, done_e = self.env_space.aeb_space.init_data_s(ENV_DATA_NAMES, e=self.e)
-        for (a, b), body in util.ndenumerate_nonan(self.body_e):
-            env_info_a = self._get_env_info(env_info_dict, a)
-            self._check_u_agent_to_body(env_info_a, a)
-            state = env_info_a.states[b]
-            state_e[(a, b)] = state
-            done_e[(a, b)] = self.done
-        logger.debug(f'Env {self.e} reset reward_e: {_reward_e}, state_e: {state_e}, done_e: {done_e}')
-        return _reward_e, state_e, done_e
-
-    @lab_api
-    def space_step(self, action_e):
-        # TODO implement clock_speed: step only if self.clock.to_step()
-        if self.done:
-            return self.space_reset()
-        action_e = util.nanflatten(action_e)
-        env_info_dict = self.u_env.step(action_e)
-        reward_e, state_e, done_e = self.env_space.aeb_space.init_data_s(ENV_DATA_NAMES, e=self.e)
-        for (a, b), body in util.ndenumerate_nonan(self.body_e):
-            env_info_a = self._get_env_info(env_info_dict, a)
-            reward_e[(a, b)] = env_info_a.rewards[b] * self.reward_scale
-            state_e[(a, b)] = env_info_a.states[b]
-            done_e[(a, b)] = env_info_a.local_done[b]
-        self.done = (util.nonan_all(done_e) or self.clock.t > self.max_t)
-        logger.debug(f'Env {self.e} step reward_e: {reward_e}, state_e: {state_e}, done_e: {done_e}')
-        return reward_e, state_e, done_e
+    def get_task_success(self):
+        return self.u_env.simulator.policy.goal.task_complete()
