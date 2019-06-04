@@ -3,16 +3,12 @@
     "type": "mle_policy",
     "num_actions": 300
   },
-  "train_data_path": "/home/sule/projects/research/DialogZone/data/multiwoz/train.json.zip",
-  "validation_data_path": "/home/sule/projects/research/DialogZone/data/multiwoz/val.json.zip",
-  "test_data_path": "/home/sule/projects/research/DialogZone/data/multiwoz/test.json.zip",
-  // "train_data_path": "/home/sule/projects/research/DialogZone/data/multiwoz/sample.json",
-  // "validation_data_path": "/home/sule/projects/research/DialogZone/data/multiwoz/sample.json",
-  // "test_data_path": "/home/sule/projects/research/DialogZone/data/multiwoz/sample.json",
+  "train_data_path": "/home/t-jaylee/repository/ConvLab/data/multiwoz/train.json.zip",
+  "validation_data_path": "/home/t-jaylee/repository/ConvLab/data/multiwoz/val.json.zip",
+  "test_data_path": "/home/t-jaylee/repository/ConvLab/data/multiwoz/test.json.zip",
   "model": {
     "type": "vanilla_mle_policy",
-    // "input_dim": 192,
-    "input_dim": 396,
+    "input_dim": 393,
     "num_classes": 300
   },
   "iterator": {

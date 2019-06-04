@@ -9,12 +9,12 @@ import numpy as np
 
 from convlab.modules.policy.system.multiwoz.rule_based_multiwoz_bot import generate_car, generate_ref_num
 from convlab.modules.util.dbquery import query
-from convlab.modules.util.multiwoz_slot_trans import REF_USR_DA
+from convlab.modules.util.multiwoz_slot_trans import REF_SYS_DA, REF_USR_DA
 
 
 DEFAULT_VOCAB_FILE=os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))), 
-    "data/multiwoz/da_slot_cnt.json")
+    "../data/multiwoz/da_slot_cnt.json")
 
 
 class SkipException(Exception):
@@ -255,8 +255,13 @@ def get_info_state(belief_state):
         if domain == 'train':
             if 'people' not in belief_state[domain]['book'].keys():
                 booking.append(0)
+            else: 
+                booking.append(1)
             if 'ticket' not in belief_state[domain]['book'].keys():
                 booking.append(0)
+            else: 
+                booking.append(1)
+            
         info_vector += booking
 
         for slot in belief_state[domain]['semi']:
