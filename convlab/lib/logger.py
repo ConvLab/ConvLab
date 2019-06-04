@@ -1,4 +1,6 @@
-from convlab.lib import util
+# Modified by Microsoft Corporation.
+# Licensed under the MIT license.
+
 import colorlog
 import logging
 import os

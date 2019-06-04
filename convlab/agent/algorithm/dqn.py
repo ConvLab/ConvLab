@@ -1,4 +1,8 @@
+# Modified by Microsoft Corporation.
+# Licensed under the MIT license.
+
 from convlab.agent import net
+from convlab.agent import memory 
 from convlab.agent.algorithm import policy_util
 from convlab.agent.algorithm.sarsa import SARSA
 from convlab.agent.net import net_util
@@ -61,8 +65,6 @@ class VanillaDQN(SARSA):
         util.set_attr(self, self.algorithm_spec, [
             'action_pdtype',
             'action_policy',
-            'rule_guide_max_epi',
-            'rule_guide_frequency',
             # explore_var is epsilon, tau or etc. depending on the action policy
             # these control the trade off between exploration and exploitaton
             'explore_var_spec',
@@ -136,15 +138,10 @@ class VanillaDQN(SARSA):
         clock = self.body.env.clock
         if self.to_train == 1:
             total_loss = torch.tensor(0.0)
-            # for _ in range(self.training_iter):
-            #     batch = self.sample()
-            #     clock.set_batch_size(len(batch))
-            #     for _ in range(self.training_batch_iter):
-            num_batches = int(self.body.memory.size / self.body.memory.batch_size)
             for _ in range(self.training_iter):
-                # clock.set_batch_size(len(batch))
-                for _ in range(min(self.training_batch_iter, num_batches)):
-                    batch = self.sample()
+                batch = self.sample()
+                clock.set_batch_size(len(batch))
+                for _ in range(self.training_batch_iter):
                     loss = self.calc_q_loss(batch)
                     self.net.train_step(loss, self.optim, self.lr_scheduler, clock=clock, global_net=self.global_net)
                     total_loss += loss
@@ -262,6 +259,76 @@ class DQN(DQNBase):
     @lab_api
     def init_nets(self, global_nets=None):
         super().init_nets(global_nets)
+
+
+class WarmUpDQN(DQN):
+    '''
+    DQN class
+
+    e.g. algorithm_spec
+    "algorithm": {
+        "name": "WarmUpDQN",
+        "action_pdtype": "Argmax",
+        "action_policy": "epsilon_greedy",
+        "warmup_epi": 300,
+        "explore_var_spec": {
+            "name": "linear_decay",
+            "start_val": 1.0,
+            "end_val": 0.1,
+            "start_step": 10,
+            "end_step": 1000,
+        },
+        "gamma": 0.99,
+        "training_batch_iter": 8,
+        "training_iter": 4,
+        "training_frequency": 10,
+        "training_start_step": 10
+    }
+    '''
+    def __init__(self, agent, global_nets=None):
+        super().__init__(agent, global_nets)
+        util.set_attr(self, self.algorithm_spec, [
+            'warmup_epi',
+        ])
+        # create the extra replay memory for warm-up 
+        MemoryClass = getattr(memory, self.memory_spec['warmup_name'])
+        self.body.warmup_memory = MemoryClass(self.memory_spec, self.body)
+
+    @lab_api
+    def init_nets(self, global_nets=None):
+        super().init_nets(global_nets)
+
+    def warmup_sample(self):
+        '''Samples a batch from warm-up memory'''
+        batch = self.body.warmup_memory.sample()
+        batch = util.to_torch_batch(batch, self.net.device, self.body.warmup_memory.is_episodic)
+        return batch
+
+    def train(self):
+        if util.in_eval_lab_modes():
+            return np.nan
+        clock = self.body.env.clock
+        if self.to_train == 1:
+            total_loss = torch.tensor(0.0)
+            for _ in range(self.training_iter):
+                batches = []
+                if self.body.warmup_memory.size >= self.body.warmup_memory.batch_size:
+                    batches.append(self.warmup_sample())
+                if self.body.memory.size >= self.body.memory.batch_size:
+                    batches.append(self.sample())
+                clock.set_batch_size(sum(len(batch) for batch in batches))
+                for batch in batches:
+                    for _ in range(self.training_batch_iter):
+                        loss = self.calc_q_loss(batch)
+                        self.net.train_step(loss, self.optim, self.lr_scheduler, clock=clock, global_net=self.global_net)
+                        total_loss += loss
+            loss = total_loss / (self.training_iter * self.training_batch_iter)
+            # reset
+            self.to_train = 0
+            logger.info(f'Trained {self.name} at epi: {clock.epi}, warmup_size: {self.body.warmup_memory.size}, memory_size: {self.body.memory.size}, loss: {loss:g}')
+            return loss.item()
+        else:
+            return np.nan
 
 
 class DoubleDQN(DQN):

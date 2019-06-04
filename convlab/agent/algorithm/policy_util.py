@@ -1,5 +1,6 @@
 # Modified by Microsoft Corporation.
 # Licensed under the MIT license.
+
 # Action policy module
 # Constructs action probability distribution used by agent to sample action and calculate log_prob, entropy, etc.
 from gym import spaces
@@ -170,7 +171,7 @@ def boltzmann(state, algorithm, body):
     return action
 
 
-def rule_guide_epsilon_greedy(state, algorithm, body):
+def warmup_epsilon_greedy(state, algorithm, body):
     action = default(state, algorithm, body)
 
     if util.in_eval_lab_modes():
@@ -179,10 +180,7 @@ def rule_guide_epsilon_greedy(state, algorithm, body):
     epsilon = body.explore_var
     if epsilon > np.random.rand():
         action = random(state, algorithm, body)
-    #else:
-    #    action = default(state, algorithm, body)
-    if body.env.clock.epi < algorithm.rule_guide_max_epi and \
-        body.env.clock.epi % algorithm.rule_guide_frequency == 0: 
+    if body.env.clock.epi < algorithm.warmup_epi:
         if hasattr(body, 'state'):
             action = rule_guide(body.state, algorithm, body)
         else:
@@ -190,14 +188,13 @@ def rule_guide_epsilon_greedy(state, algorithm, body):
     return action 
 
 
-def rule_guide_default(state, algorithm, body):
+def warmup_default(state, algorithm, body):
     action = default(state, algorithm, body)
 
     if util.in_eval_lab_modes():
         return action 
 
-    if body.env.clock.epi < algorithm.rule_guide_max_epi and \
-        body.env.clock.epi % algorithm.rule_guide_frequency == 0: 
+    if body.env.clock.epi < algorithm.warmup_epi:
         if hasattr(body, 'state'):
             action = rule_guide(body.state, algorithm, body)
         else:

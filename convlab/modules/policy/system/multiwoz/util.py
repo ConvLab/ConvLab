@@ -13,8 +13,8 @@ from convlab.modules.util.multiwoz_slot_trans import REF_SYS_DA, REF_USR_DA
 
 
 DEFAULT_VOCAB_FILE=os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))), 
-    "../data/multiwoz/da_slot_cnt.json")
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))), 
+    "data/multiwoz/da_slot_cnt.json")
 
 
 class SkipException(Exception):
@@ -70,8 +70,6 @@ class ActionVocab(object):
     def get_action(self, action_index):
         return self.vocab[action_index]
 
-
-# action_vocab = ActionVocab()
 
 def _domain_fill(delex_action, state, action, act):
     domain, act_type = act.split('-')
@@ -166,6 +164,7 @@ def action_decoder(state, action_index, action_vocab):
     return action
 
 
+<<<<<<< HEAD
 def state_encoder(state):
     db_vector = get_db_state(state['belief_state'])
     book_vector = get_book_state(state['belief_state'])
@@ -326,6 +325,8 @@ def get_db_state(belief_state):
     return db_vector 
 
 
+=======
+>>>>>>> upstream/dev
 def one_hot(num, domain, domains, vector):
     """Return number of available entities for particular domain."""
     number_of_options = 6

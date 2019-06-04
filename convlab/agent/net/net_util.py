@@ -1,3 +1,6 @@
+# Modified by Microsoft Corporation.
+# Licensed under the MIT license.
+
 from functools import partial, wraps
 from convlab.lib import logger, optimizer, util
 import os

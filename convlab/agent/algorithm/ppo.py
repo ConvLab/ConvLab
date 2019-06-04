@@ -1,3 +1,6 @@
+# Modified by Microsoft Corporation.
+# Licensed under the MIT license.
+
 from copy import deepcopy
 from convlab.agent import net
 from convlab.agent.algorithm import policy_util
@@ -78,8 +81,6 @@ class PPO(ActorCritic):
         util.set_attr(self, self.algorithm_spec, [
             'action_pdtype',
             'action_policy',
-            'rule_guide_max_epi', 
-            'rule_guide_frequency',
             # theoretically, PPO does not have policy update; but in this implementation we have such option
             'explore_var_spec',
             'gamma',

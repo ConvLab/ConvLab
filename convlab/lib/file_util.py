@@ -1,5 +1,6 @@
-# Modified by Microsoft Corporation.
+# Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
+
 from pathlib import Path
 
 from allennlp.common.file_utils import cached_path as allennlp_cached_path

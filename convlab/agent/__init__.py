@@ -1,3 +1,6 @@
+# Modified by Microsoft Corporation.
+# Licensed under the MIT license.
+
 # The agent module
 import numpy as np
 import pandas as pd
@@ -10,7 +13,7 @@ from convlab.agent.algorithm import policy_util
 from convlab.agent.net import net_util
 from convlab.lib import logger, util
 from convlab.lib.decorator import lab_api
-from convlab.modules import nlu, dst, nlg, state_encoder, action_decoder
+from convlab.modules import nlu, dst, word_dst, nlg, state_encoder, action_decoder
 
 
 logger = logger.get_logger(__name__)
@@ -94,6 +97,11 @@ class DialogAgent(Agent):
             DstClass = getattr(dst, params.pop('name'))
             self.dst = DstClass(**params) 
             self.state = self.dst.state
+        if 'word_dst' in self.agent_spec:
+            params = deepcopy(ps.get(self.agent_spec, 'word_dst'))
+            DstClass = getattr(word_dst, params.pop('name'))
+            self.dst = DstClass(**params) 
+            # self.state = self.dst.state
         self.state_encoder = None
         if 'state_encoder' in self.agent_spec:
             params = deepcopy(ps.get(self.agent_spec, 'state_encoder'))
@@ -115,6 +123,7 @@ class DialogAgent(Agent):
         self.body.memory = MemoryClass(self.agent_spec['memory'], self.body)
         AlgorithmClass = getattr(algorithm, ps.get(self.agent_spec, 'algorithm.name'))
         self.algorithm = AlgorithmClass(self, global_nets)
+        self.warmup_epi = ps.get(self.agent_spec, 'algorithm.warmup_epi') or -1 
         self.body.state, self.body.encoded_state, self.body.action = None, None, None
         logger.info(util.self_desc(self))
 
@@ -136,9 +145,8 @@ class DialogAgent(Agent):
         action = self.algorithm.act(self.body.encoded_state)
         decoded_action = self.action_decode(action, self.body.state) 
         self.body.action = action
-        # logger.info(f'Agent {self.a} system utterance: {decoded_action}')
-        logger.nl(f'Agent {self.a} system utterance: {decoded_action}')
-        logger.act(f'Agent {self.a} system action: {action}')
+        logger.nl(f'System utterance: {decoded_action}')
+        logger.act(f'System action: {action}')
         return decoded_action
     
     def state_update(self, observation, action):
@@ -149,12 +157,11 @@ class DialogAgent(Agent):
         encoded_state = self.state_encoder.encode(state) if self.state_encoder else state 
         if self.nlu and self.dst:  
             self.dst.state['user_action'] = input_act 
-        elif self.dst and not isinstance(self.dst, dst.MDBTTracker):  # for act-in act-out agent
+        elif self.dst and not isinstance(self.dst, word_dst.MDBTTracker):  # for act-in act-out agent
             self.dst.state['user_action'] = observation 
-        # logger.info(f'Agent {self.a} user utterance: {observation}')
-        logger.nl(f'Agent {self.a} user utterance: {observation}')
-        logger.act(f'Agent {self.a} user action: {input_act}')
-        logger.state(f'Agent {self.a} dialog state: {state}')
+        logger.nl(f'User utterance: {observation}')
+        logger.act(f'User action: {input_act}')
+        logger.state(f'Dialog state: {state}')
         return input_act, state, encoded_state 
 
     def action_decode(self, action, state):
@@ -170,28 +177,15 @@ class DialogAgent(Agent):
         if util.in_eval_lab_modes() or self.algorithm.__class__.__name__ == 'ExternalPolicy':  # eval does not update agent for training
             self.body.state, self.body.encoded_state = next_state, encoded_state
             return
-        self.body.memory.update(self.body.encoded_state, self.body.action, reward, encoded_state, done)
+        if not hasattr(self.body, 'warmup_memory') or self.body.env.clock.epi > self.warmup_epi:
+            self.body.memory.update(self.body.encoded_state, self.body.action, reward, encoded_state, done)
+        else:
+            self.body.warmup_memory.update(self.body.encoded_state, self.body.action, reward, encoded_state, done)
         self.body.state, self.body.encoded_state = next_state, encoded_state
         loss = self.algorithm.train()
         if not np.isnan(loss):  # set for log_summary()
             self.body.loss = loss
         explore_var = self.algorithm.update()
-        return loss, explore_var
-
-        # self.body.state, self.body.encoded_state = state, encoded_state
-        # if self.algorithm.__class__.__name__ == 'ExternalPolicy':
-        #     loss, explore_var = 0, 0
-        #     self.body.memory.update(0, reward, 0, done)
-        # else:
-        #     self.body.action_pd_update()
-        #     self.body.memory.update(self.body.action, reward, encoded_state, done)
-        #     loss = self.algorithm.train()
-        #     if not np.isnan(loss):  # set for log_summary()
-        #         self.body.loss = loss
-        #     explore_var = self.algorithm.update()
-        #     logger.debug(f'Agent {self.a} loss: {loss}, explore_var {explore_var}')
-        # if done:
-        #     self.body.epi_update()
         return loss, explore_var
 
     @lab_api

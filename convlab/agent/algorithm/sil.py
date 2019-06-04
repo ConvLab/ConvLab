@@ -1,3 +1,6 @@
+# Modified by Microsoft Corporation.
+# Licensed under the MIT license.
+
 from convlab.agent import net, memory
 from convlab.agent.algorithm import policy_util
 from convlab.agent.algorithm.actor_critic import ActorCritic
