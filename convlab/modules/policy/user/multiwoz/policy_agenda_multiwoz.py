@@ -425,7 +425,7 @@ class Agenda(object):
                     if domain in ['train', 'restaurant']:
                         slot = 'duration' if domain == 'train' else 'time'
                     else:
-                        print('illegal booking slot: %s, slot: %s domain' % (slot, domain))
+                        logger.warning(f'illegal booking slot: {slot}, domain: {domain}')
                         continue
 
                 if slot in g_reqt:
