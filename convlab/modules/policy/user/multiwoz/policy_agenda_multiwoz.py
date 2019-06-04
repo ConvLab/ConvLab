@@ -14,6 +14,9 @@ import copy
 from convlab.modules.usr.multiwoz.goal_generator import GoalGenerator
 from convlab.modules.policy.user.policy import UserPolicy
 from convlab.modules.util.multiwoz_slot_trans import REF_USR_DA, REF_SYS_DA
+from convlab.lib import logger
+
+logger = logger.get_logger(__name__)
 
 DEF_VAL_UNK = '?'  # Unknown
 DEF_VAL_DNC = 'don\'t care'  # Do not care
@@ -206,7 +209,7 @@ class UserPolicyAgendaMultiWoz(UserPolicy):
             if check_if_time(value):
                 return value
 
-            print('illegal value: %s, slot: %s domain: %s' % (value, slot, domain))
+            logger.warning('Value not found in standard value set: [%s] (slot: %s domain: %s)' % (value, slot, domain))
         return value
 
 def transform_value(value):

@@ -1,4 +1,3 @@
-from convlab.lib import util
 import colorlog
 import logging
 import os
