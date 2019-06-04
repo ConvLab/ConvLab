@@ -153,12 +153,12 @@ class UserPolicyAgendaMultiWoz(UserPolicy):
     def _transform_sysact_in(cls, action):
         new_action = {}
         if not isinstance(action, dict):
-            print('illegal da:', action)
+            logger.warning(f'illegal da: {action}')
             return new_action
 
         for act in action.keys():
             if not isinstance(act, str) or '-' not in act:
-                print('illegal act: %s' % act)
+                logger.warning(f'illegal act: {act}')
                 continue
 
             if 'general' not in act:
@@ -168,8 +168,8 @@ class UserPolicyAgendaMultiWoz(UserPolicy):
                     for pairs in action[act]:
                         if (not isinstance(pairs, list) and not isinstance(pairs, tuple)) or\
                                 (len(pairs) < 2) or\
-                                (not isinstance(pairs[0], str) or not isinstance(pairs[1], str)):
-                            print('illegal pairs:', pairs)
+                                (not isinstance(pairs[0], str) or (not isinstance(pairs[1], str) and not isinstance(pairs[1], int))):
+                            logger.warning(f'illegal pairs: {pairs}')
                             continue
 
                         if REF_SYS_DA_M[dom].get(pairs[0].lower(), None) is not None:
@@ -209,7 +209,7 @@ class UserPolicyAgendaMultiWoz(UserPolicy):
             if check_if_time(value):
                 return value
 
-            logger.warning('Value not found in standard value set: [%s] (slot: %s domain: %s)' % (value, slot, domain))
+            logger.debug('Value not found in standard value set: [%s] (slot: %s domain: %s)' % (value, slot, domain))
         return value
 
 def transform_value(value):
