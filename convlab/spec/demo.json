@@ -1196,7 +1196,7 @@
         "name": "WarmUpDQN",
         "action_pdtype": "Argmax",
         "action_policy": "warmup_epsilon_greedy",
-        "warmup_epi": 5000,
+        "warmup_epi": 1000,
         "explore_var_spec": {
           "name": "linear_decay",
           "start_val": 0.1,
