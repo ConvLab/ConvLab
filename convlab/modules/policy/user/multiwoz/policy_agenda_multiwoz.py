@@ -7,6 +7,7 @@
 __time__ = '2019/1/31 10:24'
 
 import os
+import re
 import random
 import json
 import copy
@@ -190,15 +191,60 @@ class UserPolicyAgendaMultiWoz(UserPolicy):
             return value
 
         value_list = cls.stand_value_dict[domain][slot]
+        low_value_list = [item.lower() for item in value_list]
+        value_list = list(set(value_list).union(set(low_value_list)))
         if value not in value_list:
-            v0 = ' '.join(value.split())
-            v0N = ''.join(value.split())
-            for val in value_list:
-                v1 = ' '.join(val.split())
-                if v0 in v1 or v1 in v0 or v0N in v1 or v1 in v0N:
-                    return v1
+            normalized_v = simple_fuzzy_match(value_list, value)
+            if normalized_v is not None:
+                return normalized_v
+            # try some transformations
+            cand_values = transform_value(value)
+            for cv in cand_values:
+                _nv = simple_fuzzy_match(value_list, cv)
+                if _nv is not None:
+                    return _nv
+            if check_if_time(value):
+                return value
+
             print('illegal value: %s, slot: %s domain: %s' % (value, slot, domain))
         return value
+
+def transform_value(value):
+    cand_list = []
+    # a 's -> a's
+    if " 's" in value:
+        cand_list.append(value.replace(" 's", "'s"))
+    # a - b -> a-b
+    if " - " in value:
+        cand_list.append(value.replace(" - ", "-"))
+    return cand_list
+
+def simple_fuzzy_match(value_list, value):
+    # check contain relation
+    v0 = ' '.join(value.split())
+    v0N = ''.join(value.split())
+    for val in value_list:
+        v1 = ' '.join(val.split())
+        if v0 in v1 or v1 in v0 or v0N in v1 or v1 in v0N:
+            return v1
+    value = value.lower()
+    v0 = ' '.join(value.split())
+    v0N = ''.join(value.split())
+    for val in value_list:
+        v1 = ' '.join(val.split())
+        if v0 in v1 or v1 in v0 or v0N in v1 or v1 in v0N:
+            return v1
+    return None
+
+def check_if_time(value):
+    value = value.strip()
+    match = re.search(r"(\d{1,2}:\d{1,2})", value)
+    if match is None:
+        return False
+    groups = match.groups()
+    if len(groups) <= 0:
+        return False
+    return True
 
 
 class Goal(object):
