@@ -14,7 +14,8 @@ from allennlp.data.instance import Instance
 
 from convlab.lib.file_util import cached_path
 from convlab.modules.dst.multiwoz.rule_dst import RuleDST
-from convlab.modules.policy.system.multiwoz.util import ActionVocab, state_encoder
+from convlab.modules.policy.system.multiwoz.util import ActionVocab 
+from convlab.modules.state_encoder.multiwoz.multiwoz_state_encoder import MultiWozStateEncoder
 
 logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
 
@@ -37,6 +38,7 @@ class MlePolicyDatasetReader(DatasetReader):
         self.dst = RuleDST()
         self.action_vocab = ActionVocab(num_actions=num_actions)
         self.action_list = self.action_vocab.vocab
+        self.state_encoder = MultiWozStateEncoder()
 
     @overrides
     def _read(self, file_path):
@@ -72,7 +74,7 @@ class MlePolicyDatasetReader(DatasetReader):
                                     break
                         else:
                             delex_act[domain_act] = [sv[0] for sv in turn["dialog_act"][domain_act]]
-                    state_vector = state_encoder(self.dst.state)
+                    state_vector = self.state_encoder.encode(self.dst.state)
                     action_index = self.find_best_delex_act(delex_act)
 
                     yield self.text_to_instance(state_vector, action_index)

@@ -15,7 +15,7 @@ from allennlp.training.metrics import CategoricalAccuracy
 
 
 @Model.register("vanilla_mle_policy")
-class VanillaMlePolicy(Model):
+class VanillaMLE(Model):
     """
     The ``MlstNlu`` encodes a sequence of text with a ``Seq2SeqEncoder``,
     then uses a Conditional Random Field model to predict a tag for each token in the sequence.
