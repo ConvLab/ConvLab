@@ -83,8 +83,8 @@ class Replay(Memory):
         self.seen_size = 0  # total experiences seen cumulatively
         self.head = -1  # index of most recent experience
         # generic next_state buffer to store last next_states (allow for multiple for venv)
-        self.ns_idx_offset = self.body.env.num_envs if body.env.is_venv else 1
-        self.ns_buffer = deque(maxlen=self.ns_idx_offset)
+        # self.ns_idx_offset = self.body.env.num_envs if body.env.is_venv else 1
+        # self.ns_buffer = deque(maxlen=self.ns_idx_offset)
         # declare what data keys to store
         self.data_keys = ['states', 'actions', 'rewards', 'next_states', 'dones']
         self.reset()
@@ -93,12 +93,13 @@ class Replay(Memory):
         '''Initializes the memory arrays, size and head pointer'''
         # set self.states, self.actions, ...
         for k in self.data_keys:
-            if k != 'next_states':  # reuse self.states
-                # list add/sample is over 10x faster than np, also simpler to handle
-                setattr(self, k, [None] * self.max_size)
+            setattr(self, k, [None] * self.max_size)
+            # if k != 'next_states':  # reuse self.states
+            #     # list add/sample is over 10x faster than np, also simpler to handle
+            #     setattr(self, k, [None] * self.max_size)
         self.size = 0
         self.head = -1
-        self.ns_buffer.clear()
+        # self.ns_buffer.clear()
 
     @lab_api
     def update(self, state, action, reward, next_state, done):
@@ -116,8 +117,10 @@ class Replay(Memory):
         self.states[self.head] = state.astype(np.float16)
         self.actions[self.head] = action
         self.rewards[self.head] = reward
-        self.ns_buffer.append(next_state.astype(np.float16))
+        self.next_states[self.head] = next_state 
+        # self.ns_buffer.append(next_state.astype(np.float16))
         self.dones[self.head] = done
+        
         # Actually occupied size of memory
         if self.size < self.max_size:
             self.size += 1
@@ -142,10 +145,11 @@ class Replay(Memory):
         self.batch_idxs = self.sample_idxs(self.batch_size)
         batch = {}
         for k in self.data_keys:
-            if k == 'next_states':
-                batch[k] = sample_next_states(self.head, self.max_size, self.ns_idx_offset, self.batch_idxs, self.states, self.ns_buffer)
-            else:
-                batch[k] = util.batch_get(getattr(self, k), self.batch_idxs)
+            batch[k] = util.batch_get(getattr(self, k), self.batch_idxs)
+            # if k == 'next_states':
+            #     batch[k] = sample_next_states(self.head, self.max_size, self.ns_idx_offset, self.batch_idxs, self.states, self.ns_buffer)
+            # else:
+            #     batch[k] = util.batch_get(getattr(self, k), self.batch_idxs)
         return batch
 
     def sample_idxs(self, batch_size):
