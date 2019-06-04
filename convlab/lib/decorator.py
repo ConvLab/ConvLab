@@ -1,3 +1,6 @@
+# Modified by Microsoft Corporation.
+# Licensed under the MIT license.
+
 from functools import wraps
 from convlab.lib import logger
 import time
