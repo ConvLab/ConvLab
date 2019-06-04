@@ -1,4 +1,4 @@
-# Modified by Microsoft Corporation.
+# Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
 from copy import deepcopy

@@ -1,3 +1,6 @@
+# Modified by Microsoft Corporation.
+# Licensed under the MIT license.
+
 # The random agent algorithm
 # For basic dev purpose
 from convlab.agent.algorithm.base import Algorithm

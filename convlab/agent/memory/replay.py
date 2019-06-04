@@ -1,3 +1,6 @@
+# Modified by Microsoft Corporation.
+# Licensed under the MIT license.
+
 from collections import deque
 from copy import deepcopy
 from convlab.agent.memory.base import Memory

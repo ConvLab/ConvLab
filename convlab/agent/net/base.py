@@ -1,3 +1,6 @@
+# Modified by Microsoft Corporation.
+# Licensed under the MIT license.
+
 from abc import ABC, abstractmethod
 from convlab.agent.net import net_util
 import pydash as ps

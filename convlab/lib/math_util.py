@@ -1,3 +1,6 @@
+# Modified by Microsoft Corporation.
+# Licensed under the MIT license.
+
 # Various math calculations used by algorithms
 import numpy as np
 import torch
