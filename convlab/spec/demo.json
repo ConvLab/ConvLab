@@ -1423,8 +1423,8 @@
         },
         "gamma": 0.9,
         "training_batch_iter": 1,
-        "training_iter": 1000,
-        "training_frequency": 300,
+        "training_iter": 500,
+        "training_frequency": 200,
         "training_start_step": 32
       },
       "memory": {
@@ -1480,7 +1480,7 @@
       "eval_frequency": 2000,
       "max_tick_unit": "total_t",
       "max_trial": 1,
-      "max_session": 1,
+      "max_session": 3,
       "resources": {
         "num_cpus": 1,
         "num_gpus": 0
