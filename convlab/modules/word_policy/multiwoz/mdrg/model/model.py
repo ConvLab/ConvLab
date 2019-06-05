@@ -543,11 +543,14 @@ class Model(nn.Module):
             # f.write(unicode(json.dumps(vars(self.args), ensure_ascii=False, indent=4)))
             f.write(json.dumps(vars(self.args), ensure_ascii=False, indent=4))
 
-    def loadModel(self, iter=0):
+    def loadModel(self, model_file=None, iter=0):
         print('Loading parameters of iter %s ' % iter)
-        self.encoder.load_state_dict(torch.load(self.model_dir + self.model_name + '-' + str(iter) + '.enc'))
-        self.policy.load_state_dict(torch.load(self.model_dir + self.model_name + '-' + str(iter) + '.pol'))
-        self.decoder.load_state_dict(torch.load(self.model_dir + self.model_name + '-' + str(iter) + '.dec'))
+        # self.encoder.load_state_dict(torch.load(self.model_dir + self.model_name + '-' + str(iter) + '.enc'))
+        # self.policy.load_state_dict(torch.load(self.model_dir + self.model_name + '-' + str(iter) + '.pol'))
+        # self.decoder.load_state_dict(torch.load(self.model_dir + self.model_name + '-' + str(iter) + '.dec'))
+        self.encoder.load_state_dict(torch.load(model_file + '.enc'))
+        self.policy.load_state_dict(torch.load(model_file + '.pol'))
+        self.decoder.load_state_dict(torch.load(model_file + '.dec'))
 
     def input_index2word(self, index):
         # if self.input_lang_index2word.has_key(index):
