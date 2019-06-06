@@ -1,27 +1,32 @@
 """
-evaluate NLG performance on multiwoz system side data
+Evaluate NLG models on Multiwoz test dataset
+Metric: dataset level BLEU-4, slot error rate
+Usage: PYTHONPATH=../../../.. python evaluate.py [SCLSTM|MultiwozTemplateNLG]
 """
 import os
 import sys
-
-proj_path = os.path.abspath(os.path.join(os.path.abspath(__file__), "../../.."))
-sys.path.insert(0, proj_path)
-print(sys.path[0])
 from nltk.translate.bleu_score import corpus_bleu, SmoothingFunction
 from convlab.modules.nlg.multiwoz.multiwoz_template_nlg import MultiwozTemplateNLG
 from convlab.modules.nlg.multiwoz.sc_lstm.nlg_sc_lstm import SCLSTM
-from convlab.modules.nlg.multiwoz.nlg import NLG
+from convlab.modules.nlg.nlg import NLG
 import json
 import zipfile
 import numpy as np
+import random
+import numpy
+import torch
+seed = 2019
+random.seed(seed)
+numpy.random.seed(seed)
+torch.manual_seed(seed)
+from pprint import pprint
 
 
-def get_BLEU4(da2utt_list, nlg_model):
-    assert isinstance(nlg_model, NLG)
+def get_bleu4(dialog_acts, golden_utts, gen_utts):
     das2utts = {}
-    for das, utt in da2utt_list:
+    for das, utt, gen in zip(dialog_acts, golden_utts, gen_utts):
         utt = utt.lower()
-        gen = nlg_model.generate(das).lower()
+        gen = gen.lower()
         for da, svs in das.items():
             domain, act = da.split('-')
             if act == 'Request' or domain == 'general':
@@ -36,29 +41,29 @@ def get_BLEU4(da2utt_list, nlg_model):
                             utt = utt.replace(v, '{}-{}'.format(da, s), 1)
                         if (' ' + v in gen) or (v + ' ' in gen):
                             gen = gen.replace(v, '{}-{}'.format(da, s), 1)
-
         hash_key = ''
         for da in sorted(das.keys()):
-            for s,v in sorted(das[da], key=lambda x: x[0]):
-                hash_key += da+'-'+s+';'
-        das2utts.setdefault(hash_key,{'refs': [], 'gens': []})
+            for s, v in sorted(das[da], key=lambda x: x[0]):
+                hash_key += da + '-' + s + ';'
+        das2utts.setdefault(hash_key, {'refs': [], 'gens': []})
         das2utts[hash_key]['refs'].append(utt)
         das2utts[hash_key]['gens'].append(gen)
+    pprint(das2utts)
     refs, gens = [], []
     for das in das2utts.keys():
         for gen in das2utts[das]['gens']:
             refs.append([s.split() for s in das2utts[das]['refs']])
             gens.append(gen.split())
-    bleu = corpus_bleu(refs, gens, weights=(0.25, 0.25, 0.25, 0.25),smoothing_function=SmoothingFunction().method1)
+    bleu = corpus_bleu(refs, gens, weights=(0.25, 0.25, 0.25, 0.25), smoothing_function=SmoothingFunction().method1)
     return bleu
 
 
-def get_err_slot(da2utt_list, nlg_model):
+def get_err_slot(dialog_acts, nlg_model):
     assert isinstance(nlg_model, SCLSTM)
     errs = []
     N_total, p_total, q_total = 0, 0, 0
-    for i, (das, utt) in enumerate(da2utt_list):
-        print('[%d/%d]'% (i+1,len(da2utt_list)))
+    for i, das in enumerate(dialog_acts):
+        print('[%d/%d]'% (i+1,len(dialog_acts)))
         gen = nlg_model.generate_slots(das)
         triples = []
         counter = {}
@@ -95,22 +100,47 @@ def get_err_slot(da2utt_list, nlg_model):
 
 
 if __name__ == '__main__':
-    data_path = os.path.join(proj_path, 'data/multiwoz/test.json.zip')
-    print(data_path)
-    archive = zipfile.ZipFile(data_path, 'r')
-    dataset = json.load(archive.open('test.json'))
-    print('test set:', len(dataset))
-    da2utt_list = []
-    for no, sess in dataset.items():
+    if len(sys.argv) != 2 :
+        print("usage:")
+        print("\t python evaluate.py model_name")
+        print("\t model_name=SCLSTM or MultiwozTemplateNLG")
+        sys.exit()
+    model_name = sys.argv[1]
+    print("Loading", model_name)
+    if model_name == 'SCLSTM':
+        model = SCLSTM()
+    elif model_name == 'MultiwozTemplateNLG':
+        model_user = MultiwozTemplateNLG(is_user=True)
+        model_sys = MultiwozTemplateNLG(is_user=False)
+    else:
+        raise Exception("Available model: SCLSTM, MultiwozTemplateNLG")
+
+    archive = zipfile.ZipFile('../../../../data/multiwoz/test.json.zip', 'r')
+    test_data = json.load(archive.open('test.json'))
+
+    dialog_acts = []
+    golden_utts = []
+    gen_utts = []
+
+    sess_num = 0
+    for no, sess in list(test_data.items()):
+        sess_num+=1
+        print('[%d/%d]' % (sess_num, len(test_data)))
         for i, turn in enumerate(sess['log']):
-            if i % 2 == 1:
-                da2utt_list.append((turn['dialog_act'], turn['text']))
-    # print(da2utt_list[0])
-    models = [MultiwozTemplateNLG(is_user=False), SCLSTM()]
-    for model in models[1:]:
-        # bleu4 = get_BLEU4(da2utt_list, model)
-        # print(model, bleu4)
-        # 0.33670454158214 for templateNLG
-        # 0.4978659870379056 for sc-lstm
-        err = get_err_slot(da2utt_list, model)
-        print('ERR:',err)
+            dialog_acts.append(turn['dialog_act'])
+            golden_utts.append(turn['text'])
+            if model_name == 'SCLSTM':
+                gen_utts.append(model.generate(turn['dialog_act']))
+            elif model_name == 'MultiwozTemplateNLG':
+                if i % 2 == 0:
+                    gen_utts.append(model_user.generate(turn['dialog_act']))
+                else:
+                    gen_utts.append(model_sys.generate(turn['dialog_act']))
+
+    print("Calculate bleu-4")
+    print("BLEU-4: %.4f" % get_bleu4(dialog_acts, golden_utts, gen_utts))
+
+    if model_name == 'SCLSTM':
+        print("Calculate slot error rate:")
+        err = get_err_slot(dialog_acts, model)
+        print('ERR:', err)

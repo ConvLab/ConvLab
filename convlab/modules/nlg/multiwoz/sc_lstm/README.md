@@ -1,44 +1,40 @@
 # nlg-sclstm-multiwoz
-pytorch implementation of semantically-conditioned LSTM on multiwoz data
 
+Semantically-conditioned LSTM (SC-LSTM) is an NLG model that generates natural linguistically varied responses based on a deep, semantically controlled LSTM architecture. The code derives from [github](https://github.com/andy194673/nlg-sclstm-multiwoz). The original paper can be found at [ACL Anthology](https://aclweb.org/anthology/papers/D/D15/D15-1199/)
 
-semantically-conditioned LSTM: https://arxiv.org/pdf/1508.01745.pdf
-
-# Run the code
+## Run the code
 
 unzip [rar](https://drive.google.com/open?id=14EP8X-bcGgZqbOxQ_k2RSw_iJAMZvFiR) here
 
-
-
-l=1
-
-lr=0.005
-
-model_path=./sclstm.pt
-
-log=./sclstm.log
-
-res=./sclstm.res
-
-
-
 TRAIN
-```
-python3 run_woz.py  --mode=train --model_path=$model_path --n_layer=$l --lr=$lr > $log
+```bash
+$ PYTHONPATH=../../../../.. python3 run_woz.py  --mode=train --model_path=sclstm.pt --n_layer=1 --lr=0.005 > sclstm.log
 ```
 
 TEST
 
-```
-
-python3 run_woz.py --mode=test --model_path=$model_path --n_layer=$l --beam_size=10 > $res
-
+```bash
+$ PYTHONPATH=../../../../.. python3 run_woz.py --mode=test --model_path=sclstm.pt --n_layer=1 --beam_size=10 > sclstm.res
 ```
 
 Calculate BLEU
 
+```bash
+$ PYTHONPATH=../../../../.. python3 bleu.py --res_file=sclstm.res
 ```
 
-python3 bleu.py --res_file=$res
+## Data
 
+We use the multiwoz data (./resource/\*).
+
+## Reference
+
+```
+@inproceedings{wen2015semantically,
+  title={Semantically Conditioned LSTM-based Natural Language Generation for Spoken Dialogue Systems},
+  author={Wen, Tsung-Hsien and Gasic, Milica and Mrk{\v{s}}i{\'c}, Nikola and Su, Pei-Hao and Vandyke, David and Young, Steve},
+  booktitle={Proceedings of the 2015 Conference on Empirical Methods in Natural Language Processing},
+  pages={1711--1721},
+  year={2015}
+}
 ```

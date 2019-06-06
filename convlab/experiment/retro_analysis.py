@@ -1,3 +1,6 @@
+# Modified by Microsoft Corporation.
+# Licensed under the MIT license.
+
 # The retro analysis module
 # Runs analysis post-hoc using existing data files
 # example: yarn retro_analyze data/reinforce_cartpole_2018_01_22_211751/

@@ -1,3 +1,6 @@
+# Modified by Microsoft Corporation.
+# Licensed under the MIT license.
+
 from convlab.agent.memory.replay import Replay
 from convlab.lib import util
 from convlab.lib.decorator import lab_api

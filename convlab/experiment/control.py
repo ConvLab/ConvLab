@@ -1,3 +1,6 @@
+# Modified by Microsoft Corporation.
+# Licensed under the MIT license.
+
 # The control module
 # Creates and runs control loops at levels: Experiment, Trial, Session
 from copy import deepcopy
@@ -93,6 +96,7 @@ class Session:
         success = fail = 0 
         for _ in range(self.num_eval):
             _return, task_success = analysis.gen_result(self.agent, self.eval_env)
+            logger.nl(f'A dialog session is done')
             returns.append(_return)
             if hasattr(self.eval_env, 'get_task_success'):
                 if task_success:
@@ -113,7 +117,6 @@ class Session:
         done = False
         while True:
             if util.epi_done(done):  # before starting another episode
-                # logger.info(f'A dialog session is done')
                 logger.nl(f'A dialog session is done')
                 self.try_ckpt(self.agent, self.env)
                 t = clock.get()
@@ -165,16 +168,16 @@ class Trial:
 
     def parallelize_sessions(self, global_nets=None):
         mp_dict = mp.Manager().dict()
-        spec_util.tick(self.spec, 'session')
-        mp_run_session(deepcopy(self.spec), global_nets, mp_dict)
-        # workers = []
-        # for _s in range(self.spec['meta']['max_session']):
-        #     spec_util.tick(self.spec, 'session')
-        #     w = mp.Process(target=mp_run_session, args=(deepcopy(self.spec), global_nets, mp_dict))
-        #     w.start()
-        #     workers.append(w)
-        # for w in workers:
-        #     w.join()
+        # spec_util.tick(self.spec, 'session')
+        # mp_run_session(deepcopy(self.spec), global_nets, mp_dict)
+        workers = []
+        for _s in range(self.spec['meta']['max_session']):
+            spec_util.tick(self.spec, 'session')
+            w = mp.Process(target=mp_run_session, args=(deepcopy(self.spec), global_nets, mp_dict))
+            w.start()
+            workers.append(w)
+        for w in workers:
+            w.join()
         session_metrics_list = [mp_dict[idx] for idx in sorted(mp_dict.keys())]
         return session_metrics_list
 

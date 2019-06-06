@@ -1,3 +1,6 @@
+# Modified by Microsoft Corporation.
+# Licensed under the MIT license.
+
 # The agent module
 import numpy as np
 import pandas as pd
@@ -142,8 +145,8 @@ class DialogAgent(Agent):
         action = self.algorithm.act(self.body.encoded_state)
         decoded_action = self.action_decode(action, self.body.state) 
         self.body.action = action
-        logger.nl(f'Agent {self.a} system utterance: {decoded_action}')
-        logger.act(f'Agent {self.a} system action: {action}')
+        logger.nl(f'System utterance: {decoded_action}')
+        logger.act(f'System action: {action}')
         return decoded_action
     
     def state_update(self, observation, action):
@@ -156,9 +159,9 @@ class DialogAgent(Agent):
             self.dst.state['user_action'] = input_act 
         elif self.dst and not isinstance(self.dst, word_dst.MDBTTracker):  # for act-in act-out agent
             self.dst.state['user_action'] = observation 
-        logger.nl(f'Agent {self.a} user utterance: {observation}')
-        logger.act(f'Agent {self.a} user action: {input_act}')
-        logger.state(f'Agent {self.a} dialog state: {state}')
+        logger.nl(f'User utterance: {observation}')
+        logger.act(f'User action: {input_act}')
+        logger.state(f'Dialog state: {state}')
         return input_act, state, encoded_state 
 
     def action_decode(self, action, state):
