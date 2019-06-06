@@ -54,12 +54,16 @@ We use the multiwoz data (data/multiwoz/[train|val|test].json.zip).
   year={2009},
   organization={IEEE}
 }
-@article{ultes2017pydial,
-  title={Pydial: A multi-domain statistical dialogue system toolkit},
-  author={Ultes, Stefan and Barahona, Lina M Rojas and Su, Pei-Hao and Vandyke, David and Kim, Dongho and Casanueva, Inigo and Budzianowski, Pawe{\l} and Mrk{\v{s}}i{\'c}, Nikola and Wen, Tsung-Hsien and Gasic, Milica and others},
-  journal={Proceedings of ACL 2017, System Demonstrations},
-  pages={73--78},
-  year={2017}
+@InProceedings{ultes2017pydial,
+  author    = {Ultes, Stefan  and  Rojas Barahona, Lina M.  and  Su, Pei-Hao  and  Vandyke, David  and  Kim, Dongho  and  Casanueva, I\~{n}igo  and  Budzianowski, Pawe{\l}  and  Mrk\v{s}i\'{c}, Nikola  and  Wen, Tsung-Hsien  and  Gasic, Milica  and  Young, Steve},
+  title     = {{PyDial: A Multi-domain Statistical Dialogue System Toolkit}},
+  booktitle = {Proceedings of ACL 2017, System Demonstrations},
+  month     = {July},
+  year      = {2017},
+  address   = {Vancouver, Canada},
+  publisher = {Association for Computational Linguistics},
+  pages     = {73--78},
+  url       = {http://aclweb.org/anthology/P17-4013}
 }
 ```
 
