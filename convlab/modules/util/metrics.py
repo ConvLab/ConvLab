@@ -210,7 +210,7 @@ class Evaluator(object):
             for da in self.usr_da_array:
                 d, i, s, v = da.split('-')
                 if i == 'inform' and s in mapping[d]:
-                    goal[d]['inform'][s] = v
+                    goal[d]['info'][s] = v
                 elif i == 'request':
                     goal[d]['reqt'].append(s)
         TP, FP, FN = self.inform_F1_goal(goal, self.sys_da_array)
