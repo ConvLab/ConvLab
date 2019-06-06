@@ -4,23 +4,23 @@ Sequicity is an end-to-end task-oriented dialog system based on a single sequenc
 
 ## Training with default parameters
 
-   ```
-   python model.py -mode train -model tsdf-multiwoz
-   python model.py -mode adjust -model tsdf-multiwoz -c lr=0.0003
+   ```bash
+$ PYTHONPATH=../../../../.. python model.py -mode train -model tsdf-multiwoz
+$ PYTHONPATH=../../../../.. python model.py -mode adjust -model tsdf-multiwoz -c lr=0.0003
    ```
 
    (optional: configuring hyperparameters with cmdline)
 
    ## Testing
 
-   ```
-   python model.py -mode test -model tsdf-multiwoz
+   ```bash
+$ PYTHONPATH=../../../../.. python model.py -mode test -model tsdf-multiwoz
    ```
 
    ## Reinforcement fine-tuning
 
-   ```
-   python model.py -mode rl -model tsdf-multiwoz -c lr=0.0001
+   ```bash
+$ PYTHONPATH=../../../../.. python model.py -mode rl -model tsdf-multiwoz -c lr=0.0001
    ```
 
 ## What's new
@@ -32,9 +32,11 @@ Please download [data, trained model & results](https://drive.google.com/open?id
 - Fill the placeholder slots by querying DBs
 - The model are saved at *models/multiwoz.pkl*, results are provided in the *results/multiwoz.csv*
 - Interact with the agent using command line  (command END/RESET to end/reset the current dialog session)
+
+```bash
+$ PYTHONPATH=../../../../.. python model.py -mode interact -model tsdf-multiwoz
 ```
-python model.py -mode interact -model tsdf-multiwoz
-```
+
 ## Data
 
 We use the multiwoz data (./data/MultiWoz/[train|val|test].json)
