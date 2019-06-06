@@ -18,7 +18,7 @@ output processed data on `corpora/data` dir.
 $ PYTHONPATH=../../../../.. python train.py config/multiwoz.cfg
 ```
 
-The model will be saved on `model/multiwoz.pkl`. Also, it will be zipped as `model/svm_multiwoz.zip`.
+The model will be saved on `model/multiwoz.pkl`. Also, it will be zipped as `model/svm_multiwoz.zip`. You can download this from `https://convlab.blob.core.windows.net/models/svm_multiwoz.zip` too.
 
 #### Evaluate
 
