@@ -92,34 +92,43 @@ class Session:
                     # body.log_metrics(metrics['scalar'], 'eval')
 
     def run_eval(self):
-        returns = []
-        success = fail = 0 
+        lens, returns, successes, precs, recs, f1s, book_rates = [], [], [], [], [], [], []
         for _ in range(self.num_eval):
-            _return, task_success = analysis.gen_result(self.agent, self.eval_env)
+            returns.append(analysis.gen_result(self.agent, self.eval_env))
+            lens.append(self.eval_env.clock.t)
+            if self.agent.evaluator: 
+                successes.append(self.agent.evaluator.task_success())
+                _p, _r, _f1 = self.agent.evaluator.inform_F1() 
+                precs.append(_p)
+                recs.append(_r)
+                f1s.append(_f1)
+                book_rates.append(self.agent.evaluator.book_rate())
+            elif hasattr(self.eval_env, 'get_task_success'):
+                successes.append(self.eval_env.get_task_success())
             logger.nl(f'A dialog session is done')
-            returns.append(_return)
-            if hasattr(self.eval_env, 'get_task_success'):
-                if task_success:
-                    success += 1
-                else: 
-                    fail += 1
-        if hasattr(self.eval_env, 'get_task_success'):
-            logger.info('{} episodes, {} average return, {}% success rate'.format(self.num_eval, sum(returns)/self.num_eval, success/(success+fail)*100))
-        else:
-            logger.info('{} episodes, {} average return'.format(self.num_eval, sum(returns)/self.num_eval))
+        result = f'{self.num_eval} episodes, {sum(returns)/self.num_eval} return'
+        if len(successes) > 0:
+            result += f', {sum(successes)/self.num_eval*100}% success rate'
+        if len(lens) > 0:
+            result += f', {sum(lens)/self.num_eval} turns'
+        if len(precs) > 0:
+            result += f', {sum(precs)/self.num_eval} P, {sum(recs)/self.num_eval} R, {sum(f1s)/self.num_eval} F1'
+        if len(book_rates) > 0:
+            result += f', {sum(book_rates)/self.num_eval} book rate'
+        logger.info(result)
 
     def run_rl(self):
         '''Run the main RL loop until clock.max_frame'''
         logger.info(f'Running RL loop for trial {self.spec["meta"]["trial"]} session {self.index}')
         clock = self.env.clock
         obs = self.env.reset()
+        clock.tick('t')
         self.agent.reset(obs)
         done = False
         while True:
             if util.epi_done(done):  # before starting another episode
                 logger.nl(f'A dialog session is done')
                 self.try_ckpt(self.agent, self.env)
-                t = clock.get()
                 if clock.get() < clock.max_frame:  # reset and continue
                     clock.tick('epi')
                     obs = self.env.reset()

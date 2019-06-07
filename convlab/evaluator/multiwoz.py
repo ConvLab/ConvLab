@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-"""
-@author: truthless
-"""
+
 import numpy as np
 import random
-from convlab.modules.word_policy.multiwoz.mdrg.utils.dbquery import query
+
+from convlab.evaluator.evaluator import Evaluator 
+from convlab.modules.util.dbquery import query
 
 requestable = \
 {'attraction': ['post', 'phone', 'addr', 'fee', 'area', 'type'],
@@ -25,7 +25,7 @@ mapping = {'restaurant': {'addr': 'address', 'area': 'area', 'food': 'food', 'na
         'hospital': {'post': 'postcode', 'phone': 'phone', 'addr': 'address', 'department': 'department'},
         'police': {'post': 'postcode', 'phone': 'phone', 'addr': 'address'}}
 
-class Evaluator(object):
+class MultiWozEvaluator(Evaluator):
     def __init__(self):
         self.sys_da_array = []
         self.usr_da_array = []
@@ -185,7 +185,7 @@ class Evaluator(object):
                     FP += 1
         return TP, FP, FN
     
-    def book_rate(self, ref2goal=True, aggregate=False):
+    def book_rate(self, ref2goal=True, aggregate=True):
         if ref2goal:
             goal = self._expand(self.goal)
         else:
@@ -198,11 +198,11 @@ class Evaluator(object):
                     goal[d]['info'][s] = v
         score = self._book_rate_goal(goal, self.booked)
         if aggregate:
-            return score
-        else:
             return np.mean(score) if score else None
+        else:
+            return score
 
-    def inform_F1(self, ref2goal=True, aggregate=False):
+    def inform_F1(self, ref2goal=True, aggregate=True):
         if ref2goal:
             goal = self._expand(self.goal)
         else:
@@ -215,8 +215,6 @@ class Evaluator(object):
                     goal[d]['reqt'].append(s)
         TP, FP, FN = self._inform_F1_goal(goal, self.sys_da_array)
         if aggregate:
-            return [TP, FP, FN]
-        else:    
             try:
                 rec = TP / (TP + FN)
             except ZeroDivisionError:
@@ -227,6 +225,8 @@ class Evaluator(object):
             except ZeroDivisionError:
                 return 0, rec, 0
             return prec, rec, F1
+        else:    
+            return [TP, FP, FN]
         
     def task_success(self, ref2goal=True):
         book_sess = self.book_rate(ref2goal)
