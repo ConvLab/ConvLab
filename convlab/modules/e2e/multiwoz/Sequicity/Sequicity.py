@@ -6,6 +6,7 @@
 import os
 import random
 import torch
+import zipfile
 import numpy as np
 from torch.autograd import Variable
 from convlab.modules.e2e.multiwoz.Sequicity.model import Model
@@ -14,9 +15,6 @@ from convlab.modules.e2e.multiwoz.Sequicity.tsd_net import cuda_
 from convlab.modules.e2e.multiwoz.Sequicity.reader import pad_sequences
 from convlab.modules.policy.system.policy import SysPolicy
 from convlab.lib.file_util import cached_path
-
-from allennlp.common.checks import check_for_gpu
-from allennlp.models.archival import load_archive
 from nltk import word_tokenize
 
 DEFAULT_CUDA_DEVICE=-1
@@ -39,7 +37,10 @@ class Sequicity(SysPolicy):
             if not model_file:
                 raise Exception("No model for Sequicity is specified!")
             archive_file = cached_path(model_file)
-        load_archive(archive_file)
+        model_dir = os.path.dirname(os.path.abspath(__file__))
+        if not os.path.exists(os.path.join(model_dir, 'data')):
+            archive = zipfile.ZipFile(archive_file, 'r')
+            archive.extractall(model_dir)
         
         cfg.init_handler('tsdf-multiwoz')
         
