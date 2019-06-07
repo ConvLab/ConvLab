@@ -86,7 +86,7 @@ class MultiWozEnvironment(object):
         return self.env_info 
 
     def get_goal(self):
-        return deepcopy(self.simulator.policy.goal)
+        return deepcopy(self.simulator.policy.domain_goals)
 
     def step(self, action):
         user_response, user_act, session_over, reward = self.simulator.response(action, self.history)

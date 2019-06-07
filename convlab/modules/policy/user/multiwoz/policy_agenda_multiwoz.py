@@ -73,6 +73,7 @@ class UserPolicyAgendaMultiWoz(UserPolicy):
             self.goal_seeds = self.goal_seeds[1:]
         else:
             self.goal = Goal(self.goal_generator)
+        self.domain_goals = self.goal.domain_goals
         self.agenda = Agenda(self.goal)
 
     def predict(self, state, sys_action):
