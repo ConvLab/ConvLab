@@ -96,6 +96,7 @@ class Session:
         success = fail = 0 
         for _ in range(self.num_eval):
             _return, task_success = analysis.gen_result(self.agent, self.eval_env)
+            logger.nl(f'A dialog session is done')
             returns.append(_return)
             if hasattr(self.eval_env, 'get_task_success'):
                 if task_success:
@@ -116,7 +117,6 @@ class Session:
         done = False
         while True:
             if util.epi_done(done):  # before starting another episode
-                # logger.info(f'A dialog session is done')
                 logger.nl(f'A dialog session is done')
                 self.try_ckpt(self.agent, self.env)
                 t = clock.get()

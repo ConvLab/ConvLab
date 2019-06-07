@@ -9,7 +9,7 @@ from convlab.agent.algorithm.base import Algorithm
 from convlab.agent.algorithm import policy_util
 from convlab.lib import logger, util
 from convlab.lib.decorator import lab_api
-from convlab.modules import policy
+from convlab.modules import policy, word_policy
 
 import numpy as np
 from copy import deepcopy
@@ -38,8 +38,12 @@ class ExternalPolicy(Algorithm):
         ])
         self.action_policy = getattr(policy_util, self.action_policy)
         self.policy = None 
-        params = deepcopy(ps.get(self.algorithm_spec, 'policy'))
-        PolicyClass = getattr(policy, params.pop('name'))
+        if 'word_policy' in self.algorithm_spec:
+            params = deepcopy(ps.get(self.algorithm_spec, 'word_policy'))
+            PolicyClass = getattr(word_policy, params.pop('name'))
+        else:
+            params = deepcopy(ps.get(self.algorithm_spec, 'policy'))
+            PolicyClass = getattr(policy, params.pop('name'))
         self.policy = PolicyClass(**params) 
 
     def reset(self):

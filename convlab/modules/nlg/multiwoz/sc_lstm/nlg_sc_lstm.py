@@ -16,11 +16,11 @@ from convlab.modules.nlg.multiwoz.sc_lstm.model.lm_deep import LMDeep
 
 
 def parse():
-    parser = argparse.ArgumentParser(description='Train dialogue generator')
-    parser.add_argument('--model_path', type=str, default='sclstm.pt', help='saved model path')
-    parser.add_argument('--n_layer', type=int, default=1, help='# of layers in LSTM')
-    parser.add_argument('--beam_size', type=int, default=10, help='number of generated sentences')
-    args = parser.parse_args()
+    args = {
+        'model_path': 'sclstm.pt',
+        'n_layer': 1,
+        'beam_size': 10
+    }
 
     config = configparser.ConfigParser()
     config.read(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config/config.cfg'))
@@ -41,8 +41,8 @@ class SCLSTM(NLG):
         d_size = self.dataset.do_size + self.dataset.da_size + self.dataset.sv_size  # len of 1-hot feat
         vocab_size = len(self.dataset.word2index)
 
-        self.model = LMDeep('sclstm', vocab_size, vocab_size, hidden_size, d_size, n_layer=self.args.n_layer)
-        model_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), self.args.model_path)
+        self.model = LMDeep('sclstm', vocab_size, vocab_size, hidden_size, d_size, n_layer=self.args['n_layer'])
+        model_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), self.args['model_path'])
         # print(model_path)
         assert os.path.isfile(model_path)
         self.model.load_state_dict(torch.load(model_path))
@@ -97,7 +97,7 @@ class SCLSTM(NLG):
         feats_var = torch.FloatTensor(feats)
         feats_var = feats_var.cuda()
 
-        decoded_words = self.model.generate(self.dataset, feats_var, self.args.beam_size)
+        decoded_words = self.model.generate(self.dataset, feats_var, self.args['beam_size'])
         delex = decoded_words[0]  # (beam_size)
         
         return delex

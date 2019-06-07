@@ -9,6 +9,7 @@ from convlab.modules.word_dst.multiwoz import MDBTTracker
 from convlab.modules.policy.system.multiwoz import RuleBasedMultiwozBot, RuleInformBot, VanillaMLEPolicy
 from convlab.modules.policy.user.multiwoz import UserPolicyAgendaMultiWoz
 from convlab.modules.nlg.multiwoz import TemplateNLG, MultiwozTemplateNLG, SCLSTM
+from convlab.modules.word_policy.multiwoz import MDRGWordPolicy
 
 from convlab.modules.util import Log
 

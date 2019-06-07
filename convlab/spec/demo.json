@@ -19,7 +19,7 @@
           "name": "RuleBasedMultiwozBot"
         },
         "action_pdtype": "Argmax",
-        "action_policy": "epsilon_greedy"
+        "action_policy": "default"
       },
       "memory": {
         "name": "Replay",
@@ -82,7 +82,7 @@
           "name": "RuleBasedMultiwozBot"
         },
         "action_pdtype": "Argmax",
-        "action_policy": "epsilon_greedy"
+        "action_policy": "default"
       },
       "memory": {
         "name": "Replay",
@@ -141,7 +141,7 @@
           "name": "RuleBasedMultiwozBot"
         },
         "action_pdtype": "Argmax",
-        "action_policy": "epsilon_greedy"
+        "action_policy": "default"
       },
       "memory": {
         "name": "Replay",
@@ -159,6 +159,66 @@
       "nlu": {
         "name": "MILU",
         "model_file": "https://convlab.blob.core.windows.net/models/milu.tar.gz"
+      },
+      "nlg": {
+        "name": "MultiwozTemplateNLG",
+        "is_user": true
+      },
+      "max_t": 40,
+      "max_frame": 1000
+    }],
+    "body": {
+      "product": "outer",
+      "num": 1
+    },
+    "meta": {
+      "distributed": false,
+      "eval_frequency": 1000,
+      "num_eval": 100,
+      "max_tick_unit": "total_t",
+      "max_trial": 1,
+      "max_session": 1,
+      "resources": {
+        "num_cpus": 1,
+        "num_gpus": 0
+      }
+    }
+  },
+  "onenet_rule_mdrg": {
+    "agent": [{
+      "name": "DialogAgent",
+      "nlu": {
+        "name": "OneNetLU",
+        "model_file": "https://convlab.blob.core.windows.net/models/onenet.tar.gz"
+      },
+      "dst": {
+        "name": "RuleDST"
+      },
+      "algorithm": {
+        "name": "ExternalPolicy",
+        "word_policy": {
+          "name": "MDRGWordPolicy",
+          "model_file": "https://convlab.blob.core.windows.net/models/mdrg.zip"
+        },
+        "action_pdtype": "Argmax",
+        "action_policy": "default"
+      },
+      "memory": {
+        "name": "Replay",
+        "max_size": 1 
+      }
+    }],
+    "env": [{
+      "name": "multiwoz",
+      "user_policy": {
+        "name": "UserPolicyAgendaMultiWoz"
+      },
+      "sys_policy": {
+        "name": "RuleBasedMultiwozBot"
+      },
+      "nlu": {
+        "name": "OneNetLU",
+        "model_file": "https://convlab.blob.core.windows.net/models/onenet.tar.gz"
       },
       "nlg": {
         "name": "MultiwozTemplateNLG",
@@ -1363,8 +1423,8 @@
         },
         "gamma": 0.9,
         "training_batch_iter": 1,
-        "training_iter": 1000,
-        "training_frequency": 300,
+        "training_iter": 500,
+        "training_frequency": 200,
         "training_start_step": 32
       },
       "memory": {
@@ -1420,7 +1480,7 @@
       "eval_frequency": 2000,
       "max_tick_unit": "total_t",
       "max_trial": 1,
-      "max_session": 1,
+      "max_session": 3,
       "resources": {
         "num_cpus": 1,
         "num_gpus": 0

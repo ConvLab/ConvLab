@@ -37,6 +37,51 @@ ConvLab is an open-source multi-domain end-to-end dialog system platform, aiming
 </tr>
 </table>
 
+## Installation
+ConvLab requires Python 3.6.5 or later. Windows is currently not offically supported.
+
+### Installing via pip
+
+#### Setting up a virtual environment
+
+[Connda](https://conda.io/) can be used set up a virtual environment with the
+version of Python required for ConvLab.  If you already have a Python 3.6 or 3.7
+environment you want to use, you can skip to the 'installing via pip' section.
+
+1.  [Download and install Conda](https://conda.io/docs/download.html).
+
+2.  Create a Conda environment with Python 3.6.5
+
+    ```bash
+    conda create -n convlab python=3.6.5
+    ```
+
+3.  Activate the Conda environment. You will need to activate the Conda environment in each terminal in which you want to use ConvLab.
+
+    ```bash
+    source activate convlab
+    ```
+
+#### Installing the library and dependencies
+
+Installing the library and dependencies is simple using `pip`.
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+### Installing using Docker
+
+Docker provides more isolation and consistency, and also makes it easy to distribute your environment to a compute cluster.
+
+Once you have [installed Docker](https://docs.docker.com/engine/installation/) just run the following commands to get an environment that will run on either the cpu or gpu.
+
+1. Pull docker </br>
+```docker pull convlab/convlab:0.1```
+
+2. Run docker </br>
+```docker run -it --rm convlab/convlab:0.1```
+
 ## Running ConvLab
 Once you've downloaded ConvLab and installed required packages, you can run the command-line interface with the `python run.py` command.
 

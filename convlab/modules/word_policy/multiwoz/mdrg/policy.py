@@ -16,11 +16,15 @@ import torch
 import pickle
 from copy import deepcopy
 from pprint import pprint
+import zipfile
+import tempfile
+import shutil
 
+from convlab.lib.file_util import cached_path
 from convlab.modules.word_policy.multiwoz.mdrg.utils import util, dbquery, delexicalize
 from convlab.modules.word_policy.multiwoz.mdrg.model import Model
 from convlab.modules.word_policy.multiwoz.mdrg.utils.nlp import normalize
-# from convlab.modules.word_policy.mdrg.utils import dbPointer
+from convlab.modules.policy.system.policy import SysPolicy 
 from convlab.modules.dst.multiwoz.dst_util import init_state
 
 
@@ -101,24 +105,6 @@ def load_config(args):
             config[key] = value
 
     return config
-
-
-def loadModel(num):
-    # Load dictionaries
-    with open(os.path.join(DATA_PATH, 'input_lang.index2word.json')) as f:
-        input_lang_index2word = json.load(f)
-    with open(os.path.join(DATA_PATH, 'input_lang.word2index.json')) as f:
-        input_lang_word2index = json.load(f)
-    with open(os.path.join(DATA_PATH, 'output_lang.index2word.json')) as f:
-        output_lang_index2word = json.load(f)
-    with open(os.path.join(DATA_PATH, 'output_lang.word2index.json')) as f:
-        output_lang_word2index = json.load(f)
-
-    # Reload existing checkpoint
-    model = Model(args, input_lang_index2word, output_lang_index2word, input_lang_word2index, output_lang_word2index)
-    model.loadModel(iter=num)
-
-    return model
 
 
 def addBookingPointer(state, pointer_vector):
@@ -255,8 +241,12 @@ def get_summary_bstate(bstate):
         if domain == 'train':
             if 'people' not in bstate[domain]['book'].keys():
                 booking.append(0)
+            else:
+                booking.append(1)
             if 'ticket' not in bstate[domain]['book'].keys():
                 booking.append(0)
+            else:
+                booking.append(1)
         summary_bstate += booking
 
         for slot in bstate[domain]['semi']:
@@ -284,11 +274,7 @@ def get_summary_bstate(bstate):
 
 
 def populate_template(template, top_results, num_results, state):
-    print('template: ', template)
-    print("Number of results: ", num_results)
-    pprint(top_results)
     active_domain = None if len(top_results.keys()) == 0 else list(top_results.keys())[0]
-    print('result domain', active_domain)
     template = template.replace('book [value_count] of them', 'book one of them')
     tokens = template.split()
     response = []
@@ -299,7 +285,7 @@ def populate_template(template, top_results, num_results, state):
             if domain == 'train' and slot == 'id':
                 slot = 'trainID'
             if domain in top_results and len(top_results[domain]) > 0 and slot in top_results[domain]:
-                print('{} -> {}'.format(token, top_results[domain][slot]))
+                # print('{} -> {}'.format(token, top_results[domain][slot]))
                 response.append(top_results[domain][slot])
             elif domain == 'value':
                 if slot == 'count':
@@ -333,10 +319,9 @@ def populate_template(template, top_results, num_results, state):
                         else:
                             response.append(token)
                 elif slot == 'time':
-                    print(response[-3:])
                     if 'arrive' in ' '.join(response[-3:]):
                         if active_domain is not None and 'arriveBy' in top_results[active_domain]:
-                            print('{} -> {}'.format(token, top_results[active_domain]['arriveBy']))
+                            # print('{} -> {}'.format(token, top_results[active_domain]['arriveBy']))
                             response.append(top_results[active_domain]['arriveBy'])
                             continue 
                         for d in state: 
@@ -347,7 +332,7 @@ def populate_template(template, top_results, num_results, state):
                                 break
                     elif 'leave' in ' '.join(response[-3:]):
                         if active_domain is not None and 'leaveAt' in top_results[active_domain]:
-                            print('{} -> {}'.format(token, top_results[active_domain]['leaveAt']))
+                            # print('{} -> {}'.format(token, top_results[active_domain]['leaveAt']))
                             response.append(top_results[active_domain]['leaveAt'])
                             continue 
                         for d in state: 
@@ -409,7 +394,7 @@ def populate_template(template, top_results, num_results, state):
                     elif slot == 'type':
                         response.append('toyota')
                 else:
-                    print(token)
+                    # print(token)
                     response.append(token)
         else:
             response.append(token)
@@ -417,7 +402,7 @@ def populate_template(template, top_results, num_results, state):
     try:
         response = ' '.join(response)
     except Exception as e:
-        pprint(response)
+        # pprint(response)
         raise
     response = response.replace(' -s', 's')
     response = response.replace(' -ly', 'ly')
@@ -440,8 +425,9 @@ def mark_not_mentioned(state):
                 if state[domain]['semi'][s] == '':
                     state[domain]['semi'][s] = 'not mentioned'
         except Exception as e:
-            print(str(e))
-            pprint(state[domain])
+            # print(str(e))
+            # pprint(state[domain])
+            pass
 
 
 def predict(model, prev_state, prev_active_domain, state, dic):
@@ -449,7 +435,6 @@ def predict(model, prev_state, prev_active_domain, state, dic):
     model.beam_search = False
     input_tensor = []; bs_tensor = []; db_tensor = []
 
-    print("predict")
     usr = state['history'][-1][-1]
 
     prev_state = deepcopy(prev_state['belief_state'])
@@ -457,11 +442,6 @@ def predict(model, prev_state, prev_active_domain, state, dic):
 
     mark_not_mentioned(prev_state)
     mark_not_mentioned(state)
-    print('prev_state')
-    pprint(prev_state)
-    print('state')
-    pprint(state)
-    print('prev_active_domain', prev_active_domain)
 
     words = usr.split()
     usr = delexicalize.delexicalise(' '.join(words), dic)
@@ -491,13 +471,9 @@ def predict(model, prev_state, prev_active_domain, state, dic):
     bs_tensor = torch.tensor(bs_tensor, dtype=torch.float, device=device)
     db_tensor = torch.tensor(db_tensor, dtype=torch.float, device=device)
 
-    pprint(input_tensor)
-    pprint(bs_tensor)
-    pprint(db_tensor)
     output_words, loss_sentence = model.predict(input_tensor, input_lengths, input_tensor, input_lengths,
                                                 db_tensor, bs_tensor)
     active_domain = get_active_domain(prev_active_domain, prev_state, state)
-    print('active_domain:', active_domain)
     if active_domain is not None and active_domain in num_results:
         num_results = num_results[active_domain]
     else:
@@ -507,17 +483,14 @@ def predict(model, prev_state, prev_active_domain, state, dic):
     else:
         top_results = {} 
     response = populate_template(output_words[0], top_results, num_results, state)
-    print('prediction:', response)
-    print('TIME:', time.time() - start_time)
     return response, active_domain
 
 
 def get_active_domain(prev_active_domain, prev_state, state):
     domains = ['hotel', 'restaurant', 'attraction', 'train', 'taxi', 'hospital', 'police']
     active_domain = None
-    print('get_active_domain')
+    # print('get_active_domain')
     for domain in domains:
-        print(domain)
         if domain not in prev_state and domain not in state:
             continue
         if domain in prev_state and domain not in state:
@@ -525,19 +498,64 @@ def get_active_domain(prev_active_domain, prev_state, state):
         elif domain not in prev_state and domain in state:
             return domain
         elif prev_state[domain] != state[domain]:
-            pprint(prev_state[domain])
-            pprint(state[domain])
             active_domain = domain
     if active_domain is None:
-        print('use previous active domain')
         active_domain = prev_active_domain
     return active_domain 
 
 
-class MDRGWordPolicy(object):
-    def __init__(self):
-        self.dic = pickle.load(open(os.path.join(DATA_PATH, 'svdic.pkl'), 'rb'))
-        self.response_model = loadModel(15)
+def loadModel(num):
+    # Load dictionaries
+    with open(os.path.join(DATA_PATH, 'input_lang.index2word.json')) as f:
+        input_lang_index2word = json.load(f)
+    with open(os.path.join(DATA_PATH, 'input_lang.word2index.json')) as f:
+        input_lang_word2index = json.load(f)
+    with open(os.path.join(DATA_PATH, 'output_lang.index2word.json')) as f:
+        output_lang_index2word = json.load(f)
+    with open(os.path.join(DATA_PATH, 'output_lang.word2index.json')) as f:
+        output_lang_word2index = json.load(f)
+
+    # Reload existing checkpoint
+    model = Model(args, input_lang_index2word, output_lang_index2word, input_lang_word2index, output_lang_word2index)
+    model.loadModel(iter=num)
+
+    return model
+
+DEFAULT_CUDA_DEVICE = -1
+DEFAULT_DIRECTORY = "models"
+DEFAULT_ARCHIVE_FILE = os.path.join(DEFAULT_DIRECTORY, "milu.tar.gz")
+
+class MDRGWordPolicy(SysPolicy):
+    def __init__(self,
+                archive_file=DEFAULT_ARCHIVE_FILE,
+                cuda_device=DEFAULT_CUDA_DEVICE,
+                model_file=None):
+        
+        if not os.path.isfile(archive_file):
+            if not model_file:
+                raise Exception("No model for MDRG is specified!")
+            archive_file = cached_path(model_file)
+
+        temp_path = tempfile.mkdtemp()
+        zip_ref = zipfile.ZipFile(archive_file, 'r')
+        zip_ref.extractall(temp_path)
+        zip_ref.close()
+
+        self.dic = pickle.load(open(os.path.join(temp_path, 'mdrg/svdic.pkl'), 'rb'))
+        # Load dictionaries
+        with open(os.path.join(temp_path, 'mdrg/input_lang.index2word.json')) as f:
+            input_lang_index2word = json.load(f)
+        with open(os.path.join(temp_path, 'mdrg/input_lang.word2index.json')) as f:
+            input_lang_word2index = json.load(f)
+        with open(os.path.join(temp_path, 'mdrg/output_lang.index2word.json')) as f:
+            output_lang_index2word = json.load(f)
+        with open(os.path.join(temp_path, 'mdrg/output_lang.word2index.json')) as f:
+            output_lang_word2index = json.load(f)
+        self.response_model = Model(args, input_lang_index2word, output_lang_index2word, input_lang_word2index, output_lang_word2index)
+        self.response_model.loadModel(os.path.join(temp_path, 'mdrg/mdrg'))
+
+        shutil.rmtree(temp_path)
+
         self.prev_state = init_state()
         self.prev_active_domain = None 
 
@@ -547,9 +565,11 @@ class MDRGWordPolicy(object):
         except Exception as e:
             print('Response generation error', e)
             response = 'What did you say?'
+            active_domain = None
         self.prev_state = deepcopy(state)
         self.prev_active_domain = active_domain
         return response
+
 
 
 if __name__ == '__main__':
