@@ -333,9 +333,7 @@
       "algorithm": {
         "name": "DQN",
         "action_pdtype": "Argmax",
-        "action_policy": "warmup_epsilon_greedy",
-        "warmup_max_epi": 1,
-        "warmup_frequency": 3,
+        "action_policy": "epsilon_greedy",
         "explore_var_spec": {
           "name": "linear_decay",
           "start_val": 0.1,
@@ -547,9 +545,7 @@
       "algorithm": {
         "name": "Reinforce",
         "action_pdtype": "default",
-        "action_policy": "warmup_default",
-        "warmup_max_epi": 1,
-        "warmup_frequency": 3,
+        "action_policy": "default",
         "explore_var_spec": null,
         "gamma": 0.98,
         "entropy_coef_spec": {
@@ -929,8 +925,6 @@
         "name": "PPO",
         "action_pdtype": "default",
         "action_policy": "default",
-        "warmup_max_epi": 1,
-        "warmup_frequency": 3,
         "explore_var_spec": null,
         "gamma": 0.99,
         "lam": 0.95,
