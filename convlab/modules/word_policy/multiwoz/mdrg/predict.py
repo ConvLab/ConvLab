@@ -249,7 +249,6 @@ def get_summary_bstate(bstate):
                     booking.append(0)
             else:
                 if bstate[domain]['book'][slot] != "":
-                    print("domain {} booking set".format(domain))
                     booking.append(1)
                 else:
                     booking.append(0)

@@ -1,3 +1,6 @@
+# Modified by Microsoft Corporation.
+# Licensed under the MIT license.
+
 from copy import deepcopy
 from convlab.lib import logger, util
 import numpy as np

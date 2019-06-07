@@ -1,3 +1,6 @@
+# Modified by Microsoft Corporation.
+# Licensed under the MIT license.
+
 from abc import ABC, abstractmethod
 from gym import spaces
 from convlab.lib import logger, util

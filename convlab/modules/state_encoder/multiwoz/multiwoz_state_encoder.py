@@ -92,7 +92,6 @@ class MultiWozStateEncoder(object):
                         booking.append(0)
                 else:
                     if belief_state[domain]['book'][slot] != "":
-                        print("domain {} booking set".format(domain))
                         booking.append(1)
                     else:
                         booking.append(0)

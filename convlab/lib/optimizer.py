@@ -1,3 +1,6 @@
+# Modified by Microsoft Corporation.
+# Licensed under the MIT license.
+
 # Custom PyTorch optimizer classes, to be registered in net_util.py
 import math
 import torch

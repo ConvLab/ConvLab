@@ -48,6 +48,7 @@ def run_spec(spec, lab_mode):
         spec = spec_util.override_eval_spec(spec)
         Session(spec).run()
     else:
+        print("%s".format(EVAL_MODES))
         raise ValueError(f'Unrecognizable lab_mode not of {TRAIN_MODES} or {EVAL_MODES}')
 
 

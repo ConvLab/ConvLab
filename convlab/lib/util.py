@@ -1,3 +1,6 @@
+# Modified by Microsoft Corporation.
+# Licensed under the MIT license.
+
 from collections import deque
 from contextlib import contextmanager
 from datetime import datetime

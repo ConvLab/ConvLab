@@ -1,3 +1,6 @@
+# Modified by Microsoft Corporation.
+# Licensed under the MIT license.
+
 # The data visualization module
 # Defines plotting methods for analysis
 from plotly import graph_objs as go, io as pio, tools
