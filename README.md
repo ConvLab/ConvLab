@@ -20,6 +20,10 @@ ConvLab is an open-source multi-domain end-to-end dialog system platform, aiming
     <td> a module for running experiments at various levels </td>
 </tr>
 <tr>
+    <td><b> convlab.evaluator </b></td>
+    <td> a module for evaluating a dialog session with various metrics </td>
+</tr>
+<tr>
     <td><b> convlab.modules </b></td>
     <td> a collection of state-of-the-art dialog system component models including NLU, DST, Policy, NLG </td>
 </tr>
