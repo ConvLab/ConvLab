@@ -13,6 +13,7 @@ from convlab.e2e.Sequicity.model import Model
 from convlab.e2e.Sequicity.config import global_config as cfg
 from convlab.e2e.Sequicity.tsd_net import cuda_
 from convlab.e2e.Sequicity.reader import pad_sequences
+from convlab.modules.policy.system.policy import SysPolicy
 from nltk import word_tokenize
 
 def denormalize(uttr):
@@ -21,8 +22,10 @@ def denormalize(uttr):
     uttr = uttr.replace(' -er', 'er')
     return uttr
 
-class Sequicity:
+class Sequicity(SysPolicy):
     def __init__(self):
+        SysPolicy.__init__(self)
+        
         cfg.init_handler('tsdf-multiwoz')
         
         torch.manual_seed(cfg.seed)
