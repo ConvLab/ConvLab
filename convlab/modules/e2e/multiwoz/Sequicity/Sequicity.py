@@ -3,8 +3,7 @@
 # Modified by Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""
-"""
+import os
 import random
 import torch
 import numpy as np
@@ -14,7 +13,15 @@ from convlab.modules.e2e.multiwoz.Sequicity.config import global_config as cfg
 from convlab.modules.e2e.multiwoz.Sequicity.tsd_net import cuda_
 from convlab.modules.e2e.multiwoz.Sequicity.reader import pad_sequences
 from convlab.modules.policy.system.policy import SysPolicy
+from convlab.lib.file_util import cached_path
+
+from allennlp.common.checks import check_for_gpu
+from allennlp.models.archival import load_archive
 from nltk import word_tokenize
+
+DEFAULT_CUDA_DEVICE=-1
+DEFAULT_DIRECTORY = "models"
+DEFAULT_ARCHIVE_FILE = os.path.join(DEFAULT_DIRECTORY, "Sequicity.rar")
 
 def denormalize(uttr):
     uttr = uttr.replace(' -s', 's')
@@ -23,8 +30,16 @@ def denormalize(uttr):
     return uttr
 
 class Sequicity(SysPolicy):
-    def __init__(self, model_file=None):
+    def __init__(self, 
+                 archive_file=DEFAULT_ARCHIVE_FILE, 
+                 model_file=None):
         SysPolicy.__init__(self)
+        
+        if not os.path.isfile(archive_file):
+            if not model_file:
+                raise Exception("No model for Sequicity is specified!")
+            archive_file = cached_path(model_file)
+        load_archive(archive_file)
         
         cfg.init_handler('tsdf-multiwoz')
         
