@@ -9,10 +9,10 @@ import random
 import torch
 import numpy as np
 from torch.autograd import Variable
-from convlab.e2e.Sequicity.model import Model
-from convlab.e2e.Sequicity.config import global_config as cfg
-from convlab.e2e.Sequicity.tsd_net import cuda_
-from convlab.e2e.Sequicity.reader import pad_sequences
+from convlab.modules.e2e.multiwoz.Sequicity.model import Model
+from convlab.modules.e2e.multiwoz.Sequicity.config import global_config as cfg
+from convlab.modules.e2e.multiwoz.Sequicity.tsd_net import cuda_
+from convlab.modules.e2e.multiwoz.Sequicity.reader import pad_sequences
 from convlab.modules.policy.system.policy import SysPolicy
 from nltk import word_tokenize
 
@@ -23,7 +23,7 @@ def denormalize(uttr):
     return uttr
 
 class Sequicity(SysPolicy):
-    def __init__(self):
+    def __init__(self, model_file=None):
         SysPolicy.__init__(self)
         
         cfg.init_handler('tsdf-multiwoz')
