@@ -4,7 +4,7 @@ This is a tutorial for adding non-RL external policy to the ConvLab environment.
 
 ## Adding new model
 
-Add all of your non-RL policy model factors under your model folder: ```./convlab/modules/policy/system/[domain]/[your_model_name]```. Using "multiwoz" as domain and "VanilaMLEPolicy" as your_model_name, we have an example codes under ```convlab/modules/policy/system/multiwoz/vanila_mle``` which we will call as ```$model_folder``` for a convenience.
+Add all of your non-RL policy model factors under your model folder: ```convlab/modules/policy/system/[domain]/[your_model_name]```. Using "multiwoz" as domain and "VanilaMLEPolicy" as your_model_name, we have an example codes under ```convlab/modules/policy/system/multiwoz/vanila_mle``` which we will call as ```$model_folder``` for a convenience.
 <!-- ```./convlab/modules/policy/system/[your_model_name]``` or  -->
 
 In order to incorporate your non-RL policy model into the ConvLab environment, first create ```$model_folder/policy.py``` by inheriting the provided interface: ```/convlab/modules/policy/system/policy.py```. 
