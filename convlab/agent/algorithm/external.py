@@ -39,10 +39,10 @@ class ExternalPolicy(Algorithm):
         self.action_policy = getattr(policy_util, self.action_policy)
         self.policy = None 
         if 'word_policy' in self.algorithm_spec:
-            params = deepcopy(ps.get(self.agent_spec, 'word_policy'))
+            params = deepcopy(ps.get(self.algorithm_spec, 'word_policy'))
             PolicyClass = getattr(word_policy, params.pop('name'))
         elif 'e2e' in self.algorithm_spec:
-            params = deepcopy(ps.get(self.agent_spec, 'e2e'))
+            params = deepcopy(ps.get(self.algorithm_spec, 'e2e'))
             PolicyClass = getattr(e2e, params.pop('name'))
         else:
             params = deepcopy(ps.get(self.algorithm_spec, 'policy'))
