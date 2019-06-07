@@ -106,15 +106,15 @@ class Session:
             elif hasattr(self.eval_env, 'get_task_success'):
                 successes.append(self.eval_env.get_task_success())
             logger.nl(f'A dialog session is done')
-        result = f'{self.num_eval} episodes, {sum(returns)/self.num_eval} return'
+        result = f'{self.num_eval} episodes, {sum(returns)/self.num_eval:.2f} return'
         if len(successes) > 0:
-            result += f', {sum(successes)/self.num_eval*100}% success rate'
+            result += f', {sum(successes)/self.num_eval*100:.2f}% success rate'
         if len(lens) > 0:
-            result += f', {sum(lens)/self.num_eval} turns'
+            result += f', {sum(lens)/self.num_eval:.2f} turns'
         if len(precs) > 0:
-            result += f', {sum(precs)/self.num_eval} P, {sum(recs)/self.num_eval} R, {sum(f1s)/self.num_eval} F1'
+            result += f', {sum(precs)/self.num_eval:.2f} P, {sum(recs)/self.num_eval:.2f} R, {sum(f1s)/self.num_eval:.2f} F1'
         if len(book_rates) > 0:
-            result += f', {sum(book_rates)/self.num_eval} book rate'
+            result += f', {sum(book_rates)/self.num_eval*100:.2f}% book rate'
         logger.info(result)
 
     def run_rl(self):

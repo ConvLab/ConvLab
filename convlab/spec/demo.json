@@ -1059,6 +1059,58 @@
       }
     }
   },
+  "rule_rule_evaluator": {
+    "agent": [{
+      "name": "DialogAgent",
+      "dst": {
+        "name": "RuleDST"
+      },
+      "evaluator": {
+        "name": "MultiWozEvaluator"
+      },
+      "algorithm": {
+        "name": "ExternalPolicy",
+        "policy": {
+          "name": "RuleBasedMultiwozBot"
+        },
+        "action_pdtype": "Argmax",
+        "action_policy": "default"
+      },
+      "memory": {
+        "name": "Replay",
+        "max_size": 1 
+      }
+    }],
+    "env": [{
+      "name": "multiwoz",
+      "action_dim": 300,
+      "observation_dim": 393,
+      "max_t": 40,
+      "max_frame": 100,
+      "user_policy": {
+        "name": "UserPolicyAgendaMultiWoz"
+      },
+      "sys_policy": {
+        "name": "RuleBasedMultiwozBot"
+      }
+    }],
+    "body": {
+      "product": "outer",
+      "num": 1
+    },
+    "meta": {
+      "distributed": false,
+      "eval_frequency": 10,
+      "num_eval": 100,
+      "max_tick_unit": "total_t",
+      "max_trial": 1,
+      "max_session": 1,
+      "resources": {
+        "num_cpus": 1,
+        "num_gpus": 0
+      }
+    }
+  },
   "rule_vmle": {
     "agent": [{
       "name": "DialogAgent",
