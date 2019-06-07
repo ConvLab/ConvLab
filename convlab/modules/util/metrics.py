@@ -116,7 +116,7 @@ class Evaluator(object):
         """
         self.state_array.append(state_turn)
 
-    def book_rate_goal(self, goal, booked_entity):
+    def _book_rate_goal(self, goal, booked_entity):
         """
         judge if the selected entity meets the constraint
         """
@@ -159,7 +159,7 @@ class Evaluator(object):
                 score.append(match / tot)
         return score
     
-    def inform_F1_goal(self, goal, sys_history):
+    def _inform_F1_goal(self, goal, sys_history):
         """
         judge if all the requested information is answered
         """
@@ -185,7 +185,7 @@ class Evaluator(object):
                     FP += 1
         return TP, FP, FN
     
-    def book_rate(self, ref2goal=True, corpus=False):
+    def book_rate(self, ref2goal=True, aggregate=False):
         if ref2goal:
             goal = self._expand(self.goal)
         else:
@@ -196,13 +196,13 @@ class Evaluator(object):
                 d, i, s, v = da.split('-')
                 if i == 'inform' and s in mapping[d]:
                     goal[d]['info'][s] = v
-        score = self.book_rate_goal(goal, self.booked)
-        if corpus:
+        score = self._book_rate_goal(goal, self.booked)
+        if aggregate:
             return score
         else:
             return np.mean(score) if score else None
 
-    def inform_F1(self, ref2goal=True, corpus=False):
+    def inform_F1(self, ref2goal=True, aggregate=False):
         if ref2goal:
             goal = self._expand(self.goal)
         else:
@@ -213,8 +213,8 @@ class Evaluator(object):
                     goal[d]['info'][s] = v
                 elif i == 'request':
                     goal[d]['reqt'].append(s)
-        TP, FP, FN = self.inform_F1_goal(goal, self.sys_da_array)
-        if corpus:
+        TP, FP, FN = self._inform_F1_goal(goal, self.sys_da_array)
+        if aggregate:
             return [TP, FP, FN]
         else:    
             try:
