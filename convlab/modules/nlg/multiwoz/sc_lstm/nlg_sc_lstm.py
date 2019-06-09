@@ -9,11 +9,15 @@ import os
 import configparser
 import argparse
 import torch
+import zipfile
 from copy import deepcopy
 from convlab.modules.nlg.nlg import NLG
 from convlab.modules.nlg.multiwoz.sc_lstm.loader.dataset_woz import SimpleDatasetWoz
 from convlab.modules.nlg.multiwoz.sc_lstm.model.lm_deep import LMDeep
+from convlab.lib.file_util import cached_path
 
+DEFAULT_DIRECTORY = "models"
+DEFAULT_ARCHIVE_FILE = os.path.join(DEFAULT_DIRECTORY, "nlg-sclstm-multiwoz.zip")
 
 def parse():
     args = {
@@ -30,7 +34,19 @@ def parse():
 
 
 class SCLSTM(NLG):
-    def __init__(self):
+    def __init__(self, 
+                 archive_file=DEFAULT_ARCHIVE_FILE, 
+                 model_file=None):
+
+        if not os.path.isfile(archive_file):
+            if not model_file:
+                raise Exception("No model for SC-LSTM is specified!")
+            archive_file = cached_path(model_file)
+        model_dir = os.path.dirname(os.path.abspath(__file__))
+        if not os.path.exists(os.path.join(model_dir, 'resource')):
+            archive = zipfile.ZipFile(archive_file, 'r')
+            archive.extractall(model_dir)
+
         self.args, self.config = parse()
         self.dataset = SimpleDatasetWoz(self.config)
 
