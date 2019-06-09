@@ -13,7 +13,8 @@ class UserPolicyVHUS(UserPolicy):
         
     def init_session(self):
         self.user.init_session()
+        self.domain_goals = self.user.goal
         
     def predict(self, state, sys_action):
-        usr_action, terminal, reward = self.user.predict(state, sys_action)
-        return usr_action, terminal, reward
+        usr_action, terminal = self.user.predict(state, sys_action)
+        return usr_action, terminal, 0
