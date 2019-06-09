@@ -3,13 +3,13 @@ import os
 from convlab.modules.policy.user.policy import UserPolicy
 from convlab.modules.usr.multiwoz.vhus_usr.user import UserNeural
 
-DEFAULT_DIRECTORY = "models"
-DEFAULT_ARCHIVE_FILE = os.path.join(DEFAULT_DIRECTORY, "nlg-sclstm-multiwoz.zip")
-
 class UserPolicyVHUS(UserPolicy):
 
     def __init__(self):
         self.user = UserNeural()
+        path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))), 
+                            'usr/multiwoz/vhus_user/model/best')
+        self.user.load(path)
         
     def init_session(self):
         self.user.init_session()
