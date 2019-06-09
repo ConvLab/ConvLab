@@ -87,11 +87,14 @@ class MultiWozEvaluator(Evaluator):
                 da = (dom_int +'-'+slot).lower()
                 self.sys_da_array.append(da+'-'+value)
                 
-                if da == 'booking-book-ref' and self.cur_domain in ['hotel', 'restaurant']:
+                if da == 'booking-book-ref' and self.cur_domain in ['hotel', 'restaurant', 'train']:
                     entities = query(self.cur_domain, self.state_array[-1][self.cur_domain]['semi'].items())
                     if entities and not self.booked[self.cur_domain]:
-                        self.booked[self.cur_domain] = random.choice(entities)['id']
-                elif da == 'train-offerbook-ref':
+                        if self.cur_domain == 'train':
+                            self.booked[self.cur_domain] = random.choice(entities)['trainID']
+                        else:
+                            self.booked[self.cur_domain] = random.choice(entities)['id']
+                elif da == 'train-offerbook-ref' or da == 'train-inform-ref':
                     entities = query('train', self.state_array[-1]['train']['semi'].items())
                     if entities and not self.booked['train']:
                         self.booked['train'] = random.choice(entities)['trainID']
@@ -109,7 +112,7 @@ class MultiWozEvaluator(Evaluator):
             slot_pair = da_turn[dom_int]
             for slot, value in slot_pair:
                 da = (dom_int +'-'+slot).lower()
-                self.usr_da_array.append(da)
+                self.usr_da_array.append(da+'-'+value)
         
     def add_state(self, state_turn):
         """
@@ -171,7 +174,7 @@ class MultiWozEvaluator(Evaluator):
             inform_slot[domain] = set()
         for da in sys_history:
             domain, intent, slot, value = da.split('-', 3)
-            if intent == 'inform' and slot != 'none' and domain in belief_domains:
+            if intent in ['inform', 'recommend', 'offerbook', 'offerbooked'] and slot != 'none' and domain in belief_domains:
                 inform_slot[domain].add(slot)
         TP, FP, FN = 0, 0, 0
         for domain in belief_domains:
@@ -212,7 +215,7 @@ class MultiWozEvaluator(Evaluator):
             goal = self._init_dict()
             for da in self.usr_da_array:
                 d, i, s, v = da.split('-', 3)
-                if i == 'inform' and s in mapping[d]:
+                if i in ['inform', 'recommend', 'offerbook', 'offerbooked'] and s in mapping[d]:
                     goal[d]['info'][s] = v
                 elif i == 'request':
                     goal[d]['reqt'].append(s)
