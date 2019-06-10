@@ -142,7 +142,8 @@ class DialogAgent(Agent):
 
         # update evaluator
         if self.evaluator:
-            self.evaluator.add_goal(self.body.env.get_goal())
+            self.evaluator.add_goal(self.get_env().get_goal())
+            logger.act(f'Goal: {self.get_env().get_goal()}')
 
         input_act, state, encoded_state = self.state_update(obs, "null")  # "null" action to be compatible with MDBT
 
@@ -177,7 +178,12 @@ class DialogAgent(Agent):
 
         # update evaluator
         if self.evaluator:
-            self.evaluator.add_usr_da(input_act)
+            env = self.get_env()
+            if hasattr(env, 'get_last_act'): 
+                self.evaluator.add_usr_da(env.get_last_act())
+                logger.act(f'True user action: {env.get_last_act()}')
+            else:
+                self.evaluator.add_usr_da(input_act)
             self.evaluator.add_state(state)
 
         # update history 
@@ -202,6 +208,9 @@ class DialogAgent(Agent):
         decoded_action = self.nlg.generate(output_act) if self.nlg else output_act 
         return output_act, decoded_action 
     
+    def get_env(self):
+        return self.body.eval_env if util.in_eval_lab_modes() else self.body.env
+
     @lab_api
     def update(self, obs, action, reward, next_obs, done):
         '''Update per timestep after env transitions, e.g. memory, algorithm, update agent params, train net'''
@@ -215,7 +224,8 @@ class DialogAgent(Agent):
         if util.in_eval_lab_modes() or self.algorithm.__class__.__name__ == 'ExternalPolicy':  # eval does not update agent for training
             self.body.state, self.body.encoded_state = next_state, encoded_state
             return
-        if not hasattr(self.body, 'warmup_memory') or self.body.env.clock.epi > self.warmup_epi:
+
+        if not hasattr(self.body, 'warmup_memory') or self.env.clock.epi > self.warmup_epi:
             self.body.memory.update(self.body.encoded_state, self.body.action, reward, encoded_state, done)
         else:
             self.body.warmup_memory.update(self.body.encoded_state, self.body.action, reward, encoded_state, done)

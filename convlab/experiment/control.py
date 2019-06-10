@@ -50,6 +50,7 @@ class Session:
         self.agent, self.env = make_agent_env(self.spec, global_nets)
         with util.ctx_lab_mode('eval'):  # env for eval
             self.eval_env = make_env(self.spec)
+            self.agent.body.eval_env = self.eval_env 
         self.num_eval = ps.get(self.agent.spec, 'meta.num_eval')
         self.warmup_epi = ps.get(self.agent.agent_spec, 'algorithm.warmup_epi') or -1 
         logger.info(util.self_desc(self))
@@ -113,8 +114,8 @@ class Session:
             result += f', {sum(lens)/self.num_eval:.2f} turns'
         if len(precs) > 0:
             result += f', {sum(precs)/self.num_eval:.2f} P, {sum(recs)/self.num_eval:.2f} R, {sum(f1s)/self.num_eval:.2f} F1'
-        if len(book_rates) > 0:
-            result += f', {sum(book_rates)/self.num_eval*100:.2f}% book rate'
+        # if len(book_rates) > 0:
+        #     result += f', {sum(book_rates)/self.num_eval*100:.2f}% book rate'
         logger.info(result)
 
     def run_rl(self):
