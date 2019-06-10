@@ -73,6 +73,7 @@ class UserPolicyAgendaMultiWoz(UserPolicy):
             self.goal_seeds = self.goal_seeds[1:]
         else:
             self.goal = Goal(self.goal_generator)
+        self.domain_goals = self.goal.domain_goals
         self.agenda = Agenda(self.goal)
 
     def predict(self, state, sys_action):
@@ -270,13 +271,6 @@ class Goal(object):
 
             if 'book' in self.domain_goals[domain].keys():
                 self.domain_goals[domain]['booked'] = DEF_VAL_UNK
-
-            if domain in ['attraction', 'restaurant', 'hotel']:
-                if 'name' not in self.domain_goals[domain].get('info', {}).keys():
-                    old_dict = self.domain_goals[domain].get('reqt', {})
-                    old_dict['name'] = DEF_VAL_UNK
-                    old_dict['name'] = DEF_VAL_UNK
-                    self.domain_goals[domain]['reqt'] = old_dict
 
     def task_complete(self):
         """

@@ -209,7 +209,7 @@ class UserNeural():
         logging.debug('<<user simulator>> test, epoch {}, loss_a:{}, loss_t:{}'.format(epoch, a_loss, t_loss))
         return best
 		
-	def test(self):
+    def test(self):
         def sequential(da_seq):
             da = []
             cur_act = None
@@ -240,7 +240,7 @@ class UserNeural():
     
         data_test_iter = batch_iter(self.data_test[0], self.data_test[1], self.data_test[2], self.data_test[3])
         a_TP, a_FP, a_FN, t_corr, t_tot = 0, 0, 0, 0, 0
-		eos_id = self.user.usr_decoder.eos_id
+        eos_id = self.user.usr_decoder.eos_id
         for i, data in enumerate(data_test_iter):
             batch_input = to_device(padding_data(data))
             a_weights, t_weights, argu = self.user(batch_input['goals'], batch_input['goals_length'], \
@@ -292,6 +292,7 @@ class UserNeural():
         self.time_step = -1
         self.topic = 'NONE'
         self.goal = self.goal_gen.get_user_goal()
+        self.domain_goals = self.goal
         self.goal_input = torch.LongTensor(self.manager.get_goal_id(self.manager.usrgoal2seq(self.goal)))
         self.goal_len_input = torch.LongTensor([len(self.goal_input)]).squeeze()
         self.sys_da_id_stack = [] # to save sys da history

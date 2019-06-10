@@ -4,7 +4,7 @@ Semantically-conditioned LSTM (SC-LSTM) is an NLG model that generates natural l
 
 ## Run the code
 
-unzip [rar](https://drive.google.com/open?id=14EP8X-bcGgZqbOxQ_k2RSw_iJAMZvFiR) here
+unzip [rar](https://drive.google.com/open?id=1dOmyVEWKTLEB4D8IuZj1H7qtu1Xmb18u) here
 
 TRAIN
 ```bash

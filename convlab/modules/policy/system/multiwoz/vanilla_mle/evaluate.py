@@ -136,8 +136,7 @@ def evaluate_from_args(args: argparse.Namespace) -> Dict[str, Any]:
     logger.info("Reading evaluation data from %s", evaluation_data_path)
     instances = dataset_reader.read(evaluation_data_path)
 
-    embedding_sources: Dict[str, str] = (json.loads(args.embedding_sources_mapping)
-                                         if args.embedding_sources_mapping else {})
+    embedding_sources: Dict[str, str] = (json.loads(args.embedding_sources_mapping) if args.embedding_sources_mapping else {})
     if args.extend_vocab:
         logger.info("Vocabulary is being extended with test instances.")
         model.vocab.extend_from_instances(Params({}), instances=instances)

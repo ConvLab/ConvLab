@@ -160,9 +160,8 @@ def action_decoder(state, action_index, action_vocab):
                         action[act] = [['none', 'none']]
             elif domain in domains:
                 _domain_fill(delex_action, state, action, act)
-
+                
     return action
-
 
 def one_hot(num, domain, domains, vector):
     """Return number of available entities for particular domain."""

@@ -1,12 +1,11 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from copy import deepcopy
 import math
 import os
-
 import numpy as np
 import pydash as ps
+from copy import deepcopy
 from gym import spaces
 
 from convlab.env.base import BaseEnv, set_gym_space_attr
@@ -85,6 +84,9 @@ class MultiWozEnvironment(object):
         self.history.extend(["null", str_user_response])
         self.env_info = [State(user_response, 0., session_over)] 
         return self.env_info 
+
+    def get_goal(self):
+        return deepcopy(self.simulator.policy.domain_goals)
 
     def step(self, action):
         user_response, user_act, session_over, reward = self.simulator.response(action, self.history)
@@ -211,9 +213,6 @@ class MultiWozEnv(BaseEnv):
         a, b = 0, 0  # default singleton aeb
         env_info_a = self._get_env_info(env_info_dict, a)
         state = env_info_a.states[b]
-        # self.done = done = False
-        # logger.debug(f'Env {self.e} reset reward: {_reward}, state: {state}, done: {done}')
-        # return _reward, state, done
         self.done = False
         logger.debug(f'Env {self.e} reset state: {state}')
         return state
@@ -233,6 +232,9 @@ class MultiWozEnv(BaseEnv):
     @lab_api
     def close(self):
         self.u_env.close()
+
+    def get_goal(self):
+        return self.u_env.get_goal()
 
     def get_task_success(self):
         return self.u_env.simulator.policy.goal.task_complete()

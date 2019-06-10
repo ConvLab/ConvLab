@@ -48,6 +48,7 @@ def run_spec(spec, lab_mode):
         spec = spec_util.override_eval_spec(spec)
         Session(spec).run()
     else:
+        print("%s".format(EVAL_MODES))
         raise ValueError(f'Unrecognizable lab_mode not of {TRAIN_MODES} or {EVAL_MODES}')
 
 
@@ -98,6 +99,6 @@ if __name__ == '__main__':
         # avoid xvfb on MacOS: https://github.com/nipy/nipype/issues/1400
         main()
     else:
-        with Xvfb() as xvfb:  # safety context for headless machines
-            main()
+        #with Xvfb() as xvfb:  # safety context for headless machines
+        main()
 

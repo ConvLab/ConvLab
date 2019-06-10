@@ -14,6 +14,7 @@ from convlab.agent.net import net_util
 from convlab.lib import logger, util
 from convlab.lib.decorator import lab_api
 from convlab.modules import nlu, dst, word_dst, nlg, state_encoder, action_decoder
+from convlab import evaluator
 
 
 logger = logger.get_logger(__name__)
@@ -96,12 +97,10 @@ class DialogAgent(Agent):
             params = deepcopy(ps.get(self.agent_spec, 'dst'))
             DstClass = getattr(dst, params.pop('name'))
             self.dst = DstClass(**params) 
-            self.state = self.dst.state
         if 'word_dst' in self.agent_spec:
             params = deepcopy(ps.get(self.agent_spec, 'word_dst'))
             DstClass = getattr(word_dst, params.pop('name'))
             self.dst = DstClass(**params) 
-            # self.state = self.dst.state
         self.state_encoder = None
         if 'state_encoder' in self.agent_spec:
             params = deepcopy(ps.get(self.agent_spec, 'state_encoder'))
@@ -117,6 +116,11 @@ class DialogAgent(Agent):
             params = deepcopy(ps.get(self.agent_spec, 'nlg'))
             NlgClass = getattr(nlg, params.pop('name'))
             self.nlg = NlgClass(**params) 
+        self.evaluator = None
+        if 'evaluator' in self.agent_spec:
+            params = deepcopy(ps.get(self.agent_spec, 'evaluator'))
+            EvaluatorClass = getattr(evaluator, params.pop('name'))
+            self.evaluator = EvaluatorClass(**params) 
         self.body = body
         body.agent = self
         MemoryClass = getattr(memory, ps.get(self.agent_spec, 'memory.name'))
@@ -135,51 +139,81 @@ class DialogAgent(Agent):
             self.dst.init_session()
         if hasattr(self.algorithm, "reset"):  # This is mainly for external policies that may need to reset its state.
             self.algorithm.reset()
+
+        # update evaluator
+        if self.evaluator:
+            self.evaluator.add_goal(self.body.env.get_goal())
+
         input_act, state, encoded_state = self.state_update(obs, "null")  # "null" action to be compatible with MDBT
-        self.state = state
+
         self.body.state, self.body.encoded_state = state, encoded_state
 
     @lab_api
-    def act(self, observation):
+    def act(self, obs):
         '''Standard act method from algorithm.'''
         action = self.algorithm.act(self.body.encoded_state)
-        decoded_action = self.action_decode(action, self.body.state) 
         self.body.action = action
+
+        output_act, decoded_action = self.action_decode(action, self.body.state) 
+
+        # update evaluator
+        if self.evaluator:
+            self.evaluator.add_sys_da(output_act)
+
         logger.nl(f'System utterance: {decoded_action}')
         logger.act(f'System action: {action}')
-        return decoded_action
-    
-    def state_update(self, observation, action):
-        if self.dst:
-            self.dst.state['history'].append([str(action)])
 
-        input_act = self.nlu.parse(observation, sum(self.dst.state['history'], []) if self.dst else []) if self.nlu else observation
+        return decoded_action
+
+    def state_update(self, obs, action):
+        # update history 
+		if self.dst:
+			self.dst.state['history'].append([str(action)])
+
+        # NLU parsing
+        input_act = self.nlu.parse(obs, sum(self.dst.state['history'], []) if self.dst else []) if self.nlu else obs
+
+        # state tracking 
         state = self.dst.update(input_act) if self.dst else input_act 
 
-        if self.dst:
-            self.dst.state['history'][-1].append(str(observation))
+        # update evaluator
+        if self.evaluator:
+            self.evaluator.add_usr_da(input_act)
+            self.evaluator.add_state(state)
 
+        # update history 
+		if self.dst:
+			self.dst.state['history'][-1].append(str(obs))
+
+        # encode state 
         encoded_state = self.state_encoder.encode(state) if self.state_encoder else state 
+
         if self.nlu and self.dst:  
             self.dst.state['user_action'] = input_act 
         elif self.dst and not isinstance(self.dst, word_dst.MDBTTracker):  # for act-in act-out agent
-            self.dst.state['user_action'] = observation 
+            self.dst.state['user_action'] = obs
 
-        logger.nl(f'User utterance: {observation}')
+        logger.nl(f'User utterance: {obs}')
         logger.act(f'User action: {input_act}')
         logger.state(f'Dialog state: {state}')
+
         return input_act, state, encoded_state 
 
     def action_decode(self, action, state):
         output_act = self.action_decoder.decode(action, state) if self.action_decoder else action
         decoded_action = self.nlg.generate(output_act) if self.nlg else output_act 
-        return decoded_action 
+        return output_act, decoded_action 
     
     @lab_api
     def update(self, obs, action, reward, next_obs, done):
         '''Update per timestep after env transitions, e.g. memory, algorithm, update agent params, train net'''
+        # update state
         input_act, next_state, encoded_state = self.state_update(next_obs, action)
+
+        # update body  
         self.body.update(self.body.state, action, reward, next_state, done)
+
+        # update memory 
         if util.in_eval_lab_modes() or self.algorithm.__class__.__name__ == 'ExternalPolicy':  # eval does not update agent for training
             self.body.state, self.body.encoded_state = next_state, encoded_state
             return
@@ -187,11 +221,16 @@ class DialogAgent(Agent):
             self.body.memory.update(self.body.encoded_state, self.body.action, reward, encoded_state, done)
         else:
             self.body.warmup_memory.update(self.body.encoded_state, self.body.action, reward, encoded_state, done)
+
+        # update body  
         self.body.state, self.body.encoded_state = next_state, encoded_state
+
+        # train algorithm 
         loss = self.algorithm.train()
         if not np.isnan(loss):  # set for log_summary()
             self.body.loss = loss
         explore_var = self.algorithm.update()
+
         return loss, explore_var
 
     @lab_api

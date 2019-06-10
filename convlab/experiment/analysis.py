@@ -29,12 +29,15 @@ def gen_return(agent, env):
     agent.reset(obs)
     done = False
     total_reward = 0
+    env.clock.tick('epi')
+    env.clock.tick('t')
     while not done:
         action = agent.act(obs)
         next_obs, reward, done, info = env.step(action)
         agent.update(obs, action, reward, next_obs, done)
         obs = next_obs
         total_reward += reward
+        env.clock.tick('t')
     return total_reward
 
 
@@ -57,8 +60,6 @@ def gen_result(agent, env):
             _return = gen_return(agent, env)
     # exit eval context, restore variables simply by updating
     agent.algorithm.update()
-    if hasattr(env, 'get_task_success'):
-        return _return, env.get_task_success() 
     return _return 
 
 
