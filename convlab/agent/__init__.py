@@ -123,10 +123,11 @@ class DialogAgent(Agent):
             self.evaluator = EvaluatorClass(**params) 
         self.body = body
         body.agent = self
-        MemoryClass = getattr(memory, ps.get(self.agent_spec, 'memory.name'))
-        self.body.memory = MemoryClass(self.agent_spec['memory'], self.body)
         AlgorithmClass = getattr(algorithm, ps.get(self.agent_spec, 'algorithm.name'))
         self.algorithm = AlgorithmClass(self, global_nets)
+        if ps.get(self.agent_spec, 'memory'):
+            MemoryClass = getattr(memory, ps.get(self.agent_spec, 'memory.name'))
+            self.body.memory = MemoryClass(self.agent_spec['memory'], self.body)
         self.warmup_epi = ps.get(self.agent_spec, 'algorithm.warmup_epi') or -1 
         self.body.state, self.body.encoded_state, self.body.action = None, None, None
         logger.info(util.self_desc(self))
