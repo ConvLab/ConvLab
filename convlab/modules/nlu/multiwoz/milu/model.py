@@ -23,54 +23,19 @@ from allennlp.nn.util import get_text_field_mask, sequence_cross_entropy_with_lo
 from allennlp.training.metrics import CategoricalAccuracy, SpanBasedF1Measure
 from allennlp.data.dataset_readers.dataset_utils.span_utils import bio_tags_to_spans
 
-from convlab.modules.nlu.multiwoz.milu.binary_accuracy import BinaryAccuracy
 from convlab.modules.nlu.multiwoz.milu.multilabel_f1_measure import MultiLabelF1Measure 
-from convlab.modules.nlu.multiwoz.milu.focal_loss import FocalBCEWithLogitsLoss 
 from convlab.modules.nlu.multiwoz.milu.dai_f1_measure import DialogActItemF1Measure
 
 
 @Model.register("milu")
 class MILU(Model):
     """
-    The ``MlstNlu`` encodes a sequence of text with a ``Seq2SeqEncoder``,
-    then uses a Conditional Random Field model to predict a tag for each token in the sequence.
+    The ``MILU`` encodes a sequence of text with a ``Seq2SeqEncoder``,
+    then performs multi-label classification for closed-class dialog act items and 
+    sequence labeling to predict a tag for each token in the sequence.
 
     Parameters
     ----------
-    vocab : ``Vocabulary``, required
-        A Vocabulary, required in order to compute sizes for input/output projections.
-    text_field_embedder : ``TextFieldEmbedder``, required
-        Used to embed the tokens ``TextField`` we get as input to the model.
-    encoder : ``Seq2SeqEncoder``
-        The encoder that we will use in between embedding tokens and predicting output tags.
-    sequence_label_namespace : ``str``, optional (default=``labels``)
-        This is needed to compute the SpanBasedF1Measure metric.
-        Unless you did something unusual, the default value should be what you want.
-    feedforward : ``FeedForward``, optional, (default = None).
-        An optional feedforward layer to apply after the encoder.
-    label_encoding : ``str``, optional (default=``None``)
-        Label encoding to use when calculating span f1 and constraining
-        the CRF at decoding time . Valid options are "BIO", "BIOUL", "IOB1", "BMES".
-        Required if ``calculate_span_f1`` or ``constrain_crf_decoding`` is true.
-    include_start_end_transitions : ``bool``, optional (default=``True``)
-        Whether to include start and end transition parameters in the CRF.
-    constrain_crf_decoding : ``bool``, optional (default=``None``)
-        If ``True``, the CRF is constrained at decoding time to
-        produce valid sequences of tags. If this is ``True``, then
-        ``label_encoding`` is required. If ``None`` and
-        label_encoding is specified, this is set to ``True``.
-        If ``None`` and label_encoding is not specified, it defaults
-        to ``False``.
-    calculate_span_f1 : ``bool``, optional (default=``None``)
-        Calculate span-level F1 metrics during training. If this is ``True``, then
-        ``label_encoding`` is required. If ``None`` and
-        label_encoding is specified, this is set to ``True``.
-        If ``None`` and label_encoding is not specified, it defaults
-        to ``False``.
-    dropout:  ``float``, optional (default=``None``)
-    verbose_metrics : ``bool``, optional (default = False)
-        If true, metrics will be returned per label class in addition
-        to the overall statistics.
     initializer : ``InitializerApplicator``, optional (default=``InitializerApplicator()``)
         Used to initialize the model parameters.
     regularizer : ``RegularizerApplicator``, optional (default=``None``)
@@ -141,34 +106,19 @@ class MILU(Model):
             projection_input_dim += self.encoder.get_output_dim()
         self.intent_projection_layer = Linear(projection_input_dim, self.num_intents)
 
-        if focal_loss_gamma:
-            self.intent_loss = FocalBCEWithLogitsLoss(gamma=focal_loss_gamma)
-        else:
+        if num_train_examples:
             try:
-                print([(t, self.vocab._retained_counter[intent_label_namespace][t]) for i, t in 
+                pos_weight = torch.tensor([log10((num_train_examples - self.vocab._retained_counter[intent_label_namespace][t]) / 
+                                self.vocab._retained_counter[intent_label_namespace][t]) for i, t in 
                                 self.vocab.get_index_to_token_vocabulary(intent_label_namespace).items()])
             except:
-                pass
-            if num_train_examples:
-                try:
-                    pos_weight = torch.tensor([log10((num_train_examples - self.vocab._retained_counter[intent_label_namespace][t]) / 
-                                    self.vocab._retained_counter[intent_label_namespace][t]) for i, t in 
-                                    self.vocab.get_index_to_token_vocabulary(intent_label_namespace).items()])
-                except:
-                    pos_weight = torch.tensor([1. for i, t in 
-                                    self.vocab.get_index_to_token_vocabulary(intent_label_namespace).items()])
-            else:
-                # pos_weight = torch.tensor([(lambda t: 1. if "general" in t else nongeneral_intent_weight)(t) for i, t in 
-                #                 self.vocab.get_index_to_token_vocabulary(intent_label_namespace).items()])
-                # print(self.vocab.get_index_to_token_vocabulary(intent_label_namespace).items())
-                # print(nongeneral_intent_weight )
-                # pos_weight = torch.tensor([(lambda t: nongeneral_intent_weight if "Request" in t and "Name" in t else 1.)(t) for i, t in 
-                #                 self.vocab.get_index_to_token_vocabulary(intent_label_namespace).items()])
-                pos_weight = torch.tensor([(lambda t: nongeneral_intent_weight if "Request" in t else 1.)(t) for i, t in 
+                pos_weight = torch.tensor([1. for i, t in 
                                 self.vocab.get_index_to_token_vocabulary(intent_label_namespace).items()])
-            print(pos_weight)
-            # self.intent_loss = torch.nn.BCEWithLogitsLoss(pos_weight=pos_weight)
-            self.intent_loss = torch.nn.BCEWithLogitsLoss(pos_weight=pos_weight, reduction="none")
+        else:
+            # pos_weight = torch.tensor([(lambda t: 1. if "general" in t else nongeneral_intent_weight)(t) for i, t in 
+            pos_weight = torch.tensor([(lambda t: nongeneral_intent_weight if "Request" in t else 1.)(t) for i, t in 
+                            self.vocab.get_index_to_token_vocabulary(intent_label_namespace).items()])
+        self.intent_loss = torch.nn.BCEWithLogitsLoss(pos_weight=pos_weight, reduction="none")
 
         tag_projection_input_dim = feedforward.get_output_dim() if self._feedforward else self.encoder.get_output_dim()
         if self.context_for_tag:
@@ -237,33 +187,9 @@ class MILU(Model):
         """
         Parameters
         ----------
-        tokens : ``Dict[str, torch.LongTensor]``, required
-            The output of ``TextField.as_array()``, which should typically be passed directly to a
-            ``TextFieldEmbedder``. This output is a dictionary mapping keys to ``TokenIndexer``
-            tensors.  At its most basic, using a ``SingleIdTokenIndexer`` this is: ``{"tokens":
-            Tensor(batch_size, num_tokens)}``. This dictionary will have the same keys as were used
-            for the ``TokenIndexers`` when you created the ``TextField`` representing your
-            sequence.  The dictionary is designed to be passed directly to a ``TextFieldEmbedder``,
-            which knows how to combine different word representations into a single vector per
-            token in your input.
-        tags : ``torch.LongTensor``, optional (default = ``None``)
-            A torch tensor representing the sequence of integer gold class labels of shape
-            ``(batch_size, num_tokens)``.
-        metadata : ``List[Dict[str, Any]]``, optional, (default = None)
-            metadata containg the original words in the sentence to be tagged under a 'words' key.
 
         Returns
         -------
-        An output dictionary consisting of:
-
-        logits : ``torch.FloatTensor``
-            The logits that are the output of the ``tag_projection_layer``
-        mask : ``torch.LongTensor``
-            The text field mask for the input tokens
-        tags : ``List[List[int]]``
-            The predicted tags using the Viterbi algorithm.
-        loss : ``torch.FloatTensor``, optional
-            A scalar loss to be optimised. Only computed if gold label ``tags`` are provided.
         """
         if self.context_for_intent or self.context_for_tag or \
             self.attention_for_intent or self.attention_for_tag:
@@ -372,7 +298,6 @@ class MILU(Model):
                 class_probabilities = sequence_logits
                 output["loss"] = loss
 
-            # self.metrics['tag_acc'](class_probabilities, tags, mask.float())
             if self.calculate_span_f1:
                 self._f1_metric(class_probabilities, tags, mask.float())
         
@@ -381,67 +306,14 @@ class MILU(Model):
 
         if tags is not None and metadata:
             self.decode(output)
-            # print(output)
-            # print(metadata)
             self._dai_f1_metric(output["dialog_act"], [x["dialog_act"] for x in metadata])
             rewards = self.get_rewards(output["dialog_act"], [x["dialog_act"] for x in metadata]) if self.rl else None
 
         if intents is not None:
-            # output["loss"] += self.intent_loss(intent_logits, intents.float()) 
             output["loss"] += torch.mean(self.intent_loss(intent_logits, intents.float()))
-            # intent_losses = self.intent_loss(intent_logits, intents.float())
-            # if rewards is not None:
-            #     # intent_losses *= torch.tensor(rewards).cuda(device=intent_losses.get_device()).unsqueeze(dim=-1).expand_as(intent_losses)
-            #     intent_losses *= torch.tensor(rewards).cuda(device=intent_losses.get_device()).unsqueeze(dim=0).expand_as(intent_losses)
-            # output["loss"] += torch.mean(intent_losses)
             self._intent_f1_metric(predicted_intents, intents)
 
         return output
-
-
-    def get_rewards(self, 
-                    predictions: List[Dict[str, Any]],
-                    gold_labels: List[Dict[str, Any]]):
-        selective_weight = [(lambda t: 5. if "Request" in t and "Name" in t else 1.)(t) for i, t in 
-                        self.vocab.get_index_to_token_vocabulary("intent_labels").items()]
-        # print(selective_weight)
-        rewards = []
-        for prediction, gold_label in zip(predictions, gold_labels): 
-            # reward = 0.
-            reward = 1.
-            num_dai = len([sv for dat in prediction for sv in prediction[dat]])
-            num_dai = num_dai if num_dai > 0 else len([sv for dat in gold_label for sv in gold_label[dat]])
-            if num_dai == 0:
-                rewards.append(1.)
-                continue
-            # fraction = 1 / num_dai 
-            fraction = 0. 
-            for dat in prediction:
-                for sv in prediction[dat]:
-                    if dat not in gold_label or sv not in gold_label[dat]:
-                        # false positive 
-                        reward -= fraction  # can try a negative value 
-                    else:
-                        # true positive 
-                        reward += fraction
-            for dat in gold_label:
-                for sv in gold_label[dat]:
-                    if "Request" in dat and "Name" in sv[0]:
-                        print("################")
-                        print(dat, sv)
-                    if dat not in prediction or sv not in prediction[dat]:
-                        # false negative
-                        # print(dat, sv)
-                        if not ("Inform" in dat and "Name" in sv[0]):
-                            reward -= fraction  # can try a negative value 
-                        if "Request" in dat and "Name" in sv[0]:
-                            print("$$$$$$$$$$$$$")
-                            # print(dat, sv)
-                            reward = -5
-            rewards.append(reward)
-
-        return selective_weight
-        return rewards 
 
 
     def get_predicted_tags(self, sequence_logits: torch.Tensor) -> torch.Tensor:
@@ -480,11 +352,6 @@ class MILU(Model):
             for instance_intents in output_dict["intents"]
         ]
 
-        # for instance_intent_probs in output_dict["intent_probs"]:
-        #     sorted_index = np.argsort(instance_intent_probs.detach().tolist())
-        #     for intent in sorted_index[-3:]:
-        #         print(self.vocab.get_token_from_index(intent, namespace=self.intent_label_namespace), instance_intent_probs[intent])
-
         output_dict["dialog_act"] = []
         for i, tags in enumerate(output_dict["tags"]): 
             seq_len = len(output_dict["words"][i])
@@ -518,21 +385,11 @@ class MILU(Model):
 
     @overrides
     def get_metrics(self, reset: bool = False) -> Dict[str, float]:
-        # return self._dai_f1_metric.get_metric(reset=reset)
-        # metrics_to_return = {metric_name: metric.get_metric(reset) for
-        #                      metric_name, metric in self.metrics.items()}
-
         metrics_to_return = {}
         intent_f1_dict = self._intent_f1_metric.get_metric(reset=reset)
-        # if self._verbose_metrics:
-        #     metrics_to_return.update(intent_f1_dict)
-        # else:
         metrics_to_return.update({"int_"+x[:1]: y for x, y in intent_f1_dict.items() if "overall" in x})
         if self.calculate_span_f1:
             f1_dict = self._f1_metric.get_metric(reset=reset)
-        #     if self._verbose_metrics:
-        #         metrics_to_return.update(f1_dict)
-        #     else:
             metrics_to_return.update({"tag_"+x[:1]: y for x, y in f1_dict.items() if "overall" in x})
         metrics_to_return.update(self._dai_f1_metric.get_metric(reset=reset))
         return metrics_to_return

@@ -24,24 +24,11 @@ logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
 @DatasetReader.register("onenet")
 class OneNetDatasetReader(DatasetReader):
     """
-    Reads instances from a pretokenised file where each line is in the following format:
-
-    WORD###TAG [TAB] WORD###TAG [TAB] ..... \n
-
-    and converts it into a ``Dataset`` suitable for sequence tagging. You can also specify
-    alternative delimiters in the constructor.
+    Reads instances from a pretokenised file where each line
+    and converts it into a ``Dataset`` suitable for sequence tagging. 
 
     Parameters
     ----------
-    word_tag_delimiter: ``str``, optional (default=``"###"``)
-        The text that separates each WORD from its TAG.
-    token_delimiter: ``str``, optional (default=``None``)
-        The text that separates each WORD-TAG pair from the next pair. If ``None``
-        then the line will just be split on whitespace.
-    token_indexers : ``Dict[str, TokenIndexer]``, optional (default=``{"tokens": SingleIdTokenIndexer()}``)
-        We use this to define the input representation for the text.  See :class:`TokenIndexer`.
-        Note that the `output` tags will always correspond to single token IDs based on how they
-        are pre-tokenised in the data file.
     """
     def __init__(self,
                  token_delimiter: str = None,
