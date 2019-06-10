@@ -1,7 +1,7 @@
 data/multiwoz/annotation/annotated_user_da_with_span_full.json
 data/multiwoz/annotation/MULTIWOZ2 2
-tasktk/modules/nlu/SVM/output_multiwoz/
-tasktk/modules/nlu/SVM/output_multiwoz_sys/
+convlab/modules/nlu/multiwoz/svm/output_multiwoz/
+convlab/modules/nlu/multiwoz/svm/output_multiwoz_sys/
 
 test_result/
 *.pyc
@@ -54,20 +54,20 @@ data/nlg
 data/nrg
 
 # nrg data
-tasktk/modules/nrg/mdrg/data
-tasktk/modules/nrg/mdrg/model/model
+convlab/modules/word_policy/multiwoz/mdrg/data
+convlab/modules/word_policy/multiwoz/mdrg/model/model
 
 # sequicity
-tasktk/modules/e2e/Sequicity/data
-tasktk/modules/e2e/Sequicity/log
-tasktk/modules/e2e/Sequicity/models
-tasktk/modules/e2e/Sequicity/results
-tasktk/modules/e2e/Sequicity/sheets
-tasktk/modules/e2e/Sequicity/vocab
+convlab/modules/e2e/multiwoz/Sequicity/data
+convlab/modules/e2e/multiwoz/Sequicity/log
+convlab/modules/e2e/multiwoz/Sequicity/models
+convlab/modules/e2e/multiwoz/Sequicity/results
+convlab/modules/e2e/multiwoz/Sequicity/sheets
+convlab/modules/e2e/multiwoz/Sequicity/vocab
 
 # mem2seq
-tasktk/modules/e2e/Mem2Seq/data
-tasktk/modules/e2e/Mem2Seq/save
+convlab/modules/e2e/multiwoz/Mem2Seq/data
+convlab/modules/e2e/multiwoz/Mem2Seq/save
 
 # test scripts
 interact.py
@@ -77,15 +77,12 @@ test_run.py
 data/multiwoz/mlst.txt
 data/multiwoz/sample.json
 
-tasktk/modules/nlu/mlst/models
+convlab/modules/nlu/multiwoz/mlst/models
 
-# joint_nlu
-tasktk/modules/nlu/joint_nlu/models
+# one_net
+convlab/modules/nlu/multiwoz/one_net/models
 # mle
-tasktk/modules/policy/system/vanilla_mle/models
-
-# dst
-tasktk/modules/dst/*.log
+convlab/modules/policy/system/multiwoz/vanilla_mle/models
 
 # rl
 temp-plot.html
