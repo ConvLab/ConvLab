@@ -154,8 +154,10 @@ class _Config:
         current_time = time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime())
 
         stderr_handler = logging.StreamHandler()
-        file_handler = logging.FileHandler(os.path.join(os.path.dirname(os.path.abspath(__file__)), \
-                                                        'log/log_{}.txt').format(current_time))
+        log_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'log')
+        if not os.path.exists(log_dir):
+            os.mkdir(log_dir)
+        file_handler = logging.FileHandler(os.path.join(log_dir, 'log_{}.txt').format(current_time))
         logging.basicConfig(handlers=[stderr_handler, file_handler])
         logger = logging.getLogger()
         logger.setLevel(logging.DEBUG)
