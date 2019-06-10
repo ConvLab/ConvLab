@@ -6,7 +6,7 @@
         "name": "ExternalPolicy",
         "e2e": {
           "name": "Sequicity",
-          "model_file": "https://convlab.blob.core.windows.net/models/Sequicity.rar"
+          "model_file": "https://convlab.blob.core.windows.net/models/Sequicity.zip"
         },
         "action_pdtype": "Argmax",
         "action_policy": "default"

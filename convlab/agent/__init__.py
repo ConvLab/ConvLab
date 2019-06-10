@@ -150,15 +150,21 @@ class DialogAgent(Agent):
         return decoded_action
     
     def state_update(self, observation, action):
-        self.dst.state['history'].append([str(action)])
-        input_act = self.nlu.parse(observation, sum(self.dst.state['history'], [])) if self.nlu else observation
+        if self.dst:
+            self.dst.state['history'].append([str(action)])
+        # context = sum(self.dst.state['history'], []) if self.dst else []
+        input_act = self.nlu.parse(observation, sum(self.dst.state['history'], []) if self.dst else []) if self.nlu else observation
         state = self.dst.update(input_act) if self.dst else input_act 
-        self.dst.state['history'][-1].append(str(observation))
+
+        if self.dst:
+            self.dst.state['history'][-1].append(str(observation))
+
         encoded_state = self.state_encoder.encode(state) if self.state_encoder else state 
         if self.nlu and self.dst:  
             self.dst.state['user_action'] = input_act 
         elif self.dst and not isinstance(self.dst, word_dst.MDBTTracker):  # for act-in act-out agent
             self.dst.state['user_action'] = observation 
+
         logger.nl(f'User utterance: {observation}')
         logger.act(f'User action: {input_act}')
         logger.state(f'Dialog state: {state}')
