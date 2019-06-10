@@ -226,7 +226,7 @@ class DialogAgent(Agent):
             self.body.state, self.body.encoded_state = next_state, encoded_state
             return
 
-        if not hasattr(self.body, 'warmup_memory') or self.env.clock.epi > self.warmup_epi:
+        if not hasattr(self.body, 'warmup_memory') or self.body.env.clock.epi > self.warmup_epi:
             self.body.memory.update(self.body.encoded_state, self.body.action, reward, encoded_state, done)
         else:
             self.body.warmup_memory.update(self.body.encoded_state, self.body.action, reward, encoded_state, done)
@@ -293,7 +293,7 @@ class Body:
         # dataframes to track data for analysis.analyze_session
         # track training data per episode
         self.train_df = pd.DataFrame(columns=[
-            'epi', 't', 'wall_t', 'opt_step', 'frame', 'fps', 'total_reward', 'total_reward_ma', 'loss', 'lr',
+            'epi', 't', 'wall_t', 'opt_step', 'frame', 'fps', 'total_reward', 'avg_return', 'avg_len', 'avg_success', 'loss', 'lr',
             'explore_var', 'entropy_coef', 'entropy', 'grad_norm'])
         # track eval data within run_eval. the same as train_df except for reward
         self.eval_df = self.train_df.copy()
@@ -347,7 +347,9 @@ class Body:
             'frame': frame,
             'fps': fps,
             'total_reward': np.nanmean(self.total_reward),  # guard for vec env
-            'total_reward_ma': np.nan,  # update outside
+            'avg_return': np.nan,  # update outside
+            'avg_len': np.nan,  # update outside
+            'avg_success': np.nan,  # update outside
             'loss': self.loss,
             'lr': self.get_mean_lr(),
             'explore_var': self.explore_var,
@@ -365,17 +367,18 @@ class Body:
         self.train_df.loc[len(self.train_df)] = row
         # update current reward_ma
         self.total_reward_ma = self.train_df[-self.ma_window:]['total_reward'].mean()
-        self.train_df.iloc[-1]['total_reward_ma'] = self.total_reward_ma
+        self.train_df.iloc[-1]['avg_return'] = self.total_reward_ma
 
-    def eval_ckpt(self, eval_env, total_reward):
+    def eval_ckpt(self, eval_env, avg_return, avg_len, avg_success):
         '''Checkpoint to update body.eval_df data'''
         row = self.calc_df_row(eval_env)
-        row['total_reward'] = total_reward
         # append efficiently to df
         self.eval_df.loc[len(self.eval_df)] = row
         # update current reward_ma
-        self.eval_reward_ma = self.eval_df[-self.ma_window:]['total_reward'].mean()
-        self.eval_df.iloc[-1]['total_reward_ma'] = self.eval_reward_ma
+        self.eval_reward_ma = avg_return
+        self.eval_df.iloc[-1]['avg_return'] = avg_return 
+        self.eval_df.iloc[-1]['avg_len'] = avg_len
+        self.eval_df.iloc[-1]['avg_success'] = avg_success
 
     def get_mean_lr(self):
         '''Gets the average current learning rate of the algorithm's nets.'''

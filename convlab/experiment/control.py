@@ -78,8 +78,8 @@ class Session:
             body.log_summary('train')
 
         if self.to_ckpt(env, 'eval'):
-            avg_return = analysis.gen_avg_return(agent, self.eval_env, self.num_eval)
-            body.eval_ckpt(self.eval_env, avg_return)
+            avg_return, avg_len, avg_success, avg_p, avg_r, avg_f1, avg_book_rate = analysis.gen_avg_result(agent, self.eval_env, self.num_eval) 
+            body.eval_ckpt(self.eval_env, avg_return, avg_len, avg_success)
             body.log_summary('eval')
             if body.eval_reward_ma >= body.best_reward_ma:
                 body.best_reward_ma = body.eval_reward_ma
@@ -87,35 +87,20 @@ class Session:
             if self.env.clock.get('epi') > self.warmup_epi:
                 if len(body.train_df) > 1:  # need > 1 row to calculate stability
                     metrics = analysis.analyze_session(self.spec, body.train_df, 'train')
-                    # body.log_metrics(metrics['scalar'], 'train')
                 if len(body.eval_df) > 1:  # need > 1 row to calculate stability
                     metrics = analysis.analyze_session(self.spec, body.eval_df, 'eval')
-                    # body.log_metrics(metrics['scalar'], 'eval')
 
     def run_eval(self):
-        lens, returns, successes, precs, recs, f1s, book_rates = [], [], [], [], [], [], []
-        for _ in range(self.num_eval):
-            returns.append(analysis.gen_result(self.agent, self.eval_env))
-            lens.append(self.eval_env.clock.t)
-            if self.agent.evaluator: 
-                successes.append(self.agent.evaluator.task_success())
-                _p, _r, _f1 = self.agent.evaluator.inform_F1() 
-                precs.append(_p)
-                recs.append(_r)
-                f1s.append(_f1)
-                book_rates.append(self.agent.evaluator.book_rate())
-            elif hasattr(self.eval_env, 'get_task_success'):
-                successes.append(self.eval_env.get_task_success())
-            logger.nl(f'A dialog session is done')
-        result = f'{self.num_eval} episodes, {sum(returns)/self.num_eval:.2f} return'
-        if len(successes) > 0:
-            result += f', {sum(successes)/self.num_eval*100:.2f}% success rate'
-        if len(lens) > 0:
-            result += f', {sum(lens)/self.num_eval:.2f} turns'
-        if len(precs) > 0:
-            result += f', {sum(precs)/self.num_eval:.2f} P, {sum(recs)/self.num_eval:.2f} R, {sum(f1s)/self.num_eval:.2f} F1'
-        # if len(book_rates) > 0:
-        #     result += f', {sum(book_rates)/self.num_eval*100:.2f}% book rate'
+        avg_return, avg_len, avg_success, avg_p, avg_r, avg_f1, avg_book_rate = analysis.gen_avg_result(self.agent, self.eval_env, self.num_eval) 
+        result = f'{self.num_eval} episodes, {avg_return:.2f} return'
+        if avg_success:
+            result += f', {avg_success*100:.2f}% success rate'
+        if avg_len:
+            result += f', {avg_len:.2f} turns'
+        if avg_p:
+            result += f', {avg_p:.2f} P, {avg_r:.2f} R, {avg_f1:.2f} F1'
+        # if avg_book_rates:
+        #     result += f', {avg_book_rate*100:.2f}% book rate'
         logger.info(result)
 
     def run_rl(self):
@@ -158,7 +143,6 @@ class Session:
         else:
             self.run_rl()
             metrics = analysis.analyze_session(self.spec, self.agent.body.eval_df, 'eval')
-            # self.agent.body.log_metrics(metrics['scalar'], 'eval')
         self.close()
         return metrics
 

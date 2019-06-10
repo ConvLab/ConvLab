@@ -133,32 +133,36 @@ def plot_session(session_spec, session_metrics, session_df, df_mode='eval'):
     title = f'session graph: {session_spec["name"]} t{meta_spec["trial"]} s{meta_spec["session"]}'
 
     local_metrics = session_metrics['local']
-    name_time_pairs = [
-        ('mean_returns', 'frames'),
-        # ('strengths', 'frames'),
-        # ('sample_efficiencies', 'frames'),
-        # ('training_efficiencies', 'opt_steps'),
-        # ('stabilities', 'frames')
-    ]
-    for name, time in name_time_pairs:
-        fig = plot_sr(
-            local_metrics[name], local_metrics[time], title, name, time)
-        save_image(fig, f'{graph_prepath}_session_graph_{df_mode}_{name}_vs_{time}.png')
-        if name in ('mean_returns',):  # save important graphs in prepath directly
+    if df_mode == 'train':
+        name_time_pairs = [
+            ('mean_return', 'frames'),
+        ]
+        for name, time in name_time_pairs:
+            fig = plot_sr(
+                local_metrics[name], local_metrics[time], title, name, time)
+            save_image(fig, f'{graph_prepath}_session_graph_{df_mode}_{name}_vs_{time}.png')
             save_image(fig, f'{prepath}_session_graph_{df_mode}_{name}_vs_{time}.png')
-
-    if df_mode == 'eval':
-        return
-    # training plots from session_df
-    name_time_pairs = [
-        ('loss', 'frame'),
-        ('explore_var', 'frame'),
-        ('entropy', 'frame'),
-    ]
-    for name, time in name_time_pairs:
-        fig = plot_sr(
-            session_df[name], session_df[time], title, name, time)
-        save_image(fig, f'{graph_prepath}_session_graph_{df_mode}_{name}_vs_{time}.png')
+        name_time_pairs = [
+            ('loss', 'frame'),
+            ('explore_var', 'frame'),
+            ('entropy', 'frame'),
+        ]
+        for name, time in name_time_pairs:
+            fig = plot_sr(
+                session_df[name], session_df[time], title, name, time)
+            save_image(fig, f'{graph_prepath}_session_graph_{df_mode}_{name}_vs_{time}.png')
+    else:
+        # training plots from session_df
+        name_time_pairs = [
+            ('mean_return', 'frames'),
+            ('mean_length', 'frames'),
+            ('mean_success', 'frames'),
+        ]
+        for name, time in name_time_pairs:
+            fig = plot_sr(
+                local_metrics[name], local_metrics[time], title, name, time)
+            save_image(fig, f'{graph_prepath}_session_graph_{df_mode}_{name}_vs_{time}.png')
+            save_image(fig, f'{prepath}_session_graph_{df_mode}_{name}_vs_{time}.png')
 
 
 def plot_trial(trial_spec, trial_metrics):
@@ -174,23 +178,15 @@ def plot_trial(trial_spec, trial_metrics):
 
     local_metrics = trial_metrics['local']
     name_time_pairs = [
-        ('mean_returns', 'frames'),
-        # ('strengths', 'frames'),
-        # ('sample_efficiencies', 'frames'),
-        # ('training_efficiencies', 'opt_steps'),
-        # ('stabilities', 'frames'),
-        # ('consistencies', 'frames'),
+        ('mean_return', 'frames'),
+        ('mean_length', 'frames'),
+        ('mean_success', 'frames'),
     ]
     for name, time in name_time_pairs:
-        if name == 'consistencies':
-            fig = plot_sr(
-                local_metrics[name], local_metrics[time], title, name, time)
-        else:
-            fig = plot_mean_sr(
-                local_metrics[name], local_metrics[time], title, name, time)
+        fig = plot_mean_sr(
+            local_metrics[name], local_metrics[time], title, name, time)
         save_image(fig, f'{graph_prepath}_trial_graph_{name}_vs_{time}.png')
-        if name in ('mean_returns',):  # save important graphs in prepath directly
-            save_image(fig, f'{prepath}_trial_graph_{name}_vs_{time}.png')
+        save_image(fig, f'{prepath}_trial_graph_{name}_vs_{time}.png')
 
 
 def plot_experiment(experiment_spec, experiment_df, metrics_cols):
