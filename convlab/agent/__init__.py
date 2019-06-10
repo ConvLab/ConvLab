@@ -152,7 +152,7 @@ class DialogAgent(Agent):
     def state_update(self, observation, action):
         if self.dst:
             self.dst.state['history'].append([str(action)])
-        # context = sum(self.dst.state['history'], []) if self.dst else []
+
         input_act = self.nlu.parse(observation, sum(self.dst.state['history'], []) if self.dst else []) if self.nlu else observation
         state = self.dst.update(input_act) if self.dst else input_act 
 
