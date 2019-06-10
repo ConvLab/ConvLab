@@ -166,13 +166,14 @@ class DialogAgent(Agent):
         logger.act(f'System action: {action}')
 
         return decoded_action
-    
+
     def state_update(self, obs, action):
         # update history 
-        self.dst.state['history'].append([str(action)])
+		if self.dst:
+			self.dst.state['history'].append([str(action)])
 
         # NLU parsing
-        input_act = self.nlu.parse(obs, sum(self.dst.state['history'], [])) if self.nlu else obs
+        input_act = self.nlu.parse(obs, sum(self.dst.state['history'], []) if self.dst else []) if self.nlu else obs
 
         # state tracking 
         state = self.dst.update(input_act) if self.dst else input_act 
@@ -188,7 +189,8 @@ class DialogAgent(Agent):
             self.evaluator.add_state(state)
 
         # update history 
-        self.dst.state['history'][-1].append(str(obs))
+		if self.dst:
+			self.dst.state['history'][-1].append(str(obs))
 
         # encode state 
         encoded_state = self.state_encoder.encode(state) if self.state_encoder else state 

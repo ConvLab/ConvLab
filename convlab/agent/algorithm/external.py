@@ -9,7 +9,7 @@ from convlab.agent.algorithm.base import Algorithm
 from convlab.agent.algorithm import policy_util
 from convlab.lib import logger, util
 from convlab.lib.decorator import lab_api
-from convlab.modules import policy, word_policy
+from convlab.modules import policy, word_policy, e2e
 
 import numpy as np
 from copy import deepcopy
@@ -41,6 +41,9 @@ class ExternalPolicy(Algorithm):
         if 'word_policy' in self.algorithm_spec:
             params = deepcopy(ps.get(self.algorithm_spec, 'word_policy'))
             PolicyClass = getattr(word_policy, params.pop('name'))
+        elif 'e2e' in self.algorithm_spec:
+            params = deepcopy(ps.get(self.algorithm_spec, 'e2e'))
+            PolicyClass = getattr(e2e, params.pop('name'))
         else:
             params = deepcopy(ps.get(self.algorithm_spec, 'policy'))
             PolicyClass = getattr(policy, params.pop('name'))

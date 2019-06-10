@@ -3,17 +3,23 @@
 # Modified by Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""
-"""
+import os
 import random
 import torch
+import zipfile
 import numpy as np
 from torch.autograd import Variable
-from convlab.e2e.Sequicity.model import Model
-from convlab.e2e.Sequicity.config import global_config as cfg
-from convlab.e2e.Sequicity.tsd_net import cuda_
-from convlab.e2e.Sequicity.reader import pad_sequences
+from convlab.modules.e2e.multiwoz.Sequicity.model import Model
+from convlab.modules.e2e.multiwoz.Sequicity.config import global_config as cfg
+from convlab.modules.e2e.multiwoz.Sequicity.tsd_net import cuda_
+from convlab.modules.e2e.multiwoz.Sequicity.reader import pad_sequences
+from convlab.modules.policy.system.policy import SysPolicy
+from convlab.lib.file_util import cached_path
 from nltk import word_tokenize
+
+DEFAULT_CUDA_DEVICE=-1
+DEFAULT_DIRECTORY = "models"
+DEFAULT_ARCHIVE_FILE = os.path.join(DEFAULT_DIRECTORY, "Sequicity.rar")
 
 def denormalize(uttr):
     uttr = uttr.replace(' -s', 's')
@@ -21,8 +27,21 @@ def denormalize(uttr):
     uttr = uttr.replace(' -er', 'er')
     return uttr
 
-class Sequicity:
-    def __init__(self):
+class Sequicity(SysPolicy):
+    def __init__(self, 
+                 archive_file=DEFAULT_ARCHIVE_FILE, 
+                 model_file=None):
+        SysPolicy.__init__(self)
+        
+        if not os.path.isfile(archive_file):
+            if not model_file:
+                raise Exception("No model for Sequicity is specified!")
+            archive_file = cached_path(model_file)
+        model_dir = os.path.dirname(os.path.abspath(__file__))
+        if not os.path.exists(os.path.join(model_dir, 'data')):
+            archive = zipfile.ZipFile(archive_file, 'r')
+            archive.extractall(model_dir)
+        
         cfg.init_handler('tsdf-multiwoz')
         
         torch.manual_seed(cfg.seed)
