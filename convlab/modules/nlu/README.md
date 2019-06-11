@@ -1,5 +1,8 @@
 # Natural Language Understanding
 
+In a pipeline task-oriented dialog framework, the NLU module takes as input raw
+user utterance, and converts it into a dialog act format.
+
 This directory contains the interface definition of natural language understanding module and some implementations.
 
 ## Interface
