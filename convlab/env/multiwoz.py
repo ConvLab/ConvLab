@@ -147,15 +147,12 @@ class MultiWozEnvironment(object):
                         break
             else:
                 delex_act[domain_act] = [sv[0] for sv in rule_act[domain_act]] 
-        # pprint(delex_act)
         action = find_best_delex_act(delex_act)
 
         return action 
 
     def close(self):
         pass
-        # print('\nstatistics: %s' % (self.stat))
-        # print('\nsuccess rate: %s' % (self.stat['success']/(self.stat['success']+self.stat['fail'])))
 
 
 class MultiWozEnv(BaseEnv):
