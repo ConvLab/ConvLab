@@ -3,12 +3,12 @@
     "type": "mle_policy",
     "num_actions": 300
   },
-  "train_data_path": "/home/t-jaylee/repository/ConvLab/data/multiwoz/train.json.zip",
-  "validation_data_path": "/home/t-jaylee/repository/ConvLab/data/multiwoz/val.json.zip",
-  "test_data_path": "/home/t-jaylee/repository/ConvLab/data/multiwoz/test.json.zip",
+  "train_data_path": "/home/sule/projects/research/cvdev/data/multiwoz/train.json.zip",
+  "validation_data_path": "/home/sule/projects/research/cvdev/data/multiwoz/val.json.zip",
+  "test_data_path": "/home/sule/projects/research/cvdev/data/multiwoz/test.json.zip",
   "model": {
     "type": "vanilla_mle_policy",
-    "input_dim": 393,
+    "input_dim": 392,
     "num_classes": 300
   },
   "iterator": {
