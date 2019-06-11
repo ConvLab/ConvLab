@@ -21,7 +21,7 @@ mapping = {'restaurant': {'addr': 'address', 'area': 'area', 'food': 'food', 'na
         'hotel': {'addr': 'address', 'area': 'area', 'internet': 'internet', 'parking': 'parking', 'name': 'name', 'phone': 'phone', 'post': 'postcode', 'price': 'pricerange', 'stars': 'stars', 'type': 'type'},
         'attraction': {'addr': 'address', 'area': 'area', 'fee': 'entrance fee', 'name': 'name', 'phone': 'phone', 'post': 'postcode', 'type': 'type'},
         'train': {'id': 'trainID', 'arrive': 'arriveBy', 'day': 'day', 'depart': 'departure', 'dest': 'destination', 'time': 'duration', 'leave': 'leaveAt', 'ticket': 'price'},
-        'taxi': {'car': 'taxi_colors', 'phone': 'taxi_phone'},
+        'taxi': {'car': 'car type', 'phone': 'phone'},
         'hospital': {'post': 'postcode', 'phone': 'phone', 'addr': 'address', 'department': 'department'},
         'police': {'post': 'postcode', 'phone': 'phone', 'addr': 'address'}}
 
@@ -181,6 +181,8 @@ class MultiWozEvaluator(Evaluator):
                     TP += 1
                 else:
                     FN += 1
+                    if domain == 'hotel':
+                        pass
             for k in inform_slot[domain]:
                 # exclude slots that are informed by users
                 if k not in goal[domain]['reqt'] \
@@ -236,9 +238,12 @@ class MultiWozEvaluator(Evaluator):
         book_sess = self.book_rate(ref2goal)
         inform_sess = self.inform_F1(ref2goal)
         # book rate == 1 & inform recall == 1
-        if (book_sess == 1 and inform_sess[1] == 1) \
-        or (book_sess == 1 and inform_sess[1] is None) \
-        or (book_sess is None and inform_sess[1] == 1):
+        # if (book_sess == 1 and inform_sess[1] == 1) \
+        # or (book_sess == 1 and inform_sess[1] is None) \
+        # or (book_sess is None and inform_sess[1] == 1):
+        #     return 1
+        if (inform_sess[1] == 1) \
+        or (inform_sess[1] is None):
             return 1
         else:
             return 0

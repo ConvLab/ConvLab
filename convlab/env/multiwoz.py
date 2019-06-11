@@ -92,6 +92,9 @@ class MultiWozEnvironment(object):
     def get_last_act(self):
         return deepcopy(self.last_act)
 
+    def get_sys_act(self):
+        return deepcopy(self.simulator.sys_act)
+
     def step(self, action):
         user_response, user_act, session_over, reward = self.simulator.response(action, self.history)
         self.last_act = user_act
@@ -236,6 +239,9 @@ class MultiWozEnv(BaseEnv):
 
     def get_last_act(self):
         return self.u_env.get_last_act()
+
+    def get_sys_act(self):
+        return self.u_env.get_sys_act()
 
     def get_task_success(self):
         return self.u_env.simulator.policy.goal.task_complete()

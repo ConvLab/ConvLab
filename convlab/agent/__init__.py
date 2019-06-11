@@ -183,6 +183,7 @@ class DialogAgent(Agent):
             env = self.get_env()
             if hasattr(env, 'get_last_act'): 
                 self.evaluator.add_usr_da(env.get_last_act())
+                logger.act(f'Inferred system action: {env.get_sys_act()}')
                 logger.act(f'True user action: {env.get_last_act()}')
             else:
                 self.evaluator.add_usr_da(input_act)
