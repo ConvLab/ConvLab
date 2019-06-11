@@ -73,6 +73,7 @@ class MultiWozEnvironment(object):
         self.simulator.init_session()
         self.action_vocab = ActionVocab(num_actions=action_dim)
         self.history = []
+        self.last_act = None
 
         self.stat = {'success':0, 'fail':0}
 
@@ -80,24 +81,21 @@ class MultiWozEnvironment(object):
         self.simulator.init_session()
         self.history = []
         user_response, user_act, session_over, reward = self.simulator.response("null", self.history)
-        str_user_response = '{}'.format(user_response)
-        self.history.extend(["null", str_user_response])
+        self.last_act = user_act
+        self.history.extend(["null", f'{user_response}'])
         self.env_info = [State(user_response, 0., session_over)] 
         return self.env_info 
 
     def get_goal(self):
         return deepcopy(self.simulator.policy.domain_goals)
 
+    def get_last_act(self):
+        return deepcopy(self.last_act)
+
     def step(self, action):
         user_response, user_act, session_over, reward = self.simulator.response(action, self.history)
-        str_sys_response = '{}'.format(action)
-        str_user_response = '{}'.format(user_response)
-        self.history.extend([str_sys_response, str_user_response])
-        # if session_over:
-        #     dialog_status = self.simulator.policy.goal.task_complete()
-        #     if dialog_status:
-        #         self.stat['success'] += 1
-        #     else: self.stat['fail'] += 1
+        self.last_act = user_act
+        self.history.extend([f'sys_response', f'user_response'])
         self.env_info = [State(user_response, reward, session_over)] 
         return self.env_info 
 
@@ -235,6 +233,9 @@ class MultiWozEnv(BaseEnv):
 
     def get_goal(self):
         return self.u_env.get_goal()
+
+    def get_last_act(self):
+        return self.u_env.get_last_act()
 
     def get_task_success(self):
         return self.u_env.simulator.policy.goal.task_complete()

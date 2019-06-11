@@ -29,10 +29,10 @@ SPEC_FORMAT = {
         "max_t": (type(None), int, float),
         # "max_frame": (int, float),
     }],
-    "body": {
-        "product": ["outer", "inner", "custom"],
-        "num": (int, list),
-    },
+    # "body": {
+    #     "product": ["outer", "inner", "custom"],
+    #     "num": (int, list),
+    # },
     "meta": {
         "eval_frequency": (int, float),
         "max_session": int,
@@ -88,7 +88,7 @@ def check(spec):
             check_comp_spec(agent_spec, SPEC_FORMAT['agent'][0])
         for env_spec in spec['env']:
             check_comp_spec(env_spec, SPEC_FORMAT['env'][0])
-        check_comp_spec(spec['body'], SPEC_FORMAT['body'])
+        # check_comp_spec(spec['body'], SPEC_FORMAT['body'])
         check_comp_spec(spec['meta'], SPEC_FORMAT['meta'])
         # check_body_spec(spec)
         check_compatibility(spec)

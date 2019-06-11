@@ -14,6 +14,8 @@ import spacy
 import json
 
 # from goal_generator import GoalGenerator
+import sys
+sys.path.append('../../')
 from convlab.modules.usr.multiwoz.goal_generator import GoalGenerator
 
 nlp = spacy.load('en_core_web_sm')
@@ -181,7 +183,7 @@ class DQNBot(object):
 
     def act(self):
         resp = requests.post('http://localhost:10004', json={'input': self.input,
-                                                             'state': self.state})
+                                                             'agent_state': self.state})
         if resp.status_code != 200:
             raise Exception('POST /tasks/ {}'.format(resp.status_code))
         else:
@@ -189,7 +191,7 @@ class DQNBot(object):
             if response == 'What did you say?':
                 self.state = {}
             else:
-                self.state = resp.json()['state']
+                self.state = resp.json()['agent_state']
         print('Response: {}'.format(response))
         return {'text': response}
 
@@ -228,8 +230,8 @@ class MultiWozEvalWorld(MTurkTaskWorld):
         self.model_agents = {
             # "cambridge": CambridgeBot(),
             # "sequicity": SequicityBot(),
-            "RuleBot": RuleBot(),
-            # "DQNBot": DQNBot()
+            # "RuleBot": RuleBot(),
+            "DQNBot": DQNBot()
         }
         # self.model_agent = RuleBot()
         # self.model_agent = DQNBot()

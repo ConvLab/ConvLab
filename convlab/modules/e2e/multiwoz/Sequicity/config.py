@@ -104,7 +104,7 @@ class _Config:
     def _multiwoz_tsdf_init(self):
         self.beam_len_bonus = 0.5
         self.prev_z_method = 'separate'
-        self.vocab_size = 6000 #9543
+        self.vocab_size = 4000 #9380
         self.embedding_size = 50
         self.hidden_size = 50
         self.split = (3, 1, 1)
@@ -154,8 +154,10 @@ class _Config:
         current_time = time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime())
 
         stderr_handler = logging.StreamHandler()
-        file_handler = logging.FileHandler(os.path.join(os.path.dirname(os.path.abspath(__file__)), \
-                                                        'log/log_{}.txt').format(current_time))
+        log_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'log')
+        if not os.path.exists(log_dir):
+            os.mkdir(log_dir)
+        file_handler = logging.FileHandler(os.path.join(log_dir, 'log_{}.txt').format(current_time))
         logging.basicConfig(handlers=[stderr_handler, file_handler])
         logger = logging.getLogger()
         logger.setLevel(logging.DEBUG)

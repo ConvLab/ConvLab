@@ -13,13 +13,14 @@ from allennlp.data import DatasetReader
 from allennlp.data.tokenizers.word_splitter import SpacyWordSplitter
 
 from convlab.lib.file_util import cached_path
+from convlab.modules.nlu.nlu import NLU
 from convlab.modules.nlu.multiwoz.onenet import model, dataset_reader
 
 DEFAULT_CUDA_DEVICE=-1
 DEFAULT_DIRECTORY = "models"
 DEFAULT_ARCHIVE_FILE = os.path.join(DEFAULT_DIRECTORY, "onenet.tar.gz")
 
-class OneNetLU(object):
+class OneNetLU(NLU):
     """Multilabel sequence tagging model."""
 
     def __init__(self,
