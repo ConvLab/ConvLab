@@ -181,8 +181,6 @@ class MultiWozEvaluator(Evaluator):
                     TP += 1
                 else:
                     FN += 1
-                    if domain == 'hotel':
-                        pass
             for k in inform_slot[domain]:
                 # exclude slots that are informed by users
                 if k not in goal[domain]['reqt'] \
@@ -238,12 +236,9 @@ class MultiWozEvaluator(Evaluator):
         book_sess = self.book_rate(ref2goal)
         inform_sess = self.inform_F1(ref2goal)
         # book rate == 1 & inform recall == 1
-        # if (book_sess == 1 and inform_sess[1] == 1) \
-        # or (book_sess == 1 and inform_sess[1] is None) \
-        # or (book_sess is None and inform_sess[1] == 1):
-        #     return 1
-        if (inform_sess[1] == 1) \
-        or (inform_sess[1] is None):
+        if (book_sess == 1 and inform_sess[1] == 1) \
+        or (book_sess == 1 and inform_sess[1] is None) \
+        or (book_sess is None and inform_sess[1] == 1):
             return 1
         else:
             return 0
