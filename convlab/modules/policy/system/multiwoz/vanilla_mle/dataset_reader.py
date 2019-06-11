@@ -109,7 +109,6 @@ class MlePolicyDatasetReader(DatasetReader):
 
     def text_to_instance(self, state: np.ndarray, action: int = None) -> Instance:  # type: ignore
         """
-        We take `pre-tokenized` input here, because we don't have a tokenizer in this class.
         """
         # pylint: disable=arguments-differ
         fields: Dict[str, Field] = {}

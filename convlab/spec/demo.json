@@ -109,6 +109,64 @@
       }
     }
   },
+  "onenet_rule_rule_template_evaluator": {
+    "agent": [{
+      "name": "DialogAgent",
+      "nlu": {
+        "name": "OneNetLU",
+        "model_file": "https://convlab.blob.core.windows.net/models/onenet.tar.gz"
+      },
+      "dst": {
+        "name": "RuleDST"
+      },
+      "nlg": {
+        "name": "MultiwozTemplateNLG",
+        "is_user": false
+      },
+      "algorithm": {
+        "name": "ExternalPolicy",
+        "policy": {
+          "name": "RuleBasedMultiwozBot"
+        },
+        "action_pdtype": "Argmax",
+        "action_policy": "default"
+      },
+      "evaluator": {
+        "name": "MultiWozEvaluator"
+      }
+    }],
+    "env": [{
+      "name": "multiwoz",
+      "user_policy": {
+        "name": "UserPolicyAgendaMultiWoz"
+      },
+      "sys_policy": {
+        "name": "RuleBasedMultiwozBot"
+      },
+      "nlu": {
+        "name": "OneNetLU",
+        "model_file": "https://convlab.blob.core.windows.net/models/onenet.tar.gz"
+      },
+      "nlg": {
+        "name": "MultiwozTemplateNLG",
+        "is_user": true
+      },
+      "max_t": 40,
+      "max_frame": 1000
+    }],
+    "meta": {
+      "distributed": false,
+      "eval_frequency": 1000,
+      "num_eval": 100,
+      "max_tick_unit": "total_t",
+      "max_trial": 1,
+      "max_session": 1,
+      "resources": {
+        "num_cpus": 1,
+        "num_gpus": 0
+      }
+    }
+  },
   "milu_rule_rule_template_evaluator": {
     "agent": [{
       "name": "DialogAgent",
@@ -157,7 +215,7 @@
     "meta": {
       "distributed": false,
       "eval_frequency": 1000,
-      "num_eval": 2,
+      "num_eval": 100,
       "max_tick_unit": "total_t",
       "max_trial": 1,
       "max_session": 1,
@@ -340,7 +398,7 @@
     "env": [{
       "name": "multiwoz",
       "action_dim": 300,
-      "observation_dim": 393,
+      "observation_dim": 392,
       "max_t": 40,
       "max_frame": 500000,
       "nlu": {
@@ -443,7 +501,7 @@
     "env": [{
       "name": "multiwoz",
       "action_dim": 300,
-      "observation_dim": 393,
+      "observation_dim": 392,
       "max_t": 40,
       "max_frame": 50000,
       "nlu": {
@@ -535,7 +593,7 @@
     "env": [{
       "name": "multiwoz",
       "action_dim": 300,
-      "observation_dim": 393,
+      "observation_dim": 392,
       "max_t": 40,
       "max_frame": 50000,
       "nlu": {
@@ -628,7 +686,7 @@
     "env": [{
       "name": "multiwoz",
       "action_dim": 300,
-      "observation_dim": 393,
+      "observation_dim": 392,
       "max_t": 40,
       "max_frame": 500000,
       "nlu": {
@@ -721,7 +779,7 @@
     "env": [{
       "name": "multiwoz",
       "action_dim": 300,
-      "observation_dim": 393,
+      "observation_dim": 392,
       "max_t": 40,
       "max_frame": 500000,
       "nlu": {
@@ -810,7 +868,7 @@
     "env": [{
       "name": "multiwoz",
       "action_dim": 300,
-      "observation_dim": 393,
+      "observation_dim": 392,
       "max_t": 40,
       "max_frame": 500000,
       "user_policy": {
@@ -911,7 +969,7 @@
     "env": [{
       "name": "multiwoz",
       "action_dim": 300,
-      "observation_dim": 393,
+      "observation_dim": 392,
       "max_t": 40,
       "max_frame": 50000,
       "nlu": {
@@ -1015,7 +1073,7 @@
     "env": [{
       "name": "multiwoz",
       "action_dim": 300,
-      "observation_dim": 393,
+      "observation_dim": 392,
       "max_t": 40,
       "max_frame": 100,
       "user_policy": {
@@ -1059,7 +1117,7 @@
     "env": [{
       "name": "multiwoz",
       "action_dim": 300,
-      "observation_dim": 393,
+      "observation_dim": 392,
       "max_t": 40,
       "max_frame": 100,
       "user_policy": {
@@ -1101,7 +1159,7 @@
     "env": [{
       "name": "multiwoz",
       "action_dim": 300,
-      "observation_dim": 393,
+      "observation_dim": 392,
       "max_t": 40,
       "max_frame": 100,
       "user_policy": {
@@ -1185,7 +1243,7 @@
     "env": [{
       "name": "multiwoz",
       "action_dim": 300,
-      "observation_dim": 393,
+      "observation_dim": 392,
       "max_t": 40,
       "max_frame": 500000,
       "user_policy": {
@@ -1261,7 +1319,7 @@
     "env": [{
       "name": "multiwoz",
       "action_dim": 300,
-      "observation_dim": 393,
+      "observation_dim": 392,
       "max_t": 40,
       "max_frame": 50000,
       "user_policy": {
@@ -1344,7 +1402,7 @@
     "env": [{
       "name": "multiwoz",
       "action_dim": 300,
-      "observation_dim": 393,
+      "observation_dim": 392,
       "max_t": 40,
       "max_frame": 500000,
       "user_policy": {
@@ -1433,7 +1491,7 @@
     "env": [{
       "name": "multiwoz",
       "action_dim": 300,
-      "observation_dim": 393,
+      "observation_dim": 392,
       "max_t": 40,
       "max_frame": 5000000,
       "user_policy": {
@@ -1530,7 +1588,7 @@
     "env": [{
       "name": "multiwoz",
       "action_dim": 300,
-      "observation_dim": 393,
+      "observation_dim": 392,
       "max_t": 40,
       "max_frame": 500000,
       "user_policy": {
@@ -1616,7 +1674,7 @@
     "env": [{
       "name": "multiwoz",
       "action_dim": 300,
-      "observation_dim": 393,
+      "observation_dim": 392,
       "max_t": 40,
       "max_frame": 50000,
       "user_policy": {
@@ -1693,7 +1751,7 @@
     "env": [{
       "name": "multiwoz",
       "action_dim": 300,
-      "observation_dim": 393,
+      "observation_dim": 392,
       "max_t": 40,
       "max_frame": 50000,
       "user_policy": {

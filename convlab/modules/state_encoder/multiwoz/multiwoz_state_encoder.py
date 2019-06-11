@@ -84,9 +84,10 @@ class MultiWozStateEncoder(object):
             domain_active = False
 
             booking = []
+            print(sorted(belief_state[domain]['book'].keys()))
             for slot in sorted(belief_state[domain]['book'].keys()):
                 if slot == 'booked':
-                    if belief_state[domain]['book']['booked']:
+                    if belief_state[domain]['book']['booked'] != []:
                         booking.append(1)
                     else:
                         booking.append(0)
@@ -95,15 +96,6 @@ class MultiWozStateEncoder(object):
                         booking.append(1)
                     else:
                         booking.append(0)
-            if domain == 'train':
-                if 'people' not in belief_state[domain]['book'].keys():
-                    booking.append(0)
-                else:
-                    booking.append(1)
-                if 'ticket' not in belief_state[domain]['book'].keys():
-                    booking.append(0)
-                else:
-                    booking.append(1)
             info_vector += booking
 
             for slot in belief_state[domain]['semi']:
@@ -113,11 +105,9 @@ class MultiWozStateEncoder(object):
                 elif belief_state[domain]['semi'][slot] == 'dont care' or belief_state[domain]['semi'][slot] == 'dontcare' or belief_state[domain]['semi'][slot] == "don't care":
                     slot_enc[1] = 1
                     domain_active = True
-                    # print("dontcare:", slot)
                 elif belief_state[domain]['semi'][slot]:
                     slot_enc[2] = 1
                     domain_active = True
-                    # print("filled:", slot)
                 info_vector += slot_enc
 
             # quasi domain-tracker
@@ -126,7 +116,7 @@ class MultiWozStateEncoder(object):
             else:
                 info_vector += [0]
 
-        assert len(info_vector) == 94
+        assert len(info_vector) == 93, f'info_vector {len(info_vector)}'
         return np.array(info_vector)
 
     def get_book_state(self, belief_state):

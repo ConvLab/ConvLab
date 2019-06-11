@@ -54,19 +54,13 @@ class VanillaMLEPolicy(SysPolicy):
             output (dict): The dialog act of utterance.
         """
         state_vector = self.state_encoder.encode(state)
-        # pprint(np.nonzero(state_vector))
 
         instance = self.dataset_reader.text_to_instance(state_vector)
         outputs = self.model.forward_on_instance(instance)
-        # print(outputs["actions"])
         dialacts = action_decoder(state, outputs["actions"], self.action_vocab)
-        # print(outputs["probs"])
         if dialacts == {'general-bye': [['none', 'none']]}:
-            # print(outputs["probs"][outputs["actions"]])
             outputs["probs"][outputs["actions"]] = 0
             outputs["actions"] = np.argmax(outputs["probs"])
-            # print(outputs["actions"])
-            # print(outputs["probs"][outputs["actions"]])
             dialacts = action_decoder(state, outputs["actions"], self.action_vocab)
 
 

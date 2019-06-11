@@ -75,7 +75,8 @@ init_belief_state = {
         "train": {
             "book": {
                 "booked": [],
-                "people": ""
+                "people": "",
+                "trainID": ""
             },
             "semi": {
                 "leaveAt": "",
