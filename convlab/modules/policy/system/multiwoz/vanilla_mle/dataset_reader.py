@@ -25,9 +25,6 @@ class MlePolicyDatasetReader(DatasetReader):
     """
     Reads instances from a data file:
 
-    and converts it into a ``Dataset`` suitable for sequence tagging. You can also specify
-    alternative delimiters in the constructor.
-
     Parameters
     ----------
     """
@@ -86,9 +83,6 @@ class MlePolicyDatasetReader(DatasetReader):
                 if domain_act not in a2:
                     score += len(a1[domain_act])
                 else:
-                    # print(domain_act)
-                    # print(a1[domain_act])
-                    # print(a2[domain_act])
                     score += len(set(a1[domain_act]) - set(a2[domain_act]))
             return score
 
