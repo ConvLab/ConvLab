@@ -167,8 +167,8 @@ class DialogAgent(Agent):
 
     def state_update(self, obs, action):
         # update history 
-		if self.dst:
-			self.dst.state['history'].append([str(action)])
+        if self.dst:
+            self.dst.state['history'].append([str(action)])
 
         # NLU parsing
         input_act = self.nlu.parse(obs, sum(self.dst.state['history'], []) if self.dst else []) if self.nlu else obs
@@ -182,8 +182,8 @@ class DialogAgent(Agent):
             self.evaluator.add_state(state)
 
         # update history 
-		if self.dst:
-			self.dst.state['history'][-1].append(str(obs))
+        if self.dst:
+            self.dst.state['history'][-1].append(str(obs))
 
         # encode state 
         encoded_state = self.state_encoder.encode(state) if self.state_encoder else state 
