@@ -71,10 +71,13 @@ def gen_avg_result(agent, env, num_eval=NUM_EVAL):
         if agent.evaluator: 
             successes.append(agent.evaluator.task_success())
             _p, _r, _f1 = agent.evaluator.inform_F1() 
-            precs.append(_p)
-            recs.append(_r)
-            f1s.append(_f1)
-            book_rates.append(agent.evaluator.book_rate())
+            if _f1 is not None:
+                precs.append(_p)
+                recs.append(_r)
+                f1s.append(_f1)
+            _book = agent.evaluator.book_rate()
+            if _book is not None:
+                book_rates.append(_book)
         elif hasattr(env, 'get_task_success'):
             successes.append(env.get_task_success())
         logger.nl(f'A dialog session is done')
