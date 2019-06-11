@@ -4,7 +4,7 @@
 from convlab.modules.dst.state_tracker import Tracker
 from convlab.modules.dst.multiwoz.dst_util import init_state
 from convlab.modules.util.multiwoz_slot_trans import REF_SYS_DA
-from convlab.modules.dst.multiwoz.dst_util import normalize_value
+from convlab.modules.dst.multiwoz.dst_util import normalize_value, _log
 import convlab
 import json
 
@@ -19,7 +19,7 @@ class RuleDST(Tracker):
         Tracker.__init__(self)
         self.state = init_state()
         prefix = os.path.dirname(os.path.dirname(convlab.__file__))
-        self.value_dict = json.load(open(prefix+'/data/multiwoz/db/db_values.json'))
+        self.value_dict = json.load(open(prefix+'/data/multiwoz/value_dict.json'))
 
     def update(self, user_act=None):
         # print('------------------{}'.format(user_act))
@@ -44,12 +44,18 @@ class RuleDST(Tracker):
                     domain_dic = new_belief_state[domain]
                     assert 'semi' in domain_dic
                     assert 'book' in domain_dic
+
                     if k in domain_dic['semi']:
-                        new_belief_state[domain]['semi'][k] = normalize_value(self.value_dict, domain, k, v)
+                        nvalue = normalize_value(self.value_dict, domain, k, v)
+                        # if nvalue != v:
+                        #     _log('domain {} slot {} value {} -> {}'.format(domain, k, v, nvalue))
+                        new_belief_state[domain]['semi'][k] = nvalue
                     elif k in domain_dic['book']:
                         new_belief_state[domain]['book'][k] = v
                     elif k.lower() in domain_dic['book']:
                         new_belief_state[domain]['book'][k.lower()] = v
+                    elif k == 'trainID' and domain == 'train':
+                        new_belief_state[domain]['book'][k] = normalize_value(self.value_dict, domain, k, v)
                     else:
                         # raise Exception('unknown slot name <{}> of domain <{}>'.format(k, domain))
                         with open('unknown_slot.log', 'a+') as f:

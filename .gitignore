@@ -33,6 +33,7 @@ data/multiwoz/annotated_qr_pairs_30k.txt
 data/multiwoz/annoted_bio_all_20k.txt
 data/multiwoz/annotated_user_utts_v2.txt
 data/multiwoz/annotated_user_utts_v2_20k.txt
+data/multiwoz/test.json
 
 # private test script
 private_test.py

@@ -12,18 +12,18 @@ import copy
 from random import shuffle
 from convlab.modules.dst.multiwoz.dst_util import init_state, init_belief_state, normalize_value
 
-DATA_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))), 'data/mdbt')
-VALIDATION_URL = os.path.join(DATA_PATH, "data/validate.json")
-WORD_VECTORS_URL = os.path.join(DATA_PATH, "word-vectors/paragram_300_sl999.txt")
-TRAINING_URL = os.path.join(DATA_PATH, "data/train.json")
-ONTOLOGY_URL = os.path.join(DATA_PATH, "data/ontology.json")
-TESTING_URL = os.path.join(DATA_PATH, "data/test.json")
-MODEL_URL = os.path.join(DATA_PATH, "models/model-1")
-GRAPH_URL = os.path.join(DATA_PATH, "graphs/graph-1")
-RESULTS_URL = os.path.join(DATA_PATH, "results/log-1.txt")
-KB_URL = os.path.join(DATA_PATH, "data/")  # TODO: yaoqin
-TRAIN_MODEL_URL = os.path.join(DATA_PATH, "train_models/model-1")
-TRAIN_GRAPH_URL = os.path.join(DATA_PATH, "train_graph/graph-1")
+# DATA_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))), 'data/mdbt')
+# VALIDATION_URL = os.path.join(DATA_PATH, "data/validate.json")
+# WORD_VECTORS_URL = os.path.join(DATA_PATH, "word-vectors/paragram_300_sl999.txt")
+# TRAINING_URL = os.path.join(DATA_PATH, "data/train.json")
+# ONTOLOGY_URL = os.path.join(DATA_PATH, "data/ontology.json")
+# TESTING_URL = os.path.join(DATA_PATH, "data/test.json")
+# MODEL_URL = os.path.join(DATA_PATH, "models/model-1")
+# GRAPH_URL = os.path.join(DATA_PATH, "graphs/graph-1")
+# RESULTS_URL = os.path.join(DATA_PATH, "results/log-1.txt")
+# KB_URL = os.path.join(DATA_PATH, "data/")  # TODO: yaoqin
+# TRAIN_MODEL_URL = os.path.join(DATA_PATH, "train_models/model-1")
+# TRAIN_GRAPH_URL = os.path.join(DATA_PATH, "train_graph/graph-1")
 
 train_batch_size = 1
 batches_per_eval = 10
@@ -36,37 +36,47 @@ class MDBTTracker(Tracker):
     """
     A multi-domain belief tracker, adopted from https://github.com/osmanio2/multi-domain-belief-tracking.
     """
-    def __init__(self):
+    def __init__(self, data_dir='data/mdbt'):
         Tracker.__init__(self)
+        # data profile
+        self.data_dir = data_dir
+        self.validation_url = os.path.join(self.data_dir, 'data/validate.json')
+        self.word_vectors_url = os.path.join(self.data_dir, 'word-vectors/paragram_300_sl999.txt')
+        self.training_url = os.path.join(self.data_dir, 'data/train.json')
+        self.ontology_url = os.path.join(self.data_dir, 'data/ontology.json')
+        self.testing_url = os.path.join(self.data_dir, 'data/test.json')
+        self.model_url = os.path.join(self.data_dir, 'models/model-1')
+        self.graph_url = os.path.join(self.data_dir, 'graphs/graph-1')
+        self.results_url = os.path.join(self.data_dir, 'results/log-1.txt')
+        self.kb_url = os.path.join(self.data_dir, 'data/')  # not used
+        self.train_model_url = os.path.join(self.data_dir, 'train_models/model-1')
+        self.train_graph_url = os.path.join(self.data_dir, 'train_graph/graph-1')
+
         print('Configuring MDBT model...')
-        self.word_vectors = load_word_vectors(WORD_VECTORS_URL)
+        self.word_vectors = load_word_vectors(self.word_vectors_url)
 
         # Load the ontology and extract the feature vectors
-        self.ontology, self.ontology_vectors, self.slots = load_ontology(ONTOLOGY_URL, self.word_vectors)
+        self.ontology, self.ontology_vectors, self.slots = load_ontology(self.ontology_url, self.word_vectors)
 
         # Load and process the training data
-        self.dialogues, self.actual_dialogues = load_woz_data(TESTING_URL, self.word_vectors, self.ontology)
+        self.dialogues, self.actual_dialogues = load_woz_data(self.testing_url, self.word_vectors, self.ontology)
         self.no_dialogues = len(self.dialogues)
 
         self.model_variables = model_definition(self.ontology_vectors, len(self.ontology), self.slots, num_hidden=None,
                                                 bidir=True, net_type=None, test=True, dev='cpu')
         self.state = init_state()
-        self.model_url = MODEL_URL
-        self.graph_url = GRAPH_URL
-        #os.environ["CUDA_VISIBLE_DEVICES"] = -1 #params['cuda_id']
         _config = tf.ConfigProto()
         _config.gpu_options.allow_growth = True
         _config.allow_soft_placement = True
         self.sess = tf.Session(config=_config)
         self.param_restored = False
-        # build detect dict for detect_requestable_slots
         self.det_dic = {}
         for domain, dic in REF_USR_DA.items():
             for key, value in dic.items():
                 assert '-' not in key
                 self.det_dic[key.lower()] = key + '-' + domain
                 self.det_dic[value.lower()] = key + '-' + domain
-        self.value_dict = json.load(open('data/multiwoz/db/db_values.json'))
+        self.value_dict = json.load(open(os.path.join(self.data_dir, '../multiwoz/value_dict.json')))
 
     def init_session(self):
         self.state = init_state()
@@ -80,12 +90,11 @@ class MDBTTracker(Tracker):
         """Update the dialog state."""
         if type(user_act) is not str:
             raise Exception('Expected user_act to be <class \'str\'> type, but get {}.'.format(type(user_act)))
-        # self.state['history'] = self.normalize_history(self.state['history'])
         prev_state = self.state
-        if not os.path.exists(os.path.join(DATA_PATH, "results")):
-            os.makedirs(os.path.join(DATA_PATH, "results"))
+        if not os.path.exists(os.path.join(self.data_dir, "results")):
+            os.makedirs(os.path.join(self.data_dir, "results"))
 
-        global train_batch_size, MODEL_URL, GRAPH_URL
+        global train_batch_size
 
         model_variables = self.model_variables
         (user, sys_res, no_turns, user_uttr_len, sys_uttr_len, labels, domain_labels, domain_accuracy,
@@ -112,12 +121,6 @@ class MDBTTracker(Tracker):
             fake_dialogue[key] = turn
             turn_no += 1
         context, actual_context = process_history([fake_dialogue], self.word_vectors, self.ontology)
-        # generate turn input
-        # print('history size: {}'.format(len(prev_state['history'])))
-        # ret = ''
-        # for a, b in prev_state['history']:
-        #     ret += '{} {} |'.format(len(nltk.word_tokenize(a)), len(nltk.word_tokenize(b)))
-        # print(ret)
         batch_user, batch_sys, batch_labels, batch_domain_labels, batch_user_uttr_len, batch_sys_uttr_len, \
                 batch_no_turns = generate_batch(context, 0, 1, len(self.ontology))  # old feature
 
@@ -179,7 +182,8 @@ class MDBTTracker(Tracker):
         new_state = copy.deepcopy(dict(prev_state))
         new_state['belief_state'] = new_belief_state
         new_state['request_state'] = new_request_state
-        return new_state
+        self.state = new_state
+        return self.state
 
     def normalize_history(self, history):
         """Replace zero-length history."""
@@ -234,17 +238,17 @@ class MDBTTracker(Tracker):
 
         # 1 Load and process the input data including the ontology
         # Load the word embeddings
-        word_vectors = load_word_vectors(WORD_VECTORS_URL)
+        word_vectors = load_word_vectors(self.word_vectors_url)
 
         # Load the ontology and extract the feature vectors
-        ontology, ontology_vectors, slots = load_ontology(ONTOLOGY_URL, word_vectors)
+        ontology, ontology_vectors, slots = load_ontology(self.ontology_url, word_vectors)
 
         # Load and process the training data
-        dialogues, _ = load_woz_data(TRAINING_URL, word_vectors, ontology)
+        dialogues, _ = load_woz_data(self.training_url, word_vectors, ontology)
         no_dialogues = len(dialogues)
 
         # Load and process the validation data
-        val_dialogues, _ = load_woz_data(VALIDATION_URL, word_vectors, ontology)
+        val_dialogues, _ = load_woz_data(self.validation_url, word_vectors, ontology)
 
         # Generate the validation batch data
         val_data = generate_batch(val_dialogues, 0, len(val_dialogues), len(ontology))
@@ -354,7 +358,7 @@ class MDBTTracker(Tracker):
             print("The best parameters achieved a validation metric of", round(best_f_score, 4))
 
     def test(self, sess):
-        """Test the MDBT model. Almost the same as original code."""
+        """Test the MDBT model on mdbt dataset. Almost the same as original code."""
         if not os.path.exists("../../data/mdbt/results"):
             os.makedirs("../../data/mdbt/results")
 
@@ -440,7 +444,7 @@ class MDBTTracker(Tracker):
                                                      preci / iterations, recal / iterations,
                                                      joint_accuracy / iterations))
 
-        with open(RESULTS_URL, 'w') as f:
+        with open(self.results_url, 'w') as f:
             json.dump(processed_dialogues, f, indent=4)
 
 
