@@ -84,7 +84,6 @@ class MultiWozStateEncoder(object):
             domain_active = False
 
             booking = []
-            print(sorted(belief_state[domain]['book'].keys()))
             for slot in sorted(belief_state[domain]['book'].keys()):
                 if slot == 'booked':
                     if belief_state[domain]['book']['booked'] != []:
