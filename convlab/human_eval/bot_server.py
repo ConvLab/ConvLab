@@ -66,7 +66,7 @@ def generate_response(in_queue, out_queue):
         obs = in_request['input']
 
         if in_request['agent_state'] == {}:
-            agent.reset('')
+            agent.reset(obs)
         else:
             encoded_state, dst_state = in_request['agent_state']
             agent.body.encoded_state = np.asarray(encoded_state) if isinstance(encoded_state, list) else encoded_state
