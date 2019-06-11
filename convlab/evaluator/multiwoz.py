@@ -40,10 +40,10 @@ class MultiWozEvaluator(Evaluator):
             dic[domain] = {'info':{}, 'book':{}, 'reqt':[]}
         return dic
     
-    def _init_dict_str(self):
+    def _init_dict_booked(self):
         dic = {}
         for domain in belief_domains:
-            dic[domain] = ''
+            dic[domain] = None
         return dic
     
     def _expand(self, goal):
@@ -70,7 +70,7 @@ class MultiWozEvaluator(Evaluator):
         self.state_array = []
         self.goal = goal
         self.cur_domain = ''
-        self.booked = self._init_dict_str()
+        self.booked = self._init_dict_booked()
     
     def add_sys_da(self, da_turn):
         """
@@ -90,14 +90,11 @@ class MultiWozEvaluator(Evaluator):
                 if da == 'booking-book-ref' and self.cur_domain in ['hotel', 'restaurant', 'train']:
                     entities = query(self.cur_domain, self.state_array[-1][self.cur_domain]['semi'].items())
                     if entities and not self.booked[self.cur_domain]:
-                        if self.cur_domain == 'train':
-                            self.booked[self.cur_domain] = random.choice(entities)['trainID']
-                        else:
-                            self.booked[self.cur_domain] = random.choice(entities)['id']
+                        self.booked[self.cur_domain] = random.choice(entities)
                 elif da == 'train-offerbook-ref' or da == 'train-inform-ref':
                     entities = query('train', self.state_array[-1]['train']['semi'].items())
                     if entities and not self.booked['train']:
-                        self.booked['train'] = random.choice(entities)['trainID']
+                        self.booked['train'] = random.choice(entities)
                 elif da == 'taxi-inform-car':
                     if not self.booked['taxi']:
                         self.booked['taxi'] = 'booked'
@@ -132,18 +129,18 @@ class MultiWozEvaluator(Evaluator):
                 tot = len(goal[domain]['info'].keys())
                 if tot == 0:
                     continue
-                entity_id = booked_entity[domain]
-                if not entity_id:
+                entity = booked_entity[domain]
+                if entity is None:
                     score.append(0)
                     continue
                 if domain == 'taxi':
                     score.append(1)
                     continue
                 match = 0
-                key = 'trainID' if domain == 'train' else 'id'
-                entity = query(domain, [(key, entity_id)])[0]
                 for k, v in goal[domain]['info'].items():
-                    if k == 'leaveAt':
+                    if k in ['destination', 'departure', 'name']:
+                        tot -= 1
+                    elif k == 'leaveAt':
                         try:
                             v_constraint = int(v.split(':')[0]) * 100 + int(v.split(':')[1])
                             v_select = int(entity['leaveAt'].split(':')[0]) * 100 + int(entity['leaveAt'].split(':')[1])
@@ -162,7 +159,8 @@ class MultiWozEvaluator(Evaluator):
                     else:
                         if v.strip() == entity[k].strip():
                             match += 1
-                score.append(match / tot)
+                if tot != 0:
+                    score.append(match / tot)
         return score
     
     def _inform_F1_goal(self, goal, sys_history):
@@ -174,8 +172,8 @@ class MultiWozEvaluator(Evaluator):
             inform_slot[domain] = set()
         for da in sys_history:
             domain, intent, slot, value = da.split('-', 3)
-            if intent in ['inform', 'recommend', 'offerbook', 'offerbooked'] and slot != 'none' and domain in belief_domains:
-                inform_slot[domain].add(slot)
+            if intent in ['inform', 'recommend', 'offerbook', 'offerbooked'] and domain in belief_domains and slot in mapping[domain]:
+                inform_slot[domain].add(mapping[domain][slot])
         TP, FP, FN = 0, 0, 0
         for domain in belief_domains:
             for k in goal[domain]['reqt']:
