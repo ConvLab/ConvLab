@@ -20,10 +20,6 @@
         },
         "action_pdtype": "Argmax",
         "action_policy": "default"
-      },
-      "memory": {
-        "name": "Replay",
-        "max_size": 1 
       }
     }],
     "env": [{
@@ -45,10 +41,6 @@
       "max_t": 40,
       "max_frame": 1000
     }],
-    "body": {
-      "product": "outer",
-      "num": 1
-    },
     "meta": {
       "distributed": false,
       "eval_frequency": 1000,
@@ -83,10 +75,6 @@
         },
         "action_pdtype": "Argmax",
         "action_policy": "default"
-      },
-      "memory": {
-        "name": "Replay",
-        "max_size": 1 
       }
     }],
     "env": [{
@@ -108,10 +96,6 @@
       "max_t": 40,
       "max_frame": 1000
     }],
-    "body": {
-      "product": "outer",
-      "num": 1
-    },
     "meta": {
       "distributed": false,
       "eval_frequency": 1000,
@@ -149,10 +133,6 @@
       },
       "evaluator": {
         "name": "MultiWozEvaluator"
-      },
-      "memory": {
-        "name": "Replay",
-        "max_size": 1 
       }
     }],
     "env": [{
@@ -174,14 +154,10 @@
       "max_t": 40,
       "max_frame": 1000
     }],
-    "body": {
-      "product": "outer",
-      "num": 1
-    },
     "meta": {
       "distributed": false,
       "eval_frequency": 1000,
-      "num_eval": 100,
+      "num_eval": 2,
       "max_tick_unit": "total_t",
       "max_trial": 1,
       "max_session": 1,
@@ -208,10 +184,6 @@
         },
         "action_pdtype": "Argmax",
         "action_policy": "default"
-      },
-      "memory": {
-        "name": "Replay",
-        "max_size": 1 
       }
     }],
     "env": [{
@@ -233,10 +205,6 @@
       "max_t": 40,
       "max_frame": 1000
     }],
-    "body": {
-      "product": "outer",
-      "num": 1
-    },
     "meta": {
       "distributed": false,
       "eval_frequency": 1000,
@@ -268,10 +236,6 @@
         },
         "action_pdtype": "Argmax",
         "action_policy": "default"
-      },
-      "memory": {
-        "name": "Replay",
-        "max_size": 1 
       }
     }],
     "env": [{
@@ -293,10 +257,6 @@
       "max_t": 40,
       "max_frame": 1000
     }],
-    "body": {
-      "product": "outer",
-      "num": 1
-    },
     "meta": {
       "distributed": false,
       "eval_frequency": 1000,
@@ -398,10 +358,6 @@
         "is_user": true
       }
     }],
-    "body": {
-      "product": "outer",
-      "num": 1
-    },
     "meta": {
       "distributed": false,
       "num_eval": 100,
@@ -505,10 +461,6 @@
         "is_user": true
       }
     }],
-    "body": {
-      "product": "outer",
-      "num": 1
-    },
     "meta": {
       "distributed": false,
       "num_eval": 100,
@@ -601,10 +553,6 @@
         "is_user": true
       }
     }],
-    "body": {
-      "product": "outer",
-      "num": 1
-    },
     "meta": {
       "distributed": false,
       "num_eval": 100,
@@ -698,10 +646,6 @@
         "is_user": true
       }
     }],
-    "body": {
-      "product": "outer",
-      "num": 1
-    },
     "meta": {
       "distributed": false,
       "num_eval": 100,
@@ -795,10 +739,6 @@
         "is_user": true
       }
     }],
-    "body": {
-      "product": "outer",
-      "num": 1
-    },
     "meta": {
       "distributed": false,
       "num_eval": 100,
@@ -884,10 +824,6 @@
         "is_user": true
       }
     }],
-    "body": {
-      "product": "outer",
-      "num": 1
-    },
     "meta": {
       "distributed": false,
       "num_eval": 100,
@@ -993,10 +929,6 @@
         "is_user": true
       }
     }],
-    "body": {
-      "product": "outer",
-      "num": 1
-    },
     "meta": {
       "distributed": false,
       "num_eval": 100,
@@ -1031,10 +963,6 @@
         },
         "action_pdtype": "Argmax",
         "action_policy": "default"
-      },
-      "memory": {
-        "name": "Replay",
-        "max_size": 1 
       }
     }],
     "env": [{
@@ -1056,10 +984,6 @@
       "max_t": 40,
       "max_frame": 1000
     }],
-    "body": {
-      "product": "outer",
-      "num": 1
-    },
     "meta": {
       "distributed": false,
       "eval_frequency": 1000,
@@ -1086,10 +1010,6 @@
         },
         "action_pdtype": "Argmax",
         "action_policy": "default"
-      },
-      "memory": {
-        "name": "Replay",
-        "max_size": 1 
       }
     }],
     "env": [{
@@ -1105,10 +1025,6 @@
         "name": "RuleBasedMultiwozBot"
       }
     }],
-    "body": {
-      "product": "outer",
-      "num": 1
-    },
     "meta": {
       "distributed": false,
       "eval_frequency": 10,
@@ -1138,10 +1054,6 @@
         },
         "action_pdtype": "Argmax",
         "action_policy": "default"
-      },
-      "memory": {
-        "name": "Replay",
-        "max_size": 1 
       }
     }],
     "env": [{
@@ -1157,10 +1069,6 @@
         "name": "RuleBasedMultiwozBot"
       }
     }],
-    "body": {
-      "product": "outer",
-      "num": 1
-    },
     "meta": {
       "distributed": false,
       "eval_frequency": 10,
@@ -1188,10 +1096,6 @@
         },
         "action_pdtype": "Argmax",
         "action_policy": "default"
-      },
-      "memory": {
-        "name": "Replay",
-        "max_size": 1 
       }
     }],
     "env": [{
@@ -1207,10 +1111,6 @@
         "name": "RuleBasedMultiwozBot"
       }
     }],
-    "body": {
-      "product": "outer",
-      "num": 1
-    },
     "meta": {
       "distributed": false,
       "eval_frequency": 10,
@@ -1295,10 +1195,6 @@
         "name": "RuleBasedMultiwozBot"
       }
     }],
-    "body": {
-      "product": "outer",
-      "num": 1
-    },
     "meta": {
       "distributed": false,
       "num_eval": 100,
@@ -1373,12 +1269,8 @@
       },
       "sys_policy": {
         "name": "RuleBasedMultiwozBot"
-      },
+      }
     }],
-    "body": {
-      "product": "outer",
-      "num": 1
-    },
     "meta": {
       "distributed": false,
       "num_eval": 100,
@@ -1460,12 +1352,8 @@
       },
       "sys_policy": {
         "name": "RuleBasedMultiwozBot"
-      },
+      }
     }],
-    "body": {
-      "product": "outer",
-      "num": 1
-    },
     "meta": {
       "distributed": false,
       "num_eval": 100,
@@ -1553,12 +1441,8 @@
       },
       "sys_policy": {
         "name": "RuleBasedMultiwozBot"
-      },
+      }
     }],
-    "body": {
-      "product": "outer",
-      "num": 1
-    },
     "meta": {
       "distributed": false,
       "num_eval": 100,
@@ -1656,10 +1540,6 @@
         "name": "RuleBasedMultiwozBot"
       },
     }],
-    "body": {
-      "product": "outer",
-      "num": 1
-    },
     "meta": {
       "distributed": false,
       "num_eval": 100,
@@ -1746,10 +1626,6 @@
         "name": "RuleBasedMultiwozBot"
       }
     }],
-    "body": {
-      "product": "outer",
-      "num": 1
-    },
     "meta": {
       "distributed": false,
       "num_eval": 100,
@@ -1827,10 +1703,6 @@
         "name": "RuleBasedMultiwozBot"
       },
     }],
-    "body": {
-      "product": "outer",
-      "num": 1
-    },
     "meta": {
       "distributed": false,
       "num_eval": 100,
@@ -1844,4 +1716,57 @@
       }
     }
   },
+  "sequicity": {
+    "agent": [{
+      "name": "DialogAgent",
+      "algorithm": {
+        "name": "ExternalPolicy",
+        "e2e": {
+          "name": "Sequicity",
+          "model_file": "https://convlab.blob.core.windows.net/models/Sequicity.zip"
+        },
+        "action_pdtype": "Argmax",
+        "action_policy": "default"
+      },
+      "memory": {
+        "name": "Replay",
+        "max_size": 1 
+      }
+    }],
+    "env": [{
+      "name": "multiwoz",
+      "user_policy": {
+        "name": "UserPolicyAgendaMultiWoz"
+      },
+      "sys_policy": {
+        "name": "RuleBasedMultiwozBot"
+      },
+      "nlu": {
+        "name": "OneNetLU",
+        "model_file": "https://convlab.blob.core.windows.net/models/onenet.tar.gz"
+      },
+      "nlg": {
+        "name": "MultiwozTemplateNLG",
+        "is_user": true
+      },
+      "max_t": 40,
+      "max_frame": 1000
+    }],
+    "body": {
+      "product": "outer",
+      "num": 1
+    },
+    "meta": {
+      "distributed": false,
+      "eval_frequency": 1000,
+      "num_eval": 100,
+      "max_tick_unit": "total_t",
+      "max_trial": 1,
+      "max_session": 1,
+      "resources": {
+        "num_cpus": 1,
+        "num_gpus": 0
+      }
+    }
+  }
 }

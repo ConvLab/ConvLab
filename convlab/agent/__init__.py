@@ -123,10 +123,11 @@ class DialogAgent(Agent):
             self.evaluator = EvaluatorClass(**params) 
         self.body = body
         body.agent = self
-        MemoryClass = getattr(memory, ps.get(self.agent_spec, 'memory.name'))
-        self.body.memory = MemoryClass(self.agent_spec['memory'], self.body)
         AlgorithmClass = getattr(algorithm, ps.get(self.agent_spec, 'algorithm.name'))
         self.algorithm = AlgorithmClass(self, global_nets)
+        if ps.get(self.agent_spec, 'memory'):
+            MemoryClass = getattr(memory, ps.get(self.agent_spec, 'memory.name'))
+            self.body.memory = MemoryClass(self.agent_spec['memory'], self.body)
         self.warmup_epi = ps.get(self.agent_spec, 'algorithm.warmup_epi') or -1 
         self.body.state, self.body.encoded_state, self.body.action = None, None, None
         logger.info(util.self_desc(self))
@@ -142,7 +143,8 @@ class DialogAgent(Agent):
 
         # update evaluator
         if self.evaluator:
-            self.evaluator.add_goal(self.body.env.get_goal())
+            self.evaluator.add_goal(self.get_env().get_goal())
+            logger.act(f'Goal: {self.get_env().get_goal()}')
 
         input_act, state, encoded_state = self.state_update(obs, "null")  # "null" action to be compatible with MDBT
 
@@ -164,24 +166,31 @@ class DialogAgent(Agent):
         logger.act(f'System action: {action}')
 
         return decoded_action
-    
+
     def state_update(self, obs, action):
         # update history 
-        self.dst.state['history'].append([str(action)])
+        if self.dst:
+            self.dst.state['history'].append([str(action)])
 
         # NLU parsing
-        input_act = self.nlu.parse(obs, sum(self.dst.state['history'], [])) if self.nlu else obs
+        input_act = self.nlu.parse(obs, sum(self.dst.state['history'], []) if self.dst else []) if self.nlu else obs
 
         # state tracking 
         state = self.dst.update(input_act) if self.dst else input_act 
 
         # update evaluator
         if self.evaluator:
-            self.evaluator.add_usr_da(input_act)
+            env = self.get_env()
+            if hasattr(env, 'get_last_act'): 
+                self.evaluator.add_usr_da(env.get_last_act())
+                logger.act(f'True user action: {env.get_last_act()}')
+            else:
+                self.evaluator.add_usr_da(input_act)
             self.evaluator.add_state(state)
 
         # update history 
-        self.dst.state['history'][-1].append(str(obs))
+        if self.dst:
+            self.dst.state['history'][-1].append(str(obs))
 
         # encode state 
         encoded_state = self.state_encoder.encode(state) if self.state_encoder else state 
@@ -202,6 +211,9 @@ class DialogAgent(Agent):
         decoded_action = self.nlg.generate(output_act) if self.nlg else output_act 
         return output_act, decoded_action 
     
+    def get_env(self):
+        return self.body.eval_env if util.in_eval_lab_modes() else self.body.env
+
     @lab_api
     def update(self, obs, action, reward, next_obs, done):
         '''Update per timestep after env transitions, e.g. memory, algorithm, update agent params, train net'''
@@ -215,6 +227,7 @@ class DialogAgent(Agent):
         if util.in_eval_lab_modes() or self.algorithm.__class__.__name__ == 'ExternalPolicy':  # eval does not update agent for training
             self.body.state, self.body.encoded_state = next_state, encoded_state
             return
+
         if not hasattr(self.body, 'warmup_memory') or self.body.env.clock.epi > self.warmup_epi:
             self.body.memory.update(self.body.encoded_state, self.body.action, reward, encoded_state, done)
         else:
@@ -282,7 +295,7 @@ class Body:
         # dataframes to track data for analysis.analyze_session
         # track training data per episode
         self.train_df = pd.DataFrame(columns=[
-            'epi', 't', 'wall_t', 'opt_step', 'frame', 'fps', 'total_reward', 'total_reward_ma', 'loss', 'lr',
+            'epi', 't', 'wall_t', 'opt_step', 'frame', 'fps', 'total_reward', 'avg_return', 'avg_len', 'avg_success', 'loss', 'lr',
             'explore_var', 'entropy_coef', 'entropy', 'grad_norm'])
         # track eval data within run_eval. the same as train_df except for reward
         self.eval_df = self.train_df.copy()
@@ -336,7 +349,9 @@ class Body:
             'frame': frame,
             'fps': fps,
             'total_reward': np.nanmean(self.total_reward),  # guard for vec env
-            'total_reward_ma': np.nan,  # update outside
+            'avg_return': np.nan,  # update outside
+            'avg_len': np.nan,  # update outside
+            'avg_success': np.nan,  # update outside
             'loss': self.loss,
             'lr': self.get_mean_lr(),
             'explore_var': self.explore_var,
@@ -354,17 +369,18 @@ class Body:
         self.train_df.loc[len(self.train_df)] = row
         # update current reward_ma
         self.total_reward_ma = self.train_df[-self.ma_window:]['total_reward'].mean()
-        self.train_df.iloc[-1]['total_reward_ma'] = self.total_reward_ma
+        self.train_df.iloc[-1]['avg_return'] = self.total_reward_ma
 
-    def eval_ckpt(self, eval_env, total_reward):
+    def eval_ckpt(self, eval_env, avg_return, avg_len, avg_success):
         '''Checkpoint to update body.eval_df data'''
         row = self.calc_df_row(eval_env)
-        row['total_reward'] = total_reward
         # append efficiently to df
         self.eval_df.loc[len(self.eval_df)] = row
         # update current reward_ma
-        self.eval_reward_ma = self.eval_df[-self.ma_window:]['total_reward'].mean()
-        self.eval_df.iloc[-1]['total_reward_ma'] = self.eval_reward_ma
+        self.eval_reward_ma = avg_return
+        self.eval_df.iloc[-1]['avg_return'] = avg_return 
+        self.eval_df.iloc[-1]['avg_len'] = avg_len
+        self.eval_df.iloc[-1]['avg_success'] = avg_success
 
     def get_mean_lr(self):
         '''Gets the average current learning rate of the algorithm's nets.'''

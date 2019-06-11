@@ -63,62 +63,30 @@ def gen_result(agent, env):
     return _return 
 
 
-# metrics calculation methods
-
-def calc_strength(mean_returns, mean_rand_returns):
-    '''
-    Calculate strength for metric
-    str &= \frac{1}{N} \sum_{i=0}^N \overline{R}_i - \overline{R}_{rand}
-    @param Series:mean_returns A series of mean returns from each checkpoint
-    @param float:mean_rand_returns The random baseline
-    @returns float:str, Series:local_strs
-    '''
-    local_strs = mean_returns - mean_rand_returns
-    str_ = local_strs.mean()
-    return str_, local_strs
-
-
-def calc_efficiency(local_strs, ts):
-    '''
-    Calculate efficiency for metric
-    e &= \frac{\sum_{i=0}^N \frac{1}{t_i} str_i}{\sum_{i=0}^N \frac{1}{t_i}}
-    @param Series:local_strs A series of local strengths
-    @param Series:ts A series of times units (frame or opt_steps)
-    @returns float:eff, Series:local_effs
-    '''
-    eff = (local_strs / ts).sum() / local_strs.sum()
-    local_effs = (local_strs / ts).cumsum() / local_strs.cumsum()
-    return eff, local_effs
-
-
-def calc_stability(local_strs):
-    '''
-    Calculate stability for metric
-    sta &= 1 - \left| \frac{\sum_{i=0}^{N-1} \min(str_{i+1} - str_i, 0)}{\sum_{i=0}^{N-1} str_i} \right|
-    @param Series:local_strs A series of local strengths
-    @returns float:sta, Series:local_stas
-    '''
-    # shift to keep indices for division
-    drops = local_strs.diff().shift(-1).iloc[:-1].clip(upper=0.0)
-    denoms = local_strs.iloc[:-1]
-    local_stas = 1 - (drops / denoms).abs()
-    sum_drops = drops.sum()
-    sum_denom = denoms.sum()
-    sta = 1 - np.abs(sum_drops / sum_denom)
-    return sta, local_stas
-
-
-def calc_consistency(local_strs_list):
-    '''
-    Calculate consistency for metric
-    con &= 1 - \frac{\sum_{i=0}^N 2 stdev_j(str_{i,j})}{\sum_{i=0}^N avg_j(str_{i,j})}
-    @param Series:local_strs_list A list of multiple series of local strengths from different sessions
-    @returns float:con, Series:local_cons
-    '''
-    mean_local_strs, std_local_strs = util.calc_srs_mean_std(local_strs_list)
-    local_cons = 1 - 2 * std_local_strs / mean_local_strs
-    con = 1 - 2 * std_local_strs.sum() / mean_local_strs.sum()
-    return con, local_cons
+def gen_avg_result(agent, env, num_eval=NUM_EVAL):
+    returns, lens, successes, precs, recs, f1s, book_rates = [], [], [], [], [], [], []
+    for _ in range(num_eval):
+        returns.append(gen_result(agent, env))
+        lens.append(env.clock.t)
+        if agent.evaluator: 
+            successes.append(agent.evaluator.task_success())
+            _p, _r, _f1 = agent.evaluator.inform_F1() 
+            if _f1 is not None:
+                precs.append(_p)
+                recs.append(_r)
+                f1s.append(_f1)
+            _book = agent.evaluator.book_rate()
+            if _book is not None:
+                book_rates.append(_book)
+        elif hasattr(env, 'get_task_success'):
+            successes.append(env.get_task_success())
+        logger.nl(f'A dialog session is done')
+    mean_success = None if len(successes) == 0 else np.mean(successes)
+    mean_p = None if len(precs) == 0 else np.mean(precs)
+    mean_r = None if len(recs) == 0 else np.mean(recs)
+    mean_f1 = None if len(f1s) == 0 else np.mean(f1s)
+    mean_book_rate = None if len(book_rates) == 0 else np.mean(book_rates)
+    return np.mean(returns), np.mean(lens), mean_success, mean_p, mean_r, mean_f1, mean_book_rate
 
 
 def calc_session_metrics(session_df, env_name, info_prepath=None, df_mode=None):
@@ -130,46 +98,25 @@ def calc_session_metrics(session_df, env_name, info_prepath=None, df_mode=None):
     @param str:df_mode Optional df_mode to save with info_prepath
     @returns dict:metrics Consists of scalar metrics and series local metrics
     '''
-    # rand_bl = random_baseline.get_random_baseline(env_name)
-    # mean_rand_returns = rand_bl['mean']
-    mean_returns = session_df['total_reward']
+    mean_return = session_df['avg_return'] if df_mode == 'eval' else session_df['avg_return']
+    mean_length = session_df['avg_len'] if df_mode == 'eval' else None 
+    mean_success = session_df['avg_success'] if df_mode == 'eval' else None 
     frames = session_df['frame']
     opt_steps = session_df['opt_step']
 
-    # str_, local_strs = calc_strength(mean_returns, mean_rand_returns)
-    # max_str, final_str = local_strs.max(), local_strs.iloc[-1]
-    # sample_eff, local_sample_effs = calc_efficiency(local_strs, frames)
-    # train_eff, local_train_effs = calc_efficiency(local_strs, opt_steps)
-    # sta, local_stas = calc_stability(local_strs)
-
-    # all the scalar session metrics
-    # scalar = {
-        # 'strength': str_,
-        # 'max_strength': max_str,
-        # 'final_strength': final_str,
-        # 'sample_efficiency': sample_eff,
-        # 'training_efficiency': train_eff,
-        # 'stability': sta,
-    # }
     # all the session local metrics
     local = {
-        # 'strengths': local_strs,
-        # 'sample_efficiencies': local_sample_effs,
-        # 'training_efficiencies': local_train_effs,
-        # 'stabilities': local_stas,
-        'mean_returns': mean_returns,
+        'mean_return': mean_return,
+        'mean_length': mean_length,
+        'mean_success': mean_success,
         'frames': frames,
         'opt_steps': opt_steps,
     }
     metrics = {
-        # 'scalar': scalar,
         'local': local,
     }
     if info_prepath is not None:  # auto-save if info_prepath is given
         util.write(metrics, f'{info_prepath}_session_metrics_{df_mode}.pkl')
-        # util.write(scalar, f'{info_prepath}_session_metrics_scalar_{df_mode}.json')
-        # save important metrics in info_prepath directly
-        # util.write(scalar, f'{info_prepath.replace("info/", "")}_session_metrics_scalar_{df_mode}.json')
     return metrics
 
 
@@ -181,50 +128,25 @@ def calc_trial_metrics(session_metrics_list, info_prepath=None):
     @returns dict:metrics Consists of scalar metrics and series local metrics
     '''
     # calculate mean of session metrics
-    # scalar_list = [sm['scalar'] for sm in session_metrics_list]
-    # mean_scalar = pd.DataFrame(scalar_list).mean().to_dict()
-
-    # local_strs_list = [sm['local']['strengths'] for sm in session_metrics_list]
-    # local_se_list = [sm['local']['sample_efficiencies'] for sm in session_metrics_list]
-    # local_te_list = [sm['local']['training_efficiencies'] for sm in session_metrics_list]
-    # local_sta_list = [sm['local']['stabilities'] for sm in session_metrics_list]
-    mean_returns_list = [sm['local']['mean_returns'] for sm in session_metrics_list]
+    mean_return_list = [sm['local']['mean_return'] for sm in session_metrics_list]
+    mean_length_list = [sm['local']['mean_length'] for sm in session_metrics_list]
+    mean_success_list = [sm['local']['mean_success'] for sm in session_metrics_list]
     frames = session_metrics_list[0]['local']['frames']
     opt_steps = session_metrics_list[0]['local']['opt_steps']
-    # calculate consistency
-    # con, local_cons = calc_consistency(local_strs_list)
 
-    # all the scalar trial metrics
-    # scalar = {
-    #     'strength': mean_scalar['strength'],
-    #     'max_strength': mean_scalar['max_strength'],
-    #     'final_strength': mean_scalar['final_strength'],
-    #     'sample_efficiency': mean_scalar['sample_efficiency'],
-    #     'training_efficiency': mean_scalar['training_efficiency'],
-    #     'stability': mean_scalar['stability'],
-    #     'consistency': con,
-    # }
-    # assert set(scalar.keys()) == set(METRICS_COLS)
     # for plotting: gather all local series of sessions
     local = {
-        # 'strengths': local_strs_list,
-        # 'sample_efficiencies': local_se_list,
-        # 'training_efficiencies': local_te_list,
-        # 'stabilities': local_sta_list,
-        # 'consistencies': local_cons,  # this is a list
-        'mean_returns': mean_returns_list,
+        'mean_return': mean_return_list,
+        'mean_length': mean_length_list,
+        'mean_success': mean_success_list,
         'frames': frames,
         'opt_steps': opt_steps,
     }
     metrics = {
-        # 'scalar': scalar,
         'local': local,
     }
     if info_prepath is not None:  # auto-save if info_prepath is given
         util.write(metrics, f'{info_prepath}_trial_metrics.pkl')
-        # util.write(scalar, f'{info_prepath}_trial_metrics_scalar.json')
-        # save important metrics in info_prepath directly
-        # util.write(scalar, f'{info_prepath.replace("info/", "")}_trial_metrics_scalar.json')
     return metrics
 
 

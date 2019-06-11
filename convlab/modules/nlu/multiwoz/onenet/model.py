@@ -29,40 +29,6 @@ class OneNet(Model):
     """
     Parameters
     ----------
-    vocab : ``Vocabulary``, required
-        A Vocabulary, required in order to compute sizes for input/output projections.
-    text_field_embedder : ``TextFieldEmbedder``, required
-        Used to embed the tokens ``TextField`` we get as input to the model.
-    encoder : ``Seq2SeqEncoder``
-        The encoder that we will use in between embedding tokens and predicting output tags.
-    sequence_label_namespace : ``str``, optional (default=``labels``)
-        This is needed to compute the SpanBasedF1Measure metric.
-        Unless you did something unusual, the default value should be what you want.
-    feedforward : ``FeedForward``, optional, (default = None).
-        An optional feedforward layer to apply after the encoder.
-    label_encoding : ``str``, optional (default=``None``)
-        Label encoding to use when calculating span f1 and constraining
-        the CRF at decoding time . Valid options are "BIO", "BIOUL", "IOB1", "BMES".
-        Required if ``calculate_span_f1`` or ``constrain_crf_decoding`` is true.
-    include_start_end_transitions : ``bool``, optional (default=``True``)
-        Whether to include start and end transition parameters in the CRF.
-    constrain_crf_decoding : ``bool``, optional (default=``None``)
-        If ``True``, the CRF is constrained at decoding time to
-        produce valid sequences of tags. If this is ``True``, then
-        ``label_encoding`` is required. If ``None`` and
-        label_encoding is specified, this is set to ``True``.
-        If ``None`` and label_encoding is not specified, it defaults
-        to ``False``.
-    calculate_span_f1 : ``bool``, optional (default=``None``)
-        Calculate span-level F1 metrics during training. If this is ``True``, then
-        ``label_encoding`` is required. If ``None`` and
-        label_encoding is specified, this is set to ``True``.
-        If ``None`` and label_encoding is not specified, it defaults
-        to ``False``.
-    dropout:  ``float``, optional (default=``None``)
-    verbose_metrics : ``bool``, optional (default = False)
-        If true, metrics will be returned per label class in addition
-        to the overall statistics.
     initializer : ``InitializerApplicator``, optional (default=``InitializerApplicator()``)
         Used to initialize the model parameters.
     regularizer : ``RegularizerApplicator``, optional (default=``None``)
@@ -102,10 +68,6 @@ class OneNet(Model):
             self.dropout = None
         self._feedforward = feedforward
 
-        # if feedforward is not None:
-        #     output_dim = feedforward.get_output_dim()
-        # else:
-        #     output_dim = self.encoder.get_output_dim()
         self.tag_projection_layer = TimeDistributed(Linear(self.encoder.get_output_dim(),
                                                            self.num_tags))
 
@@ -118,9 +80,6 @@ class OneNet(Model):
 
         self.ce_loss = torch.nn.CrossEntropyLoss()
 
-        # if  constrain_crf_decoding and calculate_span_f1 are not
-        # provided, (i.e., they're None), set them to True
-        # if label_encoding is provided and False if it isn't.
         if constrain_crf_decoding is None:
             constrain_crf_decoding = label_encoding is not None
         if calculate_span_f1 is None:
@@ -146,14 +105,6 @@ class OneNet(Model):
             self.crf = None
 
         self._dai_f1_metric = DialogActItemF1Measure()
-        # self.calculate_span_f1 = calculate_span_f1
-        # if calculate_span_f1:
-        #     if not label_encoding:
-        #         raise ConfigurationError("calculate_span_f1 is True, but "
-        #                                  "no label_encoding was specified.")
-        #     self._f1_metric = SpanBasedF1Measure(vocab,
-        #                                          tag_namespace=tag_label_namespace,
-        #                                          label_encoding=label_encoding)
 
         check_dimensions_match(text_field_embedder.get_output_dim(), encoder.get_input_dim(),
                                "text field embedding dim", "encoder input dim")
@@ -175,33 +126,9 @@ class OneNet(Model):
         """
         Parameters
         ----------
-        tokens : ``Dict[str, torch.LongTensor]``, required
-            The output of ``TextField.as_array()``, which should typically be passed directly to a
-            ``TextFieldEmbedder``. This output is a dictionary mapping keys to ``TokenIndexer``
-            tensors.  At its most basic, using a ``SingleIdTokenIndexer`` this is: ``{"tokens":
-            Tensor(batch_size, num_tokens)}``. This dictionary will have the same keys as were used
-            for the ``TokenIndexers`` when you created the ``TextField`` representing your
-            sequence.  The dictionary is designed to be passed directly to a ``TextFieldEmbedder``,
-            which knows how to combine different word representations into a single vector per
-            token in your input.
-        tags : ``torch.LongTensor``, optional (default = ``None``)
-            A torch tensor representing the sequence of integer gold class labels of shape
-            ``(batch_size, num_tokens)``.
-        metadata : ``List[Dict[str, Any]]``, optional, (default = None)
-            metadata containg the original words in the sentence to be tagged under a 'words' key.
 
         Returns
         -------
-        An output dictionary consisting of:
-
-        logits : ``torch.FloatTensor``
-            The logits that are the output of the ``tag_projection_layer``
-        mask : ``torch.LongTensor``
-            The text field mask for the input tokens
-        tags : ``List[List[int]]``
-            The predicted tags using the Viterbi algorithm.
-        loss : ``torch.FloatTensor``, optional
-            A scalar loss to be optimised. Only computed if gold label ``tags`` are provided.
         """
         embedded_text_input = self.text_field_embedder(tokens)
         mask = util.get_text_field_mask(tokens)
@@ -259,9 +186,6 @@ class OneNet(Model):
                 class_probabilities = tag_logits
                 output["loss"] = loss
 
-            # self.metrics['tag_acc'](class_probabilities, tags, mask.float())
-            # if self.calculate_span_f1:
-            #     self._f1_metric(class_probabilities, tags, mask.float())
         if domain is not None:
             output["loss"] += self.ce_loss(domain_logits, domain) 
         if intent is not None:
@@ -328,9 +252,6 @@ class OneNet(Model):
                 intent, value = output_dict["intent"][i].split("*", 1)
                 intent, slot = intent.split("+")
                 tags = [[slot, value]]
-            #     tags.append([output_dict["intent"][i].split("+")[1], "?"])
-            # if len(tags) == 0:
-            #     tags = [["none", "none"]]
             dialog_act = {domain+"-"+intent: tags} if domain != "None" and intent != "None" else {}
             output_dict["dialog_act"].append(dialog_act)
 

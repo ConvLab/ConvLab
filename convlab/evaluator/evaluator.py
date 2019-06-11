@@ -36,13 +36,13 @@ class Evaluator(object):
         """
         raise NotImplementedError
 
-    def book_rate(self, ref2goal=True, aggregate=False):
+    def book_rate(self, ref2goal=True, aggregate=True):
         """
         judge if the selected entity meets the constraint
         """
         raise NotImplementedError
 
-    def inform_F1(self, ref2goal=True, aggregate=False):
+    def inform_F1(self, ref2goal=True, aggregate=True):
         """
         judge if all the requested information is answered
         """
