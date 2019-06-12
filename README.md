@@ -92,7 +92,7 @@ Once you've downloaded ConvLab and installed required packages, you can run the 
 $ python run.py {spec file} {spec name} {mode}
 ```
 
-For Non-RL policies:
+For non-RL policies:
 ```bash
 # to evaluate a dialog system consisting of NLU(OneNet), DST(Rule), Policy(Rule), NLG(Template) on the MultiWOZ environment
 $ python run.py demo.json onenet_rule_rule_template eval
