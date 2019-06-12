@@ -88,12 +88,11 @@ Once you have [installed Docker](https://docs.docker.com/engine/installation/) j
 
 ## Running ConvLab
 Once you've downloaded ConvLab and installed required packages, you can run the command-line interface with the `python run.py` command.
-
 ```bash
 $ python run.py {spec file} {spec name} {mode}
 ```
 
-For example:
+For Non-RL policies:
 ```bash
 # to evaluate a dialog system consisting of NLU(OneNet), DST(Rule), Policy(Rule), NLG(Template) on the MultiWOZ environment
 $ python run.py demo.json onenet_rule_rule_template eval
@@ -106,12 +105,16 @@ $ LOG_LEVEL=ACT python run.py demo.json onenet_rule_rule_template eval
 
 # to see natural language utterances, dialog acts and state representation
 $ LOG_LEVEL=STATE python run.py demo.json onenet_rule_rule_template eval
+```
 
+For RL policies:
+```bash
 # to train a DQN policy with NLU(OneNet), DST(Rule), NLG(Template) on the MultiWOZ environment
 $ python run.py demo.json onenet_rule_dqn_template train
 
 # to use the policy trained above
-$ python run.py output/onenet_rule_dqn_template_{timestamp}/onenet_rule_dqn_template_spec.json onenet_rule_dqn_template eval@onenet_rule_dqn_template_t0_s0
+$ python run.py demo.json onenet_rule_dqn_template eval@output/onenet_rule_dqn_template_{timestamp}/model/onenet_rule_dqn_template_t0_s0
+# *this will load up the onenet_rule_dqn_template_t0_s0_*.pt files under the output/onenet_rule_dqn_template_{timestamp}/model directory.
 ```
 
 Note that currently ConvLab can only train the policy component by interacting with a user simulator. 
