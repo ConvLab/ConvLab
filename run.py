@@ -60,9 +60,8 @@ def read_spec_and_run(spec_file, spec_name, lab_mode):
     else:  # eval mode
         if '@' in lab_mode:
             lab_mode, prename = lab_mode.split('@')
-            spec = spec_util.get_eval_spec(spec_file, prename)
+            spec = spec_util.get_eval_spec(spec_file, spec_name, prename)
         else:
-            # spec = spec_util.get_eval_spec(spec_file)
             spec = spec_util.get(spec_file, spec_name)
 
     if 'spec_params' not in spec:

@@ -160,16 +160,11 @@ def get(spec_file, spec_name):
     return spec
 
 
-def get_eval_spec(spec_file, prename=None):
+def get_eval_spec(spec_file, spec_name, prename=None):
     '''Get spec for eval mode'''
-    if prename:
-        predir, _, _, _, _, _ = util.prepath_split(spec_file)
-        prepath = f'{predir}/{prename}' 
-        spec = util.prepath_to_spec(prepath)
-    else:
-        spec = util.get_spec(spec_file)
+    spec = get(spec_file, spec_name)
     spec['meta']['ckpt'] = 'eval'
-    spec['meta']['eval_model_prepath'] = util.insert_folder(prepath, 'model')
+    spec['meta']['eval_model_prepath'] = prename
     return spec
 
 
