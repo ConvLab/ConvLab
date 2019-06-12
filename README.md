@@ -127,7 +127,7 @@ We based our implementation on [SLM-Lab](https://github.com/kengz/SLM-Lab/tree/m
 Instead of writing one from scratch, you are welcome to modify the `convlab/spec/demo.json` file. Once you have created a new spec file, place it under `convlab/spec` directory and run your experiments. Note that you don't have to prepend `convlab/spec/` before your spec file name.
 
 ## Contributions
-The ConvLab team welcomes contributions from the community. Pull requests must have one approving review and no requested changes before they are merged. The ConvLab team reserve the right to reject or revert contributions that we don't think are good additions.
+The ConvLab team welcomes contributions from the community. Pull requests must have one approving review and no requested changes before they are merged. The ConvLab team reserves the right to reject or revert contributions that we don't think are good additions.
 
 ## Citing
 If you use ConvLab in your research, please cite [ConvLab: Multi-Domain End-to-End Dialog System Platform](https://arxiv.org/abs/1904.08637).
