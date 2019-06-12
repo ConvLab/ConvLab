@@ -99,8 +99,8 @@ class Session:
             result += f', {avg_len:.2f} turns'
         if avg_p:
             result += f', {avg_p:.2f} P, {avg_r:.2f} R, {avg_f1:.2f} F1'
-        # if avg_book_rates:
-        #     result += f', {avg_book_rate*100:.2f}% book rate'
+        if avg_book_rate:
+            result += f', {avg_book_rate*100:.2f}% book rate'
         logger.info(result)
 
     def run_rl(self):
