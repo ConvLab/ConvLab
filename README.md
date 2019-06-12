@@ -112,7 +112,7 @@ For RL policies:
 # to train a DQN policy with NLU(OneNet), DST(Rule), NLG(Template) on the MultiWOZ environment
 $ python run.py demo.json onenet_rule_dqn_template train
 
-# to use the policy trained above (*this will load up the onenet_rule_dqn_template_t0_s0_*.pt files under the output/onenet_rule_dqn_template_{timestamp}/model directory)
+# to use the policy trained above (this will load up the onenet_rule_dqn_template_t0_s0_*.pt files under the output/onenet_rule_dqn_template_{timestamp}/model directory)
 $ python run.py demo.json onenet_rule_dqn_template eval@output/onenet_rule_dqn_template_{timestamp}/model/onenet_rule_dqn_template_t0_s0
 ```
 
