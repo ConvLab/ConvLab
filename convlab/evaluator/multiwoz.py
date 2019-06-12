@@ -106,6 +106,9 @@ class MultiWozEvaluator(Evaluator):
             da_turn: dict[domain-intent] list[slot, value]
         """
         for dom_int in da_turn:
+            domain = dom_int.split('-')[0].lower()
+            if domain in belief_domains and domain != self.cur_domain:
+                self.cur_domain = domain
             slot_pair = da_turn[dom_int]
             for slot, value in slot_pair:
                 da = (dom_int +'-'+slot).lower()
