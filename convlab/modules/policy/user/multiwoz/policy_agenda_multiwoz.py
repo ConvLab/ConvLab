@@ -13,7 +13,7 @@ import json
 import copy
 from convlab.modules.usr.multiwoz.goal_generator import GoalGenerator
 from convlab.modules.policy.user.policy import UserPolicy
-from convlab.modules.util.multiwoz_slot_trans import REF_USR_DA, REF_SYS_DA
+from convlab.modules.util.multiwoz.multiwoz_slot_trans import REF_USR_DA, REF_SYS_DA
 from convlab.lib import logger
 
 logger = logger.get_logger(__name__)

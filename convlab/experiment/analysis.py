@@ -2,7 +2,6 @@
 # Licensed under the MIT license.
 
 from convlab.lib import logger, util, viz
-from convlab.spec import random_baseline
 import numpy as np
 import os
 import pandas as pd

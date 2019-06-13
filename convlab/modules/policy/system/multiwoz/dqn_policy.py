@@ -10,7 +10,7 @@ from .dialog_config import *
 from .rule_based_multiwoz_bot import *
 from convlab.modules.policy.system.policy import SysPolicy
 from .qlearning import DQN
-from convlab.modules.util.multiwoz_slot_trans import REF_SYS_DA
+from convlab.modules.util.multiwoz.multiwoz_slot_trans import REF_SYS_DA
 from .rule_based_multiwoz_bot import generate_car
 
 

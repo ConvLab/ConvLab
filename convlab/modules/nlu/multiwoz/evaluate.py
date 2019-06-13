@@ -34,11 +34,11 @@ if __name__ == '__main__':
         sys.exit()
     model_name = sys.argv[1]
     if model_name == 'OneNetLU':
-        model = OneNetLU()
+        model = OneNetLU(model_file="https://convlab.blob.core.windows.net/models/onenet.tar.gz")
     elif model_name == 'MILU':
-        model = MILU()
+        model = MILU(model_file="https://convlab.blob.core.windows.net/models/milu.tar.gz")
     elif model_name == 'SVMNLU':
-        model = SVMNLU()
+        model = SVMNLU(model_file="https://convlab.blob.core.windows.net/models/svm_multiwoz.zip")
     else:
         raise Exception("Available model: OneNetLU, MILU, SVMNLU")
 
