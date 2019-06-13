@@ -5,6 +5,7 @@
 .settings
 .keras
 .python_history
+.bash_history
 
 data/multiwoz/annotation/annotated_user_da_with_span_full.json
 data/multiwoz/annotation/MULTIWOZ2 2

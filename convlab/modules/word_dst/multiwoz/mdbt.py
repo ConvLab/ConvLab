@@ -2,7 +2,7 @@
 # Licensed under the MIT license.
 
 from convlab.modules.dst.state_tracker import Tracker
-from convlab.modules.util.multiwoz_slot_trans import REF_SYS_DA, REF_USR_DA
+from convlab.modules.util.multiwoz.multiwoz_slot_trans import REF_SYS_DA, REF_USR_DA
 import tensorflow as tf
 from convlab.modules.word_dst.multiwoz.mdbt_util import model_definition, load_word_vectors, load_ontology, load_woz_data, \
         track_dialogue, generate_batch, process_history, evaluate_model

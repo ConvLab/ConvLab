@@ -6,8 +6,8 @@ import json
 from pprint import pprint
 import numpy as np
 
-from convlab.modules.util.dbquery import query
-from convlab.modules.util.multiwoz_slot_trans import REF_SYS_DA, REF_USR_DA
+from convlab.modules.util.multiwoz.dbquery import query
+from convlab.modules.util.multiwoz.multiwoz_slot_trans import REF_SYS_DA, REF_USR_DA
 
 
 class MultiWozStateEncoder(object):

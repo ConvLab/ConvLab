@@ -4,7 +4,7 @@ import numpy as np
 import random
 
 from convlab.evaluator.evaluator import Evaluator 
-from convlab.modules.util.dbquery import query
+from convlab.modules.util.multiwoz.dbquery import query
 
 requestable = \
 {'attraction': ['post', 'phone', 'addr', 'fee', 'area', 'type'],

@@ -14,7 +14,6 @@ from convlab.lib import logger, util
 from convlab.lib.decorator import lab_api
 from convlab import UserPolicyAgendaMultiWoz
 from convlab import UserSimulator
-# from convlab.modules.policy.system.util import action_decoder, ActionVocab, state_encoder
 from convlab.modules.policy.system.multiwoz.rule_based_multiwoz_bot import RuleBasedMultiwozBot
 from convlab.modules.action_decoder.multiwoz.multiwoz_vocab_action_decoder import ActionVocab
 import convlab.modules.policy.user.multiwoz as user_policy

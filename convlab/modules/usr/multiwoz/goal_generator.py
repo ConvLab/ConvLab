@@ -12,7 +12,7 @@ from numpy.random import multinomial
 import pickle
 from pprint import pprint
 
-from convlab.modules.util import dbquery
+from convlab.modules.util.multiwoz import dbquery
 
 domains = {'attraction', 'hotel', 'restaurant', 'train', 'taxi', 'hospital', 'police'}
 days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
