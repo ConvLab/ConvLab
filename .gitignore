@@ -1,3 +1,11 @@
+# .* 
+.config
+.vscode
+.idea
+.settings
+.keras
+.python_history
+
 data/multiwoz/annotation/annotated_user_da_with_span_full.json
 data/multiwoz/annotation/MULTIWOZ2 2
 convlab/modules/nlu/multiwoz/svm/output_multiwoz/
@@ -13,13 +21,8 @@ test_result/
 # PyDev specific (Python IDE for Eclipse)
 *.pydevproject
 
-.settings/
-
-# pycharm specific
-.idea
-
-# vscode
-.vscode
+# nltk
+nltk_data/
 
 # mdbt data
 data/mdbt/
@@ -39,6 +42,9 @@ data/multiwoz/test.json
 convlab/modules/nlg/multiwoz/sc_lstm/resource
 convlab/modules/nlg/multiwoz/sc_lstm/sclstm.pt
 convlab/modules/nlg/multiwoz/sc_lstm/sclstm.res
+
+# svm
+convlab/modules/nlu/multiwoz/svm/model/
 
 # private test script
 private_test.py
