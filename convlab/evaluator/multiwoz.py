@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
-import numpy as np
 import random
 
-from convlab.evaluator.evaluator import Evaluator 
+import numpy as np
+
+from convlab.evaluator.evaluator import Evaluator
 from convlab.modules.util.multiwoz.dbquery import query
 
 requestable = \

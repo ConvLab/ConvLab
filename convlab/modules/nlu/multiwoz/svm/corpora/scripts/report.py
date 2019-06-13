@@ -23,7 +23,9 @@
 #
 ###############################################################################
 
-import sys,os,argparse,shutil,glob,json
+import argparse
+import os
+import sys
 
 SCHEDULES = [1,2]
 LABEL_SCHEMES = ["a","b"]

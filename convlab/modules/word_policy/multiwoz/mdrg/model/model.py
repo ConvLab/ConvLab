@@ -8,10 +8,10 @@ import math
 import operator
 import os
 import random
+from functools import reduce
 from io import open
 # from Queue import PriorityQueue
 from queue import PriorityQueue
-from functools import reduce
 
 import numpy as np
 import torch

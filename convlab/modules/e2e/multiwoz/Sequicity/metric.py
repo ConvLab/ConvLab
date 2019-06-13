@@ -1,15 +1,18 @@
 # Modified by Microsoft Corporation.
 # Licensed under the MIT license.
 
+import argparse
 import csv
-from collections import Counter
-from nltk.util import ngrams
-from nltk.corpus import stopwords
-from nltk.tokenize import word_tokenize
-from nltk.stem import WordNetLemmatizer
-import math, argparse
-import json
 import functools
+import json
+import math
+from collections import Counter
+
+from nltk.corpus import stopwords
+from nltk.stem import WordNetLemmatizer
+from nltk.tokenize import word_tokenize
+from nltk.util import ngrams
+
 from convlab.modules.e2e.multiwoz.Sequicity.reader import clean_replace
 
 en_sws = set(stopwords.words())

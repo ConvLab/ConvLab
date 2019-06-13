@@ -6,11 +6,12 @@ Utility functions
 '''
 
 import argparse
-import pickle as pkl
 import json
-import sys
 import math
+import pickle as pkl
+import sys
 import time
+
 import numpy as np
 import torch
 

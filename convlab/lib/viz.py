@@ -1,14 +1,16 @@
 # Modified by Microsoft Corporation.
 # Licensed under the MIT license.
 
+import os
+
+import colorlover as cl
+import pydash as ps
 # The data visualization module
 # Defines plotting methods for analysis
 from plotly import graph_objs as go, io as pio, tools
 from plotly.offline import init_notebook_mode, iplot
+
 from convlab.lib import logger, util
-import colorlover as cl
-import os
-import pydash as ps
 
 logger = logger.get_logger(__name__)
 

@@ -1,16 +1,16 @@
 # Modified by Microsoft Corporation.
 # Licensed under the MIT license.
 
+import numpy as np
+import torch
+import torch.nn.functional as F
 # Action policy module
 # Constructs action probability distribution used by agent to sample action and calculate log_prob, entropy, etc.
 from gym import spaces
+from torch import distributions
+
 # from convlab.env.wrapper import LazyFrames
 from convlab.lib import distribution, logger, math_util, util
-from torch import distributions
-import numpy as np
-import pydash as ps
-import torch
-import torch.nn.functional as F
 
 logger = logger.get_logger(__name__)
 

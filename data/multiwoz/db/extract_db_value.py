@@ -1,5 +1,5 @@
-import os
 import json
+import os
 
 db_dir = "."
 files = [os.path.join(db_dir, item) for item in os.listdir(db_dir) if 'db.json' in item]

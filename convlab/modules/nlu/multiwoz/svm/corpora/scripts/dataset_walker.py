@@ -23,7 +23,10 @@
 #
 ###############################################################################
 
-import os, json, re
+import json
+import os
+
+
 class dataset_walker(object):
     def __init__(self,dataset,labels=False,dataroot=None):
         if "[" in dataset :

@@ -5,12 +5,10 @@ import numpy as np
 import torch
 from torch.nn.modules.linear import Linear
 
-from allennlp.common.checks import check_dimensions_match, ConfigurationError
 from allennlp.data import Vocabulary
 from allennlp.modules import FeedForward
 from allennlp.models.model import Model
 from allennlp.nn import InitializerApplicator, RegularizerApplicator
-import allennlp.nn.util as util
 from allennlp.training.metrics import CategoricalAccuracy
 
 

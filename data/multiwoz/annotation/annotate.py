@@ -1,12 +1,11 @@
-import numpy as np
 import json
-from collections import Counter
-import pprint
-import re
-import spacy
-import zipfile
 import os
+import re
 import sys
+import zipfile
+
+import spacy
+
 proj_path = os.path.abspath(os.path.join(os.path.abspath(__file__), "../../../.."))
 sys.path.insert(0, proj_path)
 

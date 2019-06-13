@@ -1,11 +1,12 @@
-from convlab.modules.usr.multiwoz.goal_generator import GoalGenerator
-from convlab.modules.policy.user.policy import UserPolicy
-from convlab.util.multiwoz_slot_trans import REF_USR_DA, REF_SYS_DA
-from convlab.modules.usr.multiwoz.uber_usr.data_loader import DataLoader
-import numpy as np
-import os
 import copy
+import os
 
+import numpy as np
+from convlab.util.multiwoz_slot_trans import REF_USR_DA, REF_SYS_DA
+
+from convlab.modules.policy.user.policy import UserPolicy
+from convlab.modules.usr.multiwoz.goal_generator import GoalGenerator
+from convlab.modules.usr.multiwoz.uber_usr.data_loader import DataLoader
 from convlab.modules.usr.multiwoz.uber_usr.model import E2EUser
 
 DEF_VAL_UNK = '?'  # Unknown

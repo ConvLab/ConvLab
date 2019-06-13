@@ -1,12 +1,11 @@
-import sys
-from data_loader import DataLoader, batch_iter
-from model import E2EUser
 import argparse
-import tensorflow as tf
-import numpy as np
 import datetime
 import os
-import random
+import sys
+
+import numpy as np
+from data_loader import DataLoader, batch_iter
+from model import E2EUser
 
 BATCH_SIZE = 64
 

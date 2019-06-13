@@ -1,23 +1,13 @@
 # Modified by Microsoft Corporation.
 # Licensed under the MIT license.
 
-import json
+import logging
+
 import torch
 import torch.utils.data as data
-import unicodedata
-import string
-import re
-import random
-import time
-import math
-import torch
-import torch.nn as nn
 from torch.autograd import Variable
-from torch import optim
-import torch.nn.functional as F
 from utils.config import *
-import logging 
-import datetime
+
 
 class Lang:
     def __init__(self):

@@ -2,17 +2,19 @@
 """
 @author: truthless
 """
-import os
 import logging
+import os
+from copy import deepcopy
+
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
-import numpy as np
-from copy import deepcopy
+
 from convlab.modules.usr.multiwoz.goal_generator import GoalGenerator
-from convlab.modules.usr.multiwoz.vhus_usr.usermodule import VHUS
-from convlab.modules.usr.multiwoz.vhus_usr.usermanager import UserDataManager, batch_iter
 from convlab.modules.usr.multiwoz.vhus_usr.config import MultiWozConfig
+from convlab.modules.usr.multiwoz.vhus_usr.usermanager import UserDataManager, batch_iter
+from convlab.modules.usr.multiwoz.vhus_usr.usermodule import VHUS
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 

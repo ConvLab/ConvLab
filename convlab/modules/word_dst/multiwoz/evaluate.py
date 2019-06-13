@@ -1,6 +1,8 @@
-from convlab.modules.word_dst.multiwoz.mdbt import MDBTTracker
-from convlab.modules.dst.multiwoz.dst_util import minDistance
 import json
+
+from convlab.modules.dst.multiwoz.dst_util import minDistance
+from convlab.modules.word_dst.multiwoz.mdbt import MDBTTracker
+
 
 class Word_DST:
     """A temporary semi-finishingv agent for word_dst testing, which takes as input utterances and output dialog state."""

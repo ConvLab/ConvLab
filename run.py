@@ -5,6 +5,15 @@
 Specify what to run in `config/experiments.json`
 Then run `python run_lab.py` or `yarn start`
 '''
+# from convlab.experiment import analysis, retro_analysis
+# from convlab.experiment.monitor import InfoSpace
+import os
+import sys
+
+import pydash as ps
+import torch
+import torch.multiprocessing as mp
+
 # import os
 # # NOTE increase if needed. Pytorch thread overusage https://github.com/pytorch/pytorch/issues/975
 # os.environ['OMP_NUM_THREADS'] = '1'
@@ -12,15 +21,6 @@ from convlab import EVAL_MODES, TRAIN_MODES
 from convlab.experiment.control import Session, Trial, Experiment
 from convlab.lib import logger, util
 from convlab.spec import spec_util
-# from convlab.experiment import analysis, retro_analysis
-# from convlab.experiment.monitor import InfoSpace
-from xvfbwrapper import Xvfb
-import os
-import pydash as ps
-import sys
-import torch
-import torch.multiprocessing as mp
-
 
 debug_modules = [
     # 'algorithm',

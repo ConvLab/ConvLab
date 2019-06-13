@@ -1,23 +1,21 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Dict, List, Any
-import random
+import json
 import logging
 import os
-import json
+import random
 import zipfile
-
-from overrides import overrides
+from typing import Dict, List, Any
 
 from allennlp.data.dataset_readers.dataset_reader import DatasetReader
 from allennlp.data.fields import TextField, SequenceLabelField, MultiLabelField, MetadataField, Field
 from allennlp.data.instance import Instance
 from allennlp.data.token_indexers import TokenIndexer, SingleIdTokenIndexer
 from allennlp.data.tokenizers import Token
+from overrides import overrides
 
 from convlab.lib.file_util import cached_path
-
 
 logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
 

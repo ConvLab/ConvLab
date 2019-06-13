@@ -11,14 +11,12 @@ import urllib
 from collections import OrderedDict
 from io import BytesIO
 from zipfile import ZipFile
-from tqdm import tqdm
 
 import numpy as np
+from tqdm import tqdm
 
 from convlab.modules.word_policy.multiwoz.mdrg.utils import dbPointer, delexicalize
-
 from convlab.modules.word_policy.multiwoz.mdrg.utils.nlp import normalize
-
 
 np.set_printoptions(precision=3)
 

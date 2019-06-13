@@ -1,14 +1,16 @@
 # Modified by Microsoft Corporation.
 # Licensed under the MIT license.
 
+import os
 # The retro analysis module
 # Runs analysis post-hoc using existing data files
 # example: yarn retro_analyze data/reinforce_cartpole_2018_01_22_211751/
 from glob import glob
+
+import pydash as ps
+
 from convlab.experiment import analysis
 from convlab.lib import logger, util
-import os
-import pydash as ps
 
 logger = logger.get_logger(__name__)
 

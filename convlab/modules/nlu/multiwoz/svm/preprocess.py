@@ -1,14 +1,7 @@
-import numpy as np
 import json
-from collections import Counter
-from collections import OrderedDict
-import pprint
-import re
-import matplotlib.pyplot as plt
 import os
-import copy
-import re
 import zipfile
+from collections import Counter
 
 
 def read_zipped_json(filepath, filename):

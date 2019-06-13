@@ -1,15 +1,16 @@
 # Modified by Microsoft Corporation.
 # Licensed under the MIT license.
 
+import numpy as np
+import pydash as ps
+import torch
+
 from convlab.agent import net
 from convlab.agent.algorithm import policy_util
 from convlab.agent.algorithm.reinforce import Reinforce
 from convlab.agent.net import net_util
 from convlab.lib import logger, math_util, util
 from convlab.lib.decorator import lab_api
-import numpy as np
-import pydash as ps
-import torch
 
 logger = logger.get_logger(__name__)
 

@@ -4,7 +4,9 @@
 '''
 '''
 
-import argparse, json
+import argparse
+import json
+
 from nltk.tokenize import sent_tokenize, word_tokenize
 
 """ ====== NLG Part ====== """

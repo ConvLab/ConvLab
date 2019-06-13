@@ -1,15 +1,14 @@
 # Modified by Microsoft Corporation.
 # Licensed under the MIT license.
 
-import numpy as np
-import logging 
-from tqdm import tqdm
+import logging
 
-from utils.config import *
-from models.enc_vanilla import *
+from models.Mem2Seq import *
 from models.enc_Luong import *
 from models.enc_PTRUNK import *
-from models.Mem2Seq import *
+from models.enc_vanilla import *
+from tqdm import tqdm
+from utils.config import *
 
 '''
 python3 main_train.py -lr=0.001 -layer=1 -hdd=256 -dr=0.2 -dec=Mem2Seq -bsz=16 -ds=woz -t=

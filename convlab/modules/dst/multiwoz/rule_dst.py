@@ -1,16 +1,15 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from convlab.modules.dst.state_tracker import Tracker
-from convlab.modules.dst.multiwoz.dst_util import init_state
-from convlab.modules.util.multiwoz.multiwoz_slot_trans import REF_SYS_DA
-from convlab.modules.dst.multiwoz.dst_util import normalize_value, _log
-import convlab
-import json
-
 import copy
-
+import json
 import os
+
+import convlab
+from convlab.modules.dst.multiwoz.dst_util import init_state
+from convlab.modules.dst.multiwoz.dst_util import normalize_value
+from convlab.modules.dst.state_tracker import Tracker
+from convlab.modules.util.multiwoz.multiwoz_slot_trans import REF_SYS_DA
 
 
 class RuleDST(Tracker):

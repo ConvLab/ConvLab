@@ -2,13 +2,14 @@
 # Licensed under the MIT license.
 
 import sys
-import numpy as np
+
 import torch
 import torch.nn as nn
 from torch.autograd import Variable
 
 from convlab.modules.nlg.multiwoz.sc_lstm.model.layers.decoder_deep import DecoderDeep
 from convlab.modules.nlg.multiwoz.sc_lstm.model.masked_cross_entropy import masked_cross_entropy
+
 USE_CUDA = True
 
 class LMDeep(nn.Module):

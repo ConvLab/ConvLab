@@ -1,8 +1,9 @@
 """
 """
+import json
 import os
 import random
-import json
+
 from nltk.stem.porter import *
 
 stemmer = PorterStemmer()

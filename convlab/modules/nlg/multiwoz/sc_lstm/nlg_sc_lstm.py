@@ -5,16 +5,17 @@
 
 """
 """
-import os
 import configparser
-import argparse
-import torch
+import os
 import zipfile
 from copy import deepcopy
-from convlab.modules.nlg.nlg import NLG
+
+import torch
+
+from convlab.lib.file_util import cached_path
 from convlab.modules.nlg.multiwoz.sc_lstm.loader.dataset_woz import SimpleDatasetWoz
 from convlab.modules.nlg.multiwoz.sc_lstm.model.lm_deep import LMDeep
-from convlab.lib.file_util import cached_path
+from convlab.modules.nlg.nlg import NLG
 
 DEFAULT_DIRECTORY = "models"
 DEFAULT_ARCHIVE_FILE = os.path.join(DEFAULT_DIRECTORY, "nlg-sclstm-multiwoz.zip")

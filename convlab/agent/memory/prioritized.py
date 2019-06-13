@@ -1,11 +1,12 @@
 # Modified by Microsoft Corporation.
 # Licensed under the MIT license.
 
+import random
+
+import numpy as np
+
 from convlab.agent.memory.replay import Replay
 from convlab.lib import util
-from convlab.lib.decorator import lab_api
-import numpy as np
-import random
 
 
 class SumTree:

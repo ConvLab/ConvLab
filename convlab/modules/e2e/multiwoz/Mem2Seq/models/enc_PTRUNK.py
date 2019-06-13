@@ -1,19 +1,20 @@
 # Modified by Microsoft Corporation.
 # Licensed under the MIT license.
 
+import math
+import random
+
+import numpy as np
 import torch
 import torch.nn as nn
-from torch.autograd import Variable
-from torch import optim
 import torch.nn.functional as F
-from utils.masked_cross_entropy import *
-from utils.config import *
-import random
-import numpy as np
-import datetime
-from utils.measures import wer,moses_multi_bleu
+from torch import optim
+from torch.autograd import Variable
 from tqdm import tqdm
-import math
+from utils.config import *
+from utils.masked_cross_entropy import *
+from utils.measures import wer, moses_multi_bleu
+
 
 class PTRUNK(nn.Module):
     def __init__(self,hidden_size,max_len,max_r,lang,path,task,lr,n_layers, dropout):

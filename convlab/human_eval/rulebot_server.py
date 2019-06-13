@@ -1,15 +1,17 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from pprint import pprint
 import copy
-from flask import Flask, request, jsonify
+from pprint import pprint
 from queue import PriorityQueue
 from threading import Thread
-from convlab import RuleBasedMultiwozBot
-from convlab.modules.nlg.multiwoz.multiwoz_template_nlg.multiwoz_template_nlg import MultiwozTemplateNLG
+
 from convlab.modules.nlu.multiwoz.mlst.nlu import MlstNLU
+from flask import Flask, request, jsonify
+
+from convlab import RuleBasedMultiwozBot
 from convlab.modules.dst.multiwoz.rule_dst import RuleDST
+from convlab.modules.nlg.multiwoz.multiwoz_template_nlg.multiwoz_template_nlg import MultiwozTemplateNLG
 
 rgi_queue = PriorityQueue(maxsize=0)
 rgo_queue = PriorityQueue(maxsize=0)

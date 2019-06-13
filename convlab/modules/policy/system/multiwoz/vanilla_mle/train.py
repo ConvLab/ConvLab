@@ -8,18 +8,14 @@ import argparse
 import logging
 import os
 
-from allennlp.commands.subcommand import Subcommand
-from allennlp.common.checks import check_for_gpu
 from allennlp.common import Params
+from allennlp.common.checks import check_for_gpu
 from allennlp.common.util import prepare_environment, prepare_global_logging, cleanup_global_logging, dump_metrics
 from allennlp.models.archival import archive_model, CONFIG_NAME
 from allennlp.models.model import Model, _DEFAULT_WEIGHTS
 from allennlp.training.trainer import Trainer, TrainerPieces
 from allennlp.training.trainer_base import TrainerBase
 from allennlp.training.util import create_serialization_dir, evaluate
-
-from convlab.modules.policy.system.multiwoz.vanilla_mle import dataset_reader
-from convlab.modules.policy.system.multiwoz.vanilla_mle import model
 
 logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
 

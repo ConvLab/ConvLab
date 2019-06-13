@@ -3,7 +3,9 @@
 
 # misc useful functions
 
-import os, imp
+import imp
+import os
+
 
 def dataset_walker(dataset=None, dataroot=None, labels=None):
     # we assume that the dataset_walker class in dataroot/../scripts
@@ -25,9 +27,7 @@ def powerset(iterable):
     "powerset([1,2,3]) --> () (1,) (2,) (3,) (1,2) (1,3) (2,3) (1,2,3)"
     s = list(iterable)
     return chain.from_iterable(combinations(s, r) for r in range(len(s)+1))
-    
-    
-import scipy, sys
+
 
 def svm_to_libsvm(model, labels=None) :
     # convert an sklearn model object into a file in the format of LIBSVM's sparse SVMs

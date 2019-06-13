@@ -1,13 +1,15 @@
 # Modified by Microsoft Corporation.
 # Licensed under the MIT license.
 
-import os
+import ast
+import logging
+
 import torch
 import torch.utils.data as data
 from torch.autograd import Variable
+
 from .config import *
-import logging 
-import ast
+
 
 def hasNumbers(inputString):
     return any(char.isdigit() for char in inputString)

@@ -1,10 +1,10 @@
 # Modified by Microsoft Corporation.
 # Licensed under the MIT license.
 
+import torch
 # Custom PyTorch distribution classes to be registered in policy_util.py
 # Mainly used by policy_util action distribution
 from torch import distributions
-import torch
 
 
 class Argmax(distributions.Categorical):

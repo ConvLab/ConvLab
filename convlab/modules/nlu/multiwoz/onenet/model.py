@@ -17,8 +17,7 @@ from allennlp.modules.conditional_random_field import allowed_transitions
 from allennlp.models.model import Model
 from allennlp.nn import InitializerApplicator, RegularizerApplicator
 import allennlp.nn.util as util
-from allennlp.nn.util import get_text_field_mask, sequence_cross_entropy_with_logits
-from allennlp.training.metrics import CategoricalAccuracy, SpanBasedF1Measure
+from allennlp.nn.util import sequence_cross_entropy_with_logits
 from allennlp.data.dataset_readers.dataset_utils.span_utils import bio_tags_to_spans
  
 from convlab.modules.nlu.multiwoz.onenet.dai_f1_measure import DialogActItemF1Measure

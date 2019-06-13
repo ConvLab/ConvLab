@@ -3,23 +3,24 @@
 
 import math
 import os
+from copy import deepcopy
+
 import numpy as np
 import pydash as ps
-from copy import deepcopy
 from gym import spaces
 
+import convlab.modules.nlg.multiwoz as nlg
+import convlab.modules.nlu.multiwoz as nlu
+import convlab.modules.policy.system.multiwoz as sys_policy
+import convlab.modules.policy.user.multiwoz as user_policy
+from convlab import UserPolicyAgendaMultiWoz
+from convlab import UserSimulator
 from convlab.env.base import BaseEnv, set_gym_space_attr
 # from convlab.env.registration import get_env_path
 from convlab.lib import logger, util
 from convlab.lib.decorator import lab_api
-from convlab import UserPolicyAgendaMultiWoz
-from convlab import UserSimulator
-from convlab.modules.policy.system.multiwoz.rule_based_multiwoz_bot import RuleBasedMultiwozBot
 from convlab.modules.action_decoder.multiwoz.multiwoz_vocab_action_decoder import ActionVocab
-import convlab.modules.policy.user.multiwoz as user_policy
-import convlab.modules.policy.system.multiwoz as sys_policy
-import convlab.modules.nlu.multiwoz as nlu
-import convlab.modules.nlg.multiwoz as nlg
+from convlab.modules.policy.system.multiwoz.rule_based_multiwoz_bot import RuleBasedMultiwozBot
 
 logger = logger.get_logger(__name__)
 

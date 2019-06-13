@@ -1,12 +1,13 @@
 # Modified by Microsoft Corporation.
 # Licensed under the MIT license.
 
-from convlab.agent.net import net_util
-from convlab.agent.net.base import Net
-from convlab.lib import math_util, util
 import pydash as ps
 import torch
 import torch.nn as nn
+
+from convlab.agent.net import net_util
+from convlab.agent.net.base import Net
+from convlab.lib import math_util, util
 
 
 class ConvNet(Net, nn.Module):

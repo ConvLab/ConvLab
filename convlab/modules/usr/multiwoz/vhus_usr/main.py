@@ -2,10 +2,12 @@
 """
 @author: truthless
 """
+import logging
 import os
 import time
-import logging
+
 from user import UserNeural
+
 
 def init_logging_handler(log_dir, extra=''):
     if not os.path.exists(log_dir):

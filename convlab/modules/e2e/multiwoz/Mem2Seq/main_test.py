@@ -1,15 +1,11 @@
 # Modified by Microsoft Corporation.
 # Licensed under the MIT license.
 
-import numpy as np
-import logging 
-from tqdm import tqdm
-
-from utils.config import *
-from models.enc_vanilla import *
+from models.Mem2Seq import *
 from models.enc_Luong import *
 from models.enc_PTRUNK import *
-from models.Mem2Seq import *
+from models.enc_vanilla import *
+from utils.config import *
 
 '''
 python3 main_test.py -dec= -path= -bsz= -ds=
