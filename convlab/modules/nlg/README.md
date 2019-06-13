@@ -12,5 +12,5 @@ generation module.
 
 The interfaces are defined in nlg.NLG:
 
--**generate** takes as input dialog act, and converts it into a natural
+- **generate** takes as input dialog act, and converts it into a natural
 language utterance.

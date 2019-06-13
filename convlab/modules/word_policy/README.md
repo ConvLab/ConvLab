@@ -12,7 +12,7 @@ Word-level policy shares the same interface with system policy
 internal implementation of *predict* method, in which the word-level model
 directly reads from natural language utterances.
 
--**predict** takes as input agent state (often the state tracked by DST)
+- **predict** takes as input agent state (often the state tracked by DST)
 and outputs the next system action.
 
--**init_session** reset the model variables for a new dialog session.
+- **init_session** reset the model variables for a new dialog session.
