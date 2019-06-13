@@ -50,25 +50,23 @@ Unlike, other RL algorithms that are pre-defined, all algorithms that follow "Ex
 **Example 1 (Rule based external policy)**
 ```bash
         "algorithm": {
-        "name": "ExternalPolicy",
+                "name": "ExternalPolicy",
         "policy": {
-        "name": "RuleBasedMultiwozBot"
+                "name": "RuleBasedMultiwozBot"
         },
         "action_pdtype": "Argmax",
         "action_policy": "default"
-        }
 ```
 **Example 2 (Vanila MLE external policy)**
 ```bash
         "algorithm": {
-        "name": "ExternalPolicy",
+                "name": "ExternalPolicy",
         "policy": {
-        "name": "VanillaMLEPolicy",
-        "model_file": "https://convlab.blob.core.windows.net/models/vmle.tar.gz"
+                "name": "VanillaMLEPolicy",
+                "model_file": "https://convlab.blob.core.windows.net/models/vmle.tar.gz"
         },
         "action_pdtype": "Argmax",
         "action_policy": "default"
-        }
 ```
 
 
