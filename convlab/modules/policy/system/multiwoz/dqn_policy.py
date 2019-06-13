@@ -7,8 +7,6 @@ import pickle
 
 import numpy as np
 
-from convlab.modules.policy.system.policy import SysPolicy
-from convlab.modules.util.multiwoz.multiwoz_slot_trans import REF_SYS_DA
 from .dialog_config import *
 from .qlearning import DQN
 from .rule_based_multiwoz_bot import *
