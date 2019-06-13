@@ -1,4 +1,4 @@
-# Copyright (c) Microsoft Corporation.
+# Modified by Microsoft Corporation.
 # Licensed under the MIT license.
 
 

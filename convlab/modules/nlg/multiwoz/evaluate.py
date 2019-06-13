@@ -48,7 +48,7 @@ def get_bleu4(dialog_acts, golden_utts, gen_utts):
         das2utts.setdefault(hash_key, {'refs': [], 'gens': []})
         das2utts[hash_key]['refs'].append(utt)
         das2utts[hash_key]['gens'].append(gen)
-    pprint(das2utts)
+    # pprint(das2utts)
     refs, gens = [], []
     for das in das2utts.keys():
         for gen in das2utts[das]['gens']:
@@ -96,7 +96,7 @@ def get_err_slot(dialog_acts, nlg_model):
         print('mean(std): {}({})'.format(np.mean(errs),np.std(errs)))
         if N_total>0:
             print('divide after sum:', (p_total+q_total)/N_total)
-    return sum(errs)/len(errs)
+    return np.mean(errs)
 
 
 if __name__ == '__main__':
@@ -108,7 +108,7 @@ if __name__ == '__main__':
     model_name = sys.argv[1]
     print("Loading", model_name)
     if model_name == 'SCLSTM':
-        model = SCLSTM()
+        model = SCLSTM(model_file="https://convlab.blob.core.windows.net/models/nlg-sclstm-multiwoz.zip")
     elif model_name == 'MultiwozTemplateNLG':
         model_user = MultiwozTemplateNLG(is_user=True)
         model_sys = MultiwozTemplateNLG(is_user=False)
@@ -137,10 +137,15 @@ if __name__ == '__main__':
                 else:
                     gen_utts.append(model_sys.generate(turn['dialog_act']))
 
+    bleu4 = get_bleu4(dialog_acts, golden_utts, gen_utts)
+
     print("Calculate bleu-4")
-    print("BLEU-4: %.4f" % get_bleu4(dialog_acts, golden_utts, gen_utts))
+    print("BLEU-4: %.4f" % bleu4)
 
     if model_name == 'SCLSTM':
         print("Calculate slot error rate:")
         err = get_err_slot(dialog_acts, model)
         print('ERR:', err)
+
+    print("BLEU-4: %.4f" % bleu4)
+    print(model_name)

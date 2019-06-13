@@ -23,6 +23,7 @@ rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
 RUN pip install -r requirements.txt
+RUN [ "python", "-c", "import nltk; nltk.download('stopwords')" ]
 
 WORKDIR /root
 

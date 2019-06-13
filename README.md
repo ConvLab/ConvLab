@@ -81,19 +81,18 @@ Docker provides more isolation and consistency, and also makes it easy to distri
 Once you have [installed Docker](https://docs.docker.com/engine/installation/) just run the following commands to get an environment that will run on either the cpu or gpu.
 
 1. Pull docker </br>
-```docker pull convlab/convlab:0.1```
+```docker pull convlab/convlab:0.2```
 
 2. Run docker </br>
-```docker run -it --rm convlab/convlab:0.1```
+```docker run -it --rm convlab/convlab:0.2```
 
 ## Running ConvLab
 Once you've downloaded ConvLab and installed required packages, you can run the command-line interface with the `python run.py` command.
-
 ```bash
 $ python run.py {spec file} {spec name} {mode}
 ```
 
-For example:
+For non-RL policies:
 ```bash
 # to evaluate a dialog system consisting of NLU(OneNet), DST(Rule), Policy(Rule), NLG(Template) on the MultiWOZ environment
 $ python run.py demo.json onenet_rule_rule_template eval
@@ -106,12 +105,15 @@ $ LOG_LEVEL=ACT python run.py demo.json onenet_rule_rule_template eval
 
 # to see natural language utterances, dialog acts and state representation
 $ LOG_LEVEL=STATE python run.py demo.json onenet_rule_rule_template eval
+```
 
+For RL policies:
+```bash
 # to train a DQN policy with NLU(OneNet), DST(Rule), NLG(Template) on the MultiWOZ environment
 $ python run.py demo.json onenet_rule_dqn_template train
 
-# to use the policy trained above
-$ python run.py output/onenet_rule_dqn_template_{timestamp}/onenet_rule_dqn_template_spec.json onenet_rule_dqn_template eval@onenet_rule_dqn_template_t0_s0
+# to use the policy trained above (this will load up the onenet_rule_dqn_template_t0_s0_*.pt files under the output/onenet_rule_dqn_template_{timestamp}/model directory)
+$ python run.py demo.json onenet_rule_dqn_template eval@output/onenet_rule_dqn_template_{timestamp}/model/onenet_rule_dqn_template_t0_s0
 ```
 
 Note that currently ConvLab can only train the policy component by interacting with a user simulator. 
@@ -124,8 +126,17 @@ We based our implementation on [SLM-Lab](https://github.com/kengz/SLM-Lab/tree/m
 
 Instead of writing one from scratch, you are welcome to modify the `convlab/spec/demo.json` file. Once you have created a new spec file, place it under `convlab/spec` directory and run your experiments. Note that you don't have to prepend `convlab/spec/` before your spec file name.
 
+## Participation in DSTC-8
+1. Extend ConvLab with your code, and include submission.json under the convlab/spec directory.
+2. In submission.json, specify up to 5 specs with the name submission[1-5].
+2. Make sure the code with the config is runnable in the docker environment.
+3. If your code uses external packages beyond the existing docker environment, please choose one of the following two approaches to specify your environment requirements:
+    - Add install.sh under the convlab directory. install.sh should include all required extra packages.
+    - Create your own Dockerfile with the name dev.dockerfile
+4. Zip the system and submit.
+
 ## Contributions
-The ConvLab team welcomes contributions from the community. Pull requests must have one approving review and no requested changes before they are merged. The ConvLab team reserve the right to reject or revert contributions that we don't think are good additions.
+The ConvLab team welcomes contributions from the community. Pull requests must have one approving review and no requested changes before they are merged. The ConvLab team reserves the right to reject or revert contributions that we don't think are good additions.
 
 ## Citing
 If you use ConvLab in your research, please cite [ConvLab: Multi-Domain End-to-End Dialog System Platform](https://arxiv.org/abs/1904.08637).
