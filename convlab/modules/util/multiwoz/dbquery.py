@@ -3,7 +3,9 @@
 import os
 import random
 import json
+from nltk.stem.porter import *
 
+stemmer = PorterStemmer()
 
 # loading databases
 domains = ['restaurant', 'hotel', 'attraction', 'train', 'hospital', 'taxi', 'police']
@@ -33,7 +35,8 @@ def query(domain, constraints, ignore_open=True):
                 pass
             else:
                 try:
-                    if key not in record:
+                    record_keys = [key.lower() for key in record]
+                    if key.lower() not in record_keys and stemmer.stem(key) not in record_keys:
                         continue
                     if key == 'leaveAt':
                         val1 = int(val.split(':')[0]) * 100 + int(val.split(':')[1])
@@ -58,4 +61,3 @@ def query(domain, constraints, ignore_open=True):
 
     return found
 
-# print(query('restaurant', [['food', 'european'], ['pricerange', 'cheap'], ['area', 'centre']]))
