@@ -72,7 +72,7 @@ Unlike, other RL algorithms that are pre-defined, all algorithms that follow "Ex
 
 ## Summary
 
- ```convlab/agent/algorithm``` is the directory for the RL policies. However, when one is interested in plugging in one's own non-RL model to the ConvLab framework, one can do so by adding the new model under  ```./convlab/modules/policy/system``` or under ```./convlab/modules/policy/system/[Domain]``` e.g. ./convlab/modules/policy/system/multiWoz. This model is linked through the whole pipeline through ExternalPolicy class at ```convlab/agent/algorithm/external.py```.
+ ```convlab/agent/algorithm``` is the directory for the RL policies. However, when one is interested in plugging in one's own non-RL model to the ConvLab framework, one can do so by adding the new model under  ```./convlab/modules/policy/system``` or under ```./convlab/modules/policy/system/[Domain]``` e.g. ./convlab/modules/policy/system/multiwoz. This model is linked through the whole pipeline through ExternalPolicy class at ```convlab/agent/algorithm/external.py```.
 
 
 
