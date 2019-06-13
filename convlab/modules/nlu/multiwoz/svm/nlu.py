@@ -3,7 +3,7 @@
 
 from convlab.modules.nlu.nlu import NLU
 from convlab.modules.nlu.multiwoz.svm import Classifier,sutils
-from allennlp.common.file_utils import cached_path
+from convlab.lib.file_util import cached_path
 import configparser, sys
 import os
 import zipfile
@@ -28,11 +28,11 @@ class SVMNLU(NLU):
                 print('Load from model_file param')
                 archive_file = cached_path(model_file)
                 archive = zipfile.ZipFile(archive_file, 'r')
-            archive.extractall(model_dir)
+            archive.extractall(os.path.dirname(model_dir))
             archive.close()
         self.c.load(model_path)
 
-    def parse(self, utterance, context=None, not_empty=False):
+    def parse(self, utterance, context=None, not_empty=True):
         sentinfo = {
             "turn-id": 0,
             "asr-hyps": [
