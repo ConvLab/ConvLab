@@ -1,13 +1,15 @@
 # Modified by Microsoft Corporation.
 # Licensed under the MIT license.
 
+import time
 from abc import ABC, abstractmethod
-from gym import spaces
-from convlab.lib import logger, util
-from convlab.lib.decorator import lab_api
+
 import numpy as np
 import pydash as ps
-import time
+from gym import spaces
+
+from convlab.lib import logger, util
+from convlab.lib.decorator import lab_api
 
 logger = logger.get_logger(__name__)
 

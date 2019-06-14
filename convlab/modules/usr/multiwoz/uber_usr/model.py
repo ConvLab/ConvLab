@@ -1,7 +1,9 @@
+import os
+
+import numpy as np
 import tensorflow as tf
 from convlab.usr.uber_usr import Config
-import numpy as np
-import os
+
 
 class E2EUser():
     def __init__(self, goal_vocab_size, usr_vocab_size, sys_vocab_size, start_token=2, end_token=3, Train=True):

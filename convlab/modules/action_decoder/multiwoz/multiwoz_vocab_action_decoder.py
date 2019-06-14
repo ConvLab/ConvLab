@@ -1,14 +1,12 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-import os
 import json
-from pprint import pprint
-import numpy as np
+import os
 
-from convlab.modules.policy.system.multiwoz.rule_based_multiwoz_bot import REF_SYS_DA, REF_USR_DA, generate_car, generate_ref_num
+from convlab.modules.policy.system.multiwoz.rule_based_multiwoz_bot import REF_SYS_DA, REF_USR_DA, generate_car, \
+    generate_ref_num
 from convlab.modules.util.multiwoz.dbquery import query
-
 
 DEFAULT_VOCAB_FILE=os.path.join(os.path.dirname(os.path.dirname(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))),

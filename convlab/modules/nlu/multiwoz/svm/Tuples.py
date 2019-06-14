@@ -2,9 +2,11 @@
 # Licensed under the MIT license.
 
 # deal with tuples and dialog acts
-import json, math,os
-from convlab.modules.nlu.multiwoz.svm import sutils, Features
+import math
+import os
 import re
+
+from convlab.modules.nlu.multiwoz.svm import sutils
 
 
 class tuples(object):

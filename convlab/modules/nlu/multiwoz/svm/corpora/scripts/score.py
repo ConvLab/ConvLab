@@ -23,10 +23,15 @@
 #
 ###############################################################################
 
-import sys,os,argparse,shutil,glob,json,pprint,math
-import misc
-from collections import defaultdict
+import argparse
+import json
+import math
+import os
+import sys
 import traceback
+from collections import defaultdict
+
+import misc
 
 SCHEDULES = [1,2]
 LABEL_SCHEMES = ["a","b"]

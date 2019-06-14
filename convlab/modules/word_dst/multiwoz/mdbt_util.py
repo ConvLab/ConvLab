@@ -4,17 +4,15 @@
 # Licensed under the MIT license.
 
 import json
-import tensorflow as tf
-from tensorflow.python.client import device_lib
-import numpy as np
-import sys
+import math
 import os
 import time
-from copy import deepcopy
-import math
-import click
 from collections import OrderedDict
-from random import shuffle
+from copy import deepcopy
+
+import numpy as np
+import tensorflow as tf
+from tensorflow.python.client import device_lib
 
 DATA_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))), 'data/mdbt')
 VALIDATION_URL = os.path.join(DATA_PATH, "data/validate.json")

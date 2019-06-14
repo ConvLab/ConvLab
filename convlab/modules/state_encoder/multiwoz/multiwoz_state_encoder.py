@@ -1,9 +1,6 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-import os
-import json
-from pprint import pprint
 import numpy as np
 
 from convlab.modules.util.multiwoz.dbquery import query

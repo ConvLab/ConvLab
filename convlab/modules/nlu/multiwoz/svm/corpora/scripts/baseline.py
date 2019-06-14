@@ -23,7 +23,11 @@
 #
 ###############################################################################
 
-import  argparse, dataset_walker, json, time, copy
+import argparse
+import copy
+import dataset_walker
+import json
+import time
 from collections import defaultdict
 
 

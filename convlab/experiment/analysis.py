@@ -1,14 +1,14 @@
 # Modified by Microsoft Corporation.
 # Licensed under the MIT license.
 
-from convlab.lib import logger, util, viz
+import shutil
+
 import numpy as np
-import os
 import pandas as pd
 import pydash as ps
-import shutil
 import torch
 
+from convlab.lib import logger, util, viz
 
 NUM_EVAL = 4
 METRICS_COLS = [

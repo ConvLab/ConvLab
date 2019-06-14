@@ -3,11 +3,9 @@
 
 """
 """
+import json
 import os
 import random
-import json
-import numpy as np
-
 
 # loading databases
 domains = ['restaurant', 'hotel', 'attraction', 'train', 'hospital', 'taxi', 'police']

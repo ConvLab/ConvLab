@@ -7,7 +7,6 @@ import numpy as np
 
 from convlab.modules.word_policy.multiwoz.mdrg.utils.nlp import normalize
 
-
 # loading databases
 domains = ['restaurant', 'hotel', 'attraction', 'train', 'taxi', 'hospital']#, 'police']
 dbs = {}

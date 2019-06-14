@@ -2,9 +2,9 @@
 # Licensed under the MIT license.
 
 import math
+import os
 import re
 from collections import Counter
-import os
 
 from nltk.util import ngrams
 

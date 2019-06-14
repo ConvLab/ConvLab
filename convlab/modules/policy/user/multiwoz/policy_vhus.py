@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
+
 from convlab.modules.policy.user.policy import UserPolicy
 from convlab.modules.usr.multiwoz.vhus_usr.user import UserNeural
 

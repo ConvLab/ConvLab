@@ -8,13 +8,12 @@ import os
 from pprint import pprint
 
 from allennlp.common.checks import check_for_gpu
-from allennlp.models.archival import load_archive
 from allennlp.data import DatasetReader
 from allennlp.data.tokenizers.word_splitter import SpacyWordSplitter
+from allennlp.models.archival import load_archive
 
 from convlab.lib.file_util import cached_path
 from convlab.modules.nlu.nlu import NLU
-from convlab.modules.nlu.multiwoz.onenet import model, dataset_reader
 
 DEFAULT_CUDA_DEVICE=-1
 DEFAULT_DIRECTORY = "models"

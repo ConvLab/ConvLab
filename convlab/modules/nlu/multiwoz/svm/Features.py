@@ -2,10 +2,11 @@
 # Licensed under the MIT license.
 
 
-import json, math, itertools
-from convlab.modules.nlu.multiwoz.svm import Tuples
+import itertools
+import math
 from collections import defaultdict
 
+from convlab.modules.nlu.multiwoz.svm import Tuples
 
 
 class lastSys(object):

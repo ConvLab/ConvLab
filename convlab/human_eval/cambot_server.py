@@ -1,14 +1,17 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-import os, time, pickle
-from flask import Flask, request, jsonify
+import os
+import pickle
+import time
 from queue import PriorityQueue
 from threading import Thread
 
 import tensorflow as tf
 from convlab.modules.dst.multiwoz.mdbt import MDBTTracker, init_state
 from convlab.modules.word_policy.multiwoz.mdrg.predict import loadModel, predict
+from flask import Flask, request, jsonify
+
 import convlab
 
 os.environ["CUDA_VISIBLE_DEVICES"] = '0'

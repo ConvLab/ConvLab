@@ -1,13 +1,13 @@
 # The spec module
 # Manages specification to run things in lab
-from convlab.lib import logger, util
-from string import Template
 import itertools
 import json
-import numpy as np
 import os
+from string import Template
+
 import pydash as ps
 
+from convlab.lib import logger, util
 
 SPEC_DIR = 'convlab/spec'
 '''

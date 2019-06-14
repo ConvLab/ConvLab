@@ -1,14 +1,16 @@
 # Modified by Microsoft Corporation.
 # Licensed under the MIT license.
 
+import random
 from copy import deepcopy
-from convlab.lib import logger, util
+
 import numpy as np
 import pydash as ps
-import random
 import ray
 import ray.tune as tune
 import torch
+
+from convlab.lib import logger, util
 
 logger = logger.get_logger(__name__)
 

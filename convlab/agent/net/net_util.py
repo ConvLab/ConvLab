@@ -1,12 +1,14 @@
 # Modified by Microsoft Corporation.
 # Licensed under the MIT license.
 
-from functools import partial, wraps
-from convlab.lib import logger, optimizer, util
 import os
+from functools import partial, wraps
+
 import pydash as ps
 import torch
 import torch.nn as nn
+
+from convlab.lib import logger, optimizer, util
 
 logger = logger.get_logger(__name__)
 

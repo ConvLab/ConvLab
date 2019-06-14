@@ -6,15 +6,16 @@
 
 __time__ = '2019/1/31 10:24'
 
-import os
-import re
-import random
-import json
 import copy
-from convlab.modules.usr.multiwoz.goal_generator import GoalGenerator
-from convlab.modules.policy.user.policy import UserPolicy
-from convlab.modules.util.multiwoz.multiwoz_slot_trans import REF_USR_DA, REF_SYS_DA
+import json
+import os
+import random
+import re
+
 from convlab.lib import logger
+from convlab.modules.policy.user.policy import UserPolicy
+from convlab.modules.usr.multiwoz.goal_generator import GoalGenerator
+from convlab.modules.util.multiwoz.multiwoz_slot_trans import REF_USR_DA, REF_SYS_DA
 
 logger = logger.get_logger(__name__)
 

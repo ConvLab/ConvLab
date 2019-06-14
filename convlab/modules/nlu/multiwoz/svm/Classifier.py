@@ -1,14 +1,18 @@
 # Modified by Microsoft Corporation.
 # Licensed under the MIT license.
 
-from convlab.modules.nlu.multiwoz.svm import sutils, Tuples, Features
-import json, sys, time, math, os
-import pickle
-from collections import defaultdict
-from convlab.modules.nlu.multiwoz.svm.Features import cnet as cnet_extractor
-from scipy.sparse import lil_matrix
-import numpy
+import json
 import multiprocessing as mp
+import os
+import pickle
+import time
+from collections import defaultdict
+
+import numpy
+from scipy.sparse import lil_matrix
+
+from convlab.modules.nlu.multiwoz.svm import sutils, Tuples
+from convlab.modules.nlu.multiwoz.svm.Features import cnet as cnet_extractor
 
 names_to_classes = {}
 
@@ -54,7 +58,6 @@ class classifier(object):
 
     # @profile
     def extractFeatures(self, dw, log_input_key="batch"):
-        import sys
         # given a dataset walker,
         # adds examples to self.X and self.y
         total_calls = len(dw.session_list)

@@ -3,23 +3,23 @@ Evaluate NLG models on Multiwoz test dataset
 Metric: dataset level BLEU-4, slot error rate
 Usage: PYTHONPATH=../../../.. python evaluate.py [SCLSTM|MultiwozTemplateNLG]
 """
-import os
+import json
+import random
 import sys
+import zipfile
+
+import numpy
+import numpy as np
+import torch
 from nltk.translate.bleu_score import corpus_bleu, SmoothingFunction
+
 from convlab.modules.nlg.multiwoz.multiwoz_template_nlg import MultiwozTemplateNLG
 from convlab.modules.nlg.multiwoz.sc_lstm.nlg_sc_lstm import SCLSTM
-from convlab.modules.nlg.nlg import NLG
-import json
-import zipfile
-import numpy as np
-import random
-import numpy
-import torch
+
 seed = 2019
 random.seed(seed)
 numpy.random.seed(seed)
 torch.manual_seed(seed)
-from pprint import pprint
 
 
 def get_bleu4(dialog_acts, golden_utts, gen_utts):

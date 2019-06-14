@@ -2,12 +2,14 @@
 # Licensed under the MIT license.
 
 
-import configparser, sys
-from convlab.modules.nlu.multiwoz.svm import Classifier, sutils
-import pickle
-import pprint
+import configparser
 import os
+import pprint
+import sys
 import zipfile
+
+from convlab.modules.nlu.multiwoz.svm import Classifier, sutils
+
 
 def train(config):
     c = Classifier.classifier(config)

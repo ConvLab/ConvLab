@@ -5,12 +5,14 @@
 
 """
 """
-import torch
 import numpy as np
+import torch
 from nltk import word_tokenize
+
 from .models.Mem2Seq import Mem2Seq
 from .utils.config import args, USE_CUDA, UNK_token
 from .utils.utils_woz_mem2seq import prepare_data_seq, generate_memory, MEM_TOKEN_SIZE
+
 
 def plain2tensor(word2index, memory):
     src_seqs = []

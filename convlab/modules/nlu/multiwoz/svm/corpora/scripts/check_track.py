@@ -23,7 +23,11 @@
 #
 ###############################################################################
 
-import argparse, sys, os, json
+import argparse
+import json
+import os
+import sys
+
 
 def main(argv):
     

@@ -3,15 +3,18 @@ Evaluate NLU models on Multiwoz test dataset
 Metric: dataset level Precision/Recall/F1
 Usage: PYTHONPATH=../../../.. python evaluate.py [OneNetLU|MILU|SVMNLU]
 """
-import sys
 import json
-import zipfile
-from convlab.modules.nlu.multiwoz import OneNetLU
-from convlab.modules.nlu.multiwoz import MILU
-from convlab.modules.nlu.multiwoz import SVMNLU
 import random
+import sys
+import zipfile
+
 import numpy
 import torch
+
+from convlab.modules.nlu.multiwoz import MILU
+from convlab.modules.nlu.multiwoz import OneNetLU
+from convlab.modules.nlu.multiwoz import SVMNLU
+
 seed = 2019
 random.seed(seed)
 numpy.random.seed(seed)

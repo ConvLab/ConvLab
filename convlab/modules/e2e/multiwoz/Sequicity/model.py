@@ -1,21 +1,23 @@
 # Modified by Microsoft Corporation.
 # Licensed under the MIT license.
 
-import torch
-import random
-import numpy as np
-from convlab.modules.e2e.multiwoz.Sequicity.config import global_config as cfg
-from convlab.modules.e2e.multiwoz.Sequicity.reader import get_glove_matrix
-from convlab.modules.e2e.multiwoz.Sequicity.reader import CamRest676Reader, KvretReader, MultiWozReader
-from convlab.modules.e2e.multiwoz.Sequicity.tsd_net import TSD, cuda_
-from torch.optim import Adam
-from torch.autograd import Variable
-from convlab.modules.e2e.multiwoz.Sequicity.reader import pad_sequences
-import argparse, time
-
-from nltk import word_tokenize
-from convlab.modules.e2e.multiwoz.Sequicity.metric import CamRestEvaluator, KvretEvaluator, MultiWozEvaluator
+import argparse
 import logging
+import random
+import time
+
+import numpy as np
+import torch
+from nltk import word_tokenize
+from torch.autograd import Variable
+from torch.optim import Adam
+
+from convlab.modules.e2e.multiwoz.Sequicity.config import global_config as cfg
+from convlab.modules.e2e.multiwoz.Sequicity.metric import CamRestEvaluator, KvretEvaluator, MultiWozEvaluator
+from convlab.modules.e2e.multiwoz.Sequicity.reader import CamRest676Reader, KvretReader, MultiWozReader
+from convlab.modules.e2e.multiwoz.Sequicity.reader import get_glove_matrix
+from convlab.modules.e2e.multiwoz.Sequicity.reader import pad_sequences
+from convlab.modules.e2e.multiwoz.Sequicity.tsd_net import TSD, cuda_
 
 
 class Model:

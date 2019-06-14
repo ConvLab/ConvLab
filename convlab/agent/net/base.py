@@ -1,11 +1,13 @@
 # Modified by Microsoft Corporation.
 # Licensed under the MIT license.
 
-from abc import ABC, abstractmethod
-from convlab.agent.net import net_util
+from abc import ABC
+
 import pydash as ps
 import torch
 import torch.nn as nn
+
+from convlab.agent.net import net_util
 
 
 class Net(ABC):

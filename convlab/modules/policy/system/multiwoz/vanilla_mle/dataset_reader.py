@@ -1,20 +1,19 @@
-from typing import Dict
-import logging
-import os
 import json
-import zipfile
+import logging
 import math
+import os
+import zipfile
+from typing import Dict
+
 import numpy as np
-
-from overrides import overrides
-
 from allennlp.data.dataset_readers.dataset_reader import DatasetReader
 from allennlp.data.fields import ArrayField, LabelField, Field
 from allennlp.data.instance import Instance
+from overrides import overrides
 
 from convlab.lib.file_util import cached_path
 from convlab.modules.dst.multiwoz.rule_dst import RuleDST
-from convlab.modules.policy.system.multiwoz.util import ActionVocab 
+from convlab.modules.policy.system.multiwoz.util import ActionVocab
 from convlab.modules.state_encoder.multiwoz.multiwoz_state_encoder import MultiWozStateEncoder
 
 logger = logging.getLogger(__name__)  # pylint: disable=invalid-name

@@ -1,21 +1,21 @@
 # Modified by Microsoft Corporation.
 # Licensed under the MIT license.
 
+from copy import deepcopy
+
 # The agent module
 import numpy as np
 import pandas as pd
 import pydash as ps
 import torch
-from copy import deepcopy
 
+from convlab import evaluator
 from convlab.agent import algorithm, memory
 from convlab.agent.algorithm import policy_util
 from convlab.agent.net import net_util
 from convlab.lib import logger, util
 from convlab.lib.decorator import lab_api
 from convlab.modules import nlu, dst, word_dst, nlg, state_encoder, action_decoder
-from convlab import evaluator
-
 
 logger = logger.get_logger(__name__)
 

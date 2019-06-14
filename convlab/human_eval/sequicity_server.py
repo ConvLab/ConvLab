@@ -2,9 +2,10 @@
 # Licensed under the MIT license.
 
 from pprint import pprint
-from flask import Flask, request, jsonify
 from queue import PriorityQueue
 from threading import Thread
+
+from flask import Flask, request, jsonify
 
 from convlab.modules.e2e.multiwoz.Sequicity.model import main as sequicity_load
 

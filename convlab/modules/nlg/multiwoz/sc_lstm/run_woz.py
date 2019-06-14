@@ -1,14 +1,13 @@
 # Modified by Microsoft Corporation.
 # Licensed under the MIT license.
 
-import os
-import sys
 import argparse
 import configparser
+import os
+import sys
 import time
-import numpy as np
-import torch
 
+import torch
 from loader.dataset_woz import DatasetWoz, SimpleDatasetWoz
 from model.lm_deep import LMDeep
 

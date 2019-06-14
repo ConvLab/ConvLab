@@ -1,19 +1,20 @@
 # Modified by Microsoft Corporation.
 # Licensed under the MIT license.
 
-import torch
-
-from torch import nn
-import torch.nn.functional as F
-from torch.autograd import Variable
+import copy
+import math
+import random
 
 import numpy as np
-import math
-from convlab.modules.e2e.multiwoz.Sequicity.config import global_config as cfg
-import copy, random
-
+import torch
+import torch.nn.functional as F
+from torch import nn
+from torch.autograd import Variable
 from torch.distributions import Categorical
+
+from convlab.modules.e2e.multiwoz.Sequicity.config import global_config as cfg
 from convlab.modules.e2e.multiwoz.Sequicity.reader import pad_sequences
+
 
 def cuda_(var):
     return var.cuda() if cfg.cuda else var

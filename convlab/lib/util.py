@@ -1,29 +1,29 @@
 # Modified by Microsoft Corporation.
 # Licensed under the MIT license.
 
+import json
+import operator
+import os
+import pickle
+import subprocess
+import sys
+import time
 from collections import deque
 from contextlib import contextmanager
 from datetime import datetime
 from importlib import reload
-import json
+from pprint import pformat
+
 import numpy as np
-import operator
-import os
 import pandas as pd
 import pydash as ps
 import regex as re
-import subprocess
-import sys
-import time
 import torch
 import torch.multiprocessing as mp
 import ujson
 import yaml
-import pickle
-from pprint import pformat
 
 from convlab import ROOT_DIR, EVAL_MODES
-
 
 NUM_CPUS = mp.cpu_count()
 FILE_TS_FORMAT = '%Y_%m_%d_%H%M%S'
