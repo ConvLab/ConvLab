@@ -14,6 +14,7 @@ from allennlp.models.archival import load_archive
 
 from convlab.lib.file_util import cached_path
 from convlab.modules.nlu.nlu import NLU
+from convlab.modules.nlu.multiwoz.onenet import dataset_reader, model 
 
 DEFAULT_CUDA_DEVICE=-1
 DEFAULT_DIRECTORY = "models"

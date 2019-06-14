@@ -13,10 +13,9 @@ import convlab.modules.nlg.multiwoz as nlg
 import convlab.modules.nlu.multiwoz as nlu
 import convlab.modules.policy.system.multiwoz as sys_policy
 import convlab.modules.policy.user.multiwoz as user_policy
-from convlab import UserPolicyAgendaMultiWoz
-from convlab import UserSimulator
+from convlab.modules.policy.user.multiwoz import UserPolicyAgendaMultiWoz
+from convlab.modules.usr import UserSimulator
 from convlab.env.base import BaseEnv, set_gym_space_attr
-# from convlab.env.registration import get_env_path
 from convlab.lib import logger, util
 from convlab.lib.decorator import lab_api
 from convlab.modules.action_decoder.multiwoz.multiwoz_vocab_action_decoder import ActionVocab

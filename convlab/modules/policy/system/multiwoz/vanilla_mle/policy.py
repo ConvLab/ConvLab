@@ -10,8 +10,10 @@ from allennlp.data import DatasetReader
 from allennlp.models.archival import load_archive
 
 from convlab.lib.file_util import cached_path
+from convlab.modules.dst.multiwoz.dst_util import init_state
 from convlab.modules.policy.system.multiwoz.util import action_decoder
 from convlab.modules.policy.system.policy import SysPolicy
+from convlab.modules.policy.system.multiwoz.vanilla_mle import dataset_reader, model 
 
 DEFAULT_CUDA_DEVICE=-1
 DEFAULT_ARCHIVE_FILE=os.path.join(os.path.dirname(os.path.abspath(__file__)), "models/300/model.tar.gz")
