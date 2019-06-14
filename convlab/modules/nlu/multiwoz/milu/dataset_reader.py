@@ -44,12 +44,14 @@ class MILUDatasetReader(DatasetReader):
     """
     def __init__(self,
                  context_size: int = 0,
+                 agent: str = None,
                  random_context_size: bool = True,
                  token_delimiter: str = None,
                  token_indexers: Dict[str, TokenIndexer] = None,
                  lazy: bool = False) -> None:
         super().__init__(lazy)
         self._context_size = context_size
+        self._agent = agent 
         self._random_context_size = random_context_size
         self._token_indexers = token_indexers or {'tokens': SingleIdTokenIndexer()}
         self._token_delimiter = token_delimiter
@@ -72,7 +74,7 @@ class MILUDatasetReader(DatasetReader):
         for dial_name in dialogs:
             dialog = dialogs[dial_name]["log"]
             context_tokens_list = []
-            for turn in dialog:
+            for i, turn in enumerate(dialog):
                 tokens = turn["text"].split()
 
                 dialog_act = {}
@@ -116,8 +118,11 @@ class MILUDatasetReader(DatasetReader):
                     wrapped_context_tokens = [Token("SENT_END")]
                 wrapped_tokens = [Token(token) for token in tokens]
                 context_tokens_list.append(tokens + ["SENT_END"])
-                # print(context_tokens_list)
 
+                if self._agent and self._agent == "user" and i % 2 != 1: 
+                    continue
+                if self._agent and self._agent == "system" and i % 2 != 0: 
+                    continue
                 yield self.text_to_instance(wrapped_context_tokens, wrapped_tokens, tags, intents, dialog_act)
 
 
