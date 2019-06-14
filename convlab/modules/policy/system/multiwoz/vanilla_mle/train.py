@@ -17,6 +17,8 @@ from allennlp.training.trainer import Trainer, TrainerPieces
 from allennlp.training.trainer_base import TrainerBase
 from allennlp.training.util import create_serialization_dir, evaluate
 
+from convlab.modules.policy.system.multiwoz.vanilla_mle import dataset_reader, model 
+
 logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
 
 

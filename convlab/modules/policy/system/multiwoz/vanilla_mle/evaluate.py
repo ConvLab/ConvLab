@@ -15,6 +15,8 @@ from allennlp.data.iterators import DataIterator
 from allennlp.models.archival import load_archive
 from allennlp.training.util import evaluate
 
+from convlab.modules.policy.system.multiwoz.vanilla_mle import dataset_reader, model 
+
 logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
 
 
