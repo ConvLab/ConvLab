@@ -3,9 +3,10 @@ template NLG for multiwoz dataset. templates are in `multiwoz_template_nlg/` dir
 See `example` function in this file for usage.
 """
 import json
-import random
 import os
+import random
 from pprint import pprint
+
 from convlab.modules.nlg.nlg import NLG
 
 

@@ -1,9 +1,9 @@
 # Modified by Microsoft Corporation.
 # Licensed under the MIT license.
 
+import pickle
 import re
 
-import pickle
 import simplejson as json
 
 from convlab.modules.word_policy.multiwoz.mdrg.utils.nlp import normalize

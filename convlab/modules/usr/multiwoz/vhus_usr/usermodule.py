@@ -2,10 +2,11 @@
 """
 @author: truthless
 """
+import random
+
+import numpy as np
 import torch
 import torch.nn as nn
-import numpy as np
-import random
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 

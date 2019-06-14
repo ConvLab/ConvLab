@@ -1,11 +1,12 @@
 # Modified by Microsoft Corporation.
 # Licensed under the MIT license.
 
+import pydash as ps
+import torch.nn as nn
+
 from convlab.agent.net import net_util
 from convlab.agent.net.base import Net
 from convlab.lib import util
-import pydash as ps
-import torch.nn as nn
 
 
 class RecurrentNet(Net, nn.Module):

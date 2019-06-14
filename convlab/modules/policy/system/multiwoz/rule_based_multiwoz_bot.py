@@ -1,11 +1,10 @@
 import copy
+import json
+import random
 
 from convlab.modules.policy.system.policy import SysPolicy
 from convlab.modules.util.multiwoz.dbquery import query
-import random
-import json
 from convlab.modules.util.multiwoz.multiwoz_slot_trans import REF_SYS_DA, REF_USR_DA
-
 
 SELECTABLE_SLOTS = {
     'Attraction': ['area', 'entrance fee', 'name', 'type'],

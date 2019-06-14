@@ -3,20 +3,17 @@ The ``evaluate`` subcommand can be used to
 evaluate a trained model against a dataset
 and report any metrics calculated by the model.
 """
-from typing import Dict, Any
 import argparse
-import logging
 import json
+import logging
+from typing import Dict, Any
 
-
+from allennlp.common import Params
 from allennlp.common.util import prepare_environment
 from allennlp.data.dataset_readers.dataset_reader import DatasetReader
 from allennlp.data.iterators import DataIterator
 from allennlp.models.archival import load_archive
 from allennlp.training.util import evaluate
-from allennlp.common import Params
-
-from convlab.modules.policy.system.multiwoz.vanilla_mle import model, dataset_reader
 
 logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
 

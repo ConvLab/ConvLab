@@ -1,9 +1,10 @@
 # Modified by Microsoft Corporation.
 # Licensed under the MIT license.
 
-import os
 import json
+import os
 import sys
+
 
 #############################################################################
 #                     Pretty print a specified dialog                       #

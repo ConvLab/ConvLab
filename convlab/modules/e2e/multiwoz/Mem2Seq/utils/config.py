@@ -1,10 +1,9 @@
 # Modified by Microsoft Corporation.
 # Licensed under the MIT license.
 
-import os
-import logging 
 import argparse
-from tqdm import tqdm
+import logging
+import os
 
 UNK_token = 0
 PAD_token = 1

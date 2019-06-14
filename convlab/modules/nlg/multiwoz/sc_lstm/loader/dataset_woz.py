@@ -1,10 +1,10 @@
 # Modified by Microsoft Corporation.
 # Licensed under the MIT license.
 
-import sys
 import json
 import random
-import numpy as np
+import sys
+
 import torch
 from torch.autograd import Variable
 

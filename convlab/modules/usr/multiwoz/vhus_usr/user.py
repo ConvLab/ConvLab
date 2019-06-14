@@ -2,17 +2,19 @@
 """
 @author: truthless
 """
-import os
 import logging
+import os
+from copy import deepcopy
+
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
-import numpy as np
-from copy import deepcopy
+
 from convlab.modules.usr.multiwoz.goal_generator import GoalGenerator
-from convlab.modules.usr.multiwoz.vhus_usr.usermodule import VHUS
-from convlab.modules.usr.multiwoz.vhus_usr.usermanager import UserDataManager, batch_iter
 from convlab.modules.usr.multiwoz.vhus_usr.config import MultiWozConfig
+from convlab.modules.usr.multiwoz.vhus_usr.usermanager import UserDataManager, batch_iter
+from convlab.modules.usr.multiwoz.vhus_usr.usermodule import VHUS
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -292,7 +294,6 @@ class UserNeural():
         self.time_step = -1
         self.topic = 'NONE'
         self.goal = self.goal_gen.get_user_goal()
-        self.domain_goals = self.goal
         self.goal_input = torch.LongTensor(self.manager.get_goal_id(self.manager.usrgoal2seq(self.goal)))
         self.goal_len_input = torch.LongTensor([len(self.goal_input)]).squeeze()
         self.sys_da_id_stack = [] # to save sys da history
@@ -314,9 +315,9 @@ class UserNeural():
         max_sen_len = sys_seq_len.max().item()
         sys_seq = torch.LongTensor(padding(self.sys_da_id_stack, max_sen_len))
         usr_a, terminal = self.user.select_action(self.goal_input, self.goal_len_input, sys_seq, sys_seq_len)
-        usr_action = self._dict_to_vec(self.manager.usrseq2da(self.manager.id2sentence(usr_a), self.goal))
+        usr_action = self.manager.usrseq2da(self.manager.id2sentence(usr_a), self.goal)
         
-        return usr_action, terminal, None
+        return usr_action, terminal
 
 if __name__ == '__main__':
     manager = UserDataManager('../../../../data/multiwoz', 'annotated_user_da_with_span_full.json')

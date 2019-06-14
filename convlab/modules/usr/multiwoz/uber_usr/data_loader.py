@@ -6,11 +6,12 @@
 
 __time__ = '2019/2/25 16:22'
 
+import collections
+import json
 import os
 import pickle
-import json
-import collections
 import random
+
 import numpy as np
 
 __time__ = '2019/2/23 16:41'

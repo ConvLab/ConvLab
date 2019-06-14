@@ -1,9 +1,10 @@
 # Modified by Microsoft Corporation.
 # Licensed under the MIT license.
 
-from functools import wraps
-from convlab.lib import logger
 import time
+from functools import wraps
+
+from convlab.lib import logger
 
 logger = logger.get_logger(__name__)
 

@@ -1,16 +1,23 @@
 # Modified by Microsoft Corporation.
 # Licensed under the MIT license.
 
+import copy
+import json
+import math
+import os
+import sys
+import time
+from random import shuffle
+
+import numpy as np
+import tensorflow as tf
+
+from convlab.modules.dst.multiwoz.dst_util import init_state, init_belief_state, normalize_value
 from convlab.modules.dst.state_tracker import Tracker
 from convlab.modules.util.multiwoz.multiwoz_slot_trans import REF_SYS_DA, REF_USR_DA
-import tensorflow as tf
-from convlab.modules.word_dst.multiwoz.mdbt_util import model_definition, load_word_vectors, load_ontology, load_woz_data, \
-        track_dialogue, generate_batch, process_history, evaluate_model
-import os, sys, json, math, time
-import numpy as np
-import copy
-from random import shuffle
-from convlab.modules.dst.multiwoz.dst_util import init_state, init_belief_state, normalize_value
+from convlab.modules.word_dst.multiwoz.mdbt_util import model_definition, load_word_vectors, load_ontology, \
+    load_woz_data, \
+    track_dialogue, generate_batch, process_history, evaluate_model
 
 # DATA_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))), 'data/mdbt')
 # VALIDATION_URL = os.path.join(DATA_PATH, "data/validate.json")

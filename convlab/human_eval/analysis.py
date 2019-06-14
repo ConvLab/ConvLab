@@ -3,11 +3,11 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-import os
-import json
 import argparse
+import json
+import os
+
 import numpy as np
-from pprint import pprint
 
 
 def main():

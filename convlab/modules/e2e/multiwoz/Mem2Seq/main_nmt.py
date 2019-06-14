@@ -1,11 +1,11 @@
 # Modified by Microsoft Corporation.
 # Licensed under the MIT license.
 
-from utils.config import *
+import logging
+
 from models.Mem2Seq_NMT import Mem2Seq
-import numpy as np
-import logging 
 from tqdm import tqdm
+from utils.config import *
 from utils.utils_NMT import prepare_data_seq
 
 train,lang, max_len, max_r = prepare_data_seq(batch_size = 32)

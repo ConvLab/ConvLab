@@ -1,16 +1,15 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-import io
-import numpy as np
 import os
+import pickle
+import random
+from collections import defaultdict
+from copy import deepcopy
+
+import numpy as np
 import pydash as ps
 from gym import spaces
-import random
-from pprint import pprint
-from copy import deepcopy
-import pickle
-from collections import defaultdict
 
 from convlab.env.base import BaseEnv, ENV_DATA_NAMES, set_gym_space_attr
 # from convlab.env.registration import get_env_path

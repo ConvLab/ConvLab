@@ -1,5 +1,5 @@
-import os
 import json
+import os
 import zipfile
 
 archive = zipfile.ZipFile('annotation/annotated_user_da_with_span_full.json.zip', 'r')

@@ -1,10 +1,12 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
+import json
+
+from convlab.modules.dst.multiwoz.dst_util import minDistance
 from convlab.modules.dst.multiwoz.rule_dst import RuleDST
 from convlab.modules.nlu.multiwoz.onenet.nlu import OneNetLU
-from convlab.modules.dst.multiwoz.dst_util import minDistance
-import json
+
 
 class NLU_DST:
     def __init__(self):

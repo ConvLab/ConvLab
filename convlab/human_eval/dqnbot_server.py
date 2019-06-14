@@ -1,17 +1,18 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from pprint import pprint
 import copy
-from flask import Flask, request, jsonify
+from pprint import pprint
 from queue import PriorityQueue
 from threading import Thread
 
-from convlab.modules import DQN_Bot
-from convlab.modules.nlg.multiwoz.multiwoz_template_nlg.multiwoz_template_nlg import MultiwozTemplateNLG
 from convlab.modules.nlu.multiwoz.mlst.nlu import MlstNLU
-from convlab.modules.dst.multiwoz.rule_dst import RuleDST
+from flask import Flask, request, jsonify
+
 from convlab import slot_dict, act_dict, dqn_params
+from convlab.modules import DQN_Bot
+from convlab.modules.dst.multiwoz.rule_dst import RuleDST
+from convlab.modules.nlg.multiwoz.multiwoz_template_nlg.multiwoz_template_nlg import MultiwozTemplateNLG
 
 dqn_params['epsilon'] = 0.0
 dqn_params['warm_start'] = 0

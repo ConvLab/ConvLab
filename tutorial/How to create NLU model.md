@@ -28,7 +28,6 @@ For example, to make the class ```SVMNLU``` class inside ```convlab/modules/nlu/
 
 * ```from convlab.modules.nlu.multiwoz import SVMNLU``` importting line in
   * ```convlab/modules/nlu/__init__.py ```
-  * ```convlab/__init__.py``` 
 
 
 

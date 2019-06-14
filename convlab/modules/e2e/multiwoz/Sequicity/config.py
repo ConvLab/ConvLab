@@ -2,8 +2,9 @@
 # Licensed under the MIT license.
 
 import logging
-import time
 import os
+import time
+
 
 class _Config:
     def __init__(self):

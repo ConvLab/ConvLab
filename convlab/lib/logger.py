@@ -1,12 +1,13 @@
 # Modified by Microsoft Corporation.
 # Licensed under the MIT license.
 
-import colorlog
 import logging
 import os
-import pandas as pd
 import sys
 import warnings
+
+import colorlog
+import pandas as pd
 
 
 class FixedList(list):

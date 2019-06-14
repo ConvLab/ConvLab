@@ -1,13 +1,9 @@
 # Modified by Microsoft Corporation.
 # Licensed under the MIT license.
 
-from collections import deque
-from copy import deepcopy
 from convlab.agent.memory.base import Memory
 from convlab.lib import logger, util
 from convlab.lib.decorator import lab_api
-import numpy as np
-import pydash as ps
 
 logger = logger.get_logger(__name__)
 

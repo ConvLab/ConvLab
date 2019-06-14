@@ -5,15 +5,15 @@
 The random agent algorithm
 For basic dev purpose.
 '''
-from convlab.agent.algorithm.base import Algorithm
+from copy import deepcopy
+
+import pydash as ps
+
 from convlab.agent.algorithm import policy_util
+from convlab.agent.algorithm.base import Algorithm
 from convlab.lib import logger, util
 from convlab.lib.decorator import lab_api
 from convlab.modules import policy, word_policy, e2e
-
-import numpy as np
-from copy import deepcopy
-import pydash as ps
 
 logger = logger.get_logger(__name__)
 

@@ -1,11 +1,12 @@
 # Modified by Microsoft Corporation.
 # Licensed under the MIT license.
 
-import sys
-import json
 import argparse
-from nltk.translate.bleu_score import corpus_bleu, SmoothingFunction
+import sys
 import time
+
+from nltk.translate.bleu_score import corpus_bleu, SmoothingFunction
+
 
 #def delexicalise(sent,dact): # for domain4
 #	feat = SoftDActFormatter().parse(dact,keepValues=True)

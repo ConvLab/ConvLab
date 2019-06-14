@@ -23,11 +23,15 @@
 #
 ###############################################################################
 
-import sys,os,argparse,shutil,glob,json,pprint,math
-
-import misc
+import argparse
+import json
+import math
+import os
+import sys
 from collections import defaultdict
+
 import baseline
+
 # type, and task are evaluated- shouldn't be.
 
 eps = 0.001 # domain for math.log

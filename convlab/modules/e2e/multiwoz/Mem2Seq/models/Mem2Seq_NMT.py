@@ -1,20 +1,20 @@
 # Modified by Microsoft Corporation.
 # Licensed under the MIT license.
 
+import logging
+import os
+import random
+
+import numpy as np
 import torch
 import torch.nn as nn
+from torch import optim
 from torch.autograd import Variable
 from torch.optim import lr_scheduler
-from torch import optim
-import torch.nn.functional as F
-from utils.masked_cross_entropy import *
 from utils.config import *
-import random
-import numpy as np
-import datetime
+from utils.masked_cross_entropy import *
 from utils.measures import wer, moses_multi_bleu
-import os
-import logging
+
 
 class Mem2Seq(nn.Module):
     def __init__(self, hidden_size, max_len, max_r, lang, path, lr, n_layers, dropout):

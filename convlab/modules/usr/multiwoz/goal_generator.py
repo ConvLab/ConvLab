@@ -1,16 +1,14 @@
 """
 """
 
-import os
 import json
+import os
+import pickle
 import random
 from collections import Counter
-from collections import defaultdict
 from copy import deepcopy
+
 import numpy as np
-from numpy.random import multinomial
-import pickle
-from pprint import pprint
 
 from convlab.modules.util.multiwoz import dbquery
 

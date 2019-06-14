@@ -5,17 +5,19 @@
 
 import os
 import random
-import torch
 import zipfile
+
 import numpy as np
-from torch.autograd import Variable
-from convlab.modules.e2e.multiwoz.Sequicity.model import Model
-from convlab.modules.e2e.multiwoz.Sequicity.config import global_config as cfg
-from convlab.modules.e2e.multiwoz.Sequicity.tsd_net import cuda_
-from convlab.modules.e2e.multiwoz.Sequicity.reader import pad_sequences
-from convlab.modules.policy.system.policy import SysPolicy
-from convlab.lib.file_util import cached_path
+import torch
 from nltk import word_tokenize
+from torch.autograd import Variable
+
+from convlab.lib.file_util import cached_path
+from convlab.modules.e2e.multiwoz.Sequicity.config import global_config as cfg
+from convlab.modules.e2e.multiwoz.Sequicity.model import Model
+from convlab.modules.e2e.multiwoz.Sequicity.reader import pad_sequences
+from convlab.modules.e2e.multiwoz.Sequicity.tsd_net import cuda_
+from convlab.modules.policy.system.policy import SysPolicy
 
 DEFAULT_CUDA_DEVICE=-1
 DEFAULT_DIRECTORY = "models"

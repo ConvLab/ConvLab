@@ -10,9 +10,9 @@ Uses the nets module to build neural networks as the relevant function approxima
 # expose all the classes
 from .actor_critic import *
 from .dqn import *
+from .external import *
 from .ppo import *
 from .random import *
 from .reinforce import *
 from .sarsa import *
 from .sil import *
-from .external import *

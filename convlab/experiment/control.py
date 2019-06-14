@@ -4,11 +4,12 @@
 # The control module
 # Creates and runs control loops at levels: Experiment, Trial, Session
 from copy import deepcopy
+
 import pydash as ps
 import torch.multiprocessing as mp
 
 from convlab import agent as agent_module
-from convlab.agent import Agent, Body
+from convlab.agent import Body
 from convlab.agent.net import net_util
 from convlab.env import make_env
 from convlab.experiment import analysis, search

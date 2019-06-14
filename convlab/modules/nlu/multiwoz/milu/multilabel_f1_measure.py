@@ -1,13 +1,10 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Dict, List, Optional, Set, Callable
 from collections import defaultdict
-from pprint import pprint
+from typing import Dict, List, Optional, Set
 
 import torch
-
-from allennlp.common.checks import ConfigurationError
 from allennlp.data.vocabulary import Vocabulary
 from allennlp.training.metrics.metric import Metric
 

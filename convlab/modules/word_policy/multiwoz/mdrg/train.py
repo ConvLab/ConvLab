@@ -12,9 +12,8 @@ from io import open
 import torch
 from torch.optim import Adam
 
-from convlab.modules.word_policy.multiwoz.mdrg.utils import util
 from convlab.modules.word_policy.multiwoz.mdrg.model import Model
-
+from convlab.modules.word_policy.multiwoz.mdrg.utils import util
 
 parser = argparse.ArgumentParser(description='S2S')
 parser.add_argument('--batch_size', type=int, default=64, metavar='N', help='input batch size for training (default: 128)')

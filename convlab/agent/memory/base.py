@@ -2,10 +2,8 @@
 # Licensed under the MIT license.
 
 from abc import ABC, abstractmethod
-from collections import deque
-from convlab.lib import logger, util
-import numpy as np
-import pydash as ps
+
+from convlab.lib import logger
 
 logger = logger.get_logger(__name__)
 

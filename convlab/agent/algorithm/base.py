@@ -2,11 +2,13 @@
 # Licensed under the MIT license.
 
 from abc import ABC, abstractmethod
+
+import numpy as np
+import pydash as ps
+
 from convlab.agent.net import net_util
 from convlab.lib import logger, util
 from convlab.lib.decorator import lab_api
-import numpy as np
-import pydash as ps
 
 logger = logger.get_logger(__name__)
 

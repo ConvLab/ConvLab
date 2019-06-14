@@ -2,11 +2,12 @@
 """
 @author: keshuichonglx 
 """
+import collections
+import json
 import os
 import pickle
-import json
-import collections
 import random
+
 import numpy as np
 
 domains_set = {'restaurant', 'attraction', 'hotel', 'train', 'taxi', 'hospital', 'police'}

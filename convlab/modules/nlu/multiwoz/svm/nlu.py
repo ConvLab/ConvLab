@@ -1,12 +1,13 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from convlab.modules.nlu.nlu import NLU
-from convlab.modules.nlu.multiwoz.svm import Classifier,sutils
-from convlab.lib.file_util import cached_path
-import configparser, sys
+import configparser
 import os
 import zipfile
+
+from convlab.lib.file_util import cached_path
+from convlab.modules.nlu.multiwoz.svm import Classifier
+from convlab.modules.nlu.nlu import NLU
 
 
 class SVMNLU(NLU):

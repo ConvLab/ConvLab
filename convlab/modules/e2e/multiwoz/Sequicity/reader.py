@@ -1,17 +1,20 @@
 # Modified by Microsoft Corporation.
 # Licensed under the MIT license.
 
-import numpy as np
-import json
-import pickle
-from convlab.modules.e2e.multiwoz.Sequicity.config import global_config as cfg
-from nltk.tokenize import word_tokenize
-from nltk.stem import WordNetLemmatizer
-import logging
-import random
-import os
-import re
 import csv
+import json
+import logging
+import os
+import pickle
+import random
+import re
+
+import numpy as np
+from nltk.stem import WordNetLemmatizer
+from nltk.tokenize import word_tokenize
+
+from convlab.modules.e2e.multiwoz.Sequicity.config import global_config as cfg
+
 
 def clean_replace(s, r, t, forward=True, backward=False):
     def clean_replace_single(s, r, t, forward, backward, sidx=0):

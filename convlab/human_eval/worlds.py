@@ -1,20 +1,21 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from parlai.mturk.core.worlds import MTurkTaskWorld
-from parlai.mturk.core.agents import TIMEOUT_MESSAGE
-from parlai.core.worlds import validate
-import numpy as np
-import time
+import json
 import os
 import random
-from copy import deepcopy
-from pprint import pprint
-import spacy
-import json
-
 # from goal_generator import GoalGenerator
 import sys
+import time
+from copy import deepcopy
+from pprint import pprint
+
+import numpy as np
+import spacy
+from parlai.core.worlds import validate
+from parlai.mturk.core.agents import TIMEOUT_MESSAGE
+from parlai.mturk.core.worlds import MTurkTaskWorld
+
 sys.path.append('../../')
 from convlab.modules.usr.multiwoz.goal_generator import GoalGenerator
 

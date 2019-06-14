@@ -1,6 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
-import sys, os
+import os
+import sys
 
 sys.path.append('../../')
 from convlab.agent import Body
@@ -8,7 +9,6 @@ from convlab.agent import DialogAgent
 from convlab.spec import spec_util
 from convlab.env import make_env
 
-from pprint import pprint
 import numpy as np
 import copy
 from flask import Flask, request, jsonify

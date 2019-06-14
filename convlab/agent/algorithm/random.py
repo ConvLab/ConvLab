@@ -1,12 +1,13 @@
 # Modified by Microsoft Corporation.
 # Licensed under the MIT license.
 
+import numpy as np
+
 # The random agent algorithm
 # For basic dev purpose
 from convlab.agent.algorithm.base import Algorithm
 from convlab.lib import logger
 from convlab.lib.decorator import lab_api
-import numpy as np
 
 logger = logger.get_logger(__name__)
 
