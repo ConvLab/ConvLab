@@ -21,3 +21,16 @@ the internal state variable of DST component. The new observation is the
 dialog act of user utterance, which may be the output of NLU module.
 
 - **reset**  reset the internal state variable for a new dialog session.
+
+## Evaluation
+
+If you want to evaluate the word DST model, you can run the evaluate.py
+script under the model directory:
+
+````bash
+word_dst/multiwoz$ python evaluate.py
+````
+
+It will record the test results in the `word_dst_test_result.json` file.
+The accuracy numbers, including domain-level, slot-level and session-level
+will be shown in the terminal.

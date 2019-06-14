@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 from convlab.modules.dst.multiwoz.rule_dst import RuleDST
 from convlab.modules.nlu.multiwoz.onenet.nlu import OneNetLU
 from convlab.modules.dst.multiwoz.dst_util import minDistance
@@ -187,6 +190,6 @@ def _fuzzy_match(value1, value2):
 
 if __name__ == '__main__':
     test_result = run_test()
-    json.dump(test_result, open('dst_test_result_onenet_rule.json', 'w+'), indent=2)
+    json.dump(test_result, open('dst_test_result.json', 'w+'), indent=2)
     print('test session num: {}'.format(len(test_result)))
     evaluate(test_result)
