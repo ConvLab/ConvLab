@@ -110,6 +110,14 @@ def kl_gaussian(argu):
     avg_kl_loss = kl_loss.mean()
     return avg_kl_loss
 
+def capital(da):
+    for d_i in da:
+        pairs = da[d_i]
+        for s_v in pairs:
+            if s_v[0] != 'none':
+                s_v[0] = s_v[0].capitalize()
+
+
 class UserNeural():
     def __init__(self, pretrain=False):
     
@@ -316,6 +324,7 @@ class UserNeural():
         sys_seq = torch.LongTensor(padding(self.sys_da_id_stack, max_sen_len))
         usr_a, terminal = self.user.select_action(self.goal_input, self.goal_len_input, sys_seq, sys_seq_len)
         usr_action = self.manager.usrseq2da(self.manager.id2sentence(usr_a), self.goal)
+        capital(usr_action)
         
         return usr_action, terminal
 
