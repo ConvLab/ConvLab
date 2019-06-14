@@ -29,7 +29,6 @@ In order to make the new policy algorithm visible to the ConvLab environment, on
 
 For example, to make the class ```VanilaMLEPolicy``` class inside ```convlab/modules/policy/system/multiwoz/vanila_mle/policy.py``` visible, we added
 * ```from convlab.modules.policy.system.multiwoz import VanilaMLEPolicy``` importting line in
-  * ```convlab/__init__.py``` 
   * ```convlab/modules/policy/__init__.py``` 
 * ```from convlab.modules.policy.system.multiwoz.vanilla_mle.policy import VanillaMLEPolicy``` importting line in
   * ```convlab/modules/policy/system/__init__.py``` 
