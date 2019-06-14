@@ -187,7 +187,7 @@ class DialogAgent(Agent):
                 logger.act(f'True user action: {env.get_last_act()}')
             else:
                 self.evaluator.add_usr_da(input_act)
-            self.evaluator.add_state(state)
+            self.evaluator.add_state(state['belief_state'])
 
         # update history 
         if self.dst:

@@ -121,7 +121,7 @@ class MultiWozEvaluator(Evaluator):
         args:
             state_turn: dict[domain] dict['book'/'semi'] dict[slot]
         """
-        self.state_array.append(state_turn['belief_state'])
+        self.state_array.append(state_turn)
 
     def _book_rate_goal(self, goal, booked_entity):
         """
