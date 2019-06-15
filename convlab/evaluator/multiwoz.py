@@ -5,7 +5,7 @@ import random
 import numpy as np
 
 from convlab.evaluator.evaluator import Evaluator
-from convlab.modules.util.multiwoz.dbquery import query
+from convlab.modules.util.multiwoz.dbquery import dbs
 
 requestable = \
 {'attraction': ['post', 'phone', 'addr', 'fee', 'area', 'type'],
@@ -30,7 +30,6 @@ class MultiWozEvaluator(Evaluator):
     def __init__(self):
         self.sys_da_array = []
         self.usr_da_array = []
-        self.state_array = []
         self.goal = {}
         self.cur_domain = ''
         self.booked = {}
@@ -68,7 +67,6 @@ class MultiWozEvaluator(Evaluator):
         """
         self.sys_da_array = []
         self.usr_da_array = []
-        self.state_array = []
         self.goal = goal
         self.cur_domain = ''
         self.booked = self._init_dict_booked()
@@ -89,13 +87,11 @@ class MultiWozEvaluator(Evaluator):
                 self.sys_da_array.append(da+'-'+value)
                 
                 if da == 'booking-book-ref' and self.cur_domain in ['hotel', 'restaurant', 'train']:
-                    entities = query(self.cur_domain, self.state_array[-1][self.cur_domain]['semi'].items())
-                    if entities and not self.booked[self.cur_domain]:
-                        self.booked[self.cur_domain] = random.choice(entities)
+                    if not self.booked[self.cur_domain]:
+                        self.booked[self.cur_domain] = dbs[self.cur_domain][int(value)]
                 elif da == 'train-offerbook-ref' or da == 'train-inform-ref':
-                    entities = query('train', self.state_array[-1]['train']['semi'].items())
-                    if entities and not self.booked['train']:
-                        self.booked['train'] = random.choice(entities)
+                    if not self.booked['train']:
+                        self.booked['train'] = dbs['train'][int(value)]
                 elif da == 'taxi-inform-car':
                     if not self.booked['taxi']:
                         self.booked['taxi'] = 'booked'
@@ -114,14 +110,6 @@ class MultiWozEvaluator(Evaluator):
             for slot, value in slot_pair:
                 da = (dom_int +'-'+slot).lower()
                 self.usr_da_array.append(da+'-'+value)
-        
-    def add_state(self, state_turn):
-        """
-        add state into array
-        args:
-            state_turn: dict[domain] dict['book'/'semi'] dict[slot]
-        """
-        self.state_array.append(state_turn)
 
     def _book_rate_goal(self, goal, booked_entity):
         """

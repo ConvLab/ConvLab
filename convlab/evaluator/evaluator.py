@@ -27,14 +27,6 @@ class Evaluator(object):
             da_turn: dict[domain-intent] list[slot, value]
         """
         raise NotImplementedError
-        
-    def add_state(self, state_turn):
-        """
-        add state into array
-        args:
-            state_turn: dict[domain] dict['book'/'semi'] dict[slot]
-        """
-        raise NotImplementedError
 
     def book_rate(self, ref2goal=True, aggregate=True):
         """
