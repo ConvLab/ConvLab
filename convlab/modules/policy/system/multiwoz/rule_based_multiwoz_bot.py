@@ -1,6 +1,7 @@
 import copy
 import json
 import random
+from copy import deepcopy
 
 from convlab.modules.policy.system.policy import SysPolicy
 from convlab.modules.util.multiwoz.dbquery import query
@@ -60,6 +61,7 @@ class RuleBasedMultiwozBot(SysPolicy):
         if self.recommend_flag != -1:
             self.recommend_flag += 1
 
+        self.kb_result = {}
 
         DA = {}
 
@@ -189,7 +191,10 @@ class RuleBasedMultiwozBot(SysPolicy):
         for slot in state['belief_state'][domain.lower()]['semi']:
             if state['belief_state'][domain.lower()]['semi'][slot] != "":
                 constraints.append([slot, state['belief_state'][domain.lower()]['semi'][slot]])
+
         kb_result = query(domain.lower(), constraints)
+        self.kb_result[domain] = deepcopy(kb_result)
+
         # print("\tConstraint: " + "{}".format(constraints))
         # print("\tCandidate Count: " + "{}".format(len(kb_result)))
         # if len(kb_result) > 0:
@@ -366,7 +371,10 @@ class RuleBasedMultiwozBot(SysPolicy):
                 DA["Train-Request"].append([slot, '?'])
             else:
                 constraints.append([prop, state['belief_state']['train']['semi'][prop]])
+
         kb_result = query('train', constraints)
+        self.kb_result['Train'] = kb_result
+
         # print(constraints)
         # print(len(kb_result))
         if user_act == 'Train-Request':
@@ -410,7 +418,8 @@ class RuleBasedMultiwozBot(SysPolicy):
         for slot in user_action[user_act]:
             if domain in booking_info and slot[0] in booking_info[domain]:
                 if 'Booking-Book' not in DA:
-                    DA['Booking-Book'] = [["Ref", generate_ref_num(8)]]
+                    if domain in self.kb_result and len(self.kb_result[domain]) > 0:
+                        DA['Booking-Book'] = [["Ref", self.kb_result[domain][0]['Ref']]]
         # TODO handle booking between multi turn
 
 def check_diff(last_state, state):

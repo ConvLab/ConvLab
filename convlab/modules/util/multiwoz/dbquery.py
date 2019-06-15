@@ -30,7 +30,7 @@ def query(domain, constraints, ignore_open=True):
         return dbs['hospital']
 
     found = []
-    for record in dbs[domain]:
+    for i, record in enumerate(dbs[domain]):
         for key, val in constraints:
             if val == "" or val == "dont care" or val == 'not mentioned' or val == "don't care" or val == "dontcare" or val == "do n't care":
                 pass
@@ -58,6 +58,7 @@ def query(domain, constraints, ignore_open=True):
                 except:
                     continue
         else:
+            record['Ref'] = f'{i:08d}'
             found.append(record)
 
     return found

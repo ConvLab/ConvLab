@@ -79,7 +79,7 @@ def gen_avg_result(agent, env, num_eval=NUM_EVAL):
                 book_rates.append(_book)
         elif hasattr(env, 'get_task_success'):
             successes.append(env.get_task_success())
-        logger.nl(f'A dialog session is done')
+        logger.nl(f'---A dialog session is done---')
     mean_success = None if len(successes) == 0 else np.mean(successes)
     mean_p = None if len(precs) == 0 else np.mean(precs)
     mean_r = None if len(recs) == 0 else np.mean(recs)
