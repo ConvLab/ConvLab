@@ -199,11 +199,12 @@ class MultiWozEvaluator(Evaluator):
         else:
             goal = self._init_dict()
             for domain in belief_domains:
-                goal[domain]['book'] = self.goal[domain]['book']
+                if domain in self.goal and 'book' in self.goal[domain]:
+                    goal[domain]['book'] = self.goal[domain]['book']
             for da in self.usr_da_array:
                 d, i, s, v = da.split('-', 3)
                 if i == 'inform' and s in mapping[d]:
-                    goal[d]['info'][s] = v
+                    goal[d]['info'][mapping[d][s]] = v
         score = self._book_rate_goal(goal, self.booked)
         if aggregate:
             return np.mean(score) if score else None
@@ -218,7 +219,7 @@ class MultiWozEvaluator(Evaluator):
             for da in self.usr_da_array:
                 d, i, s, v = da.split('-', 3)
                 if i in ['inform', 'recommend', 'offerbook', 'offerbooked'] and s in mapping[d]:
-                    goal[d]['info'][s] = v
+                    goal[d]['info'][mapping[d][s]] = v
                 elif i == 'request':
                     goal[d]['reqt'].append(s)
         TP, FP, FN = self._inform_F1_goal(goal, self.sys_da_array)
