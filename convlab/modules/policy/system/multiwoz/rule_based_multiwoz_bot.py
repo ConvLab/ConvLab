@@ -373,7 +373,7 @@ class RuleBasedMultiwozBot(SysPolicy):
                 constraints.append([prop, state['belief_state']['train']['semi'][prop]])
 
         kb_result = query('train', constraints)
-        self.kb_result['Train'] = kb_result
+        self.kb_result['Train'] = deepcopy(kb_result)
 
         # print(constraints)
         # print(len(kb_result))
