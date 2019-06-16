@@ -9,7 +9,6 @@ import pandas as pd
 import pydash as ps
 import torch
 
-from convlab import evaluator
 from convlab.agent import algorithm, memory
 from convlab.agent.algorithm import policy_util
 from convlab.agent.net import net_util
@@ -116,11 +115,6 @@ class DialogAgent(Agent):
             params = deepcopy(ps.get(self.agent_spec, 'nlg'))
             NlgClass = getattr(nlg, params.pop('name'))
             self.nlg = NlgClass(**params) 
-        self.evaluator = None
-        if 'evaluator' in self.agent_spec:
-            params = deepcopy(ps.get(self.agent_spec, 'evaluator'))
-            EvaluatorClass = getattr(evaluator, params.pop('name'))
-            self.evaluator = EvaluatorClass(**params) 
         self.body = body
         body.agent = self
         AlgorithmClass = getattr(algorithm, ps.get(self.agent_spec, 'algorithm.name'))
@@ -141,11 +135,6 @@ class DialogAgent(Agent):
         if hasattr(self.algorithm, "reset"):  # This is mainly for external policies that may need to reset its state.
             self.algorithm.reset()
 
-        # update evaluator
-        if self.evaluator:
-            self.evaluator.add_goal(self.get_env().get_goal())
-            logger.act(f'Goal: {self.get_env().get_goal()}')
-
         input_act, state, encoded_state = self.state_update(obs, "null")  # "null" action to be compatible with MDBT
 
         self.body.state, self.body.encoded_state = state, encoded_state
@@ -157,10 +146,6 @@ class DialogAgent(Agent):
         self.body.action = action
 
         output_act, decoded_action = self.action_decode(action, self.body.state) 
-
-        # update evaluator
-        if self.evaluator:
-            self.evaluator.add_sys_da(output_act)
 
         logger.nl(f'System utterance: {decoded_action}')
         logger.act(f'System action: {action}')
@@ -177,16 +162,6 @@ class DialogAgent(Agent):
 
         # state tracking 
         state = self.dst.update(input_act) if self.dst else input_act 
-
-        # update evaluator
-        if self.evaluator:
-            env = self.get_env()
-            if hasattr(env, 'get_last_act'): 
-                self.evaluator.add_usr_da(env.get_last_act())
-                logger.act(f'Inferred system action: {env.get_sys_act()}')
-                logger.act(f'True user action: {env.get_last_act()}')
-            else:
-                self.evaluator.add_usr_da(input_act)
 
         # update history 
         if self.dst:

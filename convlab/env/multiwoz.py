@@ -9,6 +9,7 @@ import numpy as np
 import pydash as ps
 from gym import spaces
 
+from convlab import evaluator
 import convlab.modules.nlg.multiwoz as nlg
 import convlab.modules.nlu.multiwoz as nlu
 import convlab.modules.policy.system.multiwoz as sys_policy
@@ -36,7 +37,6 @@ class MultiWozEnvironment(object):
         self.worker_id = worker_id
         self.observation_space = None 
         self.action_space = None
-
 
         self.agenda = UserPolicyAgendaMultiWoz()  # Agenda-based Simulator (act-in act-out)
         if 'user_policy' in self.env_spec:
@@ -68,6 +68,12 @@ class MultiWozEnvironment(object):
             SysPolicy = getattr(sys_policy, params.pop('name'))
             self.sys_policy = SysPolicy()
 
+        self.evaluator = None
+        if 'evaluator' in self.env_spec:
+            params = deepcopy(ps.get(self.env_spec, 'evaluator'))
+            EvaluatorClass = getattr(evaluator, params.pop('name'))
+            self.evaluator = EvaluatorClass(**params) 
+
         self.simulator = UserSimulator(self.nlu, self.agenda, self.nlg)
         self.simulator.init_session()
         self.action_vocab = ActionVocab(num_actions=action_dim)
@@ -83,6 +89,10 @@ class MultiWozEnvironment(object):
         self.last_act = user_act
         self.history.extend(["null", f'{user_response}'])
         self.env_info = [State(user_response, 0., session_over)] 
+        # update evaluator
+        if self.evaluator:
+            self.evaluator.add_goal(self.get_goal())
+            logger.act(f'Goal: {self.get_goal()}')
         return self.env_info 
 
     def get_goal(self):
@@ -98,6 +108,14 @@ class MultiWozEnvironment(object):
         user_response, user_act, session_over, reward = self.simulator.response(action, self.history)
         self.last_act = user_act
         self.history.extend([f'sys_response', f'user_response'])
+        # update evaluator
+        if self.evaluator:
+            self.evaluator.add_sys_da(self.get_sys_act())
+            self.evaluator.add_usr_da(self.get_last_act())
+            if session_over:
+                reward = 2.0 * self.simulator.policy.max_turn if self.evaluator.task_success() else -1.0 * self.simulator.policy.max_turn
+            else:
+                reward = -1.0
         self.env_info = [State(user_response, reward, session_over)] 
         return self.env_info 
 
@@ -180,6 +198,7 @@ class MultiWozEnv(BaseEnv):
         ])
         worker_id = int(f'{os.getpid()}{self.e+int(ps.unique_id())}'[-4:])
         self.u_env = MultiWozEnvironment(self.env_spec, worker_id, self.action_dim)
+        self.evaluator = self.u_env.evaluator
         self.patch_gym_spaces(self.u_env)
         self._set_attr_from_u_env(self.u_env)
 

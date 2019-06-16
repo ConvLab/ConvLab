@@ -131,9 +131,6 @@
         "action_pdtype": "Argmax",
         "action_policy": "default"
       },
-      "evaluator": {
-        "name": "MultiWozEvaluator"
-      }
     }],
     "env": [{
       "name": "multiwoz",
@@ -150,6 +147,9 @@
       "nlg": {
         "name": "MultiwozTemplateNLG",
         "is_user": true
+      },
+      "evaluator": {
+        "name": "MultiWozEvaluator"
       },
       "max_t": 40,
       "max_frame": 1000
@@ -188,9 +188,6 @@
         },
         "action_pdtype": "Argmax",
         "action_policy": "default"
-      },
-      "evaluator": {
-        "name": "MultiWozEvaluator"
       }
     }],
     "env": [{
@@ -208,6 +205,9 @@
       "nlg": {
         "name": "MultiwozTemplateNLG",
         "is_user": true
+      },
+      "evaluator": {
+        "name": "MultiWozEvaluator"
       },
       "max_t": 40,
       "max_frame": 1000
@@ -1165,9 +1165,6 @@
       "dst": {
         "name": "RuleDST"
       },
-      "evaluator": {
-        "name": "MultiWozEvaluator"
-      },
       "algorithm": {
         "name": "ExternalPolicy",
         "policy": {
@@ -1188,6 +1185,9 @@
       },
       "sys_policy": {
         "name": "RuleBasedMultiwozBot"
+      },
+      "evaluator": {
+        "name": "MultiWozEvaluator"
       }
     }],
     "meta": {
@@ -1954,9 +1954,6 @@
         },
         "action_pdtype": "Argmax",
         "action_policy": "default"
-      },
-      "evaluator": {
-        "name": "MultiWozEvaluator"
       }
     }],
     "env": [{
@@ -1970,6 +1967,9 @@
       "nlg": {
         "name": "MultiwozTemplateNLG",
         "is_user": true
+      },
+      "evaluator": {
+        "name": "MultiWozEvaluator"
       },
       "max_t": 40,
       "max_frame": 1000

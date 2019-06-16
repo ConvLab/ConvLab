@@ -67,14 +67,14 @@ def gen_avg_result(agent, env, num_eval=NUM_EVAL):
     for _ in range(num_eval):
         returns.append(gen_result(agent, env))
         lens.append(env.clock.t)
-        if agent.evaluator: 
-            successes.append(agent.evaluator.task_success())
-            _p, _r, _f1 = agent.evaluator.inform_F1() 
+        if env.evaluator: 
+            successes.append(env.evaluator.task_success())
+            _p, _r, _f1 = env.evaluator.inform_F1() 
             if _f1 is not None:
                 precs.append(_p)
                 recs.append(_r)
                 f1s.append(_f1)
-            _book = agent.evaluator.book_rate()
+            _book = env.evaluator.book_rate()
             if _book is not None:
                 book_rates.append(_book)
         elif hasattr(env, 'get_task_success'):
