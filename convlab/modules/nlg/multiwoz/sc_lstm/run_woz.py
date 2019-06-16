@@ -356,10 +356,14 @@ def parse():
 	parser.add_argument('--beam_size', type=int, default=10, help='number of generated sentences')
 	parser.add_argument('--bs', type=int, default=256, help='batch size')
 	parser.add_argument('--lr', type=float, default=0.0025, help='learning rate')
+	parser.add_argument('--user', type=str2bool, default=False, help='use user data')
 	args = parser.parse_args()
 
 	config = configparser.ConfigParser()
-	config.read('config/config.cfg')
+	if args.user:
+		config.read('config/config_usr.cfg')
+	else:
+		config.read('config/config.cfg')
 	config.set('DATA','dir', os.path.dirname(os.path.abspath(__file__)))
 	
 	return args, config

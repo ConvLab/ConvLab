@@ -20,15 +20,25 @@ from convlab.modules.nlg.nlg import NLG
 DEFAULT_DIRECTORY = "models"
 DEFAULT_ARCHIVE_FILE = os.path.join(DEFAULT_DIRECTORY, "nlg-sclstm-multiwoz.zip")
 
-def parse():
-    args = {
-        'model_path': 'sclstm.pt',
-        'n_layer': 1,
-        'beam_size': 10
-    }
+def parse(is_user):
+    if is_user:
+        args = {
+            'model_path': 'sclstm_usr.pt',
+            'n_layer': 1,
+            'beam_size': 10
+        }
+    else:
+        args = {
+            'model_path': 'sclstm.pt',
+            'n_layer': 1,
+            'beam_size': 10
+        }
 
     config = configparser.ConfigParser()
-    config.read(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config/config.cfg'))
+    if is_user:
+        config.read(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config/config_usr.cfg'))
+    else:
+        config.read(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config/config.cfg'))
     config.set('DATA', 'dir', os.path.dirname(os.path.abspath(__file__)))
 
     return args, config
@@ -37,6 +47,7 @@ def parse():
 class SCLSTM(NLG):
     def __init__(self, 
                  archive_file=DEFAULT_ARCHIVE_FILE, 
+                 is_user=False,
                  model_file=None):
 
         if not os.path.isfile(archive_file):
@@ -48,7 +59,7 @@ class SCLSTM(NLG):
             archive = zipfile.ZipFile(archive_file, 'r')
             archive.extractall(model_dir)
 
-        self.args, self.config = parse()
+        self.args, self.config = parse(is_user)
         self.dataset = SimpleDatasetWoz(self.config)
 
         # get model hyper-parameters
