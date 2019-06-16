@@ -1,5 +1,5 @@
 """
-Evaluate NLG models on Multiwoz test dataset
+Evaluate NLG models on sys utterances of Multiwoz test dataset
 Metric: dataset level BLEU-4, slot error rate
 Usage: PYTHONPATH=../../../.. python evaluate.py [SCLSTM|MultiwozTemplateNLG]
 """
@@ -108,9 +108,8 @@ if __name__ == '__main__':
     model_name = sys.argv[1]
     print("Loading", model_name)
     if model_name == 'SCLSTM':
-        model = SCLSTM(model_file="https://convlab.blob.core.windows.net/models/nlg-sclstm-multiwoz.zip")
+        model_sys = SCLSTM(model_file="https://convlab.blob.core.windows.net/models/nlg-sclstm-multiwoz.zip")
     elif model_name == 'MultiwozTemplateNLG':
-        model_user = MultiwozTemplateNLG(is_user=True)
         model_sys = MultiwozTemplateNLG(is_user=False)
     else:
         raise Exception("Available model: SCLSTM, MultiwozTemplateNLG")
@@ -127,15 +126,14 @@ if __name__ == '__main__':
         sess_num+=1
         print('[%d/%d]' % (sess_num, len(test_data)))
         for i, turn in enumerate(sess['log']):
+            if i % 2 == 0:
+                continue
             dialog_acts.append(turn['dialog_act'])
             golden_utts.append(turn['text'])
             if model_name == 'SCLSTM':
-                gen_utts.append(model.generate(turn['dialog_act']))
+                gen_utts.append(model_sys.generate(turn['dialog_act']))
             elif model_name == 'MultiwozTemplateNLG':
-                if i % 2 == 0:
-                    gen_utts.append(model_user.generate(turn['dialog_act']))
-                else:
-                    gen_utts.append(model_sys.generate(turn['dialog_act']))
+                gen_utts.append(model_sys.generate(turn['dialog_act']))
 
     bleu4 = get_bleu4(dialog_acts, golden_utts, gen_utts)
 
@@ -144,7 +142,7 @@ if __name__ == '__main__':
 
     if model_name == 'SCLSTM':
         print("Calculate slot error rate:")
-        err = get_err_slot(dialog_acts, model)
+        err = get_err_slot(dialog_acts, model_sys)
         print('ERR:', err)
 
     print("BLEU-4: %.4f" % bleu4)
