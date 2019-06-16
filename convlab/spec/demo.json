@@ -1136,7 +1136,8 @@
         "model_file": "https://convlab.blob.core.windows.net/models/onenet.tar.gz"
       },
       "nlg": {
-        "name": "MultiwozTemplateNLG",
+        "name": "SCLSTM",
+        "model_file": "https://convlab.blob.core.windows.net/models/nlg-sclstm-multiwoz.zip",
         "is_user": true
       },
       "max_t": 40,

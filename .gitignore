@@ -43,6 +43,9 @@ data/multiwoz/test.json
 convlab/modules/nlg/multiwoz/sc_lstm/resource
 convlab/modules/nlg/multiwoz/sc_lstm/sclstm.pt
 convlab/modules/nlg/multiwoz/sc_lstm/sclstm.res
+convlab/modules/nlg/multiwoz/sc_lstm/resource_usr
+convlab/modules/nlg/multiwoz/sc_lstm/sclstm_usr.pt
+convlab/modules/nlg/multiwoz/sc_lstm/sclstm_usr.res
 
 # svm
 convlab/modules/nlu/multiwoz/svm/model/
