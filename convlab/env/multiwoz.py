@@ -87,6 +87,7 @@ class MultiWozEnvironment(object):
         self.history = []
         user_response, user_act, session_over, reward = self.simulator.response("null", self.history)
         self.last_act = user_act
+        logger.act(f'User action: {user_act}')
         self.history.extend(["null", f'{user_response}'])
         self.env_info = [State(user_response, 0., session_over)] 
         # update evaluator
@@ -108,6 +109,7 @@ class MultiWozEnvironment(object):
         user_response, user_act, session_over, reward = self.simulator.response(action, self.history)
         self.last_act = user_act
         self.history.extend([f'sys_response', f'user_response'])
+        logger.act(f'Inferred system action: {self.get_sys_act()}')
         # update evaluator
         if self.evaluator:
             self.evaluator.add_sys_da(self.get_sys_act())

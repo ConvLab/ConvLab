@@ -147,8 +147,8 @@ class DialogAgent(Agent):
 
         output_act, decoded_action = self.action_decode(action, self.body.state) 
 
-        logger.nl(f'System utterance: {decoded_action}')
         logger.act(f'System action: {action}')
+        logger.nl(f'System utterance: {decoded_action}')
 
         return decoded_action
 
@@ -176,7 +176,7 @@ class DialogAgent(Agent):
             self.dst.state['user_action'] = obs
 
         logger.nl(f'User utterance: {obs}')
-        logger.act(f'User action: {input_act}')
+        logger.act(f'Inferred user action: {input_act}')
         logger.state(f'Dialog state: {state}')
 
         return input_act, state, encoded_state 
