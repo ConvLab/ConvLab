@@ -19,7 +19,7 @@ We use the multiwoz data (data/multiwoz/[train|val|test].json.zip).
 ```
 @inproceedings{lee2019convlab,
   title={ConvLab: Multi-Domain End-to-End Dialog System Platform},
-  author={Lee, Sungjin and Zhu, Qi and Takanobu, Ryuichi and Li, Xiang and Zhang, Yaoqin and Zhang, Zheng and Li, Jinchao and Peng, Baolin and Li, Xiujun and Huang, Minlie and Jianfeng Gao},
+  author={Lee, Sungjin and Zhu, Qi and Takanobu, Ryuichi and Li, Xiang and Zhang, Yaoqin and Zhang, Zheng and Li, Jinchao and Peng, Baolin and Li, Xiujun and Huang, Minlie and Gao, Jianfeng},
   booktitle={Proceedings of the 57th Annual Meeting of the Association for Computational Linguistics},
   year={2019}
 }
