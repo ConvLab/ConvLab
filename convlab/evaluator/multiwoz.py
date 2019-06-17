@@ -231,6 +231,9 @@ class MultiWozEvaluator(Evaluator):
             return [TP, FP, FN]
         
     def task_success(self, ref2goal=True):
+        """
+        judge if all the domains are successfully completed
+        """
         book_sess = self.book_rate(ref2goal)
         inform_sess = self.inform_F1(ref2goal)
         # book rate == 1 & inform recall == 1
@@ -243,7 +246,7 @@ class MultiWozEvaluator(Evaluator):
 
     def domain_success(self, domain, ref2goal=True):
         """
-        check if the domain (subtask) is successfully completed
+        judge if the domain (subtask) is successfully completed
         """
         if domain not in self.goal:
             return None
@@ -254,7 +257,7 @@ class MultiWozEvaluator(Evaluator):
         else:
             goal = {}
             goal[domain] = {'info':{}, 'book':{}, 'reqt':[]}
-            if domain in self.goal and 'book' in self.goal[domain]:
+            if 'book' in self.goal[domain]:
                 goal[domain]['book'] = self.goal[domain]['book']
             for da in self.usr_da_array:
                 d, i, s, v = da.split('-', 3)
@@ -265,7 +268,7 @@ class MultiWozEvaluator(Evaluator):
                 elif i == 'request':
                     goal[d]['reqt'].append(s)
         
-        book_rate = self._book_rate_goal(goal, self.booked[domain], [domain])
+        book_rate = self._book_rate_goal(goal, self.booked, [domain])
         book_rate = np.mean(book_rate) if book_rate else None
         
         inform = self._inform_F1_goal(goal, self.sys_da_array, [domain])
