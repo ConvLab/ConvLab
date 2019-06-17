@@ -85,6 +85,7 @@ class MultiWozEvaluator(Evaluator):
             slot_pair = da_turn[dom_int]
             for slot, value in slot_pair:
                 da = (dom_int +'-'+slot).lower()
+                value = str(value)
                 self.sys_da_array.append(da+'-'+value)
                 
                 if da == 'booking-book-ref' and self.cur_domain in ['hotel', 'restaurant', 'train']:
