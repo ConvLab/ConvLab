@@ -111,6 +111,7 @@ class MultiWozEvaluator(Evaluator):
             slot_pair = da_turn[dom_int]
             for slot, value in slot_pair:
                 da = (dom_int +'-'+slot).lower()
+                value = str(value)
                 self.usr_da_array.append(da+'-'+value)
 
     def _book_rate_goal(self, goal, booked_entity, domains=None):
