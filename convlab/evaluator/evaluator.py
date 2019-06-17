@@ -41,4 +41,13 @@ class Evaluator(object):
         raise NotImplementedError
         
     def task_success(self, ref2goal=True):
+        """
+        judge if all the domains are successfully completed
+        """
+        raise NotImplementedError
+
+    def domain_success(self, domain, ref2goal=True):
+        """
+        judge if the domain (subtask) is successfully completed
+        """
         raise NotImplementedError
