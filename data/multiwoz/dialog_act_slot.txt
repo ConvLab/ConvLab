@@ -1,0 +1,359 @@
+User Dialog Act:
+Attraction-Inform
+	 2084 	 Area
+	 1447 	 Name
+	 2477 	 Type
+	 269 	 none
+Attraction-Request
+	 1236 	 Addr
+	 379 	 Area
+	 1109 	 Fee
+	 1314 	 Phone
+	 1401 	 Post
+	 258 	 Type
+Hospital-Inform
+	 95 	 Department
+	 231 	 none
+Hospital-Request
+	 101 	 Addr
+	 123 	 Phone
+	 150 	 Post
+Hotel-Inform
+	 2241 	 Area
+	 2513 	 Day
+	 1808 	 Internet
+	 1996 	 Name
+	 1894 	 Parking
+	 2373 	 People
+	 2375 	 Price
+	 2335 	 Stars
+	 3161 	 Stay
+	 2731 	 Type
+	 642 	 none
+Hotel-Request
+	 518 	 Addr
+	 190 	 Area
+	 235 	 Internet
+	 228 	 Parking
+	 478 	 Phone
+	 511 	 Post
+	 243 	 Price
+	 453 	 Ref
+	 61 	 Stars
+	 141 	 Type
+Police-Inform
+	 161 	 none
+Police-Request
+	 101 	 Addr
+	 53 	 Phone
+	 95 	 Post
+Restaurant-Inform
+	 3225 	 Area
+	 2582 	 Day
+	 4661 	 Food
+	 1790 	 Name
+	 2489 	 People
+	 3434 	 Price
+	 3007 	 Time
+	 855 	 none
+Restaurant-Request
+	 1178 	 Addr
+	 153 	 Area
+	 138 	 Food
+	 1156 	 Phone
+	 832 	 Post
+	 186 	 Price
+	 515 	 Ref
+Taxi-Inform
+	 638 	 Arrive
+	 887 	 Depart
+	 831 	 Dest
+	 940 	 Leave
+	 889 	 none
+Taxi-Request
+	 378 	 Car
+	 50 	 Phone
+Train-Inform
+	 2150 	 Arrive
+	 3963 	 Day
+	 3846 	 Depart
+	 4041 	 Dest
+	 1907 	 Leave
+	 2115 	 People
+	 558 	 none
+Train-Request
+	 296 	 Arrive
+	 762 	 Time
+	 293 	 Leave
+	 944 	 Price
+	 607 	 Ref
+	 465 	 Id
+general-bye
+	 2714 	 none
+general-greet
+	 45 	 none
+general-thank
+	 9026 	 none
+
+System Dialog Act:
+Attraction-Inform
+	 2664 	 Addr
+	 2365 	 Area
+	 2241 	 Choice
+	 1922 	 Fee
+	 3072 	 Name
+	 13 	 Open
+	 1741 	 Phone
+	 1579 	 Post
+	 48 	 Price
+	 2589 	 Type
+	 28 	 none
+Attraction-NoOffer
+	 1 	 Addr
+	 324 	 Area
+	 1 	 Choice
+	 1 	 Fee
+	 5 	 Name
+	 325 	 Type
+	 109 	 none
+Attraction-Recommend
+	 530 	 Addr
+	 338 	 Area
+	 13 	 Choice
+	 396 	 Fee
+	 1461 	 Name
+	 3 	 Open
+	 153 	 Phone
+	 165 	 Post
+	 9 	 Price
+	 217 	 Type
+	 6 	 none
+Attraction-Request
+	 797 	 Area
+	 110 	 Name
+	 86 	 Price
+	 823 	 Type
+Attraction-Select
+	 1 	 Addr
+	 66 	 Area
+	 7 	 Choice
+	 47 	 Fee
+	 57 	 Name
+	 1 	 Phone
+	 4 	 Price
+	 286 	 Type
+	 243 	 none
+Booking-Book
+	 898 	 Day
+	 1263 	 Name
+	 788 	 People
+	 4910 	 Ref
+	 480 	 Stay
+	 593 	 Time
+	 107 	 none
+Booking-Inform
+	 89 	 Day
+	 277 	 Name
+	 71 	 People
+	 18 	 Ref
+	 31 	 Stay
+	 31 	 Time
+	 5315 	 none
+Booking-NoBook
+	 82 	 Day
+	 72 	 Name
+	 28 	 People
+	 14 	 Ref
+	 41 	 Stay
+	 78 	 Time
+	 1086 	 none
+Booking-Request
+	 1633 	 Day
+	 993 	 People
+	 889 	 Stay
+	 916 	 Time
+Hotel-Inform
+	 1158 	 Addr
+	 2398 	 Area
+	 3855 	 Choice
+	 1446 	 Internet
+	 3677 	 Name
+	 1373 	 Parking
+	 704 	 Phone
+	 648 	 Post
+	 2282 	 Price
+	 50 	 Ref
+	 1784 	 Stars
+	 2943 	 Type
+	 44 	 none
+Hotel-NoOffer
+	 225 	 Area
+	 4 	 Choice
+	 29 	 Internet
+	 10 	 Name
+	 33 	 Parking
+	 199 	 Price
+	 203 	 Stars
+	 474 	 Type
+	 322 	 none
+Hotel-Recommend
+	 138 	 Addr
+	 397 	 Area
+	 13 	 Choice
+	 183 	 Internet
+	 1506 	 Name
+	 170 	 Parking
+	 36 	 Phone
+	 39 	 Post
+	 319 	 Price
+	 290 	 Stars
+	 190 	 Type
+	 15 	 none
+Hotel-Request
+	 1946 	 Area
+	 191 	 Internet
+	 84 	 Name
+	 251 	 Parking
+	 1243 	 Price
+	 375 	 Stars
+	 252 	 Type
+Hotel-Select
+	 3 	 Addr
+	 166 	 Area
+	 37 	 Choice
+	 12 	 Internet
+	 115 	 Name
+	 13 	 Parking
+	 1 	 Phone
+	 194 	 Price
+	 77 	 Stars
+	 388 	 Type
+	 513 	 none
+Restaurant-Inform
+	 1908 	 Addr
+	 2864 	 Area
+	 3294 	 Choice
+	 3313 	 Food
+	 4372 	 Name
+	 1412 	 Phone
+	 1028 	 Post
+	 2424 	 Price
+	 67 	 Ref
+	 44 	 none
+Restaurant-NoOffer
+	 366 	 Area
+	 5 	 Choice
+	 644 	 Food
+	 5 	 Name
+	 183 	 Price
+	 745 	 none
+Restaurant-Recommend
+	 251 	 Addr
+	 346 	 Area
+	 18 	 Choice
+	 373 	 Food
+	 1505 	 Name
+	 69 	 Phone
+	 62 	 Post
+	 289 	 Price
+	 13 	 none
+Restaurant-Request
+	 1018 	 Area
+	 1717 	 Food
+	 56 	 Name
+	 834 	 Price
+Restaurant-Select
+	 5 	 Addr
+	 158 	 Area
+	 23 	 Choice
+	 439 	 Food
+	 165 	 Name
+	 190 	 Price
+	 481 	 none
+Taxi-Inform
+	 115 	 Arrive
+	 1879 	 Car
+	 240 	 Depart
+	 196 	 Dest
+	 190 	 Leave
+	 1860 	 Phone
+	 51 	 none
+Taxi-Request
+	 415 	 Arrive
+	 691 	 Depart
+	 546 	 Dest
+	 721 	 Leave
+Train-Inform
+	 2954 	 Arrive
+	 2058 	 Choice
+	 952 	 Day
+	 1395 	 Depart
+	 1635 	 Dest
+	 3102 	 Id
+	 3809 	 Leave
+	 14 	 People
+	 107 	 Ref
+	 1177 	 Ticket
+	 941 	 Time
+	 28 	 none
+Train-NoOffer
+	 9 	 Arrive
+	 3 	 Choice
+	 20 	 Day
+	 21 	 Depart
+	 19 	 Dest
+	 3 	 Id
+	 33 	 Leave
+	 43 	 none
+Train-OfferBook
+	 118 	 Arrive
+	 10 	 Choice
+	 31 	 Day
+	 40 	 Depart
+	 53 	 Dest
+	 180 	 Id
+	 158 	 Leave
+	 35 	 People
+	 4 	 Ref
+	 22 	 Ticket
+	 8 	 Time
+	 2725 	 none
+Train-OfferBooked
+	 146 	 Arrive
+	 4 	 Choice
+	 94 	 Day
+	 120 	 Depart
+	 114 	 Dest
+	 474 	 Id
+	 249 	 Leave
+	 421 	 People
+	 2124 	 Ref
+	 1368 	 Ticket
+	 15 	 Time
+	 40 	 none
+Train-Request
+	 971 	 Arrive
+	 1570 	 Day
+	 1572 	 Depart
+	 1421 	 Dest
+	 1901 	 Leave
+	 591 	 People
+Train-Select
+	 40 	 Arrive
+	 6 	 Choice
+	 24 	 Day
+	 19 	 Depart
+	 17 	 Dest
+	 30 	 Id
+	 91 	 Leave
+	 4 	 People
+	 1 	 Ticket
+	 279 	 none
+general-bye
+	 9105 	 none
+general-greet
+	 2021 	 none
+general-reqmore
+	 13769 	 none
+general-welcome
+	 4785 	 none

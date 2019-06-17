@@ -1,0 +1,109 @@
+# .* 
+.config
+.vscode
+.idea
+.settings
+.keras
+.python_history
+.bash_history
+
+data/multiwoz/annotation/annotated_user_da_with_span_full.json
+data/multiwoz/annotation/MULTIWOZ2 2
+convlab/modules/nlu/multiwoz/svm/output_multiwoz/
+convlab/modules/nlu/multiwoz/svm/output_multiwoz_sys/
+
+test_result/
+*.pyc
+.DS_Store
+
+#Eclipse
+*.project
+
+# PyDev specific (Python IDE for Eclipse)
+*.pydevproject
+
+# nltk
+nltk_data/
+
+# mdbt data
+data/mdbt/
+data/mdbt.tar.gz
+#data/multiwoz/annotated_user_utts_18k.txt
+#data/multiwoz/annoted_bio.txt
+data/multiwoz/annotated_user_da_with_span_full.json
+data/multiwoz/annotated_user_utts_all.txt
+data/multiwoz/annotated_qr_pairs.txt
+data/multiwoz/annotated_qr_pairs_30k.txt
+data/multiwoz/annoted_bio_all_20k.txt
+data/multiwoz/annotated_user_utts_v2.txt
+data/multiwoz/annotated_user_utts_v2_20k.txt
+data/multiwoz/test.json
+
+# sclstm
+convlab/modules/nlg/multiwoz/sc_lstm/resource
+convlab/modules/nlg/multiwoz/sc_lstm/sclstm.pt
+convlab/modules/nlg/multiwoz/sc_lstm/sclstm.res
+convlab/modules/nlg/multiwoz/sc_lstm/resource_usr
+convlab/modules/nlg/multiwoz/sc_lstm/sclstm_usr.pt
+convlab/modules/nlg/multiwoz/sc_lstm/sclstm_usr.res
+
+# svm
+convlab/modules/nlu/multiwoz/svm/model/
+
+# private test script
+private_test.py
+
+# output of run.py
+session.txt
+
+# archives
+*.rar
+
+# models
+data/models/
+
+ckpts/
+
+# nlu and nlg data
+data/nlu
+data/nlg
+data/nrg
+
+# nrg data
+convlab/modules/word_policy/multiwoz/mdrg/data
+convlab/modules/word_policy/multiwoz/mdrg/model/model
+
+# sequicity
+convlab/modules/e2e/multiwoz/Sequicity/data
+convlab/modules/e2e/multiwoz/Sequicity/log
+convlab/modules/e2e/multiwoz/Sequicity/models
+convlab/modules/e2e/multiwoz/Sequicity/results
+convlab/modules/e2e/multiwoz/Sequicity/sheets
+convlab/modules/e2e/multiwoz/Sequicity/vocab
+
+# mem2seq
+convlab/modules/e2e/multiwoz/Mem2Seq/data
+convlab/modules/e2e/multiwoz/Mem2Seq/save
+
+# test scripts
+interact.py
+test_run.py
+
+# mlst
+data/multiwoz/mlst.txt
+data/multiwoz/sample.json
+
+convlab/modules/nlu/multiwoz/mlst/models
+
+# one_net
+convlab/modules/nlu/multiwoz/one_net/models
+# mle
+convlab/modules/policy/system/multiwoz/vanilla_mle/models
+
+# rl
+temp-plot.html
+output
+
+# log
+*.log
+
