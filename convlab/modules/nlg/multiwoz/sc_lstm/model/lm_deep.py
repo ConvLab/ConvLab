@@ -9,8 +9,8 @@ from torch.autograd import Variable
 
 from convlab.modules.nlg.multiwoz.sc_lstm.model.layers.decoder_deep import DecoderDeep
 from convlab.modules.nlg.multiwoz.sc_lstm.model.masked_cross_entropy import masked_cross_entropy
+from convlab.modules.nlg.multiwoz.sc_lstm.nlg_sc_lstm import USE_CUDA
 
-USE_CUDA = True
 
 class LMDeep(nn.Module):
 	def __init__(self, dec_type, input_size, output_size, hidden_size, d_size, n_layer=1, dropout=0.5, lr=0.001):

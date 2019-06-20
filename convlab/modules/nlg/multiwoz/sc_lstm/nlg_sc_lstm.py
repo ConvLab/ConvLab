@@ -19,6 +19,7 @@ from convlab.modules.nlg.nlg import NLG
 
 DEFAULT_DIRECTORY = "models"
 DEFAULT_ARCHIVE_FILE = os.path.join(DEFAULT_DIRECTORY, "nlg-sclstm-multiwoz.zip")
+USE_CUDA = -1
 
 def parse(is_user):
     if is_user:
@@ -47,6 +48,7 @@ def parse(is_user):
 class SCLSTM(NLG):
     def __init__(self, 
                  archive_file=DEFAULT_ARCHIVE_FILE, 
+                 use_cuda=False,
                  is_user=False,
                  model_file=None):
 
@@ -61,6 +63,7 @@ class SCLSTM(NLG):
 
         self.args, self.config = parse(is_user)
         self.dataset = SimpleDatasetWoz(self.config)
+        USE_CUDA = use_cuda
 
         # get model hyper-parameters
         hidden_size = self.config.getint('MODEL', 'hidden_size')
