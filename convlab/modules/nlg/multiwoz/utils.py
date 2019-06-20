@@ -8,6 +8,7 @@ import math
 
 import numpy as np
 
+USE_CUDA = -1
 
 def initWeights(n,d):
     """ Initialization Strategy """

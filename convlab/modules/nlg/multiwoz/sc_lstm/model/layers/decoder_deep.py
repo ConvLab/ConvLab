@@ -6,7 +6,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Variable
-from convlab.modules.nlg.multiwoz.sc_lstm.nlg_sc_lstm import USE_CUDA
+from convlab.modules.nlg.multiwoz.utils import USE_CUDA
 
 
 class DecoderDeep(nn.Module):

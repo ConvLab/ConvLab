@@ -9,7 +9,7 @@ from torch.autograd import Variable
 
 from convlab.modules.nlg.multiwoz.sc_lstm.model.layers.decoder_deep import DecoderDeep
 from convlab.modules.nlg.multiwoz.sc_lstm.model.masked_cross_entropy import masked_cross_entropy
-from convlab.modules.nlg.multiwoz.sc_lstm.nlg_sc_lstm import USE_CUDA
+from convlab.modules.nlg.multiwoz.utils import USE_CUDA
 
 
 class LMDeep(nn.Module):

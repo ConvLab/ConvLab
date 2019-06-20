@@ -7,7 +7,7 @@ import sys
 
 import torch
 from torch.autograd import Variable
-from convlab.modules.nlg.multiwoz.sc_lstm.nlg_sc_lstm import USE_CUDA
+from convlab.modules.nlg.multiwoz.utils import USE_CUDA
 
 
 class DatasetWoz(object):
