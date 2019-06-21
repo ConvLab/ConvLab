@@ -26,17 +26,30 @@ class DecoderDeep(nn.Module):
 		self.w2h, self.h2h = nn.ModuleList(), nn.ModuleList()
 		self.w2h_r, self.h2h_r = nn.ModuleList(), nn.ModuleList()
 		self.dc = nn.ModuleList()
-		for i in range(n_layer):
-			if i == 0:
-				self.w2h.append( nn.Linear(input_size, hidden_size*4).cuda() )
-				self.w2h_r.append( nn.Linear(input_size, d_size).cuda() )
-			else:
-				self.w2h.append( nn.Linear(input_size + i*hidden_size, hidden_size*4).cuda() )
-				self.w2h_r.append( nn.Linear(input_size + i*hidden_size, d_size).cuda() )
+		if use_cuda:
+			for i in range(n_layer):
+				if i == 0:
+					self.w2h.append( nn.Linear(input_size, hidden_size*4).cuda() )
+					self.w2h_r.append( nn.Linear(input_size, d_size).cuda() )
+				else:
+					self.w2h.append( nn.Linear(input_size + i*hidden_size, hidden_size*4).cuda() )
+					self.w2h_r.append( nn.Linear(input_size + i*hidden_size, d_size).cuda() )
 
-			self.h2h.append( nn.Linear(hidden_size, hidden_size*4).cuda() )
-			self.h2h_r.append( nn.Linear(hidden_size, d_size).cuda() )
-			self.dc.append( nn.Linear(d_size, hidden_size, bias=False).cuda() )
+				self.h2h.append( nn.Linear(hidden_size, hidden_size*4).cuda() )
+				self.h2h_r.append( nn.Linear(hidden_size, d_size).cuda() )
+				self.dc.append( nn.Linear(d_size, hidden_size, bias=False).cuda() )
+		else:
+			for i in range(n_layer):
+				if i == 0:
+					self.w2h.append( nn.Linear(input_size, hidden_size*4) )
+					self.w2h_r.append( nn.Linear(input_size, d_size) )
+				else:
+					self.w2h.append( nn.Linear(input_size + i*hidden_size, hidden_size*4) )
+					self.w2h_r.append( nn.Linear(input_size + i*hidden_size, d_size) )
+
+				self.h2h.append( nn.Linear(hidden_size, hidden_size*4) )
+				self.h2h_r.append( nn.Linear(hidden_size, d_size) )
+				self.dc.append( nn.Linear(d_size, hidden_size, bias=False) )
 
 		self.out = nn.Linear(hidden_size*n_layer, output_size)
 

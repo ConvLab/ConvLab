@@ -60,6 +60,7 @@ class SCLSTM(NLG):
             archive = zipfile.ZipFile(archive_file, 'r')
             archive.extractall(model_dir)
 
+        self.USE_CUDA = use_cuda
         self.args, self.config = parse(is_user)
         self.dataset = SimpleDatasetWoz(self.config)
 
@@ -76,7 +77,8 @@ class SCLSTM(NLG):
         assert os.path.isfile(model_path)
         self.model.load_state_dict(torch.load(model_path))
         self.model.eval()
-        self.model.cuda()
+        if use_cuda:
+            self.model.cuda()
 
     def generate_delex(self, meta):
         """
@@ -126,7 +128,8 @@ class SCLSTM(NLG):
         feats = [do_cond + da_cond + sv_cond]
 
         feats_var = torch.FloatTensor(feats)
-        feats_var = feats_var.cuda()
+        if self.USE_CUDA:
+            feats_var = feats_var.cuda()
 
         decoded_words = self.model.generate(self.dataset, feats_var, self.args['beam_size'])
         delex = decoded_words[0]  # (beam_size)
