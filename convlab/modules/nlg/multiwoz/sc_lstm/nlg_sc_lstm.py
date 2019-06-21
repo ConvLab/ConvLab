@@ -47,6 +47,7 @@ def parse(is_user):
 class SCLSTM(NLG):
     def __init__(self, 
                  archive_file=DEFAULT_ARCHIVE_FILE, 
+                 use_cuda=False,
                  is_user=False,
                  model_file=None):
 
@@ -59,6 +60,7 @@ class SCLSTM(NLG):
             archive = zipfile.ZipFile(archive_file, 'r')
             archive.extractall(model_dir)
 
+        self.USE_CUDA = use_cuda
         self.args, self.config = parse(is_user)
         self.dataset = SimpleDatasetWoz(self.config)
 
@@ -69,13 +71,14 @@ class SCLSTM(NLG):
         d_size = self.dataset.do_size + self.dataset.da_size + self.dataset.sv_size  # len of 1-hot feat
         vocab_size = len(self.dataset.word2index)
 
-        self.model = LMDeep('sclstm', vocab_size, vocab_size, hidden_size, d_size, n_layer=self.args['n_layer'])
+        self.model = LMDeep('sclstm', vocab_size, vocab_size, hidden_size, d_size, n_layer=self.args['n_layer'], use_cuda=use_cuda)
         model_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), self.args['model_path'])
         # print(model_path)
         assert os.path.isfile(model_path)
         self.model.load_state_dict(torch.load(model_path))
         self.model.eval()
-        self.model.cuda()
+        if use_cuda:
+            self.model.cuda()
 
     def generate_delex(self, meta):
         """
@@ -87,12 +90,14 @@ class SCLSTM(NLG):
             domain, intent = k.split('-')
             if intent == "Request":
                 for pair in v:
-                    assert (type(pair[1]) == str)
+                    if type(pair[1]) != str:
+                        pair[1] = str(pair[1])
                     pair.insert(1, '?')
             else:
                 counter = {}
                 for pair in v:
-                    assert (type(pair[1]) == str)
+                    if type(pair[1]) != str:
+                        pair[1] = str(pair[1])
                     if pair[0] == 'Internet' or pair[0] == 'Parking':
                         pair.insert(1, 'yes')
                     elif pair[0] == 'none':
@@ -123,7 +128,8 @@ class SCLSTM(NLG):
         feats = [do_cond + da_cond + sv_cond]
 
         feats_var = torch.FloatTensor(feats)
-        feats_var = feats_var.cuda()
+        if self.USE_CUDA:
+            feats_var = feats_var.cuda()
 
         decoded_words = self.model.generate(self.dataset, feats_var, self.args['beam_size'])
         delex = decoded_words[0]  # (beam_size)

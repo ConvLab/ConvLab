@@ -10,16 +10,16 @@ from torch.autograd import Variable
 from convlab.modules.nlg.multiwoz.sc_lstm.model.layers.decoder_deep import DecoderDeep
 from convlab.modules.nlg.multiwoz.sc_lstm.model.masked_cross_entropy import masked_cross_entropy
 
-USE_CUDA = True
 
 class LMDeep(nn.Module):
-	def __init__(self, dec_type, input_size, output_size, hidden_size, d_size, n_layer=1, dropout=0.5, lr=0.001):
+	def __init__(self, dec_type, input_size, output_size, hidden_size, d_size, n_layer=1, dropout=0.5, lr=0.001, use_cuda=False):
 		super(LMDeep, self).__init__()
 		self.dec_type = dec_type
 		self.hidden_size = hidden_size
 		print('Using deep version with {} layer'.format(n_layer))
 		print('Using deep version with {} layer'.format(n_layer), file=sys.stderr)
-		self.dec = DecoderDeep(dec_type, input_size, output_size, hidden_size, d_size=d_size, n_layer=n_layer, dropout=dropout)
+		self.USE_CUDA = use_cuda
+		self.dec = DecoderDeep(dec_type, input_size, output_size, hidden_size, d_size=d_size, n_layer=n_layer, dropout=dropout, use_cuda=use_cuda)
 #		if self.dec_type != 'sclstm':
 #			self.feat2hidden = nn.Linear(d_size, hidden_size)
 
@@ -29,7 +29,7 @@ class LMDeep(nn.Module):
 		batch_size = dataset.batch_size
 		if self.dec_type == 'sclstm':
 			init_hidden = Variable(torch.zeros(batch_size, self.hidden_size))
-			if USE_CUDA:
+			if self.USE_CUDA:
 				init_hidden = init_hidden.cuda()
 			'''
 			train/valid (gen=False, beam_search=False, beam_size=1)
@@ -63,7 +63,7 @@ class LMDeep(nn.Module):
 	def generate(self, dataset, feats_var, beam_size=1):
 		batch_size = dataset.batch_size
 		init_hidden = Variable(torch.zeros(batch_size, self.hidden_size))
-		if USE_CUDA:
+		if self.USE_CUDA:
 			init_hidden = init_hidden.cuda()
 		decoded_words = self.dec.beam_search(None, dataset, init_hidden=init_hidden, init_feat=feats_var, \
 														gen=True, beam_size=beam_size)

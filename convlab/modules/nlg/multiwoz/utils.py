@@ -8,7 +8,6 @@ import math
 
 import numpy as np
 
-
 def initWeights(n,d):
     """ Initialization Strategy """
     #scale_factor = 0.1

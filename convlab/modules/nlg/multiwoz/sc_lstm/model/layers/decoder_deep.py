@@ -7,11 +7,9 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Variable
 
-USE_CUDA = True
-
 
 class DecoderDeep(nn.Module):
-	def __init__(self, dec_type, input_size, output_size, hidden_size, d_size, n_layer=1, dropout=0.5):
+	def __init__(self, dec_type, input_size, output_size, hidden_size, d_size, n_layer=1, dropout=0.5, use_cuda=False):
 		super(DecoderDeep, self).__init__()
 		self.dec_type = dec_type
 		self.input_size = input_size
@@ -20,6 +18,7 @@ class DecoderDeep(nn.Module):
 		self.d_size = d_size
 		self.n_layer = n_layer
 		self.dropout = dropout
+		self.USE_CUDA = use_cuda
 
 		print('Using sclstm as decoder with module list!')
 		assert d_size != None
@@ -27,17 +26,30 @@ class DecoderDeep(nn.Module):
 		self.w2h, self.h2h = nn.ModuleList(), nn.ModuleList()
 		self.w2h_r, self.h2h_r = nn.ModuleList(), nn.ModuleList()
 		self.dc = nn.ModuleList()
-		for i in range(n_layer):
-			if i == 0:
-				self.w2h.append( nn.Linear(input_size, hidden_size*4).cuda() )
-				self.w2h_r.append( nn.Linear(input_size, d_size).cuda() )
-			else:
-				self.w2h.append( nn.Linear(input_size + i*hidden_size, hidden_size*4).cuda() )
-				self.w2h_r.append( nn.Linear(input_size + i*hidden_size, d_size).cuda() )
+		if use_cuda:
+			for i in range(n_layer):
+				if i == 0:
+					self.w2h.append( nn.Linear(input_size, hidden_size*4).cuda() )
+					self.w2h_r.append( nn.Linear(input_size, d_size).cuda() )
+				else:
+					self.w2h.append( nn.Linear(input_size + i*hidden_size, hidden_size*4).cuda() )
+					self.w2h_r.append( nn.Linear(input_size + i*hidden_size, d_size).cuda() )
 
-			self.h2h.append( nn.Linear(hidden_size, hidden_size*4).cuda() )
-			self.h2h_r.append( nn.Linear(hidden_size, d_size).cuda() )
-			self.dc.append( nn.Linear(d_size, hidden_size, bias=False).cuda() )
+				self.h2h.append( nn.Linear(hidden_size, hidden_size*4).cuda() )
+				self.h2h_r.append( nn.Linear(hidden_size, d_size).cuda() )
+				self.dc.append( nn.Linear(d_size, hidden_size, bias=False).cuda() )
+		else:
+			for i in range(n_layer):
+				if i == 0:
+					self.w2h.append( nn.Linear(input_size, hidden_size*4) )
+					self.w2h_r.append( nn.Linear(input_size, d_size) )
+				else:
+					self.w2h.append( nn.Linear(input_size + i*hidden_size, hidden_size*4) )
+					self.w2h_r.append( nn.Linear(input_size + i*hidden_size, d_size) )
+
+				self.h2h.append( nn.Linear(hidden_size, hidden_size*4) )
+				self.h2h_r.append( nn.Linear(hidden_size, d_size) )
+				self.dc.append( nn.Linear(d_size, hidden_size, bias=False) )
 
 		self.out = nn.Linear(hidden_size*n_layer, output_size)
 
@@ -126,7 +138,7 @@ class DecoderDeep(nn.Module):
 		max_len = 55 if gen else input_var.size(1)
 	
 		self.output_prob = Variable(torch.zeros(batch_size, max_len, self.output_size))
-		if USE_CUDA:
+		if self.USE_CUDA:
 			self.output_prob = self.output_prob.cuda()
 	
 		# container for last cell, hidden for each layer
@@ -163,7 +175,7 @@ class DecoderDeep(nn.Module):
 	def get_onehot(self, word, dataset, batch_size=1):
 		res = [[1 if index==dataset.word2index[word] else 0 for index in range(self.input_size)] for b in range(batch_size)]
 		res = Variable(torch.FloatTensor(res)) 
-		if USE_CUDA:
+		if self.USE_CUDA:
 			res = res.cuda()
 		return res # (batch_size, input_size)
 
@@ -205,7 +217,7 @@ class DecoderDeep(nn.Module):
 			decoded_words_t[b][idx] = 1
 		decoded_words_t = Variable(torch.from_numpy(decoded_words_t.astype(np.float32)))
 
-		if USE_CUDA:
+		if self.USE_CUDA:
 			decoded_words_t = decoded_words_t.cuda()
 
 		return decoded_words_t 

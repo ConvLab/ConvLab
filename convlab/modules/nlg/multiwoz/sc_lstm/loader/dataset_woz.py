@@ -8,14 +8,12 @@ import sys
 import torch
 from torch.autograd import Variable
 
-USE_CUDA = True
-
 
 class DatasetWoz(object):
 	'''
 	data container for woz dataset
 	'''
-	def __init__(self, config, percentage=1.0):
+	def __init__(self, config, percentage=1.0, use_cuda=False):
 		# setup
 		feat_file = config['DATA']['feat_file']
 		text_file = config['DATA']['text_file']
@@ -23,6 +21,7 @@ class DatasetWoz(object):
 		vocab_file = config['DATA']['vocab_file']
 		template_file = config['DATA']['template_file']
 		self.template = template_file # for further scoring
+		self.USE_CUDA = use_cuda
 		
 		# hyper-params
 		self.batch_size = config.getint('DATA', 'batch_size')
@@ -116,7 +115,7 @@ class DatasetWoz(object):
 		label_var = Variable(torch.LongTensor(sentences_padded))
 		feats_var = Variable(torch.FloatTensor(feats))
 
-		if USE_CUDA:
+		if self.USE_CUDA:
 			input_var = input_var.cuda()
 			label_var = label_var.cuda()
 			feats_var = feats_var.cuda()
