@@ -74,11 +74,11 @@ Installing the library and dependencies is simple using `pip`.
    pip install -r requirements.txt
    ```
 If your linux system does not have essential building tools installed, you might need to install it by running
- ```
-    sudo apt-get install build-essential
+ ```bash
+ sudo apt-get install build-essential
  ```
 ConvLab uses 'stopwords' in nltk, and you need to download it by running
-```
+```bash
 python -m nltk.downloader stopwords
 ```
 
