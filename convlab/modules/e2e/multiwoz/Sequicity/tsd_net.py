@@ -25,7 +25,7 @@ def toss_(p):
 
 
 def nan(v):
-    if type(v) is float:
+    if isinstance(v, float):
         return v == float('nan')
     return np.isnan(np.sum(v.data.cpu().numpy()))
 

@@ -356,7 +356,7 @@ def main() :
     elif args.focus.lower() == "false":
         tracker = Tracker()
     else:
-        raise RuntimeError,'Dont recognize focus=%s (must be True or False)' % (args.focus)    
+        raise RuntimeError('Dont recognize focus=%s (must be True or False)' % (args.focus))    
     for call in dataset :
         this_session = {"session-id":call.log["session-id"], "turns":[]}
         tracker.reset()

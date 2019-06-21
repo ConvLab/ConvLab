@@ -22,7 +22,7 @@ class RuleDST(Tracker):
 
     def update(self, user_act=None):
         # print('------------------{}'.format(user_act))
-        if type(user_act) is not dict:
+        if not isinstance(user_act, dict):
             raise Exception('Expect user_act to be <class \'dict\'> type but get {}.'.format(type(user_act)))
         previous_state = self.state
         new_belief_state = copy.deepcopy(previous_state['belief_state'])

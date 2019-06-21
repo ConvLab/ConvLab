@@ -14,6 +14,7 @@ from datetime import datetime
 from importlib import reload
 from pprint import pformat
 
+import cv2
 import numpy as np
 import pandas as pd
 import pydash as ps

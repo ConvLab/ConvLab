@@ -90,13 +90,13 @@ class SCLSTM(NLG):
             domain, intent = k.split('-')
             if intent == "Request":
                 for pair in v:
-                    if type(pair[1]) != str:
+                    if not isinstance(pair[1], str):
                         pair[1] = str(pair[1])
                     pair.insert(1, '?')
             else:
                 counter = {}
                 for pair in v:
-                    if type(pair[1]) != str:
+                    if not isinstance(pair[1], str):
                         pair[1] = str(pair[1])
                     if pair[0] == 'Internet' or pair[0] == 'Parking':
                         pair.insert(1, 'yes')

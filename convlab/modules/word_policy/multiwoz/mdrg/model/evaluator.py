@@ -220,7 +220,7 @@ def evaluateGeneratedDialogue(dialog, goal, realDialogue, real_requestables):
         match_stat = 0
         if domain in ['restaurant', 'hotel', 'attraction', 'train']:
             goal_venues = queryResultVenues(domain, goal[domain]['informable'], real_belief=True)
-            if type(venue_offered[domain]) is str and '_name' in venue_offered[domain]:
+            if isinstance(venue_offered[domain], str) and '_name' in venue_offered[domain]:
                 match += 1
                 match_stat = 1
             elif len(venue_offered[domain]) > 0 and venue_offered[domain][0] in goal_venues:
@@ -371,7 +371,7 @@ def evaluateRealDialogue(dialog, filename):
         if domain in ['restaurant', 'hotel', 'attraction', 'train']:
             goal_venues = queryResultVenues(domain, dialog['goal'][domain]['info'], real_belief=True)
             #print(goal_venues)
-            if type(venue_offered[domain]) is str and '_name' in venue_offered[domain]:
+            if isinstance(venue_offered[domain], str) and '_name' in venue_offered[domain]:
                 match += 1
                 match_stat = 1
             elif len(venue_offered[domain]) > 0 and venue_offered[domain][0] in goal_venues:

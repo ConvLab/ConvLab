@@ -19,7 +19,7 @@ from convlab.modules.usr.multiwoz.vhus_usr.usermodule import VHUS
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def to_device(data):
-    if type(data) == dict:
+    if isinstance(data, dict):
         for k, v in data.items():
             data[k] = v.to(device=DEVICE)
     else:

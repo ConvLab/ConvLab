@@ -35,7 +35,7 @@ if __name__ == '__main__':
             continue
         for item in db[domain]:
             for s, v in item.items():
-                if type(v) == type(u''):
+                if isinstance(v, type(u'')):
                     domain2slot2value[domain].setdefault(s, Counter())
                     domain2slot2value[domain][s] += Counter([v])
                 else:
@@ -109,7 +109,7 @@ if __name__ == '__main__':
             log_json = {"session-id": no}
             log_turns = []
             for i, turn in enumerate(sess['log']):
-                assert type(turn['dialog_act']) == type({})
+                assert isinstance(turn['dialog_act'], type({}))
                 new_das = []
                 for da, svs in turn['dialog_act'].items():
                     for s, v in svs:

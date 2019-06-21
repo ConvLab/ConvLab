@@ -95,7 +95,7 @@ class MDBTTracker(Tracker):
 
     def update(self, user_act=None):
         """Update the dialog state."""
-        if type(user_act) is not str:
+        if not isinstance(user_act, str):
             raise Exception('Expected user_act to be <class \'str\'> type, but get {}.'.format(type(user_act)))
         prev_state = self.state
         if not os.path.exists(os.path.join(self.data_dir, "results")):

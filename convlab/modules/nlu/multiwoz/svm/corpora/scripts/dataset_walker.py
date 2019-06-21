@@ -31,7 +31,7 @@ class dataset_walker(object):
     def __init__(self,dataset,labels=False,dataroot=None):
         if "[" in dataset :
             self.datasets = json.loads(dataset)
-        elif type(dataset) == type([]) :
+        elif isinstance(dataset, type([])) :
             self.datasets= dataset
         else:
             self.datasets = [dataset]
