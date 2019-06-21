@@ -7,14 +7,13 @@ import sys
 
 import torch
 from torch.autograd import Variable
-from convlab.modules.nlg.multiwoz.utils import USE_CUDA
 
 
 class DatasetWoz(object):
 	'''
 	data container for woz dataset
 	'''
-	def __init__(self, config, percentage=1.0):
+	def __init__(self, config, percentage=1.0, use_cuda=False):
 		# setup
 		feat_file = config['DATA']['feat_file']
 		text_file = config['DATA']['text_file']
@@ -22,6 +21,7 @@ class DatasetWoz(object):
 		vocab_file = config['DATA']['vocab_file']
 		template_file = config['DATA']['template_file']
 		self.template = template_file # for further scoring
+		self.USE_CUDA = use_cuda
 		
 		# hyper-params
 		self.batch_size = config.getint('DATA', 'batch_size')

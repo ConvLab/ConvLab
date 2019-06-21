@@ -6,11 +6,10 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Variable
-from convlab.modules.nlg.multiwoz.utils import USE_CUDA
 
 
 class DecoderDeep(nn.Module):
-	def __init__(self, dec_type, input_size, output_size, hidden_size, d_size, n_layer=1, dropout=0.5):
+	def __init__(self, dec_type, input_size, output_size, hidden_size, d_size, n_layer=1, dropout=0.5, use_cuda=False):
 		super(DecoderDeep, self).__init__()
 		self.dec_type = dec_type
 		self.input_size = input_size
@@ -19,6 +18,7 @@ class DecoderDeep(nn.Module):
 		self.d_size = d_size
 		self.n_layer = n_layer
 		self.dropout = dropout
+		self.USE_CUDA = use_cuda
 
 		print('Using sclstm as decoder with module list!')
 		assert d_size != None
@@ -125,7 +125,7 @@ class DecoderDeep(nn.Module):
 		max_len = 55 if gen else input_var.size(1)
 	
 		self.output_prob = Variable(torch.zeros(batch_size, max_len, self.output_size))
-		if USE_CUDA:
+		if self.USE_CUDA:
 			self.output_prob = self.output_prob.cuda()
 	
 		# container for last cell, hidden for each layer
@@ -162,7 +162,7 @@ class DecoderDeep(nn.Module):
 	def get_onehot(self, word, dataset, batch_size=1):
 		res = [[1 if index==dataset.word2index[word] else 0 for index in range(self.input_size)] for b in range(batch_size)]
 		res = Variable(torch.FloatTensor(res)) 
-		if USE_CUDA:
+		if self.USE_CUDA:
 			res = res.cuda()
 		return res # (batch_size, input_size)
 
@@ -204,7 +204,7 @@ class DecoderDeep(nn.Module):
 			decoded_words_t[b][idx] = 1
 		decoded_words_t = Variable(torch.from_numpy(decoded_words_t.astype(np.float32)))
 
-		if USE_CUDA:
+		if self.USE_CUDA:
 			decoded_words_t = decoded_words_t.cuda()
 
 		return decoded_words_t 

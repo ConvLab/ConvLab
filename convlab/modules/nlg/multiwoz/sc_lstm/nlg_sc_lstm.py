@@ -16,7 +16,6 @@ from convlab.lib.file_util import cached_path
 from convlab.modules.nlg.multiwoz.sc_lstm.loader.dataset_woz import SimpleDatasetWoz
 from convlab.modules.nlg.multiwoz.sc_lstm.model.lm_deep import LMDeep
 from convlab.modules.nlg.nlg import NLG
-from convlab.modules.nlg.multiwoz.utils import USE_CUDA
 
 DEFAULT_DIRECTORY = "models"
 DEFAULT_ARCHIVE_FILE = os.path.join(DEFAULT_DIRECTORY, "nlg-sclstm-multiwoz.zip")
@@ -62,9 +61,7 @@ class SCLSTM(NLG):
             archive.extractall(model_dir)
 
         self.args, self.config = parse(is_user)
-        self.dataset = SimpleDatasetWoz(self.config)
-        global USE_CUDA
-        USE_CUDA = use_cuda
+        self.dataset = SimpleDatasetWoz(self.config, use_cuda=use_cuda)
 
         # get model hyper-parameters
         hidden_size = self.config.getint('MODEL', 'hidden_size')
@@ -73,7 +70,7 @@ class SCLSTM(NLG):
         d_size = self.dataset.do_size + self.dataset.da_size + self.dataset.sv_size  # len of 1-hot feat
         vocab_size = len(self.dataset.word2index)
 
-        self.model = LMDeep('sclstm', vocab_size, vocab_size, hidden_size, d_size, n_layer=self.args['n_layer'])
+        self.model = LMDeep('sclstm', vocab_size, vocab_size, hidden_size, d_size, n_layer=self.args['n_layer'], use_cuda=use_cuda)
         model_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), self.args['model_path'])
         # print(model_path)
         assert os.path.isfile(model_path)
