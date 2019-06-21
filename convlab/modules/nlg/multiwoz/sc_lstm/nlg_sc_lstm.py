@@ -61,7 +61,7 @@ class SCLSTM(NLG):
             archive.extractall(model_dir)
 
         self.args, self.config = parse(is_user)
-        self.dataset = SimpleDatasetWoz(self.config, use_cuda=use_cuda)
+        self.dataset = SimpleDatasetWoz(self.config)
 
         # get model hyper-parameters
         hidden_size = self.config.getint('MODEL', 'hidden_size')

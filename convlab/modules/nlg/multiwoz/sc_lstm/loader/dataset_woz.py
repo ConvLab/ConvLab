@@ -115,7 +115,7 @@ class DatasetWoz(object):
 		label_var = Variable(torch.LongTensor(sentences_padded))
 		feats_var = Variable(torch.FloatTensor(feats))
 
-		if USE_CUDA:
+		if self.USE_CUDA:
 			input_var = input_var.cuda()
 			label_var = label_var.cuda()
 			feats_var = feats_var.cuda()
