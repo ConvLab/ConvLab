@@ -156,8 +156,7 @@ def get_ngrams(sentence, max_length, skip_ngrams=False, add_tags = True):
         for n in range(1, max_length+1):
             subsets = set(itertools.combinations(range(len(words)), n))
             for subset in subsets:
-                subset = list(subset)
-                subset.sort()
+                subset = sorted(subset)
                 dists = [(subset[i]-subset[i-1]) for i in range(1, len(subset))]
                 out.append((" ".join([words[j] for j in subset]), dists))
             
@@ -267,7 +266,7 @@ def get_cnngrams(cnet, max_ngrams, max_length):
 class cnNgram(object):
     
     def __init__(self, words, logp, delta=0):
-        if type(words) != type([]) :
+        if not isinstance(words, type([])) :
             words = words.split()
         self.words = words
         self.logp = logp

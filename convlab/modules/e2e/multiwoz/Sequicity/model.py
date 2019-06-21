@@ -478,7 +478,7 @@ def main(arg_mode=None, arg_model=None):
         for pair in args.cfg:
             k, v = tuple(pair.split('='))
             dtype = type(getattr(cfg, k))
-            if dtype == type(None):
+            if isinstance(None, dtype):
                 raise ValueError()
             if dtype is bool:
                 v = False if v == 'False' else True

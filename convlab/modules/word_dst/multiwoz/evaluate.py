@@ -168,7 +168,7 @@ def _is_empty(slot, domain_state):
     return False
 
 def _is_match(value1, value2):
-    if type(value1) is not str or type(value2) is not str:
+    if not isinstance(value1, str) or not isinstance(value2, str):
         return value1 == value2
     value1 = value1.lower()
     value2 = value2.lower()
@@ -179,7 +179,7 @@ def _is_match(value1, value2):
     return False
 
 def _fuzzy_match(value1, value2):
-    if type(value1) is not str or type(value2) is not str:
+    if not isinstance(value1, str) or not isinstance(value2, str):
         return value1 == value2
     value1 = value1.lower()
     value2 = value2.lower()

@@ -158,10 +158,10 @@ def dict_diff(dict1,dict2):
     diff_dict = {}
     for k,v2 in dict2.items():
         if k in dict1:
-            assert type(v2)==type(dict1[k])
+            assert isinstance(v2, type(dict1[k]))
             v1 = dict1[k]
             if v1 != v2:
-                if type(v2) != type({}):
+                if not isinstance(v2, type({})):
                     diff_dict[k] = v2
                 else:
                     if dict_diff(v1,v2)!={}:

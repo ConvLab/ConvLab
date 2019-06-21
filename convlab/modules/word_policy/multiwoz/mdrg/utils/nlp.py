@@ -141,7 +141,7 @@ class BLEUScorer(object):
 
         # accumulate ngram statistics
         for hyps, refs in zip(hypothesis, corpus):
-            if type(hyps[0]) is list:
+            if isinstance(hyps[0], list):
                 hyps = [hyp.split() for hyp in hyps[0]]
             else:
                 hyps = [hyp.split() for hyp in hyps]

@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Modified by Microsoft Corporation.
 # Licensed under the MIT license.
 
@@ -256,9 +257,9 @@ def main(argv):
           raise
       except:
           traceback.print_exc(file=sys.stdout)
-          print "While scoring " + str(session_id)
+          print("While scoring " + str(session_id))
     # output to csv
-    print >>csvfile,( "state_component, stat, schedule, label_scheme, N, result")
+    print(( "state_component, stat, schedule, label_scheme, N, result"), file=csvfile)
     
     for stat in stats:
         component, (schedule, label_scheme), stat_class = stat
@@ -268,18 +269,18 @@ def main(argv):
                 result = "-"
             else :
                 result = "%.7f"%result
-            print >>csvfile,( "%s, %s, %i, %s, %i, %s"%(".".join(component), stat_subname, schedule, label_scheme, N, result))
+            print(( "%s, %s, %i, %s, %i, %s"%(".".join(component), stat_subname, schedule, label_scheme, N, result)), file=csvfile)
         if isinstance(stat_class, Stat_ROC) and (args.rocdump):
             rocfile = args.rocdump + '.schedule' + str(schedule) + str(label_scheme)+'.' + (".".join(component)) + '.roc.csv'
             scoresfile = args.rocdump + '.schedule' + str(schedule) + str(label_scheme)+'.' + (".".join(component)) + '.scores.csv'
             stat_class.DumpROCToFile(rocfile)
             stat_class.DumpScoresToFile(scoresfile)
         
-    print >>csvfile,'basic,total_wall_time,,,,%s' % (tracker_output['wall-time'])
-    print >>csvfile,'basic,sessions,,,,%s' % (len(sessions))
-    print >>csvfile,'basic,turns,,,,%i' % (int(turn_counter))
-    print >>csvfile,'basic,wall_time_per_turn,,,,%s' % (tracker_output['wall-time'] / turn_counter)
-    print >>csvfile,'basic,dataset,,,,%s' % (tracker_output['dataset'] )
+    print('basic,total_wall_time,,,,%s' % (tracker_output['wall-time']), file=csvfile)
+    print('basic,sessions,,,,%s' % (len(sessions)), file=csvfile)
+    print('basic,turns,,,,%i' % (int(turn_counter)), file=csvfile)
+    print('basic,wall_time_per_turn,,,,%s' % (tracker_output['wall-time'] / turn_counter), file=csvfile)
+    print('basic,dataset,,,,%s' % (tracker_output['dataset'] ), file=csvfile)
 
     csvfile.close()
     
@@ -296,12 +297,12 @@ def normalise_dist(dist, this_id=None):
         
     for i in range(len(out)):
         if out[i][1] < 0.0 :
-            print >>sys.stderr,'WARNING: Score is less than 0.0, changing to 0.0',context_string
+            print('WARNING: Score is less than 0.0, changing to 0.0',context_string, file=sys.stderr)
     
     total_p = sum([x[1] for x in out])
     if total_p >1.0 :
         if abs(total_p - 1.0) > EPS :
-            print >>sys.stderr,'WARNING: scores sum to more than 1, renormalising',context_string
+            print('WARNING: scores sum to more than 1, renormalising',context_string, file=sys.stderr)
         out = [(x[0],x[1]/total_p) for x in out]
         total_p = 1.0
         
@@ -573,7 +574,7 @@ class Stat_ROC(Stat):
         for (t,ta,fa,tr,fr) in self.roc_curve:
             if (fr >= fa):
                 return float(fr + fa)/self.N
-        print 'Could not find a place where FR >= FA'
+        print('Could not find a place where FR >= FA')
         return None
     
     def _calculateROC(self) :
@@ -603,7 +604,7 @@ class Stat_ROC(Stat):
             for (t,ta,fa,tr,fr) in self.roc_curve:
                 if (float(fa)/self.N <= fa_thresh):
                     return float(ta)/self.N
-            print 'Could not find a place where FA <= FA_THRESH'
+            print('Could not find a place where FA <= FA_THRESH')
             return None
         else:
             for (t,ta,fa,tr,fr) in self.roc_curve:
@@ -624,11 +625,11 @@ class Stat_ROC(Stat):
         pass
 
     def DumpScoresToFile(self,filename):
-        print "creating", filename
+        print("creating", filename)
         f = open(filename,'w')
-        print >>f,'label,score'
+        print('label,score', file=f)
         for label, score in self.data:
-            print >>f,'%s,%s'%(label,score)
+            print('%s,%s'%(label,score), file=f)
         f.close()
     
 def tophyp_independent(dists) :

@@ -3,6 +3,7 @@
 
 '''
 '''
+from __future__ import print_function
 
 import argparse
 import json
@@ -18,7 +19,7 @@ def prepare_nlg_data(params):
     
     raw_data = json.load(open(raw_file_path, 'rb'))
     
-    print("#dialog", len(raw_data))
+    print(("#dialog", len(raw_data)))
     print("sessID\tMsgID\tMsgFrom\tText\tDialogAct")
     
     #f = open('./multiwoz/annotated_user_utts.txt', 'w')
@@ -75,7 +76,7 @@ def prepare_data(params):
     
     raw_data = json.load(open(raw_file_path, 'rb'))
     
-    print("#dialog", len(raw_data))
+    print(("#dialog", len(raw_data)))
     print("sessID\tMsgID\tMsgFrom\tText\tDialogAct")
     
     f = open('./multiwoz/annotated_user_utts_all.txt', 'w')
@@ -167,7 +168,7 @@ def generate_bio_from_raw_data(params):
     file = open(params['txt_dia_act_file'], 'r')
     lines = [line.strip().strip('\n').strip('\r') for line in file]
     
-    print('lines', len(lines))
+    print(('lines', len(lines)))
     
     for l_id, l in enumerate(lines[1:]):
         fields = l.split('\t')
@@ -181,7 +182,7 @@ def generate_bio_from_raw_data(params):
         
         #if dia_act['intent'] == "inform": print sessID, msID, dia_acts
         
-        print l_id, sessID, msID, dia_acts, dia_act
+        print(l_id, sessID, msID, dia_acts, dia_act)
         
         new_str, bio_str, intent = parse_str_to_bio(msTxt, dia_act)
         
@@ -201,7 +202,7 @@ def generate_nlu_bio_from_data(params):
     raw_file_path = params['raw_file_path']
     raw_data = json.load(open(raw_file_path, 'rb'))
     
-    print("#dialog", len(raw_data))
+    print(("#dialog", len(raw_data)))
     print("sessID\tMsgID\tText\tDialogAct")
     
     wfile = open("./multiwoz/annoted_bio_all.txt", "w")
@@ -296,7 +297,7 @@ def select_single_intent(params):
     file = open(params['txt_dia_act_file'], 'r')
     lines = [line.strip().strip('\n').strip('\r') for line in file]
     
-    print('lines', len(lines))
+    print(('lines', len(lines)))
     
     wfile = open("./multiwoz/annoted_bio_all_20k.txt", "w")
     
@@ -438,7 +439,7 @@ def parse_slots(str, dia_act):
             
         left_index = len(str[0:str_left_index].split(' '))
         
-        print(str_left_index, left_index, len(w_arr), len(slot_val.split(' ')))
+        print((str_left_index, left_index, len(w_arr), len(slot_val.split(' '))))
         
         range_len = min(len(slot_val.split(' ')), len(w_arr)-left_index)
         for index in range(range_len):
@@ -455,7 +456,7 @@ def build_turn_pairs(params):
     raw_file_path = params['raw_file_path']
     raw_data = json.load(open(raw_file_path, 'rb'))
     
-    print("#dialog", len(raw_data))
+    print(("#dialog", len(raw_data)))
     
     dialogs = {}
     for dialog_key in raw_data:
@@ -468,7 +469,7 @@ def sample_N_dialogues(params):
     raw_file_path = params['raw_file_path']
     raw_data = json.load(open(raw_file_path, 'rb'))
     
-    print("#dialog", len(raw_data))
+    print(("#dialog", len(raw_data)))
     
     N = 1000
     dialogs = {}
@@ -486,7 +487,7 @@ def prepare_query_res_pairs(params):
     raw_file_path = params['raw_file_path']
     raw_data = json.load(open(raw_file_path, 'rb'))
     
-    print("#dialog", len(raw_data))
+    print(("#dialog", len(raw_data)))
     print("sessID\tMsgID\tText\tDialogAct")
     
     f = open('./multiwoz/annotated_qr_pairs.txt', 'w')
@@ -566,7 +567,7 @@ def prepare_u_s_pairs(params):
     raw_file_path = params['raw_file_path']
     raw_data = json.load(open(raw_file_path, 'rb'))
     
-    print("#dialog", len(raw_data))
+    print(("#dialog", len(raw_data)))
     print("sessID\tMsgID\tText\tDialogAct")
     
     f = open('./multiwoz/annotated_us_pairs.txt', 'w')

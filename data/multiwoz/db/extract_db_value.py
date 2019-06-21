@@ -14,18 +14,18 @@ for file in files:
     domain_dic = {}
     print('domain: {}'.format(domain))
     if domain == 'taxi':
-        assert type(data) is dict
+        assert isinstance(data, dict)
         for key, value_list in data.items():
-            assert type(value_list) is list
+            assert isinstance(value_list, list)
             key = key.split('_')[1].lower()
             if key in ['phone']:
                 continue
             value_list = [item.lower() for item in value_list]
             domain_dic[key] = list(set(value_list))
     else:
-        assert type(data) is list
+        assert isinstance(data, list)
         for item in data:
-            assert type(item) is dict
+            assert isinstance(item, dict)
             for key, value in item.items():
                 if key in ['id', 'location', 'price', "phone"]:
                     continue

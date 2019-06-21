@@ -1069,7 +1069,7 @@ class MovieActInActOutEnvironment(object):
     
     def action_decode(self, action):
         """ DQN: Input state, output action """
-        if type(action) == np.ndarray:
+        if isinstance(action, np.ndarray):
             action = action[0]
         act_slot_response = deepcopy(self.feasible_actions[action])
         return {'act_slot_response': act_slot_response, 'act_slot_value_response': None}

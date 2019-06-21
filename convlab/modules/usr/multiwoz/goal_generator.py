@@ -175,7 +175,7 @@ class GoalGenerator:
             d_domains = _get_dialog_domains(dialogs[d])
             first_index = []
             for domain in d_domains:
-                message = [dialogs[d]['goal']['message']] if type(dialogs[d]['goal']['message']) == str else \
+                message = [dialogs[d]['goal']['message']] if isinstance(dialogs[d]['goal']['message'], str) else \
                 dialogs[d]['goal']['message']
                 for i, m in enumerate(message):
                     if domain_keywords[domain].lower() in m.lower() or domain.lower() in m.lower():

@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Modified by Microsoft Corporation.
 # Licensed under the MIT license.
 
@@ -81,7 +82,7 @@ class TrackChecker():
             self.add_error(("top level","wall-time should be included"))
         else:
             wall_time = self.tracker_output["wall-time"]
-            if type(wall_time) != type(0.0):
+            if not isinstance(wall_time, type(0.0)):
                 self.add_error(("top level","wall-time must be a float"))
             elif wall_time <= 0.0 :
                 self.add_error(("top level","wall-time must be positive"))
@@ -192,11 +193,11 @@ class TrackChecker():
     
     def print_errors(self):
         if len(self.errors) == 0 :
-            print "Found no errors, trackfile is valid"
+            print("Found no errors, trackfile is valid")
         else :
-            print "Found",len(self.errors),"errors:"
+            print("Found",len(self.errors),"errors:")
         for context, error in self.errors:
-            print " ".join(map(str, context)), "-", error
+            print(" ".join(map(str, context)), "-", error)
         
     
     

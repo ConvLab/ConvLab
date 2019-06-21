@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Modified by Microsoft Corporation.
 # Licensed under the MIT license.
 
@@ -93,7 +94,7 @@ def main(argv):
             total_p = sum([x["score"] for x in slu_hyps])
             if total_p > 1.0 :
                 if total_p > 1.00001 :
-                    print "Warning: total_p =",total_p,"> 1.0- renormalising."
+                    print("Warning: total_p =",total_p,"> 1.0- renormalising.")
                 for slu_hyp in slu_hyps:
                     slu_hyp["score"] = slu_hyp["score"]/total_p
             

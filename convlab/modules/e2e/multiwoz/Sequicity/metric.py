@@ -402,13 +402,13 @@ class KvretEvaluator(GenericEvaluator):
     def _get_entity_dict(self, entity_data):
         entity_dict = {}
         for k in entity_data:
-            if type(entity_data[k][0]) is str:
+            if isinstance(entity_data[k][0], str):
                 for entity in entity_data[k]:
                     entity = self._lemmatize(self._tokenize(entity))
                     entity_dict[entity] = k
                     if k in ['event','poi_type']:
                         entity_dict[entity.split()[0]] = k
-            elif type(entity_data[k][0]) is dict:
+            elif isinstance(entity_data[k][0], dict):
                 for entity_entry in entity_data[k]:
                     for entity_type, entity in entity_entry.items():
                         entity_type = 'poi_type' if entity_type == 'type' else entity_type
