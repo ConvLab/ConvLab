@@ -11,6 +11,8 @@ from gym import spaces
 from convlab.lib import logger, util
 from convlab.lib.decorator import lab_api
 
+ENV_DATA_NAMES = ['reward', 'state', 'done']
+
 logger = logger.get_logger(__name__)
 
 

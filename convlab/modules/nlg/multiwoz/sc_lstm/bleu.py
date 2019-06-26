@@ -2,6 +2,7 @@
 # Licensed under the MIT license.
 
 import argparse
+import json
 import sys
 import time
 
@@ -28,7 +29,7 @@ from nltk.translate.bleu_score import corpus_bleu, SmoothingFunction
 #	_sr = sr.split('(')[1].split(')')[0].split(';')
 #	slots = []
 #	for sv in _sr:
-#		slots.append(sv.split('=')[0]) 
+#		slots.append(sv.split('=')[0])
 #	slots = sorted(slots)
 #
 #	res = domain + '|' + da + '|'
@@ -38,51 +39,52 @@ from nltk.translate.bleu_score import corpus_bleu, SmoothingFunction
 #	return res
 #
 #
-#def score_domain4(res_file):
-#	# parse test set to have semantic representation of each target
-#	target2sr = {} # target sentence to a defined str of sr
-#	sr2content = {}
-#	domains = ['restaurant', 'hotel', 'tv', 'laptop']
-#	repeat_count = 0
-#	for domain in domains:
-#		with open('data/domain4/original/'+domain+'/test.json') as f:
-#			for i in range(5):
-#				f.readline()
-#			data = json.load(f)
-#	
-#		for sr, target, base in data:
-#			target = delexicalise( normalize(re.sub(' [\.\?\!]$','',target)),sr)
-#			target = lexicalise(target, sr)
-#				
-#			sr = parse_sr(sr, domain)
-#			if target in target2sr:
-#				repeat_count += 1
-#				continue
-#			if target[-1] == ' ':
-#				target = target[:-1]
-#			target2sr[target] = sr
-#	
-#			if sr not in sr2content:
-#				sr2content[sr] = [[], [], []] # [ [refs], [bases], [gens] ]
+
+# def score_domain4(res_file):
+# 	# parse test set to have semantic representation of each target
+# 	target2sr = {} # target sentence to a defined str of sr
+# 	sr2content = {}
+# 	domains = ['restaurant', 'hotel', 'tv', 'laptop']
+# 	repeat_count = 0
+# 	for domain in domains:
+# 		with open('data/domain4/original/'+domain+'/test.json') as f:
+# 			for i in range(5):
+# 				f.readline()
+# 			data = json.load(f)
 #
-#	with open(res_file) as f:
-#		for line in f:
-#			if 'Target' in line:
-#				target = line.strip().split(':')[1][1:]
-#				sr = target2sr[target]
-#				sr2content[sr][0].append(target)
-#	
-#			if 'Base' in line:
-#				base = line.strip().split(':')[1][1:]
-#				if base[-1] == ' ':
-#					base = base[:-1]
-#				sr2content[sr][1].append(base)
-#	
-#			if 'Gen' in line:
-#				gen = line.strip().split(':')[1][1:]
-#				sr2content[sr][2].append(gen)
+# 		for sr, target, base in data:
+# 			target = delexicalise( normalize(re.sub(' [\.\?\!]$','',target)),sr)
+# 			target = lexicalise(target, sr)
 #
-#	return sr2content
+# 			sr = parse_sr(sr, domain)
+# 			if target in target2sr:
+# 				repeat_count += 1
+# 				continue
+# 			if target[-1] == ' ':
+# 				target = target[:-1]
+# 			target2sr[target] = sr
+#
+# 			if sr not in sr2content:
+# 				sr2content[sr] = [[], [], []] # [ [refs], [bases], [gens] ]
+#
+# 	with open(res_file) as f:
+# 		for line in f:
+# 			if 'Target' in line:
+# 				target = line.strip().split(':')[1][1:]
+# 				sr = target2sr[target]
+# 				sr2content[sr][0].append(target)
+#
+# 			if 'Base' in line:
+# 				base = line.strip().split(':')[1][1:]
+# 				if base[-1] == ' ':
+# 					base = base[:-1]
+# 				sr2content[sr][1].append(base)
+#
+# 			if 'Gen' in line:
+# 				gen = line.strip().split(':')[1][1:]
+# 				sr2content[sr][2].append(gen)
+#
+# 	return sr2content
 
 
 def score_woz(res_file, ignore=False):
@@ -171,6 +173,7 @@ if __name__ == '__main__':
 		assert args.template is False
 		feat2content = score_woz(args.res_file, ignore=args.ignore)
 	else: # domain4
-		assert args.ignore is False
-		feat2content = score_domain4(args.res_file)
+		assert NotImplementedError
+		# assert args.ignore is False
+		# feat2content = score_domain4(args.res_file)
 	get_bleu(feat2content, template=args.template, ignore=args.ignore)

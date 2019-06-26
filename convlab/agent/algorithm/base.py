@@ -83,14 +83,12 @@ class Algorithm(ABC):
     def act(self, state):
         '''Standard act method.'''
         raise NotImplementedError
-        return action
 
     @abstractmethod
     @lab_api
     def sample(self):
         '''Samples a batch from memory'''
         raise NotImplementedError
-        return batch
 
     @abstractmethod
     @lab_api

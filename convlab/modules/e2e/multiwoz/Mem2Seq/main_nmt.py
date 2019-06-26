@@ -28,7 +28,7 @@ for epoch in range(300):
                           batch_size=len(data[1]),
                           clip= 10.0,
                           teacher_forcing_ratio=0.5,
-                          i==0)
+                          reset=(i==0))
 
         pbar.set_description(model.print_loss())
 

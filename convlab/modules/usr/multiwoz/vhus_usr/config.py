@@ -1,8 +1,7 @@
-# -*- coding: utf-8 -*-
-"""
-@author: truthless
-"""
+# Modified by Microsoft Corporation.
+# Licensed under the MIT license.
 
+# -*- coding: utf-8 -*-
 import os
 class MultiWozConfig():
     

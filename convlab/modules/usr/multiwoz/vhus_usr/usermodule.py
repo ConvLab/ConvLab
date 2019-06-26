@@ -1,7 +1,9 @@
+# Modified by Microsoft Corporation.
+# Licensed under the MIT license.
+
 # -*- coding: utf-8 -*-
-"""
-@author: truthless
-"""
+from allennlp.modules import Attention
+
 import random
 
 import numpy as np
