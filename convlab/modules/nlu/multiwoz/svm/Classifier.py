@@ -395,7 +395,7 @@ class classifier(object):
                 if Tuples.is_generic(this_tuple[-1]) :
                     t = this_tuple[:-1] + ("<generic_value>",)
                 lines += ['('+','.join(t)+')']
-                lines += utils.svm_to_libsvm(self.classifiers[this_tuple].model)
+                lines += sutils.svm_to_libsvm(self.classifiers[this_tuple].model)
                 lines += [".",""]
         models_savefile = open(models_fname, "wb")
         for line in lines:

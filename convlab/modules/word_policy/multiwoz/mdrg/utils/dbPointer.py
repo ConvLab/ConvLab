@@ -97,6 +97,7 @@ def queryResultVenues(domain, turn, real_belief=False):
     # query the db
     sql_query = "select * from {}".format(domain)
 
+    flag = True
     if real_belief == True:
         items = turn.items()
     elif real_belief=='tracking':

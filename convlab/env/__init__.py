@@ -9,8 +9,7 @@ To be designed by human and evolution module, based on the curriculum and fitnes
 '''
 import pydash as ps
 
-# from convlab.env.base import Clock, ENV_DATA_NAMES
-from convlab.env.base import Clock
+from convlab.env.base import Clock, ENV_DATA_NAMES
 from convlab.lib import logger, util
 from convlab.lib.decorator import lab_api
 

@@ -1,7 +1,7 @@
+# Modified by Microsoft Corporation.
+# Licensed under the MIT license.
+
 # -*- coding: utf-8 -*-
-"""
-@author: keshuichonglx 
-"""
 import collections
 import json
 import os

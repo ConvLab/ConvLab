@@ -1,7 +1,8 @@
+# Modified by Microsoft Corporation.
+# Licensed under the MIT license.
+
 # -*- coding: utf-8 -*-
-"""
-@author: truthless
-"""
+
 import logging
 import os
 from copy import deepcopy
