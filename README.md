@@ -33,7 +33,7 @@ ConvLab is an open-source multi-domain end-to-end dialog system platform, aiming
 </tr>
 <tr>
     <td><b> convlab.lib </b></td>
-    <td> a libarary of common utilities </td>
+    <td> a library of common utilities </td>
 </tr>
 <tr>
     <td><b> convlab.spec </b></td>
