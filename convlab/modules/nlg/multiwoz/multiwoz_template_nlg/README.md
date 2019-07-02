@@ -15,7 +15,7 @@ There are three mode:
 Example:
 
 ```python
-from tasktk.modules.nlg.multiwoz.multiwoz_template_nlg.multiwoz_template_nlg import MultiwozTemplateNLG
+from convlab.modules.nlg.multiwoz.multiwoz_template_nlg.multiwoz_template_nlg import MultiwozTemplateNLG
 
 # dialog act
 dialog_acts = {'Train-Inform': [['Day', 'wednesday'], ['Leave', '10:15']]}
