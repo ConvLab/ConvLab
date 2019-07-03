@@ -48,7 +48,7 @@ ConvLab requires Python 3.6.5 or later. Windows is currently not offically suppo
 
 #### Setting up a virtual environment
 
-[Connda](https://conda.io/) can be used set up a virtual environment with the
+[Conda](https://conda.io/) can be used set up a virtual environment with the
 version of Python required for ConvLab.  If you already have a Python 3.6 or 3.7
 environment you want to use, you can skip to the 'installing via pip' section.
 
