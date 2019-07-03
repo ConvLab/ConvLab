@@ -1,0 +1,265 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>convlab.experiment.retro_analysis &mdash; ConvLab 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> ConvLab
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">ConvLab</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>convlab.experiment.retro_analysis</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for convlab.experiment.retro_analysis</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Modified by Microsoft Corporation.</span>
+<span class="c1"># Licensed under the MIT license.</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="c1"># The retro analysis module</span>
+<span class="c1"># Runs analysis post-hoc using existing data files</span>
+<span class="c1"># example: yarn retro_analyze data/reinforce_cartpole_2018_01_22_211751/</span>
+<span class="kn">from</span> <span class="nn">glob</span> <span class="k">import</span> <span class="n">glob</span>
+
+<span class="kn">import</span> <span class="nn">pydash</span> <span class="k">as</span> <span class="nn">ps</span>
+
+<span class="kn">from</span> <span class="nn">convlab.experiment</span> <span class="k">import</span> <span class="n">analysis</span>
+<span class="kn">from</span> <span class="nn">convlab.lib</span> <span class="k">import</span> <span class="n">logger</span><span class="p">,</span> <span class="n">util</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="retro_analyze_sessions"><a class="viewcode-back" href="../../../convlab.experiment.html#convlab.experiment.retro_analysis.retro_analyze_sessions">[docs]</a><span class="k">def</span> <span class="nf">retro_analyze_sessions</span><span class="p">(</span><span class="n">predir</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Retro analyze all sessions&#39;&#39;&#39;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Running retro_analyze_sessions&#39;</span><span class="p">)</span>
+    <span class="n">session_spec_paths</span> <span class="o">=</span> <span class="n">glob</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;</span><span class="si">{predir}</span><span class="s1">/*_s*_spec.json&#39;</span><span class="p">)</span>
+    <span class="n">util</span><span class="o">.</span><span class="n">parallelize</span><span class="p">(</span><span class="n">_retro_analyze_session</span><span class="p">,</span> <span class="p">[(</span><span class="n">p</span><span class="p">,)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">session_spec_paths</span><span class="p">],</span> <span class="n">num_cpus</span><span class="o">=</span><span class="n">util</span><span class="o">.</span><span class="n">NUM_CPUS</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">_retro_analyze_session</span><span class="p">(</span><span class="n">session_spec_path</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Method to retro analyze a single session given only a path to its spec&#39;&#39;&#39;</span>
+    <span class="n">session_spec</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">session_spec_path</span><span class="p">)</span>
+    <span class="n">info_prepath</span> <span class="o">=</span> <span class="n">session_spec</span><span class="p">[</span><span class="s1">&#39;meta&#39;</span><span class="p">][</span><span class="s1">&#39;info_prepath&#39;</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">df_mode</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;eval&#39;</span><span class="p">,</span> <span class="s1">&#39;train&#39;</span><span class="p">):</span>
+        <span class="n">session_df</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;</span><span class="si">{info_prepath}</span><span class="s1">_session_df_</span><span class="si">{df_mode}</span><span class="s1">.csv&#39;</span><span class="p">)</span>
+        <span class="n">analysis</span><span class="o">.</span><span class="n">analyze_session</span><span class="p">(</span><span class="n">session_spec</span><span class="p">,</span> <span class="n">session_df</span><span class="p">,</span> <span class="n">df_mode</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="retro_analyze_trials"><a class="viewcode-back" href="../../../convlab.experiment.html#convlab.experiment.retro_analysis.retro_analyze_trials">[docs]</a><span class="k">def</span> <span class="nf">retro_analyze_trials</span><span class="p">(</span><span class="n">predir</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Retro analyze all trials&#39;&#39;&#39;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Running retro_analyze_trials&#39;</span><span class="p">)</span>
+    <span class="n">session_spec_paths</span> <span class="o">=</span> <span class="n">glob</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;</span><span class="si">{predir}</span><span class="s1">/*_s*_spec.json&#39;</span><span class="p">)</span>
+    <span class="c1"># remove session spec paths</span>
+    <span class="n">trial_spec_paths</span> <span class="o">=</span> <span class="n">ps</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">glob</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;</span><span class="si">{predir}</span><span class="s1">/*_t*_spec.json&#39;</span><span class="p">),</span> <span class="n">session_spec_paths</span><span class="p">)</span>
+    <span class="n">util</span><span class="o">.</span><span class="n">parallelize</span><span class="p">(</span><span class="n">_retro_analyze_trial</span><span class="p">,</span> <span class="p">[(</span><span class="n">p</span><span class="p">,)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">trial_spec_paths</span><span class="p">],</span> <span class="n">num_cpus</span><span class="o">=</span><span class="n">util</span><span class="o">.</span><span class="n">NUM_CPUS</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">_retro_analyze_trial</span><span class="p">(</span><span class="n">trial_spec_path</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Method to retro analyze a single trial given only a path to its spec&#39;&#39;&#39;</span>
+    <span class="n">trial_spec</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">trial_spec_path</span><span class="p">)</span>
+    <span class="n">meta_spec</span> <span class="o">=</span> <span class="n">trial_spec</span><span class="p">[</span><span class="s1">&#39;meta&#39;</span><span class="p">]</span>
+    <span class="n">info_prepath</span> <span class="o">=</span> <span class="n">meta_spec</span><span class="p">[</span><span class="s1">&#39;info_prepath&#39;</span><span class="p">]</span>
+    <span class="n">session_metrics_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">util</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;</span><span class="si">{info_prepath}</span><span class="s1">_s</span><span class="si">{s}</span><span class="s1">_session_metrics_eval.pkl&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">meta_spec</span><span class="p">[</span><span class="s1">&#39;max_session&#39;</span><span class="p">])]</span>
+    <span class="n">analysis</span><span class="o">.</span><span class="n">analyze_trial</span><span class="p">(</span><span class="n">trial_spec</span><span class="p">,</span> <span class="n">session_metrics_list</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="retro_analyze_experiment"><a class="viewcode-back" href="../../../convlab.experiment.html#convlab.experiment.retro_analysis.retro_analyze_experiment">[docs]</a><span class="k">def</span> <span class="nf">retro_analyze_experiment</span><span class="p">(</span><span class="n">predir</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Retro analyze an experiment&#39;&#39;&#39;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Running retro_analyze_experiment&#39;</span><span class="p">)</span>
+    <span class="n">trial_spec_paths</span> <span class="o">=</span> <span class="n">glob</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;</span><span class="si">{predir}</span><span class="s1">/*_t*_spec.json&#39;</span><span class="p">)</span>
+    <span class="c1"># remove trial and session spec paths</span>
+    <span class="n">experiment_spec_paths</span> <span class="o">=</span> <span class="n">ps</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">glob</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;</span><span class="si">{predir}</span><span class="s1">/*_spec.json&#39;</span><span class="p">),</span> <span class="n">trial_spec_paths</span><span class="p">)</span>
+    <span class="n">experiment_spec_path</span> <span class="o">=</span> <span class="n">experiment_spec_paths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">spec</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">experiment_spec_path</span><span class="p">)</span>
+    <span class="n">info_prepath</span> <span class="o">=</span> <span class="n">spec</span><span class="p">[</span><span class="s1">&#39;meta&#39;</span><span class="p">][</span><span class="s1">&#39;info_prepath&#39;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;</span><span class="si">{info_prepath}</span><span class="s1">_trial_data_dict.json&#39;</span><span class="p">):</span>
+        <span class="k">return</span>  <span class="c1"># only run analysis if experiment had been ran</span>
+    <span class="n">trial_data_dict</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;</span><span class="si">{info_prepath}</span><span class="s1">_trial_data_dict.json&#39;</span><span class="p">)</span>
+    <span class="n">analysis</span><span class="o">.</span><span class="n">analyze_experiment</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">trial_data_dict</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="retro_analyze"><a class="viewcode-back" href="../../../convlab.experiment.html#convlab.experiment.retro_analysis.retro_analyze">[docs]</a><span class="k">def</span> <span class="nf">retro_analyze</span><span class="p">(</span><span class="n">predir</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Method to analyze experiment/trial from files after it ran.</span>
+<span class="sd">    @example</span>
+
+<span class="sd">    yarn retro_analyze data/reinforce_cartpole_2018_01_22_211751/</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">predir</span> <span class="o">=</span> <span class="n">predir</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>  <span class="c1"># sanitary</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;LOG_PREPATH&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;</span><span class="si">{predir}</span><span class="s1">/log/retro_analyze&#39;</span>  <span class="c1"># to prevent overwriting log file</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;Running retro-analysis on </span><span class="si">{predir}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">retro_analyze_sessions</span><span class="p">(</span><span class="n">predir</span><span class="p">)</span>
+    <span class="n">retro_analyze_trials</span><span class="p">(</span><span class="n">predir</span><span class="p">)</span>
+    <span class="n">retro_analyze_experiment</span><span class="p">(</span><span class="n">predir</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Finished retro-analysis&#39;</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, ConvLab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

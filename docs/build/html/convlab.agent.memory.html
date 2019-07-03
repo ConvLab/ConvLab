@@ -1,0 +1,535 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>convlab.agent.memory package &mdash; ConvLab 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> ConvLab
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">convlab.agent.memory package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-convlab.agent.memory.base">convlab.agent.memory.base module</a></li>
+<li><a class="reference internal" href="#module-convlab.agent.memory.onpolicy">convlab.agent.memory.onpolicy module</a></li>
+<li><a class="reference internal" href="#module-convlab.agent.memory.prioritized">convlab.agent.memory.prioritized module</a></li>
+<li><a class="reference internal" href="#module-convlab.agent.memory.replay">convlab.agent.memory.replay module</a></li>
+<li><a class="reference internal" href="#module-convlab.agent.memory">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">ConvLab</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>convlab.agent.memory package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/convlab.agent.memory.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="convlab-agent-memory-package">
+<h1>convlab.agent.memory package<a class="headerlink" href="#convlab-agent-memory-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-convlab.agent.memory.base">
+<span id="convlab-agent-memory-base-module"></span><h2>convlab.agent.memory.base module<a class="headerlink" href="#module-convlab.agent.memory.base" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="convlab.agent.memory.base.Memory">
+<em class="property">class </em><code class="descclassname">convlab.agent.memory.base.</code><code class="descname">Memory</code><span class="sig-paren">(</span><em>memory_spec</em>, <em>body</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/memory/base.html#Memory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.memory.base.Memory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></a></p>
+<p>Abstract Memory class to define the API methods</p>
+<dl class="method">
+<dt id="convlab.agent.memory.base.Memory.reset">
+<code class="descname">reset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/memory/base.html#Memory.reset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.memory.base.Memory.reset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to fully reset the memory storage and related variables</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.memory.base.Memory.sample">
+<code class="descname">sample</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/memory/base.html#Memory.sample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.memory.base.Memory.sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implement memory sampling mechanism</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.memory.base.Memory.update">
+<code class="descname">update</code><span class="sig-paren">(</span><em>state</em>, <em>action</em>, <em>reward</em>, <em>next_state</em>, <em>done</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/memory/base.html#Memory.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.memory.base.Memory.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implement memory update given the full info from the latest timestep. NOTE: guard for np.nan reward and done when individual env resets.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-convlab.agent.memory.onpolicy">
+<span id="convlab-agent-memory-onpolicy-module"></span><h2>convlab.agent.memory.onpolicy module<a class="headerlink" href="#module-convlab.agent.memory.onpolicy" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="convlab.agent.memory.onpolicy.OnPolicyBatchReplay">
+<em class="property">class </em><code class="descclassname">convlab.agent.memory.onpolicy.</code><code class="descname">OnPolicyBatchReplay</code><span class="sig-paren">(</span><em>memory_spec</em>, <em>body</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/memory/onpolicy.html#OnPolicyBatchReplay"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.memory.onpolicy.OnPolicyBatchReplay" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#convlab.agent.memory.onpolicy.OnPolicyReplay" title="convlab.agent.memory.onpolicy.OnPolicyReplay"><code class="xref py py-class docutils literal notranslate"><span class="pre">convlab.agent.memory.onpolicy.OnPolicyReplay</span></code></a></p>
+<p>Same as OnPolicyReplay Memory with the following difference.</p>
+<p>The memory does not have a fixed size. Instead the memory stores data from N experiences, where N is determined by the user. After N experiences or if an episode has ended, all of the examples are returned to the agent to learn from.</p>
+<p>In contrast, OnPolicyReplay stores entire episodes and stores them in a nested structure. OnPolicyBatchReplay stores experiences in a flat structure.</p>
+<p>e.g. memory_spec
+“memory”: {</p>
+<blockquote>
+<div>“name”: “OnPolicyBatchReplay”</div></blockquote>
+<p>}
+* batch_size is training_frequency provided by algorithm_spec</p>
+<dl class="method">
+<dt id="convlab.agent.memory.onpolicy.OnPolicyBatchReplay.add_experience">
+<code class="descname">add_experience</code><span class="sig-paren">(</span><em>state</em>, <em>action</em>, <em>reward</em>, <em>next_state</em>, <em>done</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/memory/onpolicy.html#OnPolicyBatchReplay.add_experience"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.memory.onpolicy.OnPolicyBatchReplay.add_experience" title="Permalink to this definition">¶</a></dt>
+<dd><p>Interface helper method for update() to add experience to memory</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.memory.onpolicy.OnPolicyBatchReplay.sample">
+<code class="descname">sample</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/memory/onpolicy.html#OnPolicyBatchReplay.sample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.memory.onpolicy.OnPolicyBatchReplay.sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns all the examples from memory in a single batch. Batch is stored as a dict.
+Keys are the names of the different elements of an experience. Values are a list of the corresponding sampled elements
+e.g.
+batch = {</p>
+<blockquote>
+<div>‘states’     : states,
+‘actions’    : actions,
+‘rewards’    : rewards,
+‘next_states’: next_states,
+‘dones’      : dones}</div></blockquote>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="convlab.agent.memory.onpolicy.OnPolicyReplay">
+<em class="property">class </em><code class="descclassname">convlab.agent.memory.onpolicy.</code><code class="descname">OnPolicyReplay</code><span class="sig-paren">(</span><em>memory_spec</em>, <em>body</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/memory/onpolicy.html#OnPolicyReplay"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.memory.onpolicy.OnPolicyReplay" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#convlab.agent.memory.base.Memory" title="convlab.agent.memory.base.Memory"><code class="xref py py-class docutils literal notranslate"><span class="pre">convlab.agent.memory.base.Memory</span></code></a></p>
+<p>Stores agent experiences and returns them in a batch for agent training.</p>
+<dl class="docutils">
+<dt>An experience consists of</dt>
+<dd><ul class="first last simple">
+<li>state: representation of a state</li>
+<li>action: action taken</li>
+<li>reward: scalar value</li>
+<li>next state: representation of next state (should be same as state)</li>
+<li>done: 0 / 1 representing if the current state is the last in an episode</li>
+</ul>
+</dd>
+</dl>
+<p>The memory does not have a fixed size. Instead the memory stores data from N episodes, where N is determined by the user. After N episodes, all of the examples are returned to the agent to learn from.</p>
+<p>When the examples are returned to the agent, the memory is cleared to prevent the agent from learning from off policy experiences. This memory is intended for on policy algorithms.</p>
+<dl class="docutils">
+<dt>Differences vs. Replay memory:</dt>
+<dd><ul class="first last simple">
+<li>Experiences are nested into episodes. In Replay experiences are flat, and episode is not tracked</li>
+<li>The entire memory constitues a batch. In Replay batches are sampled from memory.</li>
+<li>The memory is cleared automatically when a batch is given to the agent.</li>
+</ul>
+</dd>
+</dl>
+<p>e.g. memory_spec
+“memory”: {</p>
+<blockquote>
+<div>“name”: “OnPolicyReplay”</div></blockquote>
+<p>}</p>
+<dl class="method">
+<dt id="convlab.agent.memory.onpolicy.OnPolicyReplay.add_experience">
+<code class="descname">add_experience</code><span class="sig-paren">(</span><em>state</em>, <em>action</em>, <em>reward</em>, <em>next_state</em>, <em>done</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/memory/onpolicy.html#OnPolicyReplay.add_experience"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.memory.onpolicy.OnPolicyReplay.add_experience" title="Permalink to this definition">¶</a></dt>
+<dd><p>Interface helper method for update() to add experience to memory</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.memory.onpolicy.OnPolicyReplay.get_most_recent_experience">
+<code class="descname">get_most_recent_experience</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/memory/onpolicy.html#OnPolicyReplay.get_most_recent_experience"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.memory.onpolicy.OnPolicyReplay.get_most_recent_experience" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the most recent experience</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.memory.onpolicy.OnPolicyReplay.reset">
+<code class="descname">reset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/memory/onpolicy.html#OnPolicyReplay.reset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.memory.onpolicy.OnPolicyReplay.reset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resets the memory. Also used to initialize memory vars</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.memory.onpolicy.OnPolicyReplay.sample">
+<code class="descname">sample</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/memory/onpolicy.html#OnPolicyReplay.sample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.memory.onpolicy.OnPolicyReplay.sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns all the examples from memory in a single batch. Batch is stored as a dict.
+Keys are the names of the different elements of an experience. Values are nested lists of the corresponding sampled elements. Elements are nested into episodes
+e.g.
+batch = {</p>
+<blockquote>
+<div>‘states’     : [[s_epi1], [s_epi2], …],
+‘actions’    : [[a_epi1], [a_epi2], …],
+‘rewards’    : [[r_epi1], [r_epi2], …],
+‘next_states’: [[ns_epi1], [ns_epi2], …],
+‘dones’      : [[d_epi1], [d_epi2], …]}</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.memory.onpolicy.OnPolicyReplay.update">
+<code class="descname">update</code><span class="sig-paren">(</span><em>state</em>, <em>action</em>, <em>reward</em>, <em>next_state</em>, <em>done</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/memory/onpolicy.html#OnPolicyReplay.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.memory.onpolicy.OnPolicyReplay.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Interface method to update memory</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-convlab.agent.memory.prioritized">
+<span id="convlab-agent-memory-prioritized-module"></span><h2>convlab.agent.memory.prioritized module<a class="headerlink" href="#module-convlab.agent.memory.prioritized" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="convlab.agent.memory.prioritized.PrioritizedReplay">
+<em class="property">class </em><code class="descclassname">convlab.agent.memory.prioritized.</code><code class="descname">PrioritizedReplay</code><span class="sig-paren">(</span><em>memory_spec</em>, <em>body</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/memory/prioritized.html#PrioritizedReplay"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.memory.prioritized.PrioritizedReplay" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#convlab.agent.memory.replay.Replay" title="convlab.agent.memory.replay.Replay"><code class="xref py py-class docutils literal notranslate"><span class="pre">convlab.agent.memory.replay.Replay</span></code></a></p>
+<p>Prioritized Experience Replay</p>
+<p>Implementation follows the approach in the paper “Prioritized Experience Replay”, Schaul et al 2015” <a class="reference external" href="https://arxiv.org/pdf/1511.05952.pdf">https://arxiv.org/pdf/1511.05952.pdf</a> and is Jaromír Janisch’s with minor adaptations.
+See memory_util.py for the license and link to Jaromír’s excellent blog</p>
+<p>Stores agent experiences and samples from them for agent training according to each experience’s priority</p>
+<p>The memory has the same behaviour and storage structure as Replay memory with the addition of a SumTree to store and sample the priorities.</p>
+<p>e.g. memory_spec
+“memory”: {</p>
+<blockquote>
+<div>“name”: “PrioritizedReplay”,
+“alpha”: 1,
+“epsilon”: 0,
+“batch_size”: 32,
+“max_size”: 10000,
+“use_cer”: true</div></blockquote>
+<p>}</p>
+<dl class="method">
+<dt id="convlab.agent.memory.prioritized.PrioritizedReplay.add_experience">
+<code class="descname">add_experience</code><span class="sig-paren">(</span><em>state</em>, <em>action</em>, <em>reward</em>, <em>next_state</em>, <em>done</em>, <em>error=100000</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/memory/prioritized.html#PrioritizedReplay.add_experience"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.memory.prioritized.PrioritizedReplay.add_experience" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implementation for update() to add experience to memory, expanding the memory size if necessary.
+All experiences are added with a high priority to increase the likelihood that they are sampled at least once.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.memory.prioritized.PrioritizedReplay.get_priority">
+<code class="descname">get_priority</code><span class="sig-paren">(</span><em>error</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/memory/prioritized.html#PrioritizedReplay.get_priority"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.memory.prioritized.PrioritizedReplay.get_priority" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes in the error of one or more examples and returns the proportional priority</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.memory.prioritized.PrioritizedReplay.reset">
+<code class="descname">reset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/memory/prioritized.html#PrioritizedReplay.reset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.memory.prioritized.PrioritizedReplay.reset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes the memory arrays, size and head pointer</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.memory.prioritized.PrioritizedReplay.sample_idxs">
+<code class="descname">sample_idxs</code><span class="sig-paren">(</span><em>batch_size</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/memory/prioritized.html#PrioritizedReplay.sample_idxs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.memory.prioritized.PrioritizedReplay.sample_idxs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Samples batch_size indices from memory in proportional to their priority.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.memory.prioritized.PrioritizedReplay.update_priorities">
+<code class="descname">update_priorities</code><span class="sig-paren">(</span><em>errors</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/memory/prioritized.html#PrioritizedReplay.update_priorities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.memory.prioritized.PrioritizedReplay.update_priorities" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the priorities from the most recent batch
+Assumes the relevant batch indices are stored in self.batch_idxs</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="convlab.agent.memory.prioritized.SumTree">
+<em class="property">class </em><code class="descclassname">convlab.agent.memory.prioritized.</code><code class="descname">SumTree</code><span class="sig-paren">(</span><em>capacity</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/memory/prioritized.html#SumTree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.memory.prioritized.SumTree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Helper class for PrioritizedReplay</p>
+<p>This implementation is, with minor adaptations, Jaromír Janisch’s. The license is reproduced below.
+For more information see his excellent blog series “Let’s make a DQN” <a class="reference external" href="https://jaromiru.com/2016/09/27/lets-make-a-dqn-theory/">https://jaromiru.com/2016/09/27/lets-make-a-dqn-theory/</a></p>
+<p>MIT License</p>
+<p>Copyright (c) 2018 Jaromír Janisch</p>
+<p>Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the “Software”), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:</p>
+<dl class="method">
+<dt id="convlab.agent.memory.prioritized.SumTree.add">
+<code class="descname">add</code><span class="sig-paren">(</span><em>p</em>, <em>index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/memory/prioritized.html#SumTree.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.memory.prioritized.SumTree.add" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.memory.prioritized.SumTree.get">
+<code class="descname">get</code><span class="sig-paren">(</span><em>s</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/memory/prioritized.html#SumTree.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.memory.prioritized.SumTree.get" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.memory.prioritized.SumTree.print_tree">
+<code class="descname">print_tree</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/memory/prioritized.html#SumTree.print_tree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.memory.prioritized.SumTree.print_tree" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.memory.prioritized.SumTree.total">
+<code class="descname">total</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/memory/prioritized.html#SumTree.total"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.memory.prioritized.SumTree.total" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.memory.prioritized.SumTree.update">
+<code class="descname">update</code><span class="sig-paren">(</span><em>idx</em>, <em>p</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/memory/prioritized.html#SumTree.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.memory.prioritized.SumTree.update" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="convlab.agent.memory.prioritized.SumTree.write">
+<code class="descname">write</code><em class="property"> = 0</em><a class="headerlink" href="#convlab.agent.memory.prioritized.SumTree.write" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-convlab.agent.memory.replay">
+<span id="convlab-agent-memory-replay-module"></span><h2>convlab.agent.memory.replay module<a class="headerlink" href="#module-convlab.agent.memory.replay" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="convlab.agent.memory.replay.Replay">
+<em class="property">class </em><code class="descclassname">convlab.agent.memory.replay.</code><code class="descname">Replay</code><span class="sig-paren">(</span><em>memory_spec</em>, <em>body</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/memory/replay.html#Replay"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.memory.replay.Replay" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#convlab.agent.memory.base.Memory" title="convlab.agent.memory.base.Memory"><code class="xref py py-class docutils literal notranslate"><span class="pre">convlab.agent.memory.base.Memory</span></code></a></p>
+<p>Stores agent experiences and samples from them for agent training</p>
+<dl class="docutils">
+<dt>An experience consists of</dt>
+<dd><ul class="first last simple">
+<li>state: representation of a state</li>
+<li>action: action taken</li>
+<li>reward: scalar value</li>
+<li>next state: representation of next state (should be same as state)</li>
+<li>done: 0 / 1 representing if the current state is the last in an episode</li>
+</ul>
+</dd>
+</dl>
+<p>The memory has a size of N. When capacity is reached, the oldest experience
+is deleted to make space for the lastest experience.</p>
+<blockquote>
+<div><ul class="simple">
+<li>This is implemented as a circular buffer so that inserting experiences are O(1)</li>
+<li>Each element of an experience is stored as a separate array of size N * element dim</li>
+</ul>
+</div></blockquote>
+<p>When a batch of experiences is requested, K experiences are sampled according to a random uniform distribution.</p>
+<p>If ‘use_cer’, sampling will add the latest experience.</p>
+<p>e.g. memory_spec
+“memory”: {</p>
+<blockquote>
+<div>“name”: “Replay”,
+“batch_size”: 32,
+“max_size”: 10000,
+“use_cer”: true</div></blockquote>
+<p>}</p>
+<dl class="method">
+<dt id="convlab.agent.memory.replay.Replay.add_experience">
+<code class="descname">add_experience</code><span class="sig-paren">(</span><em>state</em>, <em>action</em>, <em>reward</em>, <em>next_state</em>, <em>done</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/memory/replay.html#Replay.add_experience"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.memory.replay.Replay.add_experience" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implementation for update() to add experience to memory, expanding the memory size if necessary</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.memory.replay.Replay.reset">
+<code class="descname">reset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/memory/replay.html#Replay.reset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.memory.replay.Replay.reset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes the memory arrays, size and head pointer</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.memory.replay.Replay.sample">
+<code class="descname">sample</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/memory/replay.html#Replay.sample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.memory.replay.Replay.sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a batch of batch_size samples. Batch is stored as a dict.
+Keys are the names of the different elements of an experience. Values are an array of the corresponding sampled elements
+e.g.
+batch = {</p>
+<blockquote>
+<div>‘states’     : states,
+‘actions’    : actions,
+‘rewards’    : rewards,
+‘next_states’: next_states,
+‘dones’      : dones}</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.memory.replay.Replay.sample_idxs">
+<code class="descname">sample_idxs</code><span class="sig-paren">(</span><em>batch_size</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/memory/replay.html#Replay.sample_idxs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.memory.replay.Replay.sample_idxs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Batch indices a sampled random uniformly</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.memory.replay.Replay.update">
+<code class="descname">update</code><span class="sig-paren">(</span><em>state</em>, <em>action</em>, <em>reward</em>, <em>next_state</em>, <em>done</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/memory/replay.html#Replay.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.memory.replay.Replay.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Interface method to update memory</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.agent.memory.replay.sample_next_states">
+<code class="descclassname">convlab.agent.memory.replay.</code><code class="descname">sample_next_states</code><span class="sig-paren">(</span><em>head</em>, <em>max_size</em>, <em>ns_idx_offset</em>, <em>batch_idxs</em>, <em>states</em>, <em>ns_buffer</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/memory/replay.html#sample_next_states"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.memory.replay.sample_next_states" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to sample next_states from states, with proper guard for next_state idx being out of bound</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-convlab.agent.memory">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-convlab.agent.memory" title="Permalink to this headline">¶</a></h2>
+<p>The memory module
+Contains different ways of storing an agents experiences and sampling from them</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, ConvLab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

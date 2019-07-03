@@ -1,0 +1,417 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>convlab.lib.viz &mdash; ConvLab 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> ConvLab
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">ConvLab</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>convlab.lib.viz</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for convlab.lib.viz</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Modified by Microsoft Corporation.</span>
+<span class="c1"># Licensed under the MIT license.</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">import</span> <span class="nn">colorlover</span> <span class="k">as</span> <span class="nn">cl</span>
+<span class="kn">import</span> <span class="nn">pydash</span> <span class="k">as</span> <span class="nn">ps</span>
+<span class="c1"># The data visualization module</span>
+<span class="c1"># Defines plotting methods for analysis</span>
+<span class="kn">from</span> <span class="nn">plotly</span> <span class="k">import</span> <span class="n">graph_objs</span> <span class="k">as</span> <span class="n">go</span><span class="p">,</span> <span class="n">io</span> <span class="k">as</span> <span class="n">pio</span><span class="p">,</span> <span class="n">tools</span>
+<span class="kn">from</span> <span class="nn">plotly.offline</span> <span class="k">import</span> <span class="n">init_notebook_mode</span><span class="p">,</span> <span class="n">iplot</span>
+
+<span class="kn">from</span> <span class="nn">convlab.lib</span> <span class="k">import</span> <span class="n">logger</span><span class="p">,</span> <span class="n">util</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="c1"># warn orca failure only once</span>
+<span class="n">orca_warn_once</span> <span class="o">=</span> <span class="n">ps</span><span class="o">.</span><span class="n">once</span><span class="p">(</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;Failed to generate graph. Run retro-analysis to generate graphs later.&#39;</span><span class="p">))</span>
+<span class="k">if</span> <span class="n">util</span><span class="o">.</span><span class="n">is_jupyter</span><span class="p">():</span>
+    <span class="n">init_notebook_mode</span><span class="p">(</span><span class="n">connected</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="create_label"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.viz.create_label">[docs]</a><span class="k">def</span> <span class="nf">create_label</span><span class="p">(</span><span class="n">y_col</span><span class="p">,</span> <span class="n">x_col</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y_title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">x_title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">legend_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Create label dict for go.Layout with smart resolution&#39;&#39;&#39;</span>
+    <span class="n">legend_name</span> <span class="o">=</span> <span class="n">legend_name</span> <span class="ow">or</span> <span class="n">y_col</span>
+    <span class="n">y_col_list</span><span class="p">,</span> <span class="n">x_col_list</span><span class="p">,</span> <span class="n">legend_name_list</span> <span class="o">=</span> <span class="n">ps</span><span class="o">.</span><span class="n">map_</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">y_col</span><span class="p">,</span> <span class="n">x_col</span><span class="p">,</span> <span class="n">legend_name</span><span class="p">],</span> <span class="n">util</span><span class="o">.</span><span class="n">cast_list</span><span class="p">)</span>
+    <span class="n">y_title</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">y_title</span> <span class="ow">or</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">y_col_list</span><span class="p">))</span>
+    <span class="n">x_title</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">x_title</span> <span class="ow">or</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">x_col_list</span><span class="p">))</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="n">title</span> <span class="ow">or</span> <span class="n">f</span><span class="s1">&#39;</span><span class="si">{y_title}</span><span class="s1"> vs </span><span class="si">{x_title}</span><span class="s1">&#39;</span>
+
+    <span class="n">label</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;y_title&#39;</span><span class="p">:</span> <span class="n">y_title</span><span class="p">,</span>
+        <span class="s1">&#39;x_title&#39;</span><span class="p">:</span> <span class="n">x_title</span><span class="p">,</span>
+        <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="n">title</span><span class="p">,</span>
+        <span class="s1">&#39;y_col_list&#39;</span><span class="p">:</span> <span class="n">y_col_list</span><span class="p">,</span>
+        <span class="s1">&#39;x_col_list&#39;</span><span class="p">:</span> <span class="n">x_col_list</span><span class="p">,</span>
+        <span class="s1">&#39;legend_name_list&#39;</span><span class="p">:</span> <span class="n">legend_name_list</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">label</span></div>
+
+
+<div class="viewcode-block" id="create_layout"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.viz.create_layout">[docs]</a><span class="k">def</span> <span class="nf">create_layout</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">y_title</span><span class="p">,</span> <span class="n">x_title</span><span class="p">,</span> <span class="n">x_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">layout_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;simplified method to generate Layout&#39;&#39;&#39;</span>
+    <span class="n">layout</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">Layout</span><span class="p">(</span>
+        <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span>
+        <span class="n">legend</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">y</span><span class="o">=-</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="s1">&#39;h&#39;</span><span class="p">),</span>
+        <span class="n">yaxis</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">rangemode</span><span class="o">=</span><span class="s1">&#39;tozero&#39;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">y_title</span><span class="p">),</span>
+        <span class="n">xaxis</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">x_type</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">x_title</span><span class="p">),</span>
+        <span class="n">width</span><span class="o">=</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">height</span><span class="p">,</span>
+        <span class="n">margin</span><span class="o">=</span><span class="n">go</span><span class="o">.</span><span class="n">layout</span><span class="o">.</span><span class="n">Margin</span><span class="p">(</span><span class="n">l</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mi">60</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">layout</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">layout_kwargs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">layout</span></div>
+
+
+<div class="viewcode-block" id="get_palette"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.viz.get_palette">[docs]</a><span class="k">def</span> <span class="nf">get_palette</span><span class="p">(</span><span class="n">size</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Get the suitable palette of a certain size&#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">size</span> <span class="o">&lt;=</span> <span class="mi">8</span><span class="p">:</span>
+        <span class="n">palette</span> <span class="o">=</span> <span class="n">cl</span><span class="o">.</span><span class="n">scales</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">size</span><span class="p">))][</span><span class="s1">&#39;qual&#39;</span><span class="p">][</span><span class="s1">&#39;Set2&#39;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">palette</span> <span class="o">=</span> <span class="n">cl</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">cl</span><span class="o">.</span><span class="n">scales</span><span class="p">[</span><span class="s1">&#39;8&#39;</span><span class="p">][</span><span class="s1">&#39;qual&#39;</span><span class="p">][</span><span class="s1">&#39;Set2&#39;</span><span class="p">],</span> <span class="n">size</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">palette</span></div>
+
+
+<div class="viewcode-block" id="lower_opacity"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.viz.lower_opacity">[docs]</a><span class="k">def</span> <span class="nf">lower_opacity</span><span class="p">(</span><span class="n">rgb</span><span class="p">,</span> <span class="n">opacity</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">rgb</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;rgb(&#39;</span><span class="p">,</span> <span class="s1">&#39;rgba(&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;)&#39;</span><span class="p">,</span> <span class="n">f</span><span class="s1">&#39;,</span><span class="si">{opacity}</span><span class="s1">)&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="plot"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.viz.plot">[docs]</a><span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">util</span><span class="o">.</span><span class="n">is_jupyter</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">iplot</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="plot_sr"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.viz.plot_sr">[docs]</a><span class="k">def</span> <span class="nf">plot_sr</span><span class="p">(</span><span class="n">sr</span><span class="p">,</span> <span class="n">time_sr</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">y_title</span><span class="p">,</span> <span class="n">x_title</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Plot a series&#39;&#39;&#39;</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">time_sr</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="n">color</span> <span class="o">=</span> <span class="n">get_palette</span><span class="p">(</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">main_trace</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">Scatter</span><span class="p">(</span>
+        <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">sr</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;lines&#39;</span><span class="p">,</span> <span class="n">showlegend</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">line</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;color&#39;</span><span class="p">:</span> <span class="n">color</span><span class="p">,</span> <span class="s1">&#39;width&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span>
+    <span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="n">main_trace</span><span class="p">]</span>
+    <span class="n">layout</span> <span class="o">=</span> <span class="n">create_layout</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span> <span class="n">y_title</span><span class="o">=</span><span class="n">y_title</span><span class="p">,</span> <span class="n">x_title</span><span class="o">=</span><span class="n">x_title</span><span class="p">)</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">Figure</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">layout</span><span class="p">)</span>
+    <span class="n">plot</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">fig</span></div>
+
+
+<div class="viewcode-block" id="plot_mean_sr"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.viz.plot_mean_sr">[docs]</a><span class="k">def</span> <span class="nf">plot_mean_sr</span><span class="p">(</span><span class="n">sr_list</span><span class="p">,</span> <span class="n">time_sr</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">y_title</span><span class="p">,</span> <span class="n">x_title</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Plot a list of series using its mean, with error bar using std&#39;&#39;&#39;</span>
+    <span class="n">mean_sr</span><span class="p">,</span> <span class="n">std_sr</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">calc_srs_mean_std</span><span class="p">(</span><span class="n">sr_list</span><span class="p">)</span>
+    <span class="n">max_sr</span> <span class="o">=</span> <span class="n">mean_sr</span> <span class="o">+</span> <span class="n">std_sr</span>
+    <span class="n">min_sr</span> <span class="o">=</span> <span class="n">mean_sr</span> <span class="o">-</span> <span class="n">std_sr</span>
+    <span class="n">max_y</span> <span class="o">=</span> <span class="n">max_sr</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="n">min_y</span> <span class="o">=</span> <span class="n">min_sr</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">time_sr</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="n">color</span> <span class="o">=</span> <span class="n">get_palette</span><span class="p">(</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">main_trace</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">Scatter</span><span class="p">(</span>
+        <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">mean_sr</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;lines&#39;</span><span class="p">,</span> <span class="n">showlegend</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">line</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;color&#39;</span><span class="p">:</span> <span class="n">color</span><span class="p">,</span> <span class="s1">&#39;width&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span>
+    <span class="p">)</span>
+    <span class="n">envelope_trace</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">Scatter</span><span class="p">(</span>
+        <span class="n">x</span><span class="o">=</span><span class="n">x</span> <span class="o">+</span> <span class="n">x</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">y</span><span class="o">=</span><span class="n">max_y</span> <span class="o">+</span> <span class="n">min_y</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">showlegend</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">line</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;color&#39;</span><span class="p">:</span> <span class="s1">&#39;rgba(0, 0, 0, 0)&#39;</span><span class="p">},</span>
+        <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;tozerox&#39;</span><span class="p">,</span> <span class="n">fillcolor</span><span class="o">=</span><span class="n">lower_opacity</span><span class="p">(</span><span class="n">color</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="n">main_trace</span><span class="p">,</span> <span class="n">envelope_trace</span><span class="p">]</span>
+    <span class="n">layout</span> <span class="o">=</span> <span class="n">create_layout</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span> <span class="n">y_title</span><span class="o">=</span><span class="n">y_title</span><span class="p">,</span> <span class="n">x_title</span><span class="o">=</span><span class="n">x_title</span><span class="p">)</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">Figure</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">layout</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">fig</span></div>
+
+
+<div class="viewcode-block" id="save_image"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.viz.save_image">[docs]</a><span class="k">def</span> <span class="nf">save_image</span><span class="p">(</span><span class="n">figure</span><span class="p">,</span> <span class="n">filepath</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;PY_ENV&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;test&#39;</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="n">filepath</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">smart_path</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">pio</span><span class="o">.</span><span class="n">write_image</span><span class="p">(</span><span class="n">figure</span><span class="p">,</span> <span class="n">filepath</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">orca_warn_once</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div>
+
+
+<span class="c1"># analysis plot methods</span>
+
+<div class="viewcode-block" id="plot_session"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.viz.plot_session">[docs]</a><span class="k">def</span> <span class="nf">plot_session</span><span class="p">(</span><span class="n">session_spec</span><span class="p">,</span> <span class="n">session_metrics</span><span class="p">,</span> <span class="n">session_df</span><span class="p">,</span> <span class="n">df_mode</span><span class="o">=</span><span class="s1">&#39;eval&#39;</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Plot the session graphs:</span>
+<span class="sd">    - mean_returns, strengths, sample_efficiencies, training_efficiencies, stabilities (with error bar)</span>
+<span class="sd">    - additional plots from session_df: losses, exploration variable, entropy</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">meta_spec</span> <span class="o">=</span> <span class="n">session_spec</span><span class="p">[</span><span class="s1">&#39;meta&#39;</span><span class="p">]</span>
+    <span class="n">prepath</span> <span class="o">=</span> <span class="n">meta_spec</span><span class="p">[</span><span class="s1">&#39;prepath&#39;</span><span class="p">]</span>
+    <span class="n">graph_prepath</span> <span class="o">=</span> <span class="n">meta_spec</span><span class="p">[</span><span class="s1">&#39;graph_prepath&#39;</span><span class="p">]</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;session graph: </span><span class="si">{session_spec[&quot;name&quot;]}</span><span class="s1"> t</span><span class="si">{meta_spec[&quot;trial&quot;]}</span><span class="s1"> s</span><span class="si">{meta_spec[&quot;session&quot;]}</span><span class="s1">&#39;</span>
+
+    <span class="n">local_metrics</span> <span class="o">=</span> <span class="n">session_metrics</span><span class="p">[</span><span class="s1">&#39;local&#39;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">df_mode</span> <span class="o">==</span> <span class="s1">&#39;train&#39;</span><span class="p">:</span>
+        <span class="n">name_time_pairs</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">(</span><span class="s1">&#39;mean_return&#39;</span><span class="p">,</span> <span class="s1">&#39;frames&#39;</span><span class="p">),</span>
+        <span class="p">]</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">time</span> <span class="ow">in</span> <span class="n">name_time_pairs</span><span class="p">:</span>
+            <span class="n">fig</span> <span class="o">=</span> <span class="n">plot_sr</span><span class="p">(</span>
+                <span class="n">local_metrics</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">local_metrics</span><span class="p">[</span><span class="n">time</span><span class="p">],</span> <span class="n">title</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">time</span><span class="p">)</span>
+            <span class="n">save_image</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">f</span><span class="s1">&#39;</span><span class="si">{graph_prepath}</span><span class="s1">_session_graph_</span><span class="si">{df_mode}</span><span class="s1">_</span><span class="si">{name}</span><span class="s1">_vs_</span><span class="si">{time}</span><span class="s1">.png&#39;</span><span class="p">)</span>
+            <span class="n">save_image</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">f</span><span class="s1">&#39;</span><span class="si">{prepath}</span><span class="s1">_session_graph_</span><span class="si">{df_mode}</span><span class="s1">_</span><span class="si">{name}</span><span class="s1">_vs_</span><span class="si">{time}</span><span class="s1">.png&#39;</span><span class="p">)</span>
+        <span class="n">name_time_pairs</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">(</span><span class="s1">&#39;loss&#39;</span><span class="p">,</span> <span class="s1">&#39;frame&#39;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;explore_var&#39;</span><span class="p">,</span> <span class="s1">&#39;frame&#39;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;entropy&#39;</span><span class="p">,</span> <span class="s1">&#39;frame&#39;</span><span class="p">),</span>
+        <span class="p">]</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">time</span> <span class="ow">in</span> <span class="n">name_time_pairs</span><span class="p">:</span>
+            <span class="n">fig</span> <span class="o">=</span> <span class="n">plot_sr</span><span class="p">(</span>
+                <span class="n">session_df</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">session_df</span><span class="p">[</span><span class="n">time</span><span class="p">],</span> <span class="n">title</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">time</span><span class="p">)</span>
+            <span class="n">save_image</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">f</span><span class="s1">&#39;</span><span class="si">{graph_prepath}</span><span class="s1">_session_graph_</span><span class="si">{df_mode}</span><span class="s1">_</span><span class="si">{name}</span><span class="s1">_vs_</span><span class="si">{time}</span><span class="s1">.png&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># training plots from session_df</span>
+        <span class="n">name_time_pairs</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">(</span><span class="s1">&#39;mean_return&#39;</span><span class="p">,</span> <span class="s1">&#39;frames&#39;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;mean_length&#39;</span><span class="p">,</span> <span class="s1">&#39;frames&#39;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;mean_success&#39;</span><span class="p">,</span> <span class="s1">&#39;frames&#39;</span><span class="p">),</span>
+        <span class="p">]</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">time</span> <span class="ow">in</span> <span class="n">name_time_pairs</span><span class="p">:</span>
+            <span class="n">fig</span> <span class="o">=</span> <span class="n">plot_sr</span><span class="p">(</span>
+                <span class="n">local_metrics</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">local_metrics</span><span class="p">[</span><span class="n">time</span><span class="p">],</span> <span class="n">title</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">time</span><span class="p">)</span>
+            <span class="n">save_image</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">f</span><span class="s1">&#39;</span><span class="si">{graph_prepath}</span><span class="s1">_session_graph_</span><span class="si">{df_mode}</span><span class="s1">_</span><span class="si">{name}</span><span class="s1">_vs_</span><span class="si">{time}</span><span class="s1">.png&#39;</span><span class="p">)</span>
+            <span class="n">save_image</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">f</span><span class="s1">&#39;</span><span class="si">{prepath}</span><span class="s1">_session_graph_</span><span class="si">{df_mode}</span><span class="s1">_</span><span class="si">{name}</span><span class="s1">_vs_</span><span class="si">{time}</span><span class="s1">.png&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="plot_trial"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.viz.plot_trial">[docs]</a><span class="k">def</span> <span class="nf">plot_trial</span><span class="p">(</span><span class="n">trial_spec</span><span class="p">,</span> <span class="n">trial_metrics</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Plot the trial graphs:</span>
+<span class="sd">    - mean_returns, strengths, sample_efficiencies, training_efficiencies, stabilities (with error bar)</span>
+<span class="sd">    - consistencies (no error bar)</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">meta_spec</span> <span class="o">=</span> <span class="n">trial_spec</span><span class="p">[</span><span class="s1">&#39;meta&#39;</span><span class="p">]</span>
+    <span class="n">prepath</span> <span class="o">=</span> <span class="n">meta_spec</span><span class="p">[</span><span class="s1">&#39;prepath&#39;</span><span class="p">]</span>
+    <span class="n">graph_prepath</span> <span class="o">=</span> <span class="n">meta_spec</span><span class="p">[</span><span class="s1">&#39;graph_prepath&#39;</span><span class="p">]</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;trial graph: </span><span class="si">{trial_spec[&quot;name&quot;]}</span><span class="s1"> t</span><span class="si">{meta_spec[&quot;trial&quot;]}</span><span class="s1"> </span><span class="si">{meta_spec[&quot;max_session&quot;]}</span><span class="s1"> sessions&#39;</span>
+
+    <span class="n">local_metrics</span> <span class="o">=</span> <span class="n">trial_metrics</span><span class="p">[</span><span class="s1">&#39;local&#39;</span><span class="p">]</span>
+    <span class="n">name_time_pairs</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s1">&#39;mean_return&#39;</span><span class="p">,</span> <span class="s1">&#39;frames&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">&#39;mean_length&#39;</span><span class="p">,</span> <span class="s1">&#39;frames&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">&#39;mean_success&#39;</span><span class="p">,</span> <span class="s1">&#39;frames&#39;</span><span class="p">),</span>
+    <span class="p">]</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">time</span> <span class="ow">in</span> <span class="n">name_time_pairs</span><span class="p">:</span>
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">plot_mean_sr</span><span class="p">(</span>
+            <span class="n">local_metrics</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">local_metrics</span><span class="p">[</span><span class="n">time</span><span class="p">],</span> <span class="n">title</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">time</span><span class="p">)</span>
+        <span class="n">save_image</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">f</span><span class="s1">&#39;</span><span class="si">{graph_prepath}</span><span class="s1">_trial_graph_</span><span class="si">{name}</span><span class="s1">_vs_</span><span class="si">{time}</span><span class="s1">.png&#39;</span><span class="p">)</span>
+        <span class="n">save_image</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">f</span><span class="s1">&#39;</span><span class="si">{prepath}</span><span class="s1">_trial_graph_</span><span class="si">{name}</span><span class="s1">_vs_</span><span class="si">{time}</span><span class="s1">.png&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="plot_experiment"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.viz.plot_experiment">[docs]</a><span class="k">def</span> <span class="nf">plot_experiment</span><span class="p">(</span><span class="n">experiment_spec</span><span class="p">,</span> <span class="n">experiment_df</span><span class="p">,</span> <span class="n">metrics_cols</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Plot the metrics vs. specs parameters of an experiment, where each point is a trial.</span>
+<span class="sd">    ref colors: https://plot.ly/python/heatmaps-contours-and-2dhistograms-tutorial/#plotlys-predefined-color-scales</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">y_cols</span> <span class="o">=</span> <span class="n">metrics_cols</span>
+    <span class="n">x_cols</span> <span class="o">=</span> <span class="n">ps</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">experiment_df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">y_cols</span><span class="p">)</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">tools</span><span class="o">.</span><span class="n">make_subplots</span><span class="p">(</span><span class="n">rows</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">y_cols</span><span class="p">),</span> <span class="n">cols</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">x_cols</span><span class="p">),</span> <span class="n">shared_xaxes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">shared_yaxes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">print_grid</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">strength_sr</span> <span class="o">=</span> <span class="n">experiment_df</span><span class="p">[</span><span class="s1">&#39;strength&#39;</span><span class="p">]</span>
+    <span class="n">min_strength</span> <span class="o">=</span> <span class="n">strength_sr</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+    <span class="n">max_strength</span> <span class="o">=</span> <span class="n">strength_sr</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">row_idx</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">y_cols</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">col_idx</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">x_cols</span><span class="p">):</span>
+            <span class="n">x_sr</span> <span class="o">=</span> <span class="n">experiment_df</span><span class="p">[</span><span class="n">x</span><span class="p">]</span>
+            <span class="n">guard_cat_x</span> <span class="o">=</span> <span class="n">x_sr</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span> <span class="k">if</span> <span class="n">x_sr</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="s1">&#39;object&#39;</span> <span class="k">else</span> <span class="n">x_sr</span>
+            <span class="n">trace</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">Scatter</span><span class="p">(</span>
+                <span class="n">y</span><span class="o">=</span><span class="n">experiment_df</span><span class="p">[</span><span class="n">y</span><span class="p">],</span> <span class="n">yaxis</span><span class="o">=</span><span class="n">f</span><span class="s1">&#39;y{row_idx+1}&#39;</span><span class="p">,</span>
+                <span class="n">x</span><span class="o">=</span><span class="n">guard_cat_x</span><span class="p">,</span> <span class="n">xaxis</span><span class="o">=</span><span class="n">f</span><span class="s1">&#39;x{col_idx+1}&#39;</span><span class="p">,</span>
+                <span class="n">showlegend</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;markers&#39;</span><span class="p">,</span>
+                <span class="n">marker</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s1">&#39;symbol&#39;</span><span class="p">:</span> <span class="s1">&#39;circle-open-dot&#39;</span><span class="p">,</span> <span class="s1">&#39;color&#39;</span><span class="p">:</span> <span class="n">experiment_df</span><span class="p">[</span><span class="s1">&#39;strength&#39;</span><span class="p">],</span> <span class="s1">&#39;opacity&#39;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+                    <span class="c1"># dump first quarter of colorscale that is too bright</span>
+                    <span class="s1">&#39;cmin&#39;</span><span class="p">:</span> <span class="n">min_strength</span> <span class="o">-</span> <span class="mf">0.50</span> <span class="o">*</span> <span class="p">(</span><span class="n">max_strength</span> <span class="o">-</span> <span class="n">min_strength</span><span class="p">),</span> <span class="s1">&#39;cmax&#39;</span><span class="p">:</span> <span class="n">max_strength</span><span class="p">,</span>
+                    <span class="s1">&#39;colorscale&#39;</span><span class="p">:</span> <span class="s1">&#39;YlGnBu&#39;</span><span class="p">,</span> <span class="s1">&#39;reversescale&#39;</span><span class="p">:</span> <span class="kc">True</span>
+                <span class="p">},</span>
+            <span class="p">)</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">row_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">col_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">layout</span><span class="p">[</span><span class="n">f</span><span class="s1">&#39;xaxis{col_idx+1}&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s1">&#39;&lt;br&gt;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ps</span><span class="o">.</span><span class="n">chunk</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">20</span><span class="p">)),</span> <span class="n">zerolinewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">categoryarray</span><span class="o">=</span><span class="nb">sorted</span><span class="p">(</span><span class="n">guard_cat_x</span><span class="o">.</span><span class="n">unique</span><span class="p">()))</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">layout</span><span class="p">[</span><span class="n">f</span><span class="s1">&#39;yaxis{row_idx+1}&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">rangemode</span><span class="o">=</span><span class="s1">&#39;tozero&#39;</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">layout</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+        <span class="n">title</span><span class="o">=</span><span class="n">f</span><span class="s1">&#39;experiment graph: </span><span class="si">{experiment_spec[&quot;name&quot;]}</span><span class="s1">&#39;</span><span class="p">,</span>
+        <span class="n">width</span><span class="o">=</span><span class="mi">100</span> <span class="o">+</span> <span class="mi">300</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">x_cols</span><span class="p">),</span> <span class="n">height</span><span class="o">=</span><span class="mi">200</span> <span class="o">+</span> <span class="mi">300</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">y_cols</span><span class="p">))</span>
+    <span class="n">plot</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
+    <span class="n">graph_prepath</span> <span class="o">=</span> <span class="n">experiment_spec</span><span class="p">[</span><span class="s1">&#39;meta&#39;</span><span class="p">][</span><span class="s1">&#39;graph_prepath&#39;</span><span class="p">]</span>
+    <span class="n">save_image</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">f</span><span class="s1">&#39;</span><span class="si">{graph_prepath}</span><span class="s1">_experiment_graph.png&#39;</span><span class="p">)</span>
+    <span class="c1"># save important graphs in prepath directly</span>
+    <span class="n">prepath</span> <span class="o">=</span> <span class="n">experiment_spec</span><span class="p">[</span><span class="s1">&#39;meta&#39;</span><span class="p">][</span><span class="s1">&#39;prepath&#39;</span><span class="p">]</span>
+    <span class="n">save_image</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">f</span><span class="s1">&#39;</span><span class="si">{prepath}</span><span class="s1">_experiment_graph.png&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">fig</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, ConvLab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

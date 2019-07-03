@@ -1,0 +1,706 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>convlab.modules.e2e.multiwoz.Sequicity.model &mdash; ConvLab 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../../../" src="../../../../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../../../index.html" class="icon icon-home"> ConvLab
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../../index.html">ConvLab</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../../../../index.html">Module code</a> &raquo;</li>
+        
+      <li>convlab.modules.e2e.multiwoz.Sequicity.model</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for convlab.modules.e2e.multiwoz.Sequicity.model</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Modified by Microsoft Corporation.</span>
+<span class="c1"># Licensed under the MIT license.</span>
+
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">nltk</span> <span class="k">import</span> <span class="n">word_tokenize</span>
+<span class="kn">from</span> <span class="nn">torch.autograd</span> <span class="k">import</span> <span class="n">Variable</span>
+<span class="kn">from</span> <span class="nn">torch.optim</span> <span class="k">import</span> <span class="n">Adam</span>
+
+<span class="kn">from</span> <span class="nn">convlab.modules.e2e.multiwoz.Sequicity.config</span> <span class="k">import</span> <span class="n">global_config</span> <span class="k">as</span> <span class="n">cfg</span>
+<span class="kn">from</span> <span class="nn">convlab.modules.e2e.multiwoz.Sequicity.metric</span> <span class="k">import</span> <span class="n">CamRestEvaluator</span><span class="p">,</span> <span class="n">KvretEvaluator</span><span class="p">,</span> <span class="n">MultiWozEvaluator</span>
+<span class="kn">from</span> <span class="nn">convlab.modules.e2e.multiwoz.Sequicity.reader</span> <span class="k">import</span> <span class="n">CamRest676Reader</span><span class="p">,</span> <span class="n">KvretReader</span><span class="p">,</span> <span class="n">MultiWozReader</span>
+<span class="kn">from</span> <span class="nn">convlab.modules.e2e.multiwoz.Sequicity.reader</span> <span class="k">import</span> <span class="n">get_glove_matrix</span>
+<span class="kn">from</span> <span class="nn">convlab.modules.e2e.multiwoz.Sequicity.reader</span> <span class="k">import</span> <span class="n">pad_sequences</span>
+<span class="kn">from</span> <span class="nn">convlab.modules.e2e.multiwoz.Sequicity.tsd_net</span> <span class="k">import</span> <span class="n">TSD</span><span class="p">,</span> <span class="n">cuda_</span>
+
+
+<div class="viewcode-block" id="Model"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.model.Model">[docs]</a><span class="k">class</span> <span class="nc">Model</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">):</span>
+        <span class="n">reader_dict</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;camrest&#39;</span><span class="p">:</span> <span class="n">CamRest676Reader</span><span class="p">,</span>
+            <span class="s1">&#39;kvret&#39;</span><span class="p">:</span> <span class="n">KvretReader</span><span class="p">,</span>
+            <span class="s1">&#39;multiwoz&#39;</span><span class="p">:</span> <span class="n">MultiWozReader</span>
+        <span class="p">}</span>
+        <span class="n">model_dict</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;TSD&#39;</span><span class="p">:</span><span class="n">TSD</span>
+        <span class="p">}</span>
+        <span class="n">evaluator_dict</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;camrest&#39;</span><span class="p">:</span> <span class="n">CamRestEvaluator</span><span class="p">,</span>
+            <span class="s1">&#39;kvret&#39;</span><span class="p">:</span> <span class="n">KvretEvaluator</span><span class="p">,</span>
+            <span class="s1">&#39;multiwoz&#39;</span><span class="p">:</span> <span class="n">MultiWozEvaluator</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reader</span> <span class="o">=</span> <span class="n">reader_dict</span><span class="p">[</span><span class="n">dataset</span><span class="p">]()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">m</span> <span class="o">=</span> <span class="n">model_dict</span><span class="p">[</span><span class="n">cfg</span><span class="o">.</span><span class="n">m</span><span class="p">](</span><span class="n">embed_size</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">embedding_size</span><span class="p">,</span>
+                               <span class="n">hidden_size</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">hidden_size</span><span class="p">,</span>
+                               <span class="n">vocab_size</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">vocab_size</span><span class="p">,</span>
+                               <span class="n">layer_num</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">layer_num</span><span class="p">,</span>
+                               <span class="n">dropout_rate</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">dropout_rate</span><span class="p">,</span>
+                               <span class="n">z_length</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">z_length</span><span class="p">,</span>
+                               <span class="n">max_ts</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">max_ts</span><span class="p">,</span>
+                               <span class="n">beam_search</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">beam_search</span><span class="p">,</span>
+                               <span class="n">beam_size</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">beam_size</span><span class="p">,</span>
+                               <span class="n">eos_token_idx</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">vocab</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;EOS_M&#39;</span><span class="p">),</span>
+                               <span class="n">vocab</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">vocab</span><span class="p">,</span>
+                               <span class="n">teacher_force</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">teacher_force</span><span class="p">,</span>
+                               <span class="n">degree_size</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">degree_size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">EV</span> <span class="o">=</span> <span class="n">evaluator_dict</span><span class="p">[</span><span class="n">dataset</span><span class="p">]</span> <span class="c1"># evaluator class</span>
+        <span class="k">if</span> <span class="n">cfg</span><span class="o">.</span><span class="n">cuda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">m</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">base_epoch</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+
+    <span class="k">def</span> <span class="nf">_convert_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">py_batch</span><span class="p">,</span> <span class="n">prev_z_py</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">u_input_py</span> <span class="o">=</span> <span class="n">py_batch</span><span class="p">[</span><span class="s1">&#39;user&#39;</span><span class="p">]</span>
+        <span class="n">u_len_py</span> <span class="o">=</span> <span class="n">py_batch</span><span class="p">[</span><span class="s1">&#39;u_len&#39;</span><span class="p">]</span>
+        <span class="n">kw_ret</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">cfg</span><span class="o">.</span><span class="n">prev_z_method</span> <span class="o">==</span> <span class="s1">&#39;concat&#39;</span> <span class="ow">and</span> <span class="n">prev_z_py</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">u_input_py</span><span class="p">)):</span>
+                <span class="n">eob</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">vocab</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;EOS_Z2&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">eob</span> <span class="ow">in</span> <span class="n">prev_z_py</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">and</span> <span class="n">prev_z_py</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">eob</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">prev_z_py</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">idx</span> <span class="o">=</span> <span class="n">prev_z_py</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">eob</span><span class="p">)</span>
+                    <span class="n">u_input_py</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">prev_z_py</span><span class="p">[</span><span class="n">i</span><span class="p">][:</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">u_input_py</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">u_input_py</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">prev_z_py</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">u_input_py</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">u_len_py</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">u_input_py</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">word</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">prev_z_py</span><span class="p">[</span><span class="n">i</span><span class="p">]):</span>
+                    <span class="k">if</span> <span class="n">word</span> <span class="o">&gt;=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">vocab_size</span><span class="p">:</span>
+                        <span class="n">prev_z_py</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span> <span class="c1">#unk</span>
+        <span class="k">elif</span> <span class="n">cfg</span><span class="o">.</span><span class="n">prev_z_method</span> <span class="o">==</span> <span class="s1">&#39;separate&#39;</span> <span class="ow">and</span> <span class="n">prev_z_py</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">prev_z_py</span><span class="p">)):</span>
+                <span class="n">eob</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">vocab</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;EOS_Z2&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">eob</span> <span class="ow">in</span> <span class="n">prev_z_py</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">and</span> <span class="n">prev_z_py</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">eob</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">prev_z_py</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">idx</span> <span class="o">=</span> <span class="n">prev_z_py</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">eob</span><span class="p">)</span>
+                    <span class="n">prev_z_py</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">prev_z_py</span><span class="p">[</span><span class="n">i</span><span class="p">][:</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">word</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">prev_z_py</span><span class="p">[</span><span class="n">i</span><span class="p">]):</span>
+                    <span class="k">if</span> <span class="n">word</span> <span class="o">&gt;=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">vocab_size</span><span class="p">:</span>
+                        <span class="n">prev_z_py</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span> <span class="c1">#unk</span>
+            <span class="n">prev_z_input_np</span> <span class="o">=</span> <span class="n">pad_sequences</span><span class="p">(</span><span class="n">prev_z_py</span><span class="p">,</span> <span class="n">cfg</span><span class="o">.</span><span class="n">max_ts</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;post&#39;</span><span class="p">,</span> <span class="n">truncating</span><span class="o">=</span><span class="s1">&#39;pre&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+            <span class="n">prev_z_len</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">_</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">prev_z_py</span><span class="p">])</span>
+            <span class="n">prev_z_input</span> <span class="o">=</span> <span class="n">cuda_</span><span class="p">(</span><span class="n">Variable</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">prev_z_input_np</span><span class="p">)</span><span class="o">.</span><span class="n">long</span><span class="p">()))</span>
+            <span class="n">kw_ret</span><span class="p">[</span><span class="s1">&#39;prev_z_len&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">prev_z_len</span>
+            <span class="n">kw_ret</span><span class="p">[</span><span class="s1">&#39;prev_z_input&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">prev_z_input</span>
+            <span class="n">kw_ret</span><span class="p">[</span><span class="s1">&#39;prev_z_input_np&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">prev_z_input_np</span>
+
+        <span class="n">degree_input_np</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">py_batch</span><span class="p">[</span><span class="s1">&#39;degree&#39;</span><span class="p">])</span>
+        <span class="n">u_input_np</span> <span class="o">=</span> <span class="n">pad_sequences</span><span class="p">(</span><span class="n">u_input_py</span><span class="p">,</span> <span class="n">cfg</span><span class="o">.</span><span class="n">max_ts</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;post&#39;</span><span class="p">,</span> <span class="n">truncating</span><span class="o">=</span><span class="s1">&#39;pre&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="n">z_input_np</span> <span class="o">=</span> <span class="n">pad_sequences</span><span class="p">(</span><span class="n">py_batch</span><span class="p">[</span><span class="s1">&#39;bspan&#39;</span><span class="p">],</span> <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;post&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="n">m_input_np</span> <span class="o">=</span> <span class="n">pad_sequences</span><span class="p">(</span><span class="n">py_batch</span><span class="p">[</span><span class="s1">&#39;response&#39;</span><span class="p">],</span> <span class="n">cfg</span><span class="o">.</span><span class="n">max_ts</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;post&#39;</span><span class="p">,</span> <span class="n">truncating</span><span class="o">=</span><span class="s1">&#39;post&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span>
+            <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+
+        <span class="n">u_len</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">u_len_py</span><span class="p">)</span>
+        <span class="n">m_len</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">py_batch</span><span class="p">[</span><span class="s1">&#39;m_len&#39;</span><span class="p">])</span>
+
+        <span class="n">degree_input</span> <span class="o">=</span> <span class="n">cuda_</span><span class="p">(</span><span class="n">Variable</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">degree_input_np</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()))</span>
+        <span class="n">u_input</span> <span class="o">=</span> <span class="n">cuda_</span><span class="p">(</span><span class="n">Variable</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">u_input_np</span><span class="p">)</span><span class="o">.</span><span class="n">long</span><span class="p">()))</span>
+        <span class="n">z_input</span> <span class="o">=</span> <span class="n">cuda_</span><span class="p">(</span><span class="n">Variable</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">z_input_np</span><span class="p">)</span><span class="o">.</span><span class="n">long</span><span class="p">()))</span>
+        <span class="n">m_input</span> <span class="o">=</span> <span class="n">cuda_</span><span class="p">(</span><span class="n">Variable</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">m_input_np</span><span class="p">)</span><span class="o">.</span><span class="n">long</span><span class="p">()))</span>
+
+        <span class="n">kw_ret</span><span class="p">[</span><span class="s1">&#39;z_input_np&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">z_input_np</span>
+
+        <span class="k">return</span> <span class="n">u_input</span><span class="p">,</span> <span class="n">u_input_np</span><span class="p">,</span> <span class="n">z_input</span><span class="p">,</span> <span class="n">m_input</span><span class="p">,</span> <span class="n">m_input_np</span><span class="p">,</span><span class="n">u_len</span><span class="p">,</span> <span class="n">m_len</span><span class="p">,</span>  \
+               <span class="n">degree_input</span><span class="p">,</span> <span class="n">kw_ret</span>
+
+<div class="viewcode-block" id="Model.train"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.model.Model.train">[docs]</a>    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">lr</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">lr</span>
+        <span class="n">prev_min_loss</span><span class="p">,</span> <span class="n">early_stop_count</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">30</span><span class="p">,</span> <span class="n">cfg</span><span class="o">.</span><span class="n">early_stop_count</span>
+        <span class="n">train_time</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">epoch_num</span><span class="p">):</span>
+            <span class="n">sw</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">epoch</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_epoch</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">training_adjust</span><span class="p">(</span><span class="n">epoch</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="o">.</span><span class="n">self_adjust</span><span class="p">(</span><span class="n">epoch</span><span class="p">)</span>
+            <span class="n">sup_loss</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">sup_cnt</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">data_iterator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">mini_batch_iterator</span><span class="p">(</span><span class="s1">&#39;train&#39;</span><span class="p">)</span>
+            <span class="n">optim</span> <span class="o">=</span> <span class="n">Adam</span><span class="p">(</span><span class="n">lr</span><span class="o">=</span><span class="n">lr</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">requires_grad</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="o">.</span><span class="n">parameters</span><span class="p">()),</span><span class="n">weight_decay</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">iter_num</span><span class="p">,</span> <span class="n">dial_batch</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">data_iterator</span><span class="p">):</span>
+                <span class="n">turn_states</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="n">prev_z</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">for</span> <span class="n">turn_num</span><span class="p">,</span> <span class="n">turn_batch</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dial_batch</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">cfg</span><span class="o">.</span><span class="n">truncated</span><span class="p">:</span>
+                        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;iter </span><span class="si">%d</span><span class="s1"> turn </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">iter_num</span><span class="p">,</span> <span class="n">turn_num</span><span class="p">))</span>
+                    <span class="n">optim</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+                    <span class="n">u_input</span><span class="p">,</span> <span class="n">u_input_np</span><span class="p">,</span> <span class="n">z_input</span><span class="p">,</span> <span class="n">m_input</span><span class="p">,</span> <span class="n">m_input_np</span><span class="p">,</span> <span class="n">u_len</span><span class="p">,</span> \
+                    <span class="n">m_len</span><span class="p">,</span> <span class="n">degree_input</span><span class="p">,</span> <span class="n">kw_ret</span> \
+                        <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_batch</span><span class="p">(</span><span class="n">turn_batch</span><span class="p">,</span> <span class="n">prev_z</span><span class="p">)</span>
+
+                    <span class="n">loss</span><span class="p">,</span> <span class="n">pr_loss</span><span class="p">,</span> <span class="n">m_loss</span><span class="p">,</span> <span class="n">turn_states</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="p">(</span><span class="n">u_input</span><span class="o">=</span><span class="n">u_input</span><span class="p">,</span> <span class="n">z_input</span><span class="o">=</span><span class="n">z_input</span><span class="p">,</span>
+                                                                        <span class="n">m_input</span><span class="o">=</span><span class="n">m_input</span><span class="p">,</span>
+                                                                        <span class="n">degree_input</span><span class="o">=</span><span class="n">degree_input</span><span class="p">,</span>
+                                                                        <span class="n">u_input_np</span><span class="o">=</span><span class="n">u_input_np</span><span class="p">,</span>
+                                                                        <span class="n">m_input_np</span><span class="o">=</span><span class="n">m_input_np</span><span class="p">,</span>
+                                                                        <span class="n">turn_states</span><span class="o">=</span><span class="n">turn_states</span><span class="p">,</span>
+                                                                        <span class="n">u_len</span><span class="o">=</span><span class="n">u_len</span><span class="p">,</span> <span class="n">m_len</span><span class="o">=</span><span class="n">m_len</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;train&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kw_ret</span><span class="p">)</span>
+                    <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">(</span><span class="n">retain_graph</span><span class="o">=</span><span class="n">turn_num</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dial_batch</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="n">grad</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">clip_grad_norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="mf">5.0</span><span class="p">)</span>
+                    <span class="n">optim</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+                    <span class="n">sup_loss</span> <span class="o">+=</span> <span class="n">loss</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+                    <span class="n">sup_cnt</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                        <span class="s1">&#39;loss:</span><span class="si">{}</span><span class="s1"> pr_loss:</span><span class="si">{}</span><span class="s1"> m_loss:</span><span class="si">{}</span><span class="s1"> grad:</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">loss</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
+                                                                       <span class="n">pr_loss</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
+                                                                       <span class="n">m_loss</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
+                                                                       <span class="n">grad</span><span class="p">))</span>
+
+                    <span class="n">prev_z</span> <span class="o">=</span> <span class="n">turn_batch</span><span class="p">[</span><span class="s1">&#39;bspan&#39;</span><span class="p">]</span>
+
+            <span class="n">epoch_sup_loss</span> <span class="o">=</span> <span class="n">sup_loss</span> <span class="o">/</span> <span class="p">(</span><span class="n">sup_cnt</span> <span class="o">+</span> <span class="mf">1e-8</span><span class="p">)</span>
+            <span class="n">train_time</span> <span class="o">+=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">sw</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Traning time: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">train_time</span><span class="p">))</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;avg training loss in epoch </span><span class="si">%d</span><span class="s1"> sup:</span><span class="si">%f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">epoch</span><span class="p">,</span> <span class="n">epoch_sup_loss</span><span class="p">))</span>
+
+            <span class="n">valid_sup_loss</span><span class="p">,</span> <span class="n">valid_unsup_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;validation loss in epoch </span><span class="si">%d</span><span class="s1"> sup:</span><span class="si">%f</span><span class="s1"> unsup:</span><span class="si">%f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">epoch</span><span class="p">,</span> <span class="n">valid_sup_loss</span><span class="p">,</span> <span class="n">valid_unsup_loss</span><span class="p">))</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;time for epoch </span><span class="si">%d</span><span class="s1">: </span><span class="si">%f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">epoch</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">sw</span><span class="p">))</span>
+            <span class="n">valid_loss</span> <span class="o">=</span> <span class="n">valid_sup_loss</span> <span class="o">+</span> <span class="n">valid_unsup_loss</span>
+
+            <span class="k">if</span> <span class="n">valid_loss</span> <span class="o">&lt;=</span> <span class="n">prev_min_loss</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">save_model</span><span class="p">(</span><span class="n">epoch</span><span class="p">)</span>
+                <span class="n">prev_min_loss</span> <span class="o">=</span> <span class="n">valid_loss</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">early_stop_count</span> <span class="o">-=</span> <span class="mi">1</span>
+                <span class="n">lr</span> <span class="o">*=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">lr_decay</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">early_stop_count</span><span class="p">:</span>
+                    <span class="k">break</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;early stop countdown </span><span class="si">%d</span><span class="s1">, learning rate </span><span class="si">%f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">early_stop_count</span><span class="p">,</span> <span class="n">lr</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Model.eval"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.model.Model.eval">[docs]</a>    <span class="k">def</span> <span class="nf">eval</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="s1">&#39;test&#39;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">result_file</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">data_iterator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">mini_batch_iterator</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">mode</span> <span class="o">=</span> <span class="s1">&#39;test&#39;</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">cfg</span><span class="o">.</span><span class="n">pretrain</span> <span class="k">else</span> <span class="s1">&#39;pretrain_test&#39;</span>
+        <span class="k">for</span> <span class="n">batch_num</span><span class="p">,</span> <span class="n">dial_batch</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">data_iterator</span><span class="p">):</span>
+            <span class="n">turn_states</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">prev_z</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">for</span> <span class="n">turn_num</span><span class="p">,</span> <span class="n">turn_batch</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dial_batch</span><span class="p">):</span>
+                <span class="n">u_input</span><span class="p">,</span> <span class="n">u_input_np</span><span class="p">,</span> <span class="n">z_input</span><span class="p">,</span> <span class="n">m_input</span><span class="p">,</span> <span class="n">m_input_np</span><span class="p">,</span> <span class="n">u_len</span><span class="p">,</span> \
+                <span class="n">m_len</span><span class="p">,</span> <span class="n">degree_input</span><span class="p">,</span> <span class="n">kw_ret</span> \
+                    <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_batch</span><span class="p">(</span><span class="n">turn_batch</span><span class="p">,</span> <span class="n">prev_z</span><span class="p">)</span>
+                <span class="n">m_idx</span><span class="p">,</span> <span class="n">z_idx</span><span class="p">,</span> <span class="n">turn_states</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span> <span class="n">u_input</span><span class="o">=</span><span class="n">u_input</span><span class="p">,</span> <span class="n">u_len</span><span class="o">=</span><span class="n">u_len</span><span class="p">,</span> <span class="n">z_input</span><span class="o">=</span><span class="n">z_input</span><span class="p">,</span>
+                                                   <span class="n">m_input</span><span class="o">=</span><span class="n">m_input</span><span class="p">,</span>
+                                                   <span class="n">degree_input</span><span class="o">=</span><span class="n">degree_input</span><span class="p">,</span> <span class="n">u_input_np</span><span class="o">=</span><span class="n">u_input_np</span><span class="p">,</span>
+                                                   <span class="n">m_input_np</span><span class="o">=</span><span class="n">m_input_np</span><span class="p">,</span>
+                                                   <span class="n">m_len</span><span class="o">=</span><span class="n">m_len</span><span class="p">,</span> <span class="n">turn_states</span><span class="o">=</span><span class="n">turn_states</span><span class="p">,</span><span class="o">**</span><span class="n">kw_ret</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">wrap_result</span><span class="p">(</span><span class="n">turn_batch</span><span class="p">,</span> <span class="n">m_idx</span><span class="p">,</span> <span class="n">z_idx</span><span class="p">,</span> <span class="n">prev_z</span><span class="o">=</span><span class="n">prev_z</span><span class="p">)</span>
+                <span class="n">prev_z</span> <span class="o">=</span> <span class="n">z_idx</span>
+        <span class="n">ev</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">EV</span><span class="p">(</span><span class="n">result_path</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">result_path</span><span class="p">)</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">ev</span><span class="o">.</span><span class="n">run_metrics</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">res</span></div>
+    
+<div class="viewcode-block" id="Model.interact"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.model.Model.interact">[docs]</a>    <span class="k">def</span> <span class="nf">interact</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">z2degree</span><span class="p">(</span><span class="n">gen_z</span><span class="p">):</span>
+            <span class="n">gen_bspan</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">vocab</span><span class="o">.</span><span class="n">sentence_decode</span><span class="p">(</span><span class="n">gen_z</span><span class="p">,</span> <span class="n">eos</span><span class="o">=</span><span class="s1">&#39;EOS_Z2&#39;</span><span class="p">)</span>
+            <span class="n">constraint_request</span> <span class="o">=</span> <span class="n">gen_bspan</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+            <span class="n">constraints</span> <span class="o">=</span> <span class="n">constraint_request</span><span class="p">[:</span><span class="n">constraint_request</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;EOS_Z1&#39;</span><span class="p">)]</span> <span class="k">if</span> <span class="s1">&#39;EOS_Z1&#39;</span> \
+                <span class="ow">in</span> <span class="n">constraint_request</span> <span class="k">else</span> <span class="n">constraint_request</span>
+            <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">ent</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">constraints</span><span class="p">):</span>
+                <span class="n">constraints</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">ent</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="p">)</span>
+            <span class="n">degree</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">db_search</span><span class="p">(</span><span class="n">constraints</span><span class="p">)</span>
+            <span class="n">degree_input_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">_degree_vec_mapping</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">degree</span><span class="p">))</span>
+            <span class="n">degree_input</span> <span class="o">=</span> <span class="n">cuda_</span><span class="p">(</span><span class="n">Variable</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">(</span><span class="n">degree_input_list</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)))</span>
+            <span class="k">return</span> <span class="n">degree</span><span class="p">,</span> <span class="n">degree_input</span>
+        
+        <span class="k">def</span> <span class="nf">denormalize</span><span class="p">(</span><span class="n">uttr</span><span class="p">):</span>
+            <span class="n">uttr</span> <span class="o">=</span> <span class="n">uttr</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39; -s&#39;</span><span class="p">,</span> <span class="s1">&#39;s&#39;</span><span class="p">)</span>
+            <span class="n">uttr</span> <span class="o">=</span> <span class="n">uttr</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39; -ly&#39;</span><span class="p">,</span> <span class="s1">&#39;ly&#39;</span><span class="p">)</span>
+            <span class="n">uttr</span> <span class="o">=</span> <span class="n">uttr</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39; -er&#39;</span><span class="p">,</span> <span class="s1">&#39;er&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">uttr</span>
+            
+        <span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Start interaction.&#39;</span><span class="p">)</span>
+        <span class="n">kw_ret</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">({</span><span class="s1">&#39;func&#39;</span><span class="p">:</span><span class="n">z2degree</span><span class="p">})</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">usr</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s1">&#39;usr: &#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">usr</span> <span class="o">==</span> <span class="s1">&#39;END&#39;</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="k">if</span> <span class="n">usr</span> <span class="o">==</span> <span class="s1">&#39;RESET&#39;</span><span class="p">:</span>
+                <span class="n">kw_ret</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">({</span><span class="s1">&#39;func&#39;</span><span class="p">:</span><span class="n">z2degree</span><span class="p">})</span>
+                <span class="k">continue</span>
+            <span class="n">usr</span> <span class="o">=</span> <span class="n">word_tokenize</span><span class="p">(</span><span class="n">usr</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+            <span class="n">usr_words</span> <span class="o">=</span> <span class="n">usr</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;EOS_U&#39;</span><span class="p">]</span>
+            <span class="n">u_len</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">usr_words</span><span class="p">)])</span>
+            <span class="n">usr_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">vocab</span><span class="o">.</span><span class="n">sentence_encode</span><span class="p">(</span><span class="n">usr_words</span><span class="p">)</span>
+            <span class="n">u_input_np</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">usr_indices</span><span class="p">)[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+            <span class="n">u_input</span> <span class="o">=</span> <span class="n">cuda_</span><span class="p">(</span><span class="n">Variable</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">u_input_np</span><span class="p">)</span><span class="o">.</span><span class="n">long</span><span class="p">()))</span>
+            <span class="n">m_idx</span><span class="p">,</span> <span class="n">z_idx</span><span class="p">,</span> <span class="n">degree</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;test&#39;</span><span class="p">,</span> <span class="n">degree_input</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">z_input</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                          <span class="n">u_input</span><span class="o">=</span><span class="n">u_input</span><span class="p">,</span> <span class="n">u_input_np</span><span class="o">=</span><span class="n">u_input_np</span><span class="p">,</span> <span class="n">u_len</span><span class="o">=</span><span class="n">u_len</span><span class="p">,</span>
+                                          <span class="n">m_input</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">m_input_np</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">m_len</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                          <span class="n">turn_states</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kw_ret</span><span class="p">)</span>
+            <span class="n">venue</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">degree</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">degree</span> <span class="k">else</span> <span class="nb">dict</span><span class="p">()</span>
+            <span class="n">l</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">vocab</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">_</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">m_idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+            <span class="k">if</span> <span class="s1">&#39;EOS_M&#39;</span> <span class="ow">in</span> <span class="n">l</span><span class="p">:</span>
+                <span class="n">l</span> <span class="o">=</span> <span class="n">l</span><span class="p">[:</span><span class="n">l</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;EOS_M&#39;</span><span class="p">)]</span>
+            <span class="n">l_origin</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">l</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s1">&#39;SLOT&#39;</span> <span class="ow">in</span> <span class="n">word</span><span class="p">:</span>
+                    <span class="n">word</span> <span class="o">=</span> <span class="n">word</span><span class="p">[:</span><span class="o">-</span><span class="mi">5</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">venue</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                        <span class="n">value</span> <span class="o">=</span> <span class="n">venue</span><span class="p">[</span><span class="n">word</span><span class="p">]</span>
+                        <span class="k">if</span> <span class="n">value</span> <span class="o">!=</span> <span class="s1">&#39;?&#39;</span><span class="p">:</span>
+                            <span class="n">l_origin</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">l_origin</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">word</span><span class="p">)</span>
+            <span class="n">sys</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">l_origin</span><span class="p">)</span>
+            <span class="n">sys</span> <span class="o">=</span> <span class="n">denormalize</span><span class="p">(</span><span class="n">sys</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;sys:&#39;</span><span class="p">,</span> <span class="n">sys</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">cfg</span><span class="o">.</span><span class="n">prev_z_method</span> <span class="o">==</span> <span class="s1">&#39;separate&#39;</span><span class="p">:</span>
+                <span class="n">eob</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">vocab</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;EOS_Z2&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">eob</span> <span class="ow">in</span> <span class="n">z_idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">and</span> <span class="n">z_idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">eob</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">z_idx</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">idx</span> <span class="o">=</span> <span class="n">z_idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">eob</span><span class="p">)</span>
+                    <span class="n">z_idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">z_idx</span><span class="p">[</span><span class="mi">0</span><span class="p">][:</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">word</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">z_idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+                    <span class="k">if</span> <span class="n">word</span> <span class="o">&gt;=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">vocab_size</span><span class="p">:</span>
+                        <span class="n">z_idx</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span> <span class="c1">#unk</span>
+                <span class="n">prev_z_input_np</span> <span class="o">=</span> <span class="n">pad_sequences</span><span class="p">(</span><span class="n">z_idx</span><span class="p">,</span> <span class="n">cfg</span><span class="o">.</span><span class="n">max_ts</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;post&#39;</span><span class="p">,</span> <span class="n">truncating</span><span class="o">=</span><span class="s1">&#39;pre&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+                <span class="n">prev_z_len</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">_</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">z_idx</span><span class="p">])</span>
+                <span class="n">prev_z_input</span> <span class="o">=</span> <span class="n">cuda_</span><span class="p">(</span><span class="n">Variable</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">prev_z_input_np</span><span class="p">)</span><span class="o">.</span><span class="n">long</span><span class="p">()))</span>
+                <span class="n">kw_ret</span><span class="p">[</span><span class="s1">&#39;prev_z_len&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">prev_z_len</span>
+                <span class="n">kw_ret</span><span class="p">[</span><span class="s1">&#39;prev_z_input&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">prev_z_input</span>
+                <span class="n">kw_ret</span><span class="p">[</span><span class="s1">&#39;prev_z_input_np&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">prev_z_input_np</span></div>
+
+<div class="viewcode-block" id="Model.predict"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.model.Model.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">usr</span><span class="p">,</span> <span class="n">kw_ret</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">z2degree</span><span class="p">(</span><span class="n">gen_z</span><span class="p">):</span>
+            <span class="n">gen_bspan</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">vocab</span><span class="o">.</span><span class="n">sentence_decode</span><span class="p">(</span><span class="n">gen_z</span><span class="p">,</span> <span class="n">eos</span><span class="o">=</span><span class="s1">&#39;EOS_Z2&#39;</span><span class="p">)</span>
+            <span class="n">constraint_request</span> <span class="o">=</span> <span class="n">gen_bspan</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+            <span class="n">constraints</span> <span class="o">=</span> <span class="n">constraint_request</span><span class="p">[:</span><span class="n">constraint_request</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;EOS_Z1&#39;</span><span class="p">)]</span> <span class="k">if</span> <span class="s1">&#39;EOS_Z1&#39;</span> \
+                <span class="ow">in</span> <span class="n">constraint_request</span> <span class="k">else</span> <span class="n">constraint_request</span>
+            <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">ent</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">constraints</span><span class="p">):</span>
+                <span class="n">constraints</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">ent</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="p">)</span>
+            <span class="n">degree</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">db_search</span><span class="p">(</span><span class="n">constraints</span><span class="p">)</span>
+            <span class="n">degree_input_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">_degree_vec_mapping</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">degree</span><span class="p">))</span>
+            <span class="n">degree_input</span> <span class="o">=</span> <span class="n">cuda_</span><span class="p">(</span><span class="n">Variable</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">(</span><span class="n">degree_input_list</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)))</span>
+            <span class="k">return</span> <span class="n">degree</span><span class="p">,</span> <span class="n">degree_input</span>
+            
+        <span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+
+        <span class="n">kw_ret</span><span class="p">[</span><span class="s1">&#39;func&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">z2degree</span>
+        <span class="k">if</span> <span class="s1">&#39;prev_z_input_np&#39;</span> <span class="ow">in</span> <span class="n">kw_ret</span><span class="p">:</span>
+            <span class="n">kw_ret</span><span class="p">[</span><span class="s1">&#39;prev_z_len&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">kw_ret</span><span class="p">[</span><span class="s1">&#39;prev_z_len&#39;</span><span class="p">])</span>
+            <span class="n">kw_ret</span><span class="p">[</span><span class="s1">&#39;prev_z_input_np&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">kw_ret</span><span class="p">[</span><span class="s1">&#39;prev_z_input_np&#39;</span><span class="p">])</span>
+            <span class="n">kw_ret</span><span class="p">[</span><span class="s1">&#39;prev_z_input&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cuda_</span><span class="p">(</span><span class="n">Variable</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">(</span><span class="n">kw_ret</span><span class="p">[</span><span class="s1">&#39;prev_z_input_np&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">long</span><span class="p">()))</span>
+
+        <span class="n">usr</span> <span class="o">=</span> <span class="n">word_tokenize</span><span class="p">(</span><span class="n">usr</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+
+        <span class="n">usr_words</span> <span class="o">=</span> <span class="n">usr</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;EOS_U&#39;</span><span class="p">]</span>
+        <span class="n">u_len</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">usr_words</span><span class="p">)])</span>
+        <span class="n">usr_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">vocab</span><span class="o">.</span><span class="n">sentence_encode</span><span class="p">(</span><span class="n">usr_words</span><span class="p">)</span>
+        <span class="n">u_input_np</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">usr_indices</span><span class="p">)[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+        <span class="n">u_input</span> <span class="o">=</span> <span class="n">cuda_</span><span class="p">(</span><span class="n">Variable</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">u_input_np</span><span class="p">)</span><span class="o">.</span><span class="n">long</span><span class="p">()))</span>
+        <span class="n">m_idx</span><span class="p">,</span> <span class="n">z_idx</span><span class="p">,</span> <span class="n">degree</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;test&#39;</span><span class="p">,</span> <span class="n">degree_input</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">z_input</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                        <span class="n">u_input</span><span class="o">=</span><span class="n">u_input</span><span class="p">,</span> <span class="n">u_input_np</span><span class="o">=</span><span class="n">u_input_np</span><span class="p">,</span> <span class="n">u_len</span><span class="o">=</span><span class="n">u_len</span><span class="p">,</span>
+                                        <span class="n">m_input</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">m_input_np</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">m_len</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                        <span class="n">turn_states</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kw_ret</span><span class="p">)</span>
+        <span class="n">venue</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">degree</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">degree</span> <span class="k">else</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">vocab</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">_</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">m_idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+        <span class="k">if</span> <span class="s1">&#39;EOS_M&#39;</span> <span class="ow">in</span> <span class="n">l</span><span class="p">:</span>
+            <span class="n">l</span> <span class="o">=</span> <span class="n">l</span><span class="p">[:</span><span class="n">l</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;EOS_M&#39;</span><span class="p">)]</span>
+        <span class="n">l_origin</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">l</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s1">&#39;SLOT&#39;</span> <span class="ow">in</span> <span class="n">word</span><span class="p">:</span>
+                <span class="n">word</span> <span class="o">=</span> <span class="n">word</span><span class="p">[:</span><span class="o">-</span><span class="mi">5</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">venue</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="n">venue</span><span class="p">[</span><span class="n">word</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">value</span> <span class="o">!=</span> <span class="s1">&#39;?&#39;</span><span class="p">:</span>
+                        <span class="n">l_origin</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">l_origin</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">word</span><span class="p">)</span>
+        <span class="n">sys</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">l_origin</span><span class="p">)</span>
+        <span class="n">kw_ret</span><span class="p">[</span><span class="s1">&#39;sys&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sys</span>
+        <span class="k">if</span> <span class="n">cfg</span><span class="o">.</span><span class="n">prev_z_method</span> <span class="o">==</span> <span class="s1">&#39;separate&#39;</span><span class="p">:</span>
+            <span class="n">eob</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">vocab</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;EOS_Z2&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">eob</span> <span class="ow">in</span> <span class="n">z_idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">and</span> <span class="n">z_idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">eob</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">z_idx</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">idx</span> <span class="o">=</span> <span class="n">z_idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">eob</span><span class="p">)</span>
+                <span class="n">z_idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">z_idx</span><span class="p">[</span><span class="mi">0</span><span class="p">][:</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">word</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">z_idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+                <span class="k">if</span> <span class="n">word</span> <span class="o">&gt;=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">vocab_size</span><span class="p">:</span>
+                    <span class="n">z_idx</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span> <span class="c1">#unk</span>
+            <span class="n">prev_z_input_np</span> <span class="o">=</span> <span class="n">pad_sequences</span><span class="p">(</span><span class="n">z_idx</span><span class="p">,</span> <span class="n">cfg</span><span class="o">.</span><span class="n">max_ts</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;post&#39;</span><span class="p">,</span> <span class="n">truncating</span><span class="o">=</span><span class="s1">&#39;pre&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+            <span class="n">prev_z_len</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">_</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">z_idx</span><span class="p">])</span>
+            <span class="n">kw_ret</span><span class="p">[</span><span class="s1">&#39;prev_z_len&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">prev_z_len</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="n">kw_ret</span><span class="p">[</span><span class="s1">&#39;prev_z_input_np&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">prev_z_input_np</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="k">if</span> <span class="s1">&#39;prev_z_input&#39;</span> <span class="ow">in</span> <span class="n">kw_ret</span><span class="p">:</span>
+                <span class="k">del</span> <span class="n">kw_ret</span><span class="p">[</span><span class="s1">&#39;prev_z_input&#39;</span><span class="p">]</span>
+
+        <span class="k">del</span> <span class="n">kw_ret</span><span class="p">[</span><span class="s1">&#39;func&#39;</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">kw_ret</span></div>
+
+<div class="viewcode-block" id="Model.validate"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.model.Model.validate">[docs]</a>    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="s1">&#39;dev&#39;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+        <span class="n">data_iterator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">mini_batch_iterator</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">sup_loss</span><span class="p">,</span> <span class="n">unsup_loss</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+        <span class="n">sup_cnt</span><span class="p">,</span> <span class="n">unsup_cnt</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">dial_batch</span> <span class="ow">in</span> <span class="n">data_iterator</span><span class="p">:</span>
+            <span class="n">turn_states</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">turn_num</span><span class="p">,</span> <span class="n">turn_batch</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dial_batch</span><span class="p">):</span>
+                <span class="n">u_input</span><span class="p">,</span> <span class="n">u_input_np</span><span class="p">,</span> <span class="n">z_input</span><span class="p">,</span> <span class="n">m_input</span><span class="p">,</span> <span class="n">m_input_np</span><span class="p">,</span> <span class="n">u_len</span><span class="p">,</span> \
+                <span class="n">m_len</span><span class="p">,</span> <span class="n">degree_input</span><span class="p">,</span> <span class="n">kw_ret</span> \
+                    <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_batch</span><span class="p">(</span><span class="n">turn_batch</span><span class="p">)</span>
+
+                <span class="n">loss</span><span class="p">,</span> <span class="n">pr_loss</span><span class="p">,</span> <span class="n">m_loss</span><span class="p">,</span> <span class="n">turn_states</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="p">(</span><span class="n">u_input</span><span class="o">=</span><span class="n">u_input</span><span class="p">,</span> <span class="n">z_input</span><span class="o">=</span><span class="n">z_input</span><span class="p">,</span>
+                                                                    <span class="n">m_input</span><span class="o">=</span><span class="n">m_input</span><span class="p">,</span>
+                                                                    <span class="n">turn_states</span><span class="o">=</span><span class="n">turn_states</span><span class="p">,</span>
+                                                                    <span class="n">degree_input</span><span class="o">=</span><span class="n">degree_input</span><span class="p">,</span>
+                                                                    <span class="n">u_input_np</span><span class="o">=</span><span class="n">u_input_np</span><span class="p">,</span> <span class="n">m_input_np</span><span class="o">=</span><span class="n">m_input_np</span><span class="p">,</span>
+                                                                    <span class="n">u_len</span><span class="o">=</span><span class="n">u_len</span><span class="p">,</span> <span class="n">m_len</span><span class="o">=</span><span class="n">m_len</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;train&#39;</span><span class="p">,</span><span class="o">**</span><span class="n">kw_ret</span><span class="p">)</span>
+                <span class="n">sup_loss</span> <span class="o">+=</span> <span class="n">loss</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+                <span class="n">sup_cnt</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                    <span class="s1">&#39;loss:</span><span class="si">{}</span><span class="s1"> pr_loss:</span><span class="si">{}</span><span class="s1"> m_loss:</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">loss</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span> <span class="n">pr_loss</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span> <span class="n">m_loss</span><span class="o">.</span><span class="n">item</span><span class="p">()))</span>
+
+        <span class="n">sup_loss</span> <span class="o">/=</span> <span class="p">(</span><span class="n">sup_cnt</span> <span class="o">+</span> <span class="mf">1e-8</span><span class="p">)</span>
+        <span class="n">unsup_loss</span> <span class="o">/=</span> <span class="p">(</span><span class="n">unsup_cnt</span> <span class="o">+</span> <span class="mf">1e-8</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;result preview...&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">sup_loss</span><span class="p">,</span> <span class="n">unsup_loss</span></div>
+
+<div class="viewcode-block" id="Model.reinforce_tune"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.model.Model.reinforce_tune">[docs]</a>    <span class="k">def</span> <span class="nf">reinforce_tune</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">lr</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">lr</span>
+        <span class="n">prev_min_loss</span><span class="p">,</span> <span class="n">early_stop_count</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">30</span><span class="p">,</span> <span class="n">cfg</span><span class="o">.</span><span class="n">early_stop_count</span>
+        <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_epoch</span> <span class="o">+</span> <span class="n">cfg</span><span class="o">.</span><span class="n">rl_epoch_num</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">mode</span> <span class="o">=</span> <span class="s1">&#39;rl&#39;</span>
+            <span class="k">if</span> <span class="n">epoch</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_epoch</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">epoch_loss</span><span class="p">,</span> <span class="n">cnt</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span><span class="mi">0</span>
+            <span class="n">data_iterator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">mini_batch_iterator</span><span class="p">(</span><span class="s1">&#39;train&#39;</span><span class="p">)</span>
+            <span class="n">optim</span> <span class="o">=</span> <span class="n">Adam</span><span class="p">(</span><span class="n">lr</span><span class="o">=</span><span class="n">lr</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">requires_grad</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="o">.</span><span class="n">parameters</span><span class="p">()),</span> <span class="n">weight_decay</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">iter_num</span><span class="p">,</span> <span class="n">dial_batch</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">data_iterator</span><span class="p">):</span>
+                <span class="n">turn_states</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="n">prev_z</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">for</span> <span class="n">turn_num</span><span class="p">,</span> <span class="n">turn_batch</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dial_batch</span><span class="p">):</span>
+                    <span class="n">optim</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+                    <span class="n">u_input</span><span class="p">,</span> <span class="n">u_input_np</span><span class="p">,</span> <span class="n">z_input</span><span class="p">,</span> <span class="n">m_input</span><span class="p">,</span> <span class="n">m_input_np</span><span class="p">,</span> <span class="n">u_len</span><span class="p">,</span> \
+                    <span class="n">m_len</span><span class="p">,</span> <span class="n">degree_input</span><span class="p">,</span> <span class="n">kw_ret</span> \
+                        <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_batch</span><span class="p">(</span><span class="n">turn_batch</span><span class="p">,</span> <span class="n">prev_z</span><span class="p">)</span>
+                    <span class="n">loss_rl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="p">(</span><span class="n">u_input</span><span class="o">=</span><span class="n">u_input</span><span class="p">,</span> <span class="n">z_input</span><span class="o">=</span><span class="n">z_input</span><span class="p">,</span>
+                                <span class="n">m_input</span><span class="o">=</span><span class="n">m_input</span><span class="p">,</span>
+                                <span class="n">degree_input</span><span class="o">=</span><span class="n">degree_input</span><span class="p">,</span>
+                                <span class="n">u_input_np</span><span class="o">=</span><span class="n">u_input_np</span><span class="p">,</span>
+                                <span class="n">m_input_np</span><span class="o">=</span><span class="n">m_input_np</span><span class="p">,</span>
+                                <span class="n">turn_states</span><span class="o">=</span><span class="n">turn_states</span><span class="p">,</span>
+                                <span class="n">u_len</span><span class="o">=</span><span class="n">u_len</span><span class="p">,</span> <span class="n">m_len</span><span class="o">=</span><span class="n">m_len</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span> <span class="o">**</span><span class="n">kw_ret</span><span class="p">)</span>
+
+                    <span class="k">if</span> <span class="n">loss_rl</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">loss</span> <span class="o">=</span> <span class="n">loss_rl</span>
+                        <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+                        <span class="n">grad</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">clip_grad_norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="mf">2.0</span><span class="p">)</span>
+                        <span class="n">optim</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+                        <span class="n">epoch_loss</span> <span class="o">+=</span> <span class="n">loss</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+                        <span class="n">cnt</span> <span class="o">+=</span> <span class="mi">1</span>
+                        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> loss </span><span class="si">{}</span><span class="s1">, grad:</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mode</span><span class="p">,</span><span class="n">loss</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span><span class="n">grad</span><span class="p">))</span>
+
+                    <span class="n">prev_z</span> <span class="o">=</span> <span class="n">turn_batch</span><span class="p">[</span><span class="s1">&#39;bspan&#39;</span><span class="p">]</span>
+
+            <span class="n">epoch_sup_loss</span> <span class="o">=</span> <span class="n">epoch_loss</span> <span class="o">/</span> <span class="p">(</span><span class="n">cnt</span> <span class="o">+</span> <span class="mf">1e-8</span><span class="p">)</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;avg training loss in epoch </span><span class="si">%d</span><span class="s1"> sup:</span><span class="si">%f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">epoch</span><span class="p">,</span> <span class="n">epoch_sup_loss</span><span class="p">))</span>
+
+            <span class="n">valid_sup_loss</span><span class="p">,</span> <span class="n">valid_unsup_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;validation loss in epoch </span><span class="si">%d</span><span class="s1"> sup:</span><span class="si">%f</span><span class="s1"> unsup:</span><span class="si">%f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">epoch</span><span class="p">,</span> <span class="n">valid_sup_loss</span><span class="p">,</span> <span class="n">valid_unsup_loss</span><span class="p">))</span>
+            <span class="n">valid_loss</span> <span class="o">=</span> <span class="n">valid_sup_loss</span> <span class="o">+</span> <span class="n">valid_unsup_loss</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">save_model</span><span class="p">(</span><span class="n">epoch</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">valid_loss</span> <span class="o">&lt;=</span> <span class="n">prev_min_loss</span><span class="p">:</span>
+                <span class="c1">#self.save_model(epoch)</span>
+                <span class="n">prev_min_loss</span> <span class="o">=</span> <span class="n">valid_loss</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">early_stop_count</span> <span class="o">-=</span> <span class="mi">1</span>
+                <span class="n">lr</span> <span class="o">*=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">lr_decay</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">early_stop_count</span><span class="p">:</span>
+                    <span class="k">break</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;early stop countdown </span><span class="si">%d</span><span class="s1">, learning rate </span><span class="si">%f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">early_stop_count</span><span class="p">,</span> <span class="n">lr</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Model.save_model"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.model.Model.save_model">[docs]</a>    <span class="k">def</span> <span class="nf">save_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epoch</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">model_path</span>
+        <span class="n">all_state</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;lstd&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span>
+                     <span class="s1">&#39;config&#39;</span><span class="p">:</span> <span class="n">cfg</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">,</span>
+                     <span class="s1">&#39;epoch&#39;</span><span class="p">:</span> <span class="n">epoch</span><span class="p">}</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">all_state</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Model.load_model"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.model.Model.load_model">[docs]</a>    <span class="k">def</span> <span class="nf">load_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">model_path</span>
+        <span class="n">all_state</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">all_state</span><span class="p">[</span><span class="s1">&#39;lstd&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">base_epoch</span> <span class="o">=</span> <span class="n">all_state</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;epoch&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Model.training_adjust"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.model.Model.training_adjust">[docs]</a>    <span class="k">def</span> <span class="nf">training_adjust</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epoch</span><span class="p">):</span>
+        <span class="k">return</span></div>
+
+<div class="viewcode-block" id="Model.freeze_module"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.model.Model.freeze_module">[docs]</a>    <span class="k">def</span> <span class="nf">freeze_module</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">module</span><span class="o">.</span><span class="n">parameters</span><span class="p">():</span>
+            <span class="n">param</span><span class="o">.</span><span class="n">requires_grad</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="Model.unfreeze_module"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.model.Model.unfreeze_module">[docs]</a>    <span class="k">def</span> <span class="nf">unfreeze_module</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">module</span><span class="o">.</span><span class="n">parameters</span><span class="p">():</span>
+            <span class="n">param</span><span class="o">.</span><span class="n">requires_grad</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="Model.load_glove_embedding"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.model.Model.load_glove_embedding">[docs]</a>    <span class="k">def</span> <span class="nf">load_glove_embedding</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">freeze</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">initial_arr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="o">.</span><span class="n">u_encoder</span><span class="o">.</span><span class="n">embedding</span><span class="o">.</span><span class="n">weight</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+        <span class="n">embedding_arr</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">get_glove_matrix</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">vocab</span><span class="p">,</span> <span class="n">initial_arr</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="o">.</span><span class="n">u_encoder</span><span class="o">.</span><span class="n">embedding</span><span class="o">.</span><span class="n">weight</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">copy_</span><span class="p">(</span><span class="n">embedding_arr</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="o">.</span><span class="n">z_decoder</span><span class="o">.</span><span class="n">emb</span><span class="o">.</span><span class="n">weight</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">copy_</span><span class="p">(</span><span class="n">embedding_arr</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="o">.</span><span class="n">m_decoder</span><span class="o">.</span><span class="n">emb</span><span class="o">.</span><span class="n">weight</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">copy_</span><span class="p">(</span><span class="n">embedding_arr</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Model.count_params"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.model.Model.count_params">[docs]</a>    <span class="k">def</span> <span class="nf">count_params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">module_parameters</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">requires_grad</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="o">.</span><span class="n">parameters</span><span class="p">())</span>
+        <span class="n">param_cnt</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">size</span><span class="p">())</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">module_parameters</span><span class="p">])</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;total trainable params: </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">param_cnt</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.model.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">arg_mode</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">arg_model</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-mode&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-model&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-cfg&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;*&#39;</span><span class="p">)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">arg_mode</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">arg_mode</span>
+    <span class="k">if</span> <span class="n">arg_model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">arg_model</span>
+
+    <span class="n">cfg</span><span class="o">.</span><span class="n">init_handler</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">cfg</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">pair</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">cfg</span><span class="p">:</span>
+            <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">pair</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="p">))</span>
+            <span class="n">dtype</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="n">k</span><span class="p">))</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">dtype</span> <span class="ow">is</span> <span class="nb">bool</span><span class="p">:</span>
+                <span class="n">v</span> <span class="o">=</span> <span class="kc">False</span> <span class="k">if</span> <span class="n">v</span> <span class="o">==</span> <span class="s1">&#39;False&#39;</span> <span class="k">else</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">v</span> <span class="o">=</span> <span class="n">dtype</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+
+    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">cfg</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">cfg</span><span class="o">.</span><span class="n">cuda</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Device: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">current_device</span><span class="p">()))</span>
+    <span class="n">cfg</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">mode</span>
+
+    <span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span>
+    <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span>
+    <span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span>
+
+    <span class="n">m</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">m</span><span class="o">.</span><span class="n">count_params</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;train&#39;</span><span class="p">:</span>
+        <span class="n">m</span><span class="o">.</span><span class="n">load_glove_embedding</span><span class="p">()</span>
+        <span class="n">m</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;adjust&#39;</span><span class="p">:</span>
+        <span class="n">m</span><span class="o">.</span><span class="n">load_model</span><span class="p">()</span>
+        <span class="n">m</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;test&#39;</span><span class="p">:</span>
+        <span class="n">m</span><span class="o">.</span><span class="n">load_model</span><span class="p">()</span>
+        <span class="n">m</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;rl&#39;</span><span class="p">:</span>
+        <span class="n">m</span><span class="o">.</span><span class="n">load_model</span><span class="p">()</span>
+        <span class="n">m</span><span class="o">.</span><span class="n">reinforce_tune</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;interact&#39;</span><span class="p">:</span>
+        <span class="n">m</span><span class="o">.</span><span class="n">load_model</span><span class="p">()</span>
+        <span class="n">m</span><span class="o">.</span><span class="n">interact</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;load&#39;</span><span class="p">:</span>
+        <span class="n">m</span><span class="o">.</span><span class="n">load_model</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">m</span></div>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, ConvLab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

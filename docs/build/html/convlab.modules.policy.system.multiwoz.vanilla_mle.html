@@ -1,0 +1,370 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>convlab.modules.policy.system.multiwoz.vanilla_mle package &mdash; ConvLab 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> ConvLab
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">convlab.modules.policy.system.multiwoz.vanilla_mle package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-convlab.modules.policy.system.multiwoz.vanilla_mle.dataset_reader">convlab.modules.policy.system.multiwoz.vanilla_mle.dataset_reader module</a></li>
+<li><a class="reference internal" href="#module-convlab.modules.policy.system.multiwoz.vanilla_mle.evaluate">convlab.modules.policy.system.multiwoz.vanilla_mle.evaluate module</a></li>
+<li><a class="reference internal" href="#module-convlab.modules.policy.system.multiwoz.vanilla_mle.model">convlab.modules.policy.system.multiwoz.vanilla_mle.model module</a></li>
+<li><a class="reference internal" href="#module-convlab.modules.policy.system.multiwoz.vanilla_mle.policy">convlab.modules.policy.system.multiwoz.vanilla_mle.policy module</a></li>
+<li><a class="reference internal" href="#module-convlab.modules.policy.system.multiwoz.vanilla_mle.train">convlab.modules.policy.system.multiwoz.vanilla_mle.train module</a></li>
+<li><a class="reference internal" href="#module-convlab.modules.policy.system.multiwoz.vanilla_mle">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">ConvLab</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>convlab.modules.policy.system.multiwoz.vanilla_mle package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/convlab.modules.policy.system.multiwoz.vanilla_mle.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="convlab-modules-policy-system-multiwoz-vanilla-mle-package">
+<h1>convlab.modules.policy.system.multiwoz.vanilla_mle package<a class="headerlink" href="#convlab-modules-policy-system-multiwoz-vanilla-mle-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-convlab.modules.policy.system.multiwoz.vanilla_mle.dataset_reader">
+<span id="convlab-modules-policy-system-multiwoz-vanilla-mle-dataset-reader-module"></span><h2>convlab.modules.policy.system.multiwoz.vanilla_mle.dataset_reader module<a class="headerlink" href="#module-convlab.modules.policy.system.multiwoz.vanilla_mle.dataset_reader" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="convlab.modules.policy.system.multiwoz.vanilla_mle.dataset_reader.MlePolicyDatasetReader">
+<em class="property">class </em><code class="descclassname">convlab.modules.policy.system.multiwoz.vanilla_mle.dataset_reader.</code><code class="descname">MlePolicyDatasetReader</code><span class="sig-paren">(</span><em>num_actions: int</em>, <em>lazy: bool = False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/policy/system/multiwoz/vanilla_mle/dataset_reader.html#MlePolicyDatasetReader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.policy.system.multiwoz.vanilla_mle.dataset_reader.MlePolicyDatasetReader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">allennlp.data.dataset_readers.dataset_reader.DatasetReader</span></code></p>
+<p>Reads instances from a data file:</p>
+<dl class="method">
+<dt id="convlab.modules.policy.system.multiwoz.vanilla_mle.dataset_reader.MlePolicyDatasetReader.find_best_delex_act">
+<code class="descname">find_best_delex_act</code><span class="sig-paren">(</span><em>action</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/policy/system/multiwoz/vanilla_mle/dataset_reader.html#MlePolicyDatasetReader.find_best_delex_act"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.policy.system.multiwoz.vanilla_mle.dataset_reader.MlePolicyDatasetReader.find_best_delex_act" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="convlab.modules.policy.system.multiwoz.vanilla_mle.dataset_reader.MlePolicyDatasetReader.text_to_instance">
+<code class="descname">text_to_instance</code><span class="sig-paren">(</span><em>state: numpy.ndarray</em>, <em>action: int = None</em><span class="sig-paren">)</span> &#x2192; allennlp.data.instance.Instance<a class="reference internal" href="_modules/convlab/modules/policy/system/multiwoz/vanilla_mle/dataset_reader.html#MlePolicyDatasetReader.text_to_instance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.policy.system.multiwoz.vanilla_mle.dataset_reader.MlePolicyDatasetReader.text_to_instance" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-convlab.modules.policy.system.multiwoz.vanilla_mle.evaluate">
+<span id="convlab-modules-policy-system-multiwoz-vanilla-mle-evaluate-module"></span><h2>convlab.modules.policy.system.multiwoz.vanilla_mle.evaluate module<a class="headerlink" href="#module-convlab.modules.policy.system.multiwoz.vanilla_mle.evaluate" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">evaluate</span></code> subcommand can be used to
+evaluate a trained model against a dataset
+and report any metrics calculated by the model.</p>
+<dl class="function">
+<dt id="convlab.modules.policy.system.multiwoz.vanilla_mle.evaluate.evaluate_from_args">
+<code class="descclassname">convlab.modules.policy.system.multiwoz.vanilla_mle.evaluate.</code><code class="descname">evaluate_from_args</code><span class="sig-paren">(</span><em>args: argparse.Namespace</em><span class="sig-paren">)</span> &#x2192; Dict[str, Any]<a class="reference internal" href="_modules/convlab/modules/policy/system/multiwoz/vanilla_mle/evaluate.html#evaluate_from_args"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.policy.system.multiwoz.vanilla_mle.evaluate.evaluate_from_args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-convlab.modules.policy.system.multiwoz.vanilla_mle.model">
+<span id="convlab-modules-policy-system-multiwoz-vanilla-mle-model-module"></span><h2>convlab.modules.policy.system.multiwoz.vanilla_mle.model module<a class="headerlink" href="#module-convlab.modules.policy.system.multiwoz.vanilla_mle.model" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="convlab.modules.policy.system.multiwoz.vanilla_mle.model.VanillaMLE">
+<em class="property">class </em><code class="descclassname">convlab.modules.policy.system.multiwoz.vanilla_mle.model.</code><code class="descname">VanillaMLE</code><span class="sig-paren">(</span><em>vocab: allennlp.data.vocabulary.Vocabulary</em>, <em>input_dim: int</em>, <em>num_classes: int</em>, <em>label_namespace: str = 'labels'</em>, <em>feedforward: Optional[allennlp.modules.feedforward.FeedForward] = None</em>, <em>dropout: Optional[float] = None</em>, <em>verbose_metrics: bool = False</em>, <em>initializer: allennlp.nn.initializers.InitializerApplicator = &lt;allennlp.nn.initializers.InitializerApplicator object&gt;</em>, <em>regularizer: Optional[allennlp.nn.regularizers.regularizer_applicator.RegularizerApplicator] = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/policy/system/multiwoz/vanilla_mle/model.html#VanillaMLE"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.policy.system.multiwoz.vanilla_mle.model.VanillaMLE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">allennlp.models.model.Model</span></code></p>
+<p>The <code class="docutils literal notranslate"><span class="pre">VanillaMLE</span></code> makes predictions based on a Softmax over a list of top combinatorial actions.</p>
+<dl class="method">
+<dt id="convlab.modules.policy.system.multiwoz.vanilla_mle.model.VanillaMLE.decode">
+<code class="descname">decode</code><span class="sig-paren">(</span><em>output_dict: Dict[str, torch.Tensor]</em><span class="sig-paren">)</span> &#x2192; Dict[str, torch.Tensor]<a class="reference internal" href="_modules/convlab/modules/policy/system/multiwoz/vanilla_mle/model.html#VanillaMLE.decode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.policy.system.multiwoz.vanilla_mle.model.VanillaMLE.decode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Does a simple argmax over the class probabilities.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.modules.policy.system.multiwoz.vanilla_mle.model.VanillaMLE.forward">
+<code class="descname">forward</code><span class="sig-paren">(</span><em>states: torch.FloatTensor</em>, <em>actions: torch.LongTensor = None</em>, <em>metadata: List[Dict[str</em>, <em>Any]] = None</em>, <em>**kwargs</em><span class="sig-paren">)</span> &#x2192; Dict[str, torch.Tensor]<a class="reference internal" href="_modules/convlab/modules/policy/system/multiwoz/vanilla_mle/model.html#VanillaMLE.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.policy.system.multiwoz.vanilla_mle.model.VanillaMLE.forward" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="convlab.modules.policy.system.multiwoz.vanilla_mle.model.VanillaMLE.get_metrics">
+<code class="descname">get_metrics</code><span class="sig-paren">(</span><em>reset: bool = False</em><span class="sig-paren">)</span> &#x2192; Dict[str, float]<a class="reference internal" href="_modules/convlab/modules/policy/system/multiwoz/vanilla_mle/model.html#VanillaMLE.get_metrics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.policy.system.multiwoz.vanilla_mle.model.VanillaMLE.get_metrics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a dictionary of metrics. This method will be called by
+<code class="xref py py-class docutils literal notranslate"><span class="pre">allennlp.training.Trainer</span></code> in order to compute and use model metrics for early
+stopping and model serialization.  We return an empty dictionary here rather than raising
+as it is not required to implement metrics for a new model.  A boolean <cite>reset</cite> parameter is
+passed, as frequently a metric accumulator will have some state which should be reset
+between epochs. This is also compatible with <code class="xref py py-class docutils literal notranslate"> <span class="pre">Metrics</span>
+<span class="pre">should</span> <span class="pre">be</span> <span class="pre">populated</span> <span class="pre">during</span> <span class="pre">the</span> <span class="pre">call</span> <span class="pre">to</span> <span class="pre">``forward`</span></code>, with the
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Metric</span></code> handling the accumulation of the metric until this
+method is called.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-convlab.modules.policy.system.multiwoz.vanilla_mle.policy">
+<span id="convlab-modules-policy-system-multiwoz-vanilla-mle-policy-module"></span><h2>convlab.modules.policy.system.multiwoz.vanilla_mle.policy module<a class="headerlink" href="#module-convlab.modules.policy.system.multiwoz.vanilla_mle.policy" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="convlab.modules.policy.system.multiwoz.vanilla_mle.policy.VanillaMLEPolicy">
+<em class="property">class </em><code class="descclassname">convlab.modules.policy.system.multiwoz.vanilla_mle.policy.</code><code class="descname">VanillaMLEPolicy</code><span class="sig-paren">(</span><em>archive_file='C:\Users\jincli\Desktop\ConvLab\convlab\modules\policy\system\multiwoz\vanilla_mle\models/300/model.tar.gz'</em>, <em>cuda_device=-1</em>, <em>model_file=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/policy/system/multiwoz/vanilla_mle/policy.html#VanillaMLEPolicy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.policy.system.multiwoz.vanilla_mle.policy.VanillaMLEPolicy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="convlab.modules.policy.system.html#convlab.modules.policy.system.policy.SysPolicy" title="convlab.modules.policy.system.policy.SysPolicy"><code class="xref py py-class docutils literal notranslate"><span class="pre">convlab.modules.policy.system.policy.SysPolicy</span></code></a></p>
+<p>Vanilla MLE trained policy.</p>
+<dl class="method">
+<dt id="convlab.modules.policy.system.multiwoz.vanilla_mle.policy.VanillaMLEPolicy.predict">
+<code class="descname">predict</code><span class="sig-paren">(</span><em>state</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/policy/system/multiwoz/vanilla_mle/policy.html#VanillaMLEPolicy.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.policy.system.multiwoz.vanilla_mle.policy.VanillaMLEPolicy.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predict the dialog act of a natural language utterance and apply error model.
+:param utterance: A natural language utterance.
+:type utterance: str</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The dialog act of utterance.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">output (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a>)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-convlab.modules.policy.system.multiwoz.vanilla_mle.train">
+<span id="convlab-modules-policy-system-multiwoz-vanilla-mle-train-module"></span><h2>convlab.modules.policy.system.multiwoz.vanilla_mle.train module<a class="headerlink" href="#module-convlab.modules.policy.system.multiwoz.vanilla_mle.train" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">train</span></code> subcommand can be used to train a model.
+It requires a configuration file and a directory in
+which to write the results.</p>
+<dl class="function">
+<dt id="convlab.modules.policy.system.multiwoz.vanilla_mle.train.train_model">
+<code class="descclassname">convlab.modules.policy.system.multiwoz.vanilla_mle.train.</code><code class="descname">train_model</code><span class="sig-paren">(</span><em>params: allennlp.common.params.Params</em>, <em>serialization_dir: str</em>, <em>file_friendly_logging: bool = False</em>, <em>recover: bool = False</em>, <em>force: bool = False</em><span class="sig-paren">)</span> &#x2192; allennlp.models.model.Model<a class="reference internal" href="_modules/convlab/modules/policy/system/multiwoz/vanilla_mle/train.html#train_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.policy.system.multiwoz.vanilla_mle.train.train_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Trains the model specified in the given <code class="xref py py-class docutils literal notranslate"><span class="pre">Params</span></code> object, using the data and training
+parameters also specified in that object, and saves the results in <code class="docutils literal notranslate"><span class="pre">serialization_dir</span></code>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>params</strong> (<code class="docutils literal notranslate"><span class="pre">Params</span></code>) – A parameter object specifying an AllenNLP Experiment.</li>
+<li><strong>serialization_dir</strong> (<code class="docutils literal notranslate"><span class="pre">str</span></code>) – The directory in which to save results and logs.</li>
+<li><strong>file_friendly_logging</strong> (<code class="docutils literal notranslate"><span class="pre">bool</span></code>, optional (default=False)) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, we add newlines to tqdm output, even on an interactive terminal, and we slow
+down tqdm’s output to only once every 10 seconds.</li>
+<li><strong>recover</strong> (<code class="docutils literal notranslate"><span class="pre">bool</span></code>, optional (default=False)) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, we will try to recover a training run from an existing serialization
+directory.  This is only intended for use when something actually crashed during the middle
+of a run.  For continuing training a model on new data, see the <code class="docutils literal notranslate"><span class="pre">fine-tune</span></code> command.</li>
+<li><strong>force</strong> (<code class="docutils literal notranslate"><span class="pre">bool</span></code>, optional (default=False)) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, we will overwrite the serialization directory if it already exists.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>best_model</strong> – The model with the best epoch weights.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="docutils literal notranslate"><span class="pre">Model</span></code></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.modules.policy.system.multiwoz.vanilla_mle.train.train_model_from_args">
+<code class="descclassname">convlab.modules.policy.system.multiwoz.vanilla_mle.train.</code><code class="descname">train_model_from_args</code><span class="sig-paren">(</span><em>args: argparse.Namespace</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/policy/system/multiwoz/vanilla_mle/train.html#train_model_from_args"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.policy.system.multiwoz.vanilla_mle.train.train_model_from_args" title="Permalink to this definition">¶</a></dt>
+<dd><p>Just converts from an <code class="docutils literal notranslate"><span class="pre">argparse.Namespace</span></code> object to string paths.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.modules.policy.system.multiwoz.vanilla_mle.train.train_model_from_file">
+<code class="descclassname">convlab.modules.policy.system.multiwoz.vanilla_mle.train.</code><code class="descname">train_model_from_file</code><span class="sig-paren">(</span><em>parameter_filename: str</em>, <em>serialization_dir: str</em>, <em>overrides: str = ''</em>, <em>file_friendly_logging: bool = False</em>, <em>recover: bool = False</em>, <em>force: bool = False</em><span class="sig-paren">)</span> &#x2192; allennlp.models.model.Model<a class="reference internal" href="_modules/convlab/modules/policy/system/multiwoz/vanilla_mle/train.html#train_model_from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.policy.system.multiwoz.vanilla_mle.train.train_model_from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>A wrapper around <a class="reference internal" href="#convlab.modules.policy.system.multiwoz.vanilla_mle.train.train_model" title="convlab.modules.policy.system.multiwoz.vanilla_mle.train.train_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">train_model()</span></code></a> which loads the params from a file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>parameter_filename</strong> (<code class="docutils literal notranslate"><span class="pre">str</span></code>) – A json parameter file specifying an AllenNLP experiment.</li>
+<li><strong>serialization_dir</strong> (<code class="docutils literal notranslate"><span class="pre">str</span></code>) – The directory in which to save results and logs. We just pass this along to
+<a class="reference internal" href="#convlab.modules.policy.system.multiwoz.vanilla_mle.train.train_model" title="convlab.modules.policy.system.multiwoz.vanilla_mle.train.train_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">train_model()</span></code></a>.</li>
+<li><strong>overrides</strong> (<code class="docutils literal notranslate"><span class="pre">str</span></code>) – A JSON string that we will use to override values in the input parameter file.</li>
+<li><strong>file_friendly_logging</strong> (<code class="docutils literal notranslate"><span class="pre">bool</span></code>, optional (default=False)) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, we make our output more friendly to saved model files.  We just pass this
+along to <a class="reference internal" href="#convlab.modules.policy.system.multiwoz.vanilla_mle.train.train_model" title="convlab.modules.policy.system.multiwoz.vanilla_mle.train.train_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">train_model()</span></code></a>.</li>
+<li><strong>recover</strong> (<a href="#id1"><span class="problematic" id="id2">``</span></a>bool`, optional (default=False)) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, we will try to recover a training run from an existing serialization
+directory.  This is only intended for use when something actually crashed during the middle
+of a run.  For continuing training a model on new data, see the <code class="docutils literal notranslate"><span class="pre">fine-tune</span></code> command.</li>
+<li><strong>force</strong> (<code class="docutils literal notranslate"><span class="pre">bool</span></code>, optional (default=False)) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, we will overwrite the serialization directory if it already exists.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-convlab.modules.policy.system.multiwoz.vanilla_mle">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-convlab.modules.policy.system.multiwoz.vanilla_mle" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, ConvLab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

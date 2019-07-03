@@ -1,0 +1,382 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>convlab.modules.policy.system.multiwoz.vanilla_mle.train &mdash; ConvLab 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../../../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../../../../" src="../../../../../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../../../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../../../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../../../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../../../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../../../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../../../../index.html" class="icon icon-home"> ConvLab
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../../../index.html">ConvLab</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../../../../../index.html">Module code</a> &raquo;</li>
+        
+      <li>convlab.modules.policy.system.multiwoz.vanilla_mle.train</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for convlab.modules.policy.system.multiwoz.vanilla_mle.train</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The ``train`` subcommand can be used to train a model.</span>
+<span class="sd">It requires a configuration file and a directory in</span>
+<span class="sd">which to write the results.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">allennlp.common</span> <span class="k">import</span> <span class="n">Params</span>
+<span class="kn">from</span> <span class="nn">allennlp.common.checks</span> <span class="k">import</span> <span class="n">check_for_gpu</span>
+<span class="kn">from</span> <span class="nn">allennlp.common.util</span> <span class="k">import</span> <span class="n">prepare_environment</span><span class="p">,</span> <span class="n">prepare_global_logging</span><span class="p">,</span> <span class="n">cleanup_global_logging</span><span class="p">,</span> <span class="n">dump_metrics</span>
+<span class="kn">from</span> <span class="nn">allennlp.models.archival</span> <span class="k">import</span> <span class="n">archive_model</span><span class="p">,</span> <span class="n">CONFIG_NAME</span>
+<span class="kn">from</span> <span class="nn">allennlp.models.model</span> <span class="k">import</span> <span class="n">Model</span><span class="p">,</span> <span class="n">_DEFAULT_WEIGHTS</span>
+<span class="kn">from</span> <span class="nn">allennlp.training.trainer</span> <span class="k">import</span> <span class="n">Trainer</span><span class="p">,</span> <span class="n">TrainerPieces</span>
+<span class="kn">from</span> <span class="nn">allennlp.training.trainer_base</span> <span class="k">import</span> <span class="n">TrainerBase</span>
+<span class="kn">from</span> <span class="nn">allennlp.training.util</span> <span class="k">import</span> <span class="n">create_serialization_dir</span><span class="p">,</span> <span class="n">evaluate</span>
+
+<span class="kn">from</span> <span class="nn">convlab.modules.policy.system.multiwoz.vanilla_mle</span> <span class="k">import</span> <span class="n">dataset_reader</span><span class="p">,</span> <span class="n">model</span> 
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>  <span class="c1"># pylint: disable=invalid-name</span>
+
+
+<span class="n">argparser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Train a model.&quot;</span><span class="p">)</span>
+<span class="n">argparser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;param_path&#39;</span><span class="p">,</span>
+                        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;path to parameter file describing the model to be trained&#39;</span><span class="p">)</span>
+<span class="n">argparser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-s&#39;</span><span class="p">,</span> <span class="s1">&#39;--serialization-dir&#39;</span><span class="p">,</span>
+                        <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;directory in which to save the model and its logs&#39;</span><span class="p">)</span>
+<span class="n">argparser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-r&#39;</span><span class="p">,</span> <span class="s1">&#39;--recover&#39;</span><span class="p">,</span>
+                        <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
+                        <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;recover training from the state in serialization_dir&#39;</span><span class="p">)</span>
+<span class="n">argparser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-f&#39;</span><span class="p">,</span> <span class="s1">&#39;--force&#39;</span><span class="p">,</span>
+                        <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
+                        <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;overwrite the output directory if it exists&#39;</span><span class="p">)</span>
+<span class="n">argparser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-o&#39;</span><span class="p">,</span> <span class="s1">&#39;--overrides&#39;</span><span class="p">,</span>
+                        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+                        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;a JSON structure used to override the experiment configuration&#39;</span><span class="p">)</span>
+<span class="n">argparser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--file-friendly-logging&#39;</span><span class="p">,</span>
+                        <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
+                        <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;outputs tqdm status on separate lines and slows tqdm refresh rate&#39;</span><span class="p">)</span>
+
+
+
+<div class="viewcode-block" id="train_model_from_args"><a class="viewcode-back" href="../../../../../../../convlab.modules.policy.system.multiwoz.vanilla_mle.html#convlab.modules.policy.system.multiwoz.vanilla_mle.train.train_model_from_args">[docs]</a><span class="k">def</span> <span class="nf">train_model_from_args</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Just converts from an ``argparse.Namespace`` object to string paths.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">train_model_from_file</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">param_path</span><span class="p">,</span>
+                          <span class="n">args</span><span class="o">.</span><span class="n">serialization_dir</span><span class="p">,</span>
+                          <span class="n">args</span><span class="o">.</span><span class="n">overrides</span><span class="p">,</span>
+                          <span class="n">args</span><span class="o">.</span><span class="n">file_friendly_logging</span><span class="p">,</span>
+                          <span class="n">args</span><span class="o">.</span><span class="n">recover</span><span class="p">,</span>
+                          <span class="n">args</span><span class="o">.</span><span class="n">force</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="train_model_from_file"><a class="viewcode-back" href="../../../../../../../convlab.modules.policy.system.multiwoz.vanilla_mle.html#convlab.modules.policy.system.multiwoz.vanilla_mle.train.train_model_from_file">[docs]</a><span class="k">def</span> <span class="nf">train_model_from_file</span><span class="p">(</span><span class="n">parameter_filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                          <span class="n">serialization_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                          <span class="n">overrides</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                          <span class="n">file_friendly_logging</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                          <span class="n">recover</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                          <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Model</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A wrapper around :func:`train_model` which loads the params from a file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    parameter_filename : ``str``</span>
+<span class="sd">        A json parameter file specifying an AllenNLP experiment.</span>
+<span class="sd">    serialization_dir : ``str``</span>
+<span class="sd">        The directory in which to save results and logs. We just pass this along to</span>
+<span class="sd">        :func:`train_model`.</span>
+<span class="sd">    overrides : ``str``</span>
+<span class="sd">        A JSON string that we will use to override values in the input parameter file.</span>
+<span class="sd">    file_friendly_logging : ``bool``, optional (default=False)</span>
+<span class="sd">        If ``True``, we make our output more friendly to saved model files.  We just pass this</span>
+<span class="sd">        along to :func:`train_model`.</span>
+<span class="sd">    recover : ``bool`, optional (default=False)</span>
+<span class="sd">        If ``True``, we will try to recover a training run from an existing serialization</span>
+<span class="sd">        directory.  This is only intended for use when something actually crashed during the middle</span>
+<span class="sd">        of a run.  For continuing training a model on new data, see the ``fine-tune`` command.</span>
+<span class="sd">    force : ``bool``, optional (default=False)</span>
+<span class="sd">        If ``True``, we will overwrite the serialization directory if it already exists.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Load the experiment config from a file and pass it to ``train_model``.</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="n">Params</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">parameter_filename</span><span class="p">,</span> <span class="n">overrides</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">train_model</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">serialization_dir</span><span class="p">,</span> <span class="n">file_friendly_logging</span><span class="p">,</span> <span class="n">recover</span><span class="p">,</span> <span class="n">force</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="train_model"><a class="viewcode-back" href="../../../../../../../convlab.modules.policy.system.multiwoz.vanilla_mle.html#convlab.modules.policy.system.multiwoz.vanilla_mle.train.train_model">[docs]</a><span class="k">def</span> <span class="nf">train_model</span><span class="p">(</span><span class="n">params</span><span class="p">:</span> <span class="n">Params</span><span class="p">,</span>
+                <span class="n">serialization_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                <span class="n">file_friendly_logging</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                <span class="n">recover</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Model</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Trains the model specified in the given :class:`Params` object, using the data and training</span>
+<span class="sd">    parameters also specified in that object, and saves the results in ``serialization_dir``.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    params : ``Params``</span>
+<span class="sd">        A parameter object specifying an AllenNLP Experiment.</span>
+<span class="sd">    serialization_dir : ``str``</span>
+<span class="sd">        The directory in which to save results and logs.</span>
+<span class="sd">    file_friendly_logging : ``bool``, optional (default=False)</span>
+<span class="sd">        If ``True``, we add newlines to tqdm output, even on an interactive terminal, and we slow</span>
+<span class="sd">        down tqdm&#39;s output to only once every 10 seconds.</span>
+<span class="sd">    recover : ``bool``, optional (default=False)</span>
+<span class="sd">        If ``True``, we will try to recover a training run from an existing serialization</span>
+<span class="sd">        directory.  This is only intended for use when something actually crashed during the middle</span>
+<span class="sd">        of a run.  For continuing training a model on new data, see the ``fine-tune`` command.</span>
+<span class="sd">    force : ``bool``, optional (default=False)</span>
+<span class="sd">        If ``True``, we will overwrite the serialization directory if it already exists.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    best_model: ``Model``</span>
+<span class="sd">        The model with the best epoch weights.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">prepare_environment</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+    <span class="n">create_serialization_dir</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">serialization_dir</span><span class="p">,</span> <span class="n">recover</span><span class="p">,</span> <span class="n">force</span><span class="p">)</span>
+    <span class="n">stdout_handler</span> <span class="o">=</span> <span class="n">prepare_global_logging</span><span class="p">(</span><span class="n">serialization_dir</span><span class="p">,</span> <span class="n">file_friendly_logging</span><span class="p">)</span>
+
+    <span class="n">cuda_device</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;trainer&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;cuda_device&#39;</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">check_for_gpu</span><span class="p">(</span><span class="n">cuda_device</span><span class="p">)</span>
+
+    <span class="n">params</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">serialization_dir</span><span class="p">,</span> <span class="n">CONFIG_NAME</span><span class="p">))</span>
+
+    <span class="n">evaluate_on_test</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">pop_bool</span><span class="p">(</span><span class="s2">&quot;evaluate_on_test&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">trainer_type</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;trainer&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">,</span> <span class="s2">&quot;default&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">trainer_type</span> <span class="o">==</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span>
+        <span class="c1"># Special logic to instantiate backward-compatible trainer.</span>
+        <span class="n">pieces</span> <span class="o">=</span> <span class="n">TrainerPieces</span><span class="o">.</span><span class="n">from_params</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">serialization_dir</span><span class="p">,</span> <span class="n">recover</span><span class="p">)</span>  <span class="c1"># pylint: disable=no-member</span>
+        <span class="n">trainer</span> <span class="o">=</span> <span class="n">Trainer</span><span class="o">.</span><span class="n">from_params</span><span class="p">(</span>
+                <span class="n">model</span><span class="o">=</span><span class="n">pieces</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
+                <span class="n">serialization_dir</span><span class="o">=</span><span class="n">serialization_dir</span><span class="p">,</span>
+                <span class="n">iterator</span><span class="o">=</span><span class="n">pieces</span><span class="o">.</span><span class="n">iterator</span><span class="p">,</span>
+                <span class="n">train_data</span><span class="o">=</span><span class="n">pieces</span><span class="o">.</span><span class="n">train_dataset</span><span class="p">,</span>
+                <span class="n">validation_data</span><span class="o">=</span><span class="n">pieces</span><span class="o">.</span><span class="n">validation_dataset</span><span class="p">,</span>
+                <span class="n">params</span><span class="o">=</span><span class="n">pieces</span><span class="o">.</span><span class="n">params</span><span class="p">,</span>
+                <span class="n">validation_iterator</span><span class="o">=</span><span class="n">pieces</span><span class="o">.</span><span class="n">validation_iterator</span><span class="p">)</span>
+        <span class="n">evaluation_iterator</span> <span class="o">=</span> <span class="n">pieces</span><span class="o">.</span><span class="n">validation_iterator</span> <span class="ow">or</span> <span class="n">pieces</span><span class="o">.</span><span class="n">iterator</span>
+        <span class="n">evaluation_dataset</span> <span class="o">=</span> <span class="n">pieces</span><span class="o">.</span><span class="n">test_dataset</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">trainer</span> <span class="o">=</span> <span class="n">TrainerBase</span><span class="o">.</span><span class="n">from_params</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">serialization_dir</span><span class="p">,</span> <span class="n">recover</span><span class="p">)</span>
+        <span class="c1"># TODO(joelgrus): handle evaluation in the general case</span>
+        <span class="n">evaluation_iterator</span> <span class="o">=</span> <span class="n">evaluation_dataset</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="n">params</span><span class="o">.</span><span class="n">assert_empty</span><span class="p">(</span><span class="s1">&#39;base train command&#39;</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">metrics</span> <span class="o">=</span> <span class="n">trainer</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+    <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+        <span class="c1"># if we have completed an epoch, try to create a model archive.</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">serialization_dir</span><span class="p">,</span> <span class="n">_DEFAULT_WEIGHTS</span><span class="p">)):</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Training interrupted by the user. Attempting to create &quot;</span>
+                         <span class="s2">&quot;a model archive using the current best epoch weights.&quot;</span><span class="p">)</span>
+            <span class="n">archive_model</span><span class="p">(</span><span class="n">serialization_dir</span><span class="p">,</span> <span class="n">files_to_archive</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">files_to_archive</span><span class="p">)</span>
+        <span class="k">raise</span>
+
+    <span class="c1"># Evaluate</span>
+    <span class="k">if</span> <span class="n">evaluation_dataset</span> <span class="ow">and</span> <span class="n">evaluate_on_test</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;The model will be evaluated using the best epoch weights.&quot;</span><span class="p">)</span>
+        <span class="n">test_metrics</span> <span class="o">=</span> <span class="n">evaluate</span><span class="p">(</span><span class="n">trainer</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">evaluation_dataset</span><span class="p">,</span> <span class="n">evaluation_iterator</span><span class="p">,</span>
+                                <span class="n">cuda_device</span><span class="o">=</span><span class="n">trainer</span><span class="o">.</span><span class="n">_cuda_devices</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="c1"># pylint: disable=protected-access,</span>
+                                <span class="c1"># TODO(brendanr): Pass in an arg following Joel&#39;s trainer refactor.</span>
+                                <span class="n">batch_weight_key</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">test_metrics</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;test_&quot;</span> <span class="o">+</span> <span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="k">elif</span> <span class="n">evaluation_dataset</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;To evaluate on the test set after training, pass the &quot;</span>
+                    <span class="s2">&quot;&#39;evaluate_on_test&#39; flag, or use the &#39;allennlp evaluate&#39; command.&quot;</span><span class="p">)</span>
+
+    <span class="n">cleanup_global_logging</span><span class="p">(</span><span class="n">stdout_handler</span><span class="p">)</span>
+
+    <span class="c1"># Now tar up results</span>
+    <span class="n">archive_model</span><span class="p">(</span><span class="n">serialization_dir</span><span class="p">,</span> <span class="n">files_to_archive</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">files_to_archive</span><span class="p">)</span>
+    <span class="n">dump_metrics</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">serialization_dir</span><span class="p">,</span> <span class="s2">&quot;metrics.json&quot;</span><span class="p">),</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># We count on the trainer to have the model with best weights</span>
+    <span class="k">return</span> <span class="n">trainer</span><span class="o">.</span><span class="n">model</span></div>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">argparser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+    <span class="n">train_model_from_args</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, ConvLab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

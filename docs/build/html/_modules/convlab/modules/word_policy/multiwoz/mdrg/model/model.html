@@ -1,0 +1,776 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>convlab.modules.word_policy.multiwoz.mdrg.model.model &mdash; ConvLab 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../../../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../../../../" src="../../../../../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../../../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../../../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../../../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../../../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../../../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../../../../index.html" class="icon icon-home"> ConvLab
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../../../index.html">ConvLab</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../../../../../index.html">Module code</a> &raquo;</li>
+        
+      <li>convlab.modules.word_policy.multiwoz.mdrg.model.model</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for convlab.modules.word_policy.multiwoz.mdrg.model.model</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Modified by Microsoft Corporation.</span>
+<span class="c1"># Licensed under the MIT license.</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">unicode_literals</span>
+
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">operator</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="k">import</span> <span class="n">reduce</span>
+<span class="kn">from</span> <span class="nn">io</span> <span class="k">import</span> <span class="nb">open</span>
+<span class="c1"># from Queue import PriorityQueue</span>
+<span class="kn">from</span> <span class="nn">queue</span> <span class="k">import</span> <span class="n">PriorityQueue</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
+<span class="kn">import</span> <span class="nn">torch.nn.functional</span> <span class="k">as</span> <span class="nn">F</span>
+<span class="kn">from</span> <span class="nn">torch</span> <span class="k">import</span> <span class="n">optim</span>
+
+<span class="kn">from</span> <span class="nn">convlab.modules.word_policy.multiwoz.mdrg.model</span> <span class="k">import</span> <span class="n">policy</span>
+
+<span class="n">SOS_token</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">EOS_token</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">UNK_token</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">PAD_token</span> <span class="o">=</span> <span class="mi">3</span>
+
+
+<span class="c1"># Shawn beam search decoding</span>
+<div class="viewcode-block" id="BeamSearchNode"><a class="viewcode-back" href="../../../../../../../convlab.modules.word_policy.multiwoz.mdrg.model.html#convlab.modules.word_policy.multiwoz.mdrg.model.model.BeamSearchNode">[docs]</a><span class="k">class</span> <span class="nc">BeamSearchNode</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">prevNode</span><span class="p">,</span> <span class="n">wordid</span><span class="p">,</span> <span class="n">logp</span><span class="p">,</span> <span class="n">leng</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">h</span> <span class="o">=</span> <span class="n">h</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prevNode</span> <span class="o">=</span> <span class="n">prevNode</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wordid</span> <span class="o">=</span> <span class="n">wordid</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logp</span> <span class="o">=</span> <span class="n">logp</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">leng</span> <span class="o">=</span> <span class="n">leng</span>
+
+<div class="viewcode-block" id="BeamSearchNode.eval"><a class="viewcode-back" href="../../../../../../../convlab.modules.word_policy.multiwoz.mdrg.model.html#convlab.modules.word_policy.multiwoz.mdrg.model.model.BeamSearchNode.eval">[docs]</a>    <span class="k">def</span> <span class="nf">eval</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repeatPenalty</span><span class="p">,</span> <span class="n">tokenReward</span><span class="p">,</span> <span class="n">scoreTable</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+        <span class="n">reward</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">alpha</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">logp</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">leng</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">+</span> <span class="mf">1e-6</span><span class="p">)</span> <span class="o">+</span> <span class="n">alpha</span> <span class="o">*</span> <span class="n">reward</span></div></div>
+
+
+<div class="viewcode-block" id="init_lstm"><a class="viewcode-back" href="../../../../../../../convlab.modules.word_policy.multiwoz.mdrg.model.html#convlab.modules.word_policy.multiwoz.mdrg.model.model.init_lstm">[docs]</a><span class="k">def</span> <span class="nf">init_lstm</span><span class="p">(</span><span class="n">cell</span><span class="p">,</span> <span class="n">gain</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="n">init_gru</span><span class="p">(</span><span class="n">cell</span><span class="p">,</span> <span class="n">gain</span><span class="p">)</span>
+
+    <span class="c1"># positive forget gate bias (Jozefowicz et al., 2015)</span>
+    <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">ih_b</span><span class="p">,</span> <span class="n">hh_b</span> <span class="ow">in</span> <span class="n">cell</span><span class="o">.</span><span class="n">all_weights</span><span class="p">:</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ih_b</span><span class="p">)</span>
+        <span class="n">ih_b</span><span class="p">[</span><span class="n">l</span> <span class="o">//</span> <span class="mi">4</span><span class="p">:</span><span class="n">l</span> <span class="o">//</span> <span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">fill_</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
+        <span class="n">hh_b</span><span class="p">[</span><span class="n">l</span> <span class="o">//</span> <span class="mi">4</span><span class="p">:</span><span class="n">l</span> <span class="o">//</span> <span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">fill_</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="init_gru"><a class="viewcode-back" href="../../../../../../../convlab.modules.word_policy.multiwoz.mdrg.model.html#convlab.modules.word_policy.multiwoz.mdrg.model.model.init_gru">[docs]</a><span class="k">def</span> <span class="nf">init_gru</span><span class="p">(</span><span class="n">gru</span><span class="p">,</span> <span class="n">gain</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="n">gru</span><span class="o">.</span><span class="n">reset_parameters</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">hh</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">gru</span><span class="o">.</span><span class="n">all_weights</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">hh</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">gru</span><span class="o">.</span><span class="n">hidden_size</span><span class="p">):</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">orthogonal_</span><span class="p">(</span><span class="n">hh</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="n">gru</span><span class="o">.</span><span class="n">hidden_size</span><span class="p">],</span><span class="n">gain</span><span class="o">=</span><span class="n">gain</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="whatCellType"><a class="viewcode-back" href="../../../../../../../convlab.modules.word_policy.multiwoz.mdrg.model.html#convlab.modules.word_policy.multiwoz.mdrg.model.model.whatCellType">[docs]</a><span class="k">def</span> <span class="nf">whatCellType</span><span class="p">(</span><span class="n">input_size</span><span class="p">,</span> <span class="n">hidden_size</span><span class="p">,</span> <span class="n">cell_type</span><span class="p">,</span> <span class="n">dropout_rate</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">cell_type</span> <span class="o">==</span> <span class="s1">&#39;rnn&#39;</span><span class="p">:</span>
+        <span class="n">cell</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">RNN</span><span class="p">(</span><span class="n">input_size</span><span class="p">,</span> <span class="n">hidden_size</span><span class="p">,</span> <span class="n">dropout</span><span class="o">=</span><span class="n">dropout_rate</span><span class="p">,</span> <span class="n">batch_first</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">init_gru</span><span class="p">(</span><span class="n">cell</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">cell</span>
+    <span class="k">elif</span> <span class="n">cell_type</span> <span class="o">==</span> <span class="s1">&#39;gru&#39;</span><span class="p">:</span>
+        <span class="n">cell</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">GRU</span><span class="p">(</span><span class="n">input_size</span><span class="p">,</span> <span class="n">hidden_size</span><span class="p">,</span> <span class="n">dropout</span><span class="o">=</span><span class="n">dropout_rate</span><span class="p">,</span> <span class="n">batch_first</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">init_gru</span><span class="p">(</span><span class="n">cell</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">cell</span>
+    <span class="k">elif</span> <span class="n">cell_type</span> <span class="o">==</span> <span class="s1">&#39;lstm&#39;</span><span class="p">:</span>
+        <span class="n">cell</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">LSTM</span><span class="p">(</span><span class="n">input_size</span><span class="p">,</span> <span class="n">hidden_size</span><span class="p">,</span> <span class="n">dropout</span><span class="o">=</span><span class="n">dropout_rate</span><span class="p">,</span> <span class="n">batch_first</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">init_lstm</span><span class="p">(</span><span class="n">cell</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">cell</span>
+    <span class="k">elif</span> <span class="n">cell_type</span> <span class="o">==</span> <span class="s1">&#39;bigru&#39;</span><span class="p">:</span>
+        <span class="n">cell</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">GRU</span><span class="p">(</span><span class="n">input_size</span><span class="p">,</span> <span class="n">hidden_size</span><span class="p">,</span> <span class="n">bidirectional</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">dropout</span><span class="o">=</span><span class="n">dropout_rate</span><span class="p">,</span> <span class="n">batch_first</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">init_gru</span><span class="p">(</span><span class="n">cell</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">cell</span>
+    <span class="k">elif</span> <span class="n">cell_type</span> <span class="o">==</span> <span class="s1">&#39;bilstm&#39;</span><span class="p">:</span>
+        <span class="n">cell</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">LSTM</span><span class="p">(</span><span class="n">input_size</span><span class="p">,</span> <span class="n">hidden_size</span><span class="p">,</span> <span class="n">bidirectional</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">dropout</span><span class="o">=</span><span class="n">dropout_rate</span><span class="p">,</span> <span class="n">batch_first</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">init_lstm</span><span class="p">(</span><span class="n">cell</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">cell</span></div>
+
+
+<div class="viewcode-block" id="EncoderRNN"><a class="viewcode-back" href="../../../../../../../convlab.modules.word_policy.multiwoz.mdrg.model.html#convlab.modules.word_policy.multiwoz.mdrg.model.model.EncoderRNN">[docs]</a><span class="k">class</span> <span class="nc">EncoderRNN</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_size</span><span class="p">,</span>  <span class="n">embedding_size</span><span class="p">,</span> <span class="n">hidden_size</span><span class="p">,</span> <span class="n">cell_type</span><span class="p">,</span> <span class="n">depth</span><span class="p">,</span> <span class="n">dropout</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">EncoderRNN</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_size</span> <span class="o">=</span> <span class="n">input_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hidden_size</span> <span class="o">=</span> <span class="n">hidden_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">embed_size</span> <span class="o">=</span> <span class="n">embedding_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_layers</span> <span class="o">=</span> <span class="n">depth</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span> <span class="o">=</span> <span class="n">dropout</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bidirectional</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="s1">&#39;bi&#39;</span> <span class="ow">in</span> <span class="n">cell_type</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bidirectional</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">padding_idx</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">embedding</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Embedding</span><span class="p">(</span><span class="n">input_size</span><span class="p">,</span> <span class="n">embedding_size</span><span class="p">,</span> <span class="n">padding_idx</span><span class="o">=</span><span class="n">padding_idx</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rnn</span> <span class="o">=</span> <span class="n">whatCellType</span><span class="p">(</span><span class="n">embedding_size</span><span class="p">,</span> <span class="n">hidden_size</span><span class="p">,</span>
+                    <span class="n">cell_type</span><span class="p">,</span> <span class="n">dropout_rate</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">)</span>
+
+<div class="viewcode-block" id="EncoderRNN.forward"><a class="viewcode-back" href="../../../../../../../convlab.modules.word_policy.multiwoz.mdrg.model.html#convlab.modules.word_policy.multiwoz.mdrg.model.model.EncoderRNN.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_seqs</span><span class="p">,</span> <span class="n">input_lens</span><span class="p">,</span> <span class="n">hidden</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        forward procedure. **No need for inputs to be sorted**</span>
+<span class="sd">        :param input_seqs: Variable of [T,B]</span>
+<span class="sd">        :param hidden:</span>
+<span class="sd">        :param input_lens: *numpy array* of len for each input sequence</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">input_lens</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">input_lens</span><span class="p">)</span>
+        <span class="n">input_seqs</span> <span class="o">=</span> <span class="n">input_seqs</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+        <span class="c1">#batch_size = input_seqs.size(1)</span>
+        <span class="n">embedded</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">embedding</span><span class="p">(</span><span class="n">input_seqs</span><span class="p">)</span>
+        <span class="n">embedded</span> <span class="o">=</span> <span class="n">embedded</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># [B,T,E]</span>
+        <span class="n">sort_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="o">-</span><span class="n">input_lens</span><span class="p">)</span>
+        <span class="n">unsort_idx</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">LongTensor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">sort_idx</span><span class="p">))</span>
+        <span class="n">input_lens</span> <span class="o">=</span> <span class="n">input_lens</span><span class="p">[</span><span class="n">sort_idx</span><span class="p">]</span>
+        <span class="n">sort_idx</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">LongTensor</span><span class="p">(</span><span class="n">sort_idx</span><span class="p">)</span>
+        <span class="n">embedded</span> <span class="o">=</span> <span class="n">embedded</span><span class="p">[</span><span class="n">sort_idx</span><span class="p">]</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># [T,B,E]</span>
+        <span class="n">packed</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">rnn</span><span class="o">.</span><span class="n">pack_padded_sequence</span><span class="p">(</span><span class="n">embedded</span><span class="p">,</span> <span class="n">input_lens</span><span class="p">)</span>
+        <span class="n">outputs</span><span class="p">,</span> <span class="n">hidden</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rnn</span><span class="p">(</span><span class="n">packed</span><span class="p">,</span> <span class="n">hidden</span><span class="p">)</span>
+        <span class="n">outputs</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">rnn</span><span class="o">.</span><span class="n">pad_packed_sequence</span><span class="p">(</span><span class="n">outputs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">bidirectional</span><span class="p">:</span>
+            <span class="n">outputs</span> <span class="o">=</span> <span class="n">outputs</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">hidden_size</span><span class="p">]</span> <span class="o">+</span> <span class="n">outputs</span><span class="p">[:,</span> <span class="p">:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden_size</span><span class="p">:]</span>
+
+        <span class="n">outputs</span> <span class="o">=</span> <span class="n">outputs</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="n">unsort_idx</span><span class="p">]</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">contiguous</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">hidden</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+            <span class="n">hidden</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">hidden</span><span class="p">)</span>
+            <span class="n">hidden</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">hidden</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="n">unsort_idx</span><span class="p">]</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">contiguous</span><span class="p">()</span>
+            <span class="n">hidden</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">hidden</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="n">unsort_idx</span><span class="p">]</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">contiguous</span><span class="p">()</span>
+            <span class="n">hidden</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">hidden</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">hidden</span> <span class="o">=</span> <span class="n">hidden</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="n">unsort_idx</span><span class="p">]</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">contiguous</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">hidden</span></div></div>
+
+
+<div class="viewcode-block" id="Attn"><a class="viewcode-back" href="../../../../../../../convlab.modules.word_policy.multiwoz.mdrg.model.html#convlab.modules.word_policy.multiwoz.mdrg.model.model.Attn">[docs]</a><span class="k">class</span> <span class="nc">Attn</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">hidden_size</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Attn</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="n">method</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hidden_size</span> <span class="o">=</span> <span class="n">hidden_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attn</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hidden_size</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="n">hidden_size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">v</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">hidden_size</span><span class="p">))</span>
+        <span class="n">stdv</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">normal_</span><span class="p">(</span><span class="n">mean</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">std</span><span class="o">=</span><span class="n">stdv</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Attn.forward"><a class="viewcode-back" href="../../../../../../../convlab.modules.word_policy.multiwoz.mdrg.model.html#convlab.modules.word_policy.multiwoz.mdrg.model.model.Attn.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hidden</span><span class="p">,</span> <span class="n">encoder_outputs</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        :param hidden:</span>
+<span class="sd">            previous hidden state of the decoder, in shape (layers*directions,B,H)</span>
+<span class="sd">        :param encoder_outputs:</span>
+<span class="sd">            encoder outputs from Encoder, in shape (T,B,H)</span>
+<span class="sd">        :return</span>
+<span class="sd">            attention energies in shape (B,T)</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">max_len</span> <span class="o">=</span> <span class="n">encoder_outputs</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">H</span> <span class="o">=</span> <span class="n">hidden</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">max_len</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">encoder_outputs</span> <span class="o">=</span> <span class="n">encoder_outputs</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># [T,B,H] -&gt; [B,T,H]</span>
+        <span class="n">attn_energies</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">H</span><span class="p">,</span><span class="n">encoder_outputs</span><span class="p">)</span>  <span class="c1"># compute attention score</span>
+        <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">attn_energies</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># normalize with softmax</span></div>
+
+<div class="viewcode-block" id="Attn.score"><a class="viewcode-back" href="../../../../../../../convlab.modules.word_policy.multiwoz.mdrg.model.html#convlab.modules.word_policy.multiwoz.mdrg.model.model.Attn.score">[docs]</a>    <span class="k">def</span> <span class="nf">score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hidden</span><span class="p">,</span> <span class="n">encoder_outputs</span><span class="p">):</span>
+        <span class="n">cat</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">hidden</span><span class="p">,</span> <span class="n">encoder_outputs</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">energy</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tanh</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attn</span><span class="p">(</span><span class="n">cat</span><span class="p">))</span> <span class="c1"># [B*T*2H]-&gt;[B*T*H]</span>
+        <span class="n">energy</span> <span class="o">=</span> <span class="n">energy</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># [B*H*T]</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">encoder_outputs</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="c1">#[B*1*H]</span>
+        <span class="n">energy</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">bmm</span><span class="p">(</span><span class="n">v</span><span class="p">,</span><span class="n">energy</span><span class="p">)</span>  <span class="c1"># [B*1*T]</span>
+        <span class="k">return</span> <span class="n">energy</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># [B*T]</span></div></div>
+
+
+<div class="viewcode-block" id="SeqAttnDecoderRNN"><a class="viewcode-back" href="../../../../../../../convlab.modules.word_policy.multiwoz.mdrg.model.html#convlab.modules.word_policy.multiwoz.mdrg.model.model.SeqAttnDecoderRNN">[docs]</a><span class="k">class</span> <span class="nc">SeqAttnDecoderRNN</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">embedding_size</span><span class="p">,</span> <span class="n">hidden_size</span><span class="p">,</span> <span class="n">output_size</span><span class="p">,</span> <span class="n">cell_type</span><span class="p">,</span> <span class="n">dropout_p</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">30</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">SeqAttnDecoderRNN</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="c1"># Define parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hidden_size</span> <span class="o">=</span> <span class="n">hidden_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">embed_size</span> <span class="o">=</span> <span class="n">embedding_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_size</span> <span class="o">=</span> <span class="n">output_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_layers</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dropout_p</span> <span class="o">=</span> <span class="n">dropout_p</span>
+
+        <span class="c1"># Define layers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">embedding</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Embedding</span><span class="p">(</span><span class="n">output_size</span><span class="p">,</span> <span class="n">embedding_size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="n">dropout_p</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="s1">&#39;bi&#39;</span> <span class="ow">in</span> <span class="n">cell_type</span><span class="p">:</span>  <span class="c1"># we dont need bidirectionality in decoding</span>
+            <span class="n">cell_type</span> <span class="o">=</span> <span class="n">cell_type</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;bi&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rnn</span> <span class="o">=</span> <span class="n">whatCellType</span><span class="p">(</span><span class="n">embedding_size</span> <span class="o">+</span> <span class="n">hidden_size</span><span class="p">,</span> <span class="n">hidden_size</span><span class="p">,</span> <span class="n">cell_type</span><span class="p">,</span> <span class="n">dropout_rate</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dropout_p</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">hidden_size</span><span class="p">,</span> <span class="n">output_size</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">score</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hidden_size</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden_size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attn_combine</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">embedding_size</span> <span class="o">+</span> <span class="n">hidden_size</span><span class="p">,</span> <span class="n">embedding_size</span><span class="p">)</span>
+
+        <span class="c1"># attention</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="s1">&#39;concat&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attn</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hidden_size</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="n">hidden_size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">v</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">hidden_size</span><span class="p">))</span>
+        <span class="n">stdv</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">normal_</span><span class="p">(</span><span class="n">mean</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">std</span><span class="o">=</span><span class="n">stdv</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SeqAttnDecoderRNN.forward"><a class="viewcode-back" href="../../../../../../../convlab.modules.word_policy.multiwoz.mdrg.model.html#convlab.modules.word_policy.multiwoz.mdrg.model.model.SeqAttnDecoderRNN.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">hidden</span><span class="p">,</span> <span class="n">encoder_outputs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">hidden</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+            <span class="n">h_t</span> <span class="o">=</span> <span class="n">hidden</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">h_t</span> <span class="o">=</span> <span class="n">hidden</span>
+        <span class="n">encoder_outputs</span> <span class="o">=</span> <span class="n">encoder_outputs</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">embedded</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">embedding</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>  <span class="c1"># .view(1, 1, -1)</span>
+        <span class="c1"># embedded = F.dropout(embedded, self.dropout_p)</span>
+
+        <span class="c1"># SCORE 3</span>
+        <span class="n">max_len</span> <span class="o">=</span> <span class="n">encoder_outputs</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">h_t</span> <span class="o">=</span> <span class="n">h_t</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># [1,B,D] -&gt; [B,1,D]</span>
+        <span class="n">h_t</span> <span class="o">=</span> <span class="n">h_t</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_len</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># [B,1,D]  -&gt; [B,T,D]</span>
+        <span class="n">energy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">attn</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">((</span><span class="n">h_t</span><span class="p">,</span> <span class="n">encoder_outputs</span><span class="p">),</span> <span class="mi">2</span><span class="p">))</span>  <span class="c1"># [B,T,2D] -&gt; [B,T,D]</span>
+        <span class="n">energy</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tanh</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span>
+        <span class="n">energy</span> <span class="o">=</span> <span class="n">energy</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># [B,H,T]</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">encoder_outputs</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># [B,1,H]</span>
+        <span class="n">energy</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">bmm</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">energy</span><span class="p">)</span>  <span class="c1"># [B,1,T]</span>
+        <span class="n">attn_weights</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># [B,1,T]</span>
+
+        <span class="c1"># getting context</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">bmm</span><span class="p">(</span><span class="n">attn_weights</span><span class="p">,</span> <span class="n">encoder_outputs</span><span class="p">)</span>  <span class="c1"># [B,1,H]</span>
+
+        <span class="c1"># context = torch.bmm(attn_weights.unsqueeze(0), encoder_outputs.unsqueeze(0)) #[B,1,H]</span>
+        <span class="c1"># Combine embedded input word and attended context, run through RNN</span>
+        <span class="n">rnn_input</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">((</span><span class="n">embedded</span><span class="p">,</span> <span class="n">context</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">rnn_input</span> <span class="o">=</span> <span class="n">rnn_input</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">output</span><span class="p">,</span> <span class="n">hidden</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rnn</span><span class="p">(</span><span class="n">rnn_input</span><span class="p">,</span> <span class="n">hidden</span><span class="p">)</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># (1,B,V)-&gt;(B,V)</span>
+
+        <span class="n">output</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">log_softmax</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">out</span><span class="p">(</span><span class="n">output</span><span class="p">),</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">output</span><span class="p">,</span> <span class="n">hidden</span>  <span class="c1"># , attn_weights</span></div></div>
+
+
+<div class="viewcode-block" id="DecoderRNN"><a class="viewcode-back" href="../../../../../../../convlab.modules.word_policy.multiwoz.mdrg.model.html#convlab.modules.word_policy.multiwoz.mdrg.model.model.DecoderRNN">[docs]</a><span class="k">class</span> <span class="nc">DecoderRNN</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">embedding_size</span><span class="p">,</span> <span class="n">hidden_size</span><span class="p">,</span> <span class="n">output_size</span><span class="p">,</span> <span class="n">cell_type</span><span class="p">,</span> <span class="n">dropout</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">DecoderRNN</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hidden_size</span> <span class="o">=</span> <span class="n">hidden_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cell_type</span> <span class="o">=</span> <span class="n">cell_type</span>
+        <span class="n">padding_idx</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">embedding</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Embedding</span><span class="p">(</span><span class="n">num_embeddings</span><span class="o">=</span><span class="n">output_size</span><span class="p">,</span>
+                                      <span class="n">embedding_dim</span><span class="o">=</span><span class="n">embedding_size</span><span class="p">,</span>
+                                      <span class="n">padding_idx</span><span class="o">=</span><span class="n">padding_idx</span>
+                                      <span class="p">)</span>
+        <span class="k">if</span> <span class="s1">&#39;bi&#39;</span> <span class="ow">in</span> <span class="n">cell_type</span><span class="p">:</span>  <span class="c1"># we dont need bidirectionality in decoding</span>
+            <span class="n">cell_type</span> <span class="o">=</span> <span class="n">cell_type</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;bi&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rnn</span> <span class="o">=</span> <span class="n">whatCellType</span><span class="p">(</span><span class="n">embedding_size</span><span class="p">,</span> <span class="n">hidden_size</span><span class="p">,</span> <span class="n">cell_type</span><span class="p">,</span> <span class="n">dropout_rate</span><span class="o">=</span><span class="n">dropout</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dropout_rate</span> <span class="o">=</span> <span class="n">dropout</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">hidden_size</span><span class="p">,</span> <span class="n">output_size</span><span class="p">)</span>
+
+<div class="viewcode-block" id="DecoderRNN.forward"><a class="viewcode-back" href="../../../../../../../convlab.modules.word_policy.multiwoz.mdrg.model.html#convlab.modules.word_policy.multiwoz.mdrg.model.model.DecoderRNN.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">hidden</span><span class="p">,</span> <span class="n">not_used</span><span class="p">):</span>
+        <span class="n">embedded</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">embedding</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># [B,1] -&gt; [ 1,B, D]</span>
+        <span class="n">embedded</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">embedded</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout_rate</span><span class="p">)</span>
+
+        <span class="n">output</span> <span class="o">=</span> <span class="n">embedded</span>
+        <span class="c1">#output = F.relu(embedded)</span>
+
+        <span class="n">output</span><span class="p">,</span> <span class="n">hidden</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rnn</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">hidden</span><span class="p">)</span>
+
+        <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">out</span><span class="p">(</span><span class="n">output</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">log_softmax</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">output</span><span class="p">,</span> <span class="n">hidden</span></div></div>
+
+
+<div class="viewcode-block" id="Model"><a class="viewcode-back" href="../../../../../../../convlab.modules.word_policy.multiwoz.mdrg.model.html#convlab.modules.word_policy.multiwoz.mdrg.model.model.Model">[docs]</a><span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">input_lang_index2word</span><span class="p">,</span> <span class="n">output_lang_index2word</span><span class="p">,</span> <span class="n">input_lang_word2index</span><span class="p">,</span> <span class="n">output_lang_word2index</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Model</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="n">args</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_len</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">max_len</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_lang_index2word</span> <span class="o">=</span> <span class="n">output_lang_index2word</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_lang_index2word</span> <span class="o">=</span> <span class="n">input_lang_index2word</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_lang_word2index</span> <span class="o">=</span> <span class="n">output_lang_word2index</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_lang_word2index</span> <span class="o">=</span> <span class="n">input_lang_word2index</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">hid_size_enc</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">hid_size_enc</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hid_size_dec</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">hid_size_dec</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hid_size_pol</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">hid_size_pol</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">emb_size</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">emb_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db_size</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">db_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bs_size</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">bs_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cell_type</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">cell_type</span>
+        <span class="k">if</span> <span class="s1">&#39;bi&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cell_type</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">num_directions</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">num_directions</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">depth</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">depth</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_attn</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">use_attn</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attn_type</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">attention_type</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">dropout</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cuda&quot;</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">cuda</span> <span class="k">else</span> <span class="s2">&quot;cpu&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_dir</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">model_dir</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_name</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">model_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">teacher_forcing_ratio</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">teacher_ratio</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vocab_size</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">vocab_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">epsln</span> <span class="o">=</span> <span class="mf">10E-5</span>
+
+
+        <span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">build_model</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">getCount</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">beam_width</span> <span class="o">&gt;</span> <span class="mi">0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">beam_search</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">beam_search</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">global_step</span> <span class="o">=</span> <span class="mi">0</span>
+
+<div class="viewcode-block" id="Model.cuda_"><a class="viewcode-back" href="../../../../../../../convlab.modules.word_policy.multiwoz.mdrg.model.html#convlab.modules.word_policy.multiwoz.mdrg.model.model.Model.cuda_">[docs]</a>    <span class="k">def</span> <span class="nf">cuda_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">var</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">var</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">cuda</span> <span class="k">else</span> <span class="n">var</span></div>
+
+<div class="viewcode-block" id="Model.build_model"><a class="viewcode-back" href="../../../../../../../convlab.modules.word_policy.multiwoz.mdrg.model.html#convlab.modules.word_policy.multiwoz.mdrg.model.model.Model.build_model">[docs]</a>    <span class="k">def</span> <span class="nf">build_model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span> <span class="o">=</span> <span class="n">EncoderRNN</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_lang_index2word</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">emb_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hid_size_enc</span><span class="p">,</span>
+                                  <span class="bp">self</span><span class="o">.</span><span class="n">cell_type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">depth</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">policy</span> <span class="o">=</span> <span class="n">policy</span><span class="o">.</span><span class="n">DefaultPolicy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hid_size_pol</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hid_size_enc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bs_size</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_attn</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">attn_type</span> <span class="o">==</span> <span class="s1">&#39;bahdanau&#39;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">decoder</span> <span class="o">=</span> <span class="n">SeqAttnDecoderRNN</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">emb_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hid_size_dec</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_lang_index2word</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">cell_type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_len</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">decoder</span> <span class="o">=</span> <span class="n">DecoderRNN</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">emb_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hid_size_dec</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_lang_index2word</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">cell_type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;train&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gen_criterion</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">NLLLoss</span><span class="p">(</span><span class="n">ignore_index</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">size_average</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># logsoftmax is done in decoder part</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setOptimizers</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Model.train"><a class="viewcode-back" href="../../../../../../../convlab.modules.word_policy.multiwoz.mdrg.model.html#convlab.modules.word_policy.multiwoz.mdrg.model.model.Model.train">[docs]</a>    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_tensor</span><span class="p">,</span> <span class="n">input_lengths</span><span class="p">,</span> <span class="n">target_tensor</span><span class="p">,</span> <span class="n">target_lengths</span><span class="p">,</span> <span class="n">db_tensor</span><span class="p">,</span> <span class="n">bs_tensor</span><span class="p">,</span> <span class="n">dial_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">proba</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">decoded_sent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">input_tensor</span><span class="p">,</span> <span class="n">input_lengths</span><span class="p">,</span> <span class="n">target_tensor</span><span class="p">,</span> <span class="n">target_lengths</span><span class="p">,</span> <span class="n">db_tensor</span><span class="p">,</span> <span class="n">bs_tensor</span><span class="p">)</span>
+
+        <span class="n">proba</span> <span class="o">=</span> <span class="n">proba</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">vocab_size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gen_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_criterion</span><span class="p">(</span><span class="n">proba</span><span class="p">,</span> <span class="n">target_tensor</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_loss</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+        <span class="n">grad</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clipGradients</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+
+        <span class="c1">#self.printGrad()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span> <span class="mi">0</span><span class="p">,</span> <span class="n">grad</span></div>
+
+<div class="viewcode-block" id="Model.setOptimizers"><a class="viewcode-back" href="../../../../../../../convlab.modules.word_policy.multiwoz.mdrg.model.html#convlab.modules.word_policy.multiwoz.mdrg.model.model.Model.setOptimizers">[docs]</a>    <span class="k">def</span> <span class="nf">setOptimizers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimizer_policy</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">optim</span> <span class="o">==</span> <span class="s1">&#39;sgd&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">SGD</span><span class="p">(</span><span class="n">lr</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">lr_rate</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">requires_grad</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">()),</span> <span class="n">weight_decay</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">l2_norm</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">optim</span> <span class="o">==</span> <span class="s1">&#39;adadelta&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">Adadelta</span><span class="p">(</span><span class="n">lr</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">lr_rate</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">requires_grad</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">()),</span> <span class="n">weight_decay</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">l2_norm</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">optim</span> <span class="o">==</span> <span class="s1">&#39;adam&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">lr</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">lr_rate</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">requires_grad</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">()),</span> <span class="n">weight_decay</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">l2_norm</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Model.forward"><a class="viewcode-back" href="../../../../../../../convlab.modules.word_policy.multiwoz.mdrg.model.html#convlab.modules.word_policy.multiwoz.mdrg.model.model.Model.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_tensor</span><span class="p">,</span> <span class="n">input_lengths</span><span class="p">,</span> <span class="n">target_tensor</span><span class="p">,</span> <span class="n">target_lengths</span><span class="p">,</span> <span class="n">db_tensor</span><span class="p">,</span> <span class="n">bs_tensor</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Given the user sentence, user belief state and database pointer,</span>
+<span class="sd">        encode the sentence, decide what policy vector construct and</span>
+<span class="sd">        feed it as the first hiddent state to the decoder.&quot;&quot;&quot;</span>
+        <span class="n">target_length</span> <span class="o">=</span> <span class="n">target_tensor</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># for fixed encoding this is zero so it does not contribute</span>
+        <span class="n">batch_size</span><span class="p">,</span> <span class="n">seq_len</span> <span class="o">=</span> <span class="n">input_tensor</span><span class="o">.</span><span class="n">size</span><span class="p">()</span>
+
+        <span class="c1"># ENCODER</span>
+        <span class="n">encoder_outputs</span><span class="p">,</span> <span class="n">encoder_hidden</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span><span class="p">(</span><span class="n">input_tensor</span><span class="p">,</span> <span class="n">input_lengths</span><span class="p">)</span>
+
+        <span class="c1"># POLICY</span>
+        <span class="n">decoder_hidden</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">policy</span><span class="p">(</span><span class="n">encoder_hidden</span><span class="p">,</span> <span class="n">db_tensor</span><span class="p">,</span> <span class="n">bs_tensor</span><span class="p">)</span>
+
+        <span class="c1"># GENERATOR</span>
+        <span class="c1"># Teacher forcing: Feed the target as the next input</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">target_len</span> <span class="o">=</span> <span class="n">target_tensor</span><span class="o">.</span><span class="n">size</span><span class="p">()</span>
+        <span class="n">decoder_input</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">LongTensor</span><span class="p">([[</span><span class="n">SOS_token</span><span class="p">]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">batch_size</span><span class="p">)],</span> <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+
+        <span class="n">proba</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">target_length</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">vocab_size</span><span class="p">)</span>  <span class="c1"># [B,T,V]</span>
+
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">target_len</span><span class="p">):</span>
+            <span class="n">decoder_output</span><span class="p">,</span> <span class="n">decoder_hidden</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="p">(</span><span class="n">decoder_input</span><span class="p">,</span> <span class="n">decoder_hidden</span><span class="p">,</span> <span class="n">encoder_outputs</span><span class="p">)</span>
+
+            <span class="n">use_teacher_forcing</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">teacher_ratio</span> <span class="k">else</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="n">use_teacher_forcing</span><span class="p">:</span>
+                <span class="n">decoder_input</span> <span class="o">=</span> <span class="n">target_tensor</span><span class="p">[:,</span> <span class="n">t</span><span class="p">]</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># [B,1] Teacher forcing</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Without teacher forcing: use its own predictions as the next input</span>
+                <span class="n">topv</span><span class="p">,</span> <span class="n">topi</span> <span class="o">=</span> <span class="n">decoder_output</span><span class="o">.</span><span class="n">topk</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">decoder_input</span> <span class="o">=</span> <span class="n">topi</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span>  <span class="c1"># detach from history as input</span>
+
+            <span class="n">proba</span><span class="p">[:,</span> <span class="n">t</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">decoder_output</span>
+
+        <span class="n">decoded_sent</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="n">proba</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">decoded_sent</span></div>
+
+<div class="viewcode-block" id="Model.predict"><a class="viewcode-back" href="../../../../../../../convlab.modules.word_policy.multiwoz.mdrg.model.html#convlab.modules.word_policy.multiwoz.mdrg.model.model.Model.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_tensor</span><span class="p">,</span> <span class="n">input_lengths</span><span class="p">,</span> <span class="n">target_tensor</span><span class="p">,</span> <span class="n">target_lengths</span><span class="p">,</span> <span class="n">db_tensor</span><span class="p">,</span> <span class="n">bs_tensor</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+            <span class="c1"># ENCODER</span>
+            <span class="n">encoder_outputs</span><span class="p">,</span> <span class="n">encoder_hidden</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span><span class="p">(</span><span class="n">input_tensor</span><span class="p">,</span> <span class="n">input_lengths</span><span class="p">)</span>
+
+            <span class="c1"># POLICY</span>
+            <span class="n">decoder_hidden</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">policy</span><span class="p">(</span><span class="n">encoder_hidden</span><span class="p">,</span> <span class="n">db_tensor</span><span class="p">,</span> <span class="n">bs_tensor</span><span class="p">)</span>
+
+            <span class="c1"># GENERATION</span>
+            <span class="n">decoded_words</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">target_tensor</span><span class="p">,</span> <span class="n">decoder_hidden</span><span class="p">,</span> <span class="n">encoder_outputs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">decoded_words</span><span class="p">,</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="Model.decode"><a class="viewcode-back" href="../../../../../../../convlab.modules.word_policy.multiwoz.mdrg.model.html#convlab.modules.word_policy.multiwoz.mdrg.model.model.Model.decode">[docs]</a>    <span class="k">def</span> <span class="nf">decode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target_tensor</span><span class="p">,</span> <span class="n">decoder_hidden</span><span class="p">,</span> <span class="n">encoder_outputs</span><span class="p">):</span>
+        <span class="n">decoder_hiddens</span> <span class="o">=</span> <span class="n">decoder_hidden</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">beam_search</span><span class="p">:</span>  <span class="c1"># wenqiang style - sequicity</span>
+            <span class="n">decoded_sentences</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">target_tensor</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">)):</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">decoder_hiddens</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>  <span class="c1"># LSTM case</span>
+                    <span class="n">decoder_hidden</span> <span class="o">=</span> <span class="p">(</span><span class="n">decoder_hiddens</span><span class="p">[</span><span class="mi">0</span><span class="p">][:,</span><span class="n">idx</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span><span class="n">decoder_hiddens</span><span class="p">[</span><span class="mi">1</span><span class="p">][:,</span><span class="n">idx</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">decoder_hidden</span> <span class="o">=</span> <span class="n">decoder_hiddens</span><span class="p">[:,</span> <span class="n">idx</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">encoder_output</span> <span class="o">=</span> <span class="n">encoder_outputs</span><span class="p">[:,</span><span class="n">idx</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+                <span class="c1"># Beam start</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">topk</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="n">endnodes</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># stored end nodes</span>
+                <span class="n">number_required</span> <span class="o">=</span> <span class="nb">min</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">topk</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">topk</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">endnodes</span><span class="p">))</span>
+                <span class="n">decoder_input</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">LongTensor</span><span class="p">([[</span><span class="n">SOS_token</span><span class="p">]],</span> <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+
+                <span class="c1"># starting node hidden vector, prevNode, wordid, logp, leng,</span>
+                <span class="n">node</span> <span class="o">=</span> <span class="n">BeamSearchNode</span><span class="p">(</span><span class="n">decoder_hidden</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">decoder_input</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="n">nodes</span> <span class="o">=</span> <span class="n">PriorityQueue</span><span class="p">()</span>  <span class="c1"># start the queue</span>
+                <span class="n">nodes</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="o">-</span><span class="n">node</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+                           <span class="n">node</span><span class="p">))</span>
+
+                <span class="c1"># start beam search</span>
+                <span class="n">qsize</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+                    <span class="c1"># give up when decoding takes too long</span>
+                    <span class="k">if</span> <span class="n">qsize</span> <span class="o">&gt;</span> <span class="mi">2000</span><span class="p">:</span> <span class="k">break</span>
+
+                    <span class="c1"># fetch the best node</span>
+                    <span class="n">score</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="n">nodes</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+                    <span class="n">decoder_input</span> <span class="o">=</span> <span class="n">n</span><span class="o">.</span><span class="n">wordid</span>
+                    <span class="n">decoder_hidden</span> <span class="o">=</span> <span class="n">n</span><span class="o">.</span><span class="n">h</span>
+
+                    <span class="k">if</span> <span class="n">n</span><span class="o">.</span><span class="n">wordid</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="o">==</span> <span class="n">EOS_token</span> <span class="ow">and</span> <span class="n">n</span><span class="o">.</span><span class="n">prevNode</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># its not empty</span>
+                        <span class="n">endnodes</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">score</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span>
+                        <span class="c1"># if reach maximum # of sentences required</span>
+                        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">endnodes</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">number_required</span><span class="p">:</span>
+                            <span class="k">break</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="k">continue</span>
+
+                    <span class="c1"># decode for one step using decoder</span>
+                    <span class="n">decoder_output</span><span class="p">,</span> <span class="n">decoder_hidden</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="p">(</span><span class="n">decoder_input</span><span class="p">,</span> <span class="n">decoder_hidden</span><span class="p">,</span> <span class="n">encoder_output</span><span class="p">)</span>
+
+                    <span class="n">log_prob</span><span class="p">,</span> <span class="n">indexes</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">topk</span><span class="p">(</span><span class="n">decoder_output</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">beam_width</span><span class="p">)</span>
+                    <span class="n">nextnodes</span> <span class="o">=</span> <span class="p">[]</span>
+
+                    <span class="k">for</span> <span class="n">new_k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">beam_width</span><span class="p">):</span>
+                        <span class="n">decoded_t</span> <span class="o">=</span> <span class="n">indexes</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">new_k</span><span class="p">]</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+                        <span class="n">log_p</span> <span class="o">=</span> <span class="n">log_prob</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">new_k</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+
+                        <span class="n">node</span> <span class="o">=</span> <span class="n">BeamSearchNode</span><span class="p">(</span><span class="n">decoder_hidden</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">decoded_t</span><span class="p">,</span> <span class="n">n</span><span class="o">.</span><span class="n">logp</span> <span class="o">+</span> <span class="n">log_p</span><span class="p">,</span> <span class="n">n</span><span class="o">.</span><span class="n">leng</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+                        <span class="n">score</span> <span class="o">=</span> <span class="o">-</span><span class="n">node</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                        <span class="n">nextnodes</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">score</span><span class="p">,</span> <span class="n">node</span><span class="p">))</span>
+
+                    <span class="c1"># put them into queue</span>
+                    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">nextnodes</span><span class="p">)):</span>
+                        <span class="n">score</span><span class="p">,</span> <span class="n">nn</span> <span class="o">=</span> <span class="n">nextnodes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                        <span class="n">nodes</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="n">score</span><span class="p">,</span> <span class="n">nn</span><span class="p">))</span>
+
+                    <span class="c1"># increase qsize</span>
+                    <span class="n">qsize</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">nextnodes</span><span class="p">)</span>
+
+                <span class="c1"># choose nbest paths, back trace them</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">endnodes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">endnodes</span> <span class="o">=</span> <span class="p">[</span><span class="n">nodes</span><span class="o">.</span><span class="n">get</span><span class="p">()</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">topk</span><span class="p">)]</span>
+
+                <span class="n">utterances</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">score</span><span class="p">,</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">endnodes</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">operator</span><span class="o">.</span><span class="n">itemgetter</span><span class="p">(</span><span class="mi">0</span><span class="p">)):</span>
+                    <span class="n">utterance</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="n">utterance</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">wordid</span><span class="p">)</span>
+                    <span class="c1"># back trace</span>
+                    <span class="k">while</span> <span class="n">n</span><span class="o">.</span><span class="n">prevNode</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">n</span> <span class="o">=</span> <span class="n">n</span><span class="o">.</span><span class="n">prevNode</span>
+                        <span class="n">utterance</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">wordid</span><span class="p">)</span>
+
+                    <span class="n">utterance</span> <span class="o">=</span> <span class="n">utterance</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="n">utterances</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">utterance</span><span class="p">)</span>
+
+                <span class="n">decoded_words</span> <span class="o">=</span> <span class="n">utterances</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">decoded_sentence</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">output_index2word</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">ind</span><span class="o">.</span><span class="n">item</span><span class="p">()))</span> <span class="k">for</span> <span class="n">ind</span> <span class="ow">in</span> <span class="n">decoded_words</span><span class="p">]</span>
+                <span class="c1">#print(decoded_sentence)</span>
+                <span class="n">decoded_sentences</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">decoded_sentence</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+
+            <span class="k">return</span> <span class="n">decoded_sentences</span>
+
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># GREEDY DECODING</span>
+            <span class="n">decoded_sentences</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">greedy_decode</span><span class="p">(</span><span class="n">decoder_hidden</span><span class="p">,</span> <span class="n">encoder_outputs</span><span class="p">,</span> <span class="n">target_tensor</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">decoded_sentences</span></div>
+
+<div class="viewcode-block" id="Model.greedy_decode"><a class="viewcode-back" href="../../../../../../../convlab.modules.word_policy.multiwoz.mdrg.model.html#convlab.modules.word_policy.multiwoz.mdrg.model.model.Model.greedy_decode">[docs]</a>    <span class="k">def</span> <span class="nf">greedy_decode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">decoder_hidden</span><span class="p">,</span> <span class="n">encoder_outputs</span><span class="p">,</span> <span class="n">target_tensor</span><span class="p">):</span>
+        <span class="n">decoded_sentences</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">batch_size</span><span class="p">,</span> <span class="n">seq_len</span> <span class="o">=</span> <span class="n">target_tensor</span><span class="o">.</span><span class="n">size</span><span class="p">()</span>
+        <span class="n">decoder_input</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">LongTensor</span><span class="p">([[</span><span class="n">SOS_token</span><span class="p">]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">batch_size</span><span class="p">)],</span> <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+
+        <span class="n">decoded_words</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">batch_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_len</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_len</span><span class="p">):</span>
+            <span class="n">decoder_output</span><span class="p">,</span> <span class="n">decoder_hidden</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="p">(</span><span class="n">decoder_input</span><span class="p">,</span> <span class="n">decoder_hidden</span><span class="p">,</span> <span class="n">encoder_outputs</span><span class="p">)</span>
+
+            <span class="n">topv</span><span class="p">,</span> <span class="n">topi</span> <span class="o">=</span> <span class="n">decoder_output</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">topk</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># get candidates</span>
+            <span class="n">topi</span> <span class="o">=</span> <span class="n">topi</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="n">decoded_words</span><span class="p">[:,</span> <span class="n">t</span><span class="p">]</span> <span class="o">=</span> <span class="n">topi</span>
+            <span class="n">decoder_input</span> <span class="o">=</span> <span class="n">topi</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">sentence</span> <span class="ow">in</span> <span class="n">decoded_words</span><span class="p">:</span>
+            <span class="n">sent</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">ind</span> <span class="ow">in</span> <span class="n">sentence</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_index2word</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">ind</span><span class="o">.</span><span class="n">item</span><span class="p">())))</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_index2word</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">EOS_token</span><span class="p">)):</span>
+                    <span class="k">break</span>
+                <span class="n">sent</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_index2word</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">ind</span><span class="o">.</span><span class="n">item</span><span class="p">()))))</span>
+            <span class="n">decoded_sentences</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">sent</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">decoded_sentences</span></div>
+
+<div class="viewcode-block" id="Model.clipGradients"><a class="viewcode-back" href="../../../../../../../convlab.modules.word_policy.multiwoz.mdrg.model.html#convlab.modules.word_policy.multiwoz.mdrg.model.model.Model.clipGradients">[docs]</a>    <span class="k">def</span> <span class="nf">clipGradients</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">grad</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">clip_grad_norm_</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">clip</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">grad</span></div>
+
+<div class="viewcode-block" id="Model.saveModel"><a class="viewcode-back" href="../../../../../../../convlab.modules.word_policy.multiwoz.mdrg.model.html#convlab.modules.word_policy.multiwoz.mdrg.model.model.Model.saveModel">[docs]</a>    <span class="k">def</span> <span class="nf">saveModel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">iter</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Saving parameters..&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_dir</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_dir</span><span class="p">)</span>
+
+        <span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">encoder</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_dir</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_name</span> <span class="o">+</span> <span class="s1">&#39;-&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">iter</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;.enc&#39;</span><span class="p">)</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">policy</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_dir</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_name</span> <span class="o">+</span> <span class="s1">&#39;-&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">iter</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;.pol&#39;</span><span class="p">)</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_dir</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_name</span> <span class="o">+</span> <span class="s1">&#39;-&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">iter</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;.dec&#39;</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_dir</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_name</span> <span class="o">+</span> <span class="s1">&#39;.config&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="c1"># f.write(unicode(json.dumps(vars(self.args), ensure_ascii=False, indent=4)))</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="nb">vars</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">),</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Model.loadModel"><a class="viewcode-back" href="../../../../../../../convlab.modules.word_policy.multiwoz.mdrg.model.html#convlab.modules.word_policy.multiwoz.mdrg.model.model.Model.loadModel">[docs]</a>    <span class="k">def</span> <span class="nf">loadModel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">iter</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Loading parameters of iter </span><span class="si">%s</span><span class="s1"> &#39;</span> <span class="o">%</span> <span class="nb">iter</span><span class="p">)</span>
+        <span class="c1"># self.encoder.load_state_dict(torch.load(self.model_dir + self.model_name + &#39;-&#39; + str(iter) + &#39;.enc&#39;))</span>
+        <span class="c1"># self.policy.load_state_dict(torch.load(self.model_dir + self.model_name + &#39;-&#39; + str(iter) + &#39;.pol&#39;))</span>
+        <span class="c1"># self.decoder.load_state_dict(torch.load(self.model_dir + self.model_name + &#39;-&#39; + str(iter) + &#39;.dec&#39;))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">model_file</span> <span class="o">+</span> <span class="s1">&#39;.enc&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">policy</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">model_file</span> <span class="o">+</span> <span class="s1">&#39;.pol&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">model_file</span> <span class="o">+</span> <span class="s1">&#39;.dec&#39;</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Model.input_index2word"><a class="viewcode-back" href="../../../../../../../convlab.modules.word_policy.multiwoz.mdrg.model.html#convlab.modules.word_policy.multiwoz.mdrg.model.model.Model.input_index2word">[docs]</a>    <span class="k">def</span> <span class="nf">input_index2word</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+        <span class="c1"># if self.input_lang_index2word.has_key(index):</span>
+        <span class="k">if</span> <span class="n">index</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_lang_index2word</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_lang_index2word</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">UserWarning</span><span class="p">(</span><span class="s1">&#39;We are using UNK&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Model.output_index2word"><a class="viewcode-back" href="../../../../../../../convlab.modules.word_policy.multiwoz.mdrg.model.html#convlab.modules.word_policy.multiwoz.mdrg.model.model.Model.output_index2word">[docs]</a>    <span class="k">def</span> <span class="nf">output_index2word</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+        <span class="c1"># if self.output_lang_index2word.has_key(index):</span>
+        <span class="k">if</span> <span class="n">index</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_lang_index2word</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_lang_index2word</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">UserWarning</span><span class="p">(</span><span class="s1">&#39;We are using UNK&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Model.input_word2index"><a class="viewcode-back" href="../../../../../../../convlab.modules.word_policy.multiwoz.mdrg.model.html#convlab.modules.word_policy.multiwoz.mdrg.model.model.Model.input_word2index">[docs]</a>    <span class="k">def</span> <span class="nf">input_word2index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+        <span class="c1"># if self.input_lang_word2index.has_key(index):</span>
+        <span class="k">if</span> <span class="n">index</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_lang_word2index</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_lang_word2index</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">2</span></div>
+
+<div class="viewcode-block" id="Model.output_word2index"><a class="viewcode-back" href="../../../../../../../convlab.modules.word_policy.multiwoz.mdrg.model.html#convlab.modules.word_policy.multiwoz.mdrg.model.model.Model.output_word2index">[docs]</a>    <span class="k">def</span> <span class="nf">output_word2index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+        <span class="c1"># if self.output_lang_word2index.has_key(index):</span>
+        <span class="k">if</span> <span class="n">index</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_lang_word2index</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_lang_word2index</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">2</span></div>
+
+<div class="viewcode-block" id="Model.getCount"><a class="viewcode-back" href="../../../../../../../convlab.modules.word_policy.multiwoz.mdrg.model.html#convlab.modules.word_policy.multiwoz.mdrg.model.model.Model.getCount">[docs]</a>    <span class="k">def</span> <span class="nf">getCount</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">learnable_parameters</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">requires_grad</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">())</span>
+        <span class="n">param_cnt</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">reduce</span><span class="p">((</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">*</span> <span class="n">y</span><span class="p">),</span> <span class="n">param</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">learnable_parameters</span><span class="p">])</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Model has&#39;</span><span class="p">,</span> <span class="n">param_cnt</span><span class="p">,</span> <span class="s1">&#39; parameters.&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Model.printGrad"><a class="viewcode-back" href="../../../../../../../convlab.modules.word_policy.multiwoz.mdrg.model.html#convlab.modules.word_policy.multiwoz.mdrg.model.model.Model.printGrad">[docs]</a>    <span class="k">def</span> <span class="nf">printGrad</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">learnable_parameters</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">requires_grad</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">())</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">param</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">learnable_parameters</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">grad</span><span class="p">,</span> <span class="n">param</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, ConvLab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,380 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>convlab.env.base &mdash; ConvLab 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> ConvLab
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">ConvLab</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+          <li><a href="../env.html">convlab.env</a> &raquo;</li>
+        
+      <li>convlab.env.base</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for convlab.env.base</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Modified by Microsoft Corporation.</span>
+<span class="c1"># Licensed under the MIT license.</span>
+
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="k">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pydash</span> <span class="k">as</span> <span class="nn">ps</span>
+<span class="kn">from</span> <span class="nn">gym</span> <span class="k">import</span> <span class="n">spaces</span>
+
+<span class="kn">from</span> <span class="nn">convlab.lib</span> <span class="k">import</span> <span class="n">logger</span><span class="p">,</span> <span class="n">util</span>
+<span class="kn">from</span> <span class="nn">convlab.lib.decorator</span> <span class="k">import</span> <span class="n">lab_api</span>
+
+<span class="n">ENV_DATA_NAMES</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;reward&#39;</span><span class="p">,</span> <span class="s1">&#39;state&#39;</span><span class="p">,</span> <span class="s1">&#39;done&#39;</span><span class="p">]</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="set_gym_space_attr"><a class="viewcode-back" href="../../../convlab.env.html#convlab.env.base.set_gym_space_attr">[docs]</a><span class="k">def</span> <span class="nf">set_gym_space_attr</span><span class="p">(</span><span class="n">gym_space</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Set missing gym space attributes for standardization&#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">gym_space</span><span class="p">,</span> <span class="n">spaces</span><span class="o">.</span><span class="n">Box</span><span class="p">):</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="n">gym_space</span><span class="p">,</span> <span class="s1">&#39;is_discrete&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">gym_space</span><span class="p">,</span> <span class="n">spaces</span><span class="o">.</span><span class="n">Discrete</span><span class="p">):</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="n">gym_space</span><span class="p">,</span> <span class="s1">&#39;is_discrete&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="n">gym_space</span><span class="p">,</span> <span class="s1">&#39;low&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="n">gym_space</span><span class="p">,</span> <span class="s1">&#39;high&#39;</span><span class="p">,</span> <span class="n">gym_space</span><span class="o">.</span><span class="n">n</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">gym_space</span><span class="p">,</span> <span class="n">spaces</span><span class="o">.</span><span class="n">MultiBinary</span><span class="p">):</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="n">gym_space</span><span class="p">,</span> <span class="s1">&#39;is_discrete&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="n">gym_space</span><span class="p">,</span> <span class="s1">&#39;low&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">gym_space</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="n">gym_space</span><span class="p">,</span> <span class="s1">&#39;high&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">gym_space</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">gym_space</span><span class="p">,</span> <span class="n">spaces</span><span class="o">.</span><span class="n">MultiDiscrete</span><span class="p">):</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="n">gym_space</span><span class="p">,</span> <span class="s1">&#39;is_discrete&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="n">gym_space</span><span class="p">,</span> <span class="s1">&#39;low&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">gym_space</span><span class="o">.</span><span class="n">nvec</span><span class="p">))</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="n">gym_space</span><span class="p">,</span> <span class="s1">&#39;high&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">gym_space</span><span class="o">.</span><span class="n">nvec</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;gym_space not recognized&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Clock"><a class="viewcode-back" href="../../../convlab.env.html#convlab.env.base.Clock">[docs]</a><span class="k">class</span> <span class="nc">Clock</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;Clock class for each env and space to keep track of relative time. Ticking and control loop is such that reset is at t=0 and epi=0&#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_frame</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="mf">1e7</span><span class="p">),</span> <span class="n">clock_speed</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_frame</span> <span class="o">=</span> <span class="n">max_frame</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clock_speed</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">clock_speed</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Clock.reset"><a class="viewcode-back" href="../../../convlab.env.html#convlab.env.base.Clock.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">t</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frame</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># i.e. total_t</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">epi</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_wall_t</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># multiplier to accurately count opt steps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">opt_step</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># count the number of optimizer updates</span></div>
+
+<div class="viewcode-block" id="Clock.get"><a class="viewcode-back" href="../../../convlab.env.html#convlab.env.base.Clock.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;frame&#39;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">unit</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Clock.get_elapsed_wall_t"><a class="viewcode-back" href="../../../convlab.env.html#convlab.env.base.Clock.get_elapsed_wall_t">[docs]</a>    <span class="k">def</span> <span class="nf">get_elapsed_wall_t</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Calculate the elapsed wall time (int seconds) since self.start_wall_t&#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_wall_t</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Clock.set_batch_size"><a class="viewcode-back" href="../../../convlab.env.html#convlab.env.base.Clock.set_batch_size">[docs]</a>    <span class="k">def</span> <span class="nf">set_batch_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="n">batch_size</span></div>
+
+<div class="viewcode-block" id="Clock.tick"><a class="viewcode-back" href="../../../convlab.env.html#convlab.env.base.Clock.tick">[docs]</a>    <span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;t&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">unit</span> <span class="o">==</span> <span class="s1">&#39;t&#39;</span><span class="p">:</span>  <span class="c1"># timestep</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">t</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clock_speed</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">frame</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clock_speed</span>
+        <span class="k">elif</span> <span class="n">unit</span> <span class="o">==</span> <span class="s1">&#39;epi&#39;</span><span class="p">:</span>  <span class="c1"># episode, reset timestep</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">epi</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">t</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">elif</span> <span class="n">unit</span> <span class="o">==</span> <span class="s1">&#39;opt_step&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">opt_step</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span></div></div>
+
+
+<div class="viewcode-block" id="BaseEnv"><a class="viewcode-back" href="../../../convlab.env.html#convlab.env.base.BaseEnv">[docs]</a><span class="k">class</span> <span class="nc">BaseEnv</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    The base Env class with API and helper methods. Use this to implement your env class that is compatible with the Lab APIs</span>
+
+<span class="sd">    e.g. env_spec</span>
+<span class="sd">    &quot;env&quot;: [{</span>
+<span class="sd">        &quot;name&quot;: &quot;PongNoFrameskip-v4&quot;,</span>
+<span class="sd">        &quot;frame_op&quot;: &quot;concat&quot;,</span>
+<span class="sd">        &quot;frame_op_len&quot;: 4,</span>
+<span class="sd">        &quot;normalize_state&quot;: false,</span>
+<span class="sd">        &quot;reward_scale&quot;: &quot;sign&quot;,</span>
+<span class="sd">        &quot;num_envs&quot;: 8,</span>
+<span class="sd">        &quot;max_t&quot;: null,</span>
+<span class="sd">        &quot;max_frame&quot;: 1e7</span>
+<span class="sd">    }],</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spec</span><span class="p">,</span> <span class="n">e</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">e</span> <span class="o">=</span> <span class="n">e</span> <span class="ow">or</span> <span class="mi">0</span>  <span class="c1"># for multi-env</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">done</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">env_spec</span> <span class="o">=</span> <span class="n">spec</span><span class="p">[</span><span class="s1">&#39;env&#39;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">e</span><span class="p">]</span>
+        <span class="c1"># set default</span>
+        <span class="n">util</span><span class="o">.</span><span class="n">set_attr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">log_frequency</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># default to log at epi done</span>
+            <span class="n">frame_op</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">frame_op_len</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">normalize_state</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">reward_scale</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">num_envs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="p">))</span>
+        <span class="n">util</span><span class="o">.</span><span class="n">set_attr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spec</span><span class="p">[</span><span class="s1">&#39;meta&#39;</span><span class="p">],</span> <span class="p">[</span>
+            <span class="s1">&#39;log_frequency&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;eval_frequency&#39;</span><span class="p">,</span>
+        <span class="p">])</span>
+        <span class="n">util</span><span class="o">.</span><span class="n">set_attr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">env_spec</span><span class="p">,</span> <span class="p">[</span>
+            <span class="s1">&#39;name&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;frame_op&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;frame_op_len&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;normalize_state&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;reward_scale&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;num_envs&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;max_t&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;max_frame&#39;</span><span class="p">,</span>
+        <span class="p">])</span>
+        <span class="n">seq_len</span> <span class="o">=</span> <span class="n">ps</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="s1">&#39;agent.0.net.seq_len&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">seq_len</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># infer if using RNN</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">frame_op</span> <span class="o">=</span> <span class="s1">&#39;stack&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">frame_op_len</span> <span class="o">=</span> <span class="n">seq_len</span>
+        <span class="k">if</span> <span class="n">util</span><span class="o">.</span><span class="n">in_eval_lab_modes</span><span class="p">():</span>  <span class="c1"># use singleton for eval</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">num_envs</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log_frequency</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">spec</span><span class="p">[</span><span class="s1">&#39;meta&#39;</span><span class="p">][</span><span class="s1">&#39;distributed&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="kc">False</span><span class="p">:</span>  <span class="c1"># divide max_frame for distributed</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">max_frame</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_frame</span> <span class="o">/</span> <span class="n">spec</span><span class="p">[</span><span class="s1">&#39;meta&#39;</span><span class="p">][</span><span class="s1">&#39;max_session&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_venv</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_envs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_envs</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_venv</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_frequency</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="n">f</span><span class="s1">&#39;Specify log_frequency when using venv&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clock_speed</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_envs</span> <span class="ow">or</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># tick with a multiple of num_envs to properly count frames</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clock</span> <span class="o">=</span> <span class="n">Clock</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_frame</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">clock_speed</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">to_render</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">to_render</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_set_attr_from_u_env</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u_env</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Set the observation, action dimensions and action type from u_env&#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">observation_space</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_space</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_spaces</span><span class="p">(</span><span class="n">u_env</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">observable_dim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_observable_dim</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">observation_space</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">action_dim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_action_dim</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">action_space</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_discrete</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_discrete</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">action_space</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_spaces</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u_env</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Helper to set the extra attributes to, and get, observation and action spaces&#39;&#39;&#39;</span>
+        <span class="n">observation_space</span> <span class="o">=</span> <span class="n">u_env</span><span class="o">.</span><span class="n">observation_space</span>
+        <span class="n">action_space</span> <span class="o">=</span> <span class="n">u_env</span><span class="o">.</span><span class="n">action_space</span>
+        <span class="n">set_gym_space_attr</span><span class="p">(</span><span class="n">observation_space</span><span class="p">)</span>
+        <span class="n">set_gym_space_attr</span><span class="p">(</span><span class="n">action_space</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">observation_space</span><span class="p">,</span> <span class="n">action_space</span>
+
+    <span class="k">def</span> <span class="nf">_get_observable_dim</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observation_space</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Get the observable dim for an agent in env&#39;&#39;&#39;</span>
+        <span class="n">state_dim</span> <span class="o">=</span> <span class="n">observation_space</span><span class="o">.</span><span class="n">shape</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">state_dim</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">state_dim</span> <span class="o">=</span> <span class="n">state_dim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;state&#39;</span><span class="p">:</span> <span class="n">state_dim</span><span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">_get_action_dim</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action_space</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Get the action dim for an action_space for agent to use&#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">action_space</span><span class="p">,</span> <span class="n">spaces</span><span class="o">.</span><span class="n">Box</span><span class="p">):</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">action_space</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+            <span class="n">action_dim</span> <span class="o">=</span> <span class="n">action_space</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">action_space</span><span class="p">,</span> <span class="p">(</span><span class="n">spaces</span><span class="o">.</span><span class="n">Discrete</span><span class="p">,</span> <span class="n">spaces</span><span class="o">.</span><span class="n">MultiBinary</span><span class="p">)):</span>
+            <span class="n">action_dim</span> <span class="o">=</span> <span class="n">action_space</span><span class="o">.</span><span class="n">n</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">action_space</span><span class="p">,</span> <span class="n">spaces</span><span class="o">.</span><span class="n">MultiDiscrete</span><span class="p">):</span>
+            <span class="n">action_dim</span> <span class="o">=</span> <span class="n">action_space</span><span class="o">.</span><span class="n">nvec</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;action_space not recognized&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">action_dim</span>
+
+    <span class="k">def</span> <span class="nf">_is_discrete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action_space</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Check if an action space is discrete&#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">util</span><span class="o">.</span><span class="n">get_class_name</span><span class="p">(</span><span class="n">action_space</span><span class="p">)</span> <span class="o">!=</span> <span class="s1">&#39;Box&#39;</span>
+
+<div class="viewcode-block" id="BaseEnv.reset"><a class="viewcode-back" href="../../../convlab.env.html#convlab.env.base.BaseEnv.reset">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="nd">@lab_api</span>
+    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Reset method, return state&#39;&#39;&#39;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="BaseEnv.step"><a class="viewcode-back" href="../../../convlab.env.html#convlab.env.base.BaseEnv.step">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="nd">@lab_api</span>
+    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Step method, return state, reward, done, info&#39;&#39;&#39;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="BaseEnv.close"><a class="viewcode-back" href="../../../convlab.env.html#convlab.env.base.BaseEnv.close">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="nd">@lab_api</span>
+    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Method to close and cleanup env&#39;&#39;&#39;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, ConvLab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

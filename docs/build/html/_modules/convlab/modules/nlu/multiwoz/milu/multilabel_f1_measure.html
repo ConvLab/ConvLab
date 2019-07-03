@@ -1,0 +1,318 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>convlab.modules.nlu.multiwoz.milu.multilabel_f1_measure &mdash; ConvLab 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../../../" src="../../../../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../../../index.html" class="icon icon-home"> ConvLab
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../../index.html">ConvLab</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../../../../index.html">Module code</a> &raquo;</li>
+        
+      <li>convlab.modules.nlu.multiwoz.milu.multilabel_f1_measure</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for convlab.modules.nlu.multiwoz.milu.multilabel_f1_measure</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
+<span class="c1"># Licensed under the MIT license.</span>
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">defaultdict</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Set</span>
+
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">allennlp.data.vocabulary</span> <span class="k">import</span> <span class="n">Vocabulary</span>
+<span class="kn">from</span> <span class="nn">allennlp.training.metrics.metric</span> <span class="k">import</span> <span class="n">Metric</span>
+
+
+<div class="viewcode-block" id="MultiLabelF1Measure"><a class="viewcode-back" href="../../../../../../convlab.modules.nlu.multiwoz.milu.html#convlab.modules.nlu.multiwoz.milu.multilabel_f1_measure.MultiLabelF1Measure">[docs]</a><span class="nd">@Metric</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s2">&quot;multilabel_f1&quot;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">MultiLabelF1Measure</span><span class="p">(</span><span class="n">Metric</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">vocabulary</span><span class="p">:</span> <span class="n">Vocabulary</span><span class="p">,</span>
+                 <span class="n">namespace</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;intent_labels&quot;</span><span class="p">,</span>
+                 <span class="n">ignore_classes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">coarse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        vocabulary : ``Vocabulary``, required.</span>
+<span class="sd">            A vocabulary containing the label namespace.</span>
+<span class="sd">        namespace : str, required.</span>
+<span class="sd">            The vocabulary namespace for labels.</span>
+<span class="sd">        ignore_classes : List[str], optional.</span>
+<span class="sd">            Labels which will be ignored when computing metrics.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_label_vocabulary</span> <span class="o">=</span> <span class="n">vocabulary</span><span class="o">.</span><span class="n">get_index_to_token_vocabulary</span><span class="p">(</span><span class="n">namespace</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ignore_classes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">ignore_classes</span> <span class="ow">or</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_coarse</span> <span class="o">=</span> <span class="n">coarse</span>
+
+        <span class="c1"># These will hold per label span counts.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_true_positives</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_false_positives</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_false_negatives</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">predictions</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+                 <span class="n">gold_labels</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+                 <span class="n">mask</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        predictions : ``torch.Tensor``, required.</span>
+<span class="sd">            A tensor of predictions of shape (batch_size, sequence_length, num_classes).</span>
+<span class="sd">        gold_labels : ``torch.Tensor``, required.</span>
+<span class="sd">            A tensor of integer class label of shape (batch_size, sequence_length). It must be the same</span>
+<span class="sd">            shape as the ``predictions`` tensor without the ``num_classes`` dimension.</span>
+<span class="sd">        mask: ``torch.Tensor``, optional (default = None).</span>
+<span class="sd">            A masking tensor the same size as ``gold_labels``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">mask</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">gold_labels</span><span class="p">)</span>
+
+        <span class="n">predictions</span><span class="p">,</span> <span class="n">gold_labels</span><span class="p">,</span> <span class="n">mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">unwrap_to_tensors</span><span class="p">(</span><span class="n">predictions</span><span class="p">,</span> <span class="n">gold_labels</span><span class="p">,</span> <span class="n">mask</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_coarse</span><span class="p">:</span>
+            <span class="n">num_positives</span> <span class="o">=</span> <span class="n">predictions</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+            <span class="n">num_false_positives</span> <span class="o">=</span> <span class="p">((</span><span class="n">predictions</span> <span class="o">-</span> <span class="n">gold_labels</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">long</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_false_positives</span><span class="p">[</span><span class="s2">&quot;coarse_overall&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">num_false_positives</span> 
+            <span class="n">num_true_positives</span> <span class="o">=</span> <span class="n">num_positives</span> <span class="o">-</span> <span class="n">num_false_positives</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_true_positives</span><span class="p">[</span><span class="s2">&quot;coarse_overall&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">num_true_positives</span> 
+            <span class="n">num_false_negatives</span> <span class="o">=</span> <span class="p">((</span><span class="n">gold_labels</span> <span class="o">-</span> <span class="n">predictions</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">long</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_false_negatives</span><span class="p">[</span><span class="s2">&quot;coarse_overall&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">num_false_negatives</span> 
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Iterate over timesteps in batch.</span>
+            <span class="n">batch_size</span> <span class="o">=</span> <span class="n">gold_labels</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">batch_size</span><span class="p">):</span>
+                <span class="n">prediction</span> <span class="o">=</span> <span class="n">predictions</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span>
+                <span class="n">gold_label</span> <span class="o">=</span> <span class="n">gold_labels</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span>
+                <span class="k">for</span> <span class="n">label_id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">gold_label</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)):</span>
+                    <span class="n">label</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_label_vocabulary</span><span class="p">[</span><span class="n">label_id</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">prediction</span><span class="p">[</span><span class="n">label_id</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">gold_label</span><span class="p">[</span><span class="n">label_id</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_true_positives</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="k">elif</span> <span class="n">prediction</span><span class="p">[</span><span class="n">label_id</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">gold_label</span><span class="p">[</span><span class="n">label_id</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_false_positives</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="k">elif</span> <span class="n">prediction</span><span class="p">[</span><span class="n">label_id</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">gold_label</span><span class="p">[</span><span class="n">label_id</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_false_negatives</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+
+
+<div class="viewcode-block" id="MultiLabelF1Measure.get_metric"><a class="viewcode-back" href="../../../../../../convlab.modules.nlu.multiwoz.milu.html#convlab.modules.nlu.multiwoz.milu.multilabel_f1_measure.MultiLabelF1Measure.get_metric">[docs]</a>    <span class="k">def</span> <span class="nf">get_metric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reset</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        A Dict per label containing following the span based metrics:</span>
+<span class="sd">        precision : float</span>
+<span class="sd">        recall : float</span>
+<span class="sd">        f1-measure : float</span>
+
+<span class="sd">        Additionally, an ``overall`` key is included, which provides the precision,</span>
+<span class="sd">        recall and f1-measure for all spans.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">all_labels</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="n">all_labels</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_true_positives</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="n">all_labels</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_false_positives</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="n">all_labels</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_false_negatives</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="n">all_metrics</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">all_labels</span><span class="p">:</span>
+            <span class="n">precision</span><span class="p">,</span> <span class="n">recall</span><span class="p">,</span> <span class="n">f1_measure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_metrics</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_true_positives</span><span class="p">[</span><span class="n">label</span><span class="p">],</span>
+                                                                  <span class="bp">self</span><span class="o">.</span><span class="n">_false_positives</span><span class="p">[</span><span class="n">label</span><span class="p">],</span>
+                                                                  <span class="bp">self</span><span class="o">.</span><span class="n">_false_negatives</span><span class="p">[</span><span class="n">label</span><span class="p">])</span>
+            <span class="n">precision_key</span> <span class="o">=</span> <span class="s2">&quot;precision&quot;</span> <span class="o">+</span> <span class="s2">&quot;-&quot;</span> <span class="o">+</span> <span class="n">label</span> 
+            <span class="n">recall_key</span> <span class="o">=</span> <span class="s2">&quot;recall&quot;</span> <span class="o">+</span> <span class="s2">&quot;-&quot;</span> <span class="o">+</span> <span class="n">label</span> 
+            <span class="n">f1_key</span> <span class="o">=</span> <span class="s2">&quot;f1-measure&quot;</span> <span class="o">+</span> <span class="s2">&quot;-&quot;</span> <span class="o">+</span> <span class="n">label</span> 
+            <span class="n">all_metrics</span><span class="p">[</span><span class="n">precision_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">precision</span>
+            <span class="n">all_metrics</span><span class="p">[</span><span class="n">recall_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">recall</span>
+            <span class="n">all_metrics</span><span class="p">[</span><span class="n">f1_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">f1_measure</span>
+
+        <span class="c1"># Compute the precision, recall and f1 for all spans jointly.</span>
+        <span class="n">precision</span><span class="p">,</span> <span class="n">recall</span><span class="p">,</span> <span class="n">f1_measure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_metrics</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_true_positives</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span>
+                                                              <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_false_positives</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span>
+                                                              <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_false_negatives</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+        <span class="n">all_metrics</span><span class="p">[</span><span class="s2">&quot;precision-overall&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">precision</span>
+        <span class="n">all_metrics</span><span class="p">[</span><span class="s2">&quot;recall-overall&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">recall</span>
+        <span class="n">all_metrics</span><span class="p">[</span><span class="s2">&quot;f1-measure-overall&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">f1_measure</span>
+        <span class="k">if</span> <span class="n">reset</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">all_metrics</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_compute_metrics</span><span class="p">(</span><span class="n">true_positives</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">false_positives</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">false_negatives</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="n">precision</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">true_positives</span><span class="p">)</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">true_positives</span> <span class="o">+</span> <span class="n">false_positives</span><span class="p">)</span> <span class="k">if</span> <span class="n">true_positives</span> <span class="o">+</span> <span class="n">false_positives</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="n">recall</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">true_positives</span><span class="p">)</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">true_positives</span> <span class="o">+</span> <span class="n">false_negatives</span><span class="p">)</span><span class="k">if</span> <span class="n">true_positives</span> <span class="o">+</span> <span class="n">false_negatives</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="n">f1_measure</span> <span class="o">=</span> <span class="mf">2.</span> <span class="o">*</span> <span class="p">((</span><span class="n">precision</span> <span class="o">*</span> <span class="n">recall</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">precision</span> <span class="o">+</span> <span class="n">recall</span><span class="p">))</span> <span class="k">if</span> <span class="n">precision</span> <span class="o">+</span> <span class="n">recall</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="n">precision</span><span class="p">,</span> <span class="n">recall</span><span class="p">,</span> <span class="n">f1_measure</span>
+
+<div class="viewcode-block" id="MultiLabelF1Measure.reset"><a class="viewcode-back" href="../../../../../../convlab.modules.nlu.multiwoz.milu.html#convlab.modules.nlu.multiwoz.milu.multilabel_f1_measure.MultiLabelF1Measure.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_true_positives</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_false_positives</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_false_negatives</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, ConvLab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

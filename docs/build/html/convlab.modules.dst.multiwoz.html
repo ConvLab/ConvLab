@@ -1,0 +1,378 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>convlab.modules.dst.multiwoz package &mdash; ConvLab 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> ConvLab
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">convlab.modules.dst.multiwoz package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-convlab.modules.dst.multiwoz.dst_util">convlab.modules.dst.multiwoz.dst_util module</a></li>
+<li><a class="reference internal" href="#module-convlab.modules.dst.multiwoz.evaluate">convlab.modules.dst.multiwoz.evaluate module</a></li>
+<li><a class="reference internal" href="#module-convlab.modules.dst.multiwoz.rule_dst">convlab.modules.dst.multiwoz.rule_dst module</a></li>
+<li><a class="reference internal" href="#module-convlab.modules.dst.multiwoz">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">ConvLab</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>convlab.modules.dst.multiwoz package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/convlab.modules.dst.multiwoz.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="convlab-modules-dst-multiwoz-package">
+<h1>convlab.modules.dst.multiwoz package<a class="headerlink" href="#convlab-modules-dst-multiwoz-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-convlab.modules.dst.multiwoz.dst_util">
+<span id="convlab-modules-dst-multiwoz-dst-util-module"></span><h2>convlab.modules.dst.multiwoz.dst_util module<a class="headerlink" href="#module-convlab.modules.dst.multiwoz.dst_util" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="convlab.modules.dst.multiwoz.dst_util.init_state">
+<code class="descclassname">convlab.modules.dst.multiwoz.dst_util.</code><code class="descname">init_state</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/dst/multiwoz/dst_util.html#init_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.dst.multiwoz.dst_util.init_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>The init state to start a session.
+Example:
+state = {</p>
+<blockquote>
+<div><blockquote>
+<div>‘user_action’: None,
+‘history’: [],
+‘belief_state’: None,
+‘request_state’: {}</div></blockquote>
+<p>}</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.modules.dst.multiwoz.dst_util.minDistance">
+<code class="descclassname">convlab.modules.dst.multiwoz.dst_util.</code><code class="descname">minDistance</code><span class="sig-paren">(</span><em>word1</em>, <em>word2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/dst/multiwoz/dst_util.html#minDistance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.dst.multiwoz.dst_util.minDistance" title="Permalink to this definition">¶</a></dt>
+<dd><p>The minimum edit distance between word 1 and 2.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.modules.dst.multiwoz.dst_util.normalize_value">
+<code class="descclassname">convlab.modules.dst.multiwoz.dst_util.</code><code class="descname">normalize_value</code><span class="sig-paren">(</span><em>value_set</em>, <em>domain</em>, <em>slot</em>, <em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/dst/multiwoz/dst_util.html#normalize_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.dst.multiwoz.dst_util.normalize_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalized the value produced by NLU module to map it to the ontology value space.
+:param value_set: The value set of task ontology.
+:type value_set: dict
+:param domain: The domain of the slot-value pairs.
+:type domain: str
+:param slot: The slot of the value.
+:type slot: str
+:param value: The raw value detected by NLU module.
+:type value: str</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The normalized value, which fits with the domain ontology.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">value (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a>)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.modules.dst.multiwoz.dst_util.special_match">
+<code class="descclassname">convlab.modules.dst.multiwoz.dst_util.</code><code class="descname">special_match</code><span class="sig-paren">(</span><em>domain</em>, <em>slot</em>, <em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/dst/multiwoz/dst_util.html#special_match"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.dst.multiwoz.dst_util.special_match" title="Permalink to this definition">¶</a></dt>
+<dd><p>special slot fuzzy matching</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.modules.dst.multiwoz.dst_util.str_similar">
+<code class="descclassname">convlab.modules.dst.multiwoz.dst_util.</code><code class="descname">str_similar</code><span class="sig-paren">(</span><em>a</em>, <em>b</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/dst/multiwoz/dst_util.html#str_similar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.dst.multiwoz.dst_util.str_similar" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-convlab.modules.dst.multiwoz.evaluate">
+<span id="convlab-modules-dst-multiwoz-evaluate-module"></span><h2>convlab.modules.dst.multiwoz.evaluate module<a class="headerlink" href="#module-convlab.modules.dst.multiwoz.evaluate" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="convlab.modules.dst.multiwoz.evaluate.NLU_DST">
+<em class="property">class </em><code class="descclassname">convlab.modules.dst.multiwoz.evaluate.</code><code class="descname">NLU_DST</code><a class="reference internal" href="_modules/convlab/modules/dst/multiwoz/evaluate.html#NLU_DST"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.dst.multiwoz.evaluate.NLU_DST" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="method">
+<dt id="convlab.modules.dst.multiwoz.evaluate.NLU_DST.reset">
+<code class="descname">reset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/dst/multiwoz/evaluate.html#NLU_DST.reset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.dst.multiwoz.evaluate.NLU_DST.reset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="convlab.modules.dst.multiwoz.evaluate.NLU_DST.update">
+<code class="descname">update</code><span class="sig-paren">(</span><em>action</em>, <em>observation</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/dst/multiwoz/evaluate.html#NLU_DST.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.dst.multiwoz.evaluate.NLU_DST.update" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="convlab.modules.dst.multiwoz.evaluate.ResultStat">
+<em class="property">class </em><code class="descclassname">convlab.modules.dst.multiwoz.evaluate.</code><code class="descname">ResultStat</code><a class="reference internal" href="_modules/convlab/modules/dst/multiwoz/evaluate.html#ResultStat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.dst.multiwoz.evaluate.ResultStat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="method">
+<dt id="convlab.modules.dst.multiwoz.evaluate.ResultStat.add">
+<code class="descname">add</code><span class="sig-paren">(</span><em>domain</em>, <em>slot</em>, <em>score</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/dst/multiwoz/evaluate.html#ResultStat.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.dst.multiwoz.evaluate.ResultStat.add" title="Permalink to this definition">¶</a></dt>
+<dd><p>score = 1 or 0</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.modules.dst.multiwoz.evaluate.ResultStat.all_acc">
+<code class="descname">all_acc</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/dst/multiwoz/evaluate.html#ResultStat.all_acc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.dst.multiwoz.evaluate.ResultStat.all_acc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="convlab.modules.dst.multiwoz.evaluate.ResultStat.domain_acc">
+<code class="descname">domain_acc</code><span class="sig-paren">(</span><em>domain</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/dst/multiwoz/evaluate.html#ResultStat.domain_acc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.dst.multiwoz.evaluate.ResultStat.domain_acc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="convlab.modules.dst.multiwoz.evaluate.ResultStat.slot_acc">
+<code class="descname">slot_acc</code><span class="sig-paren">(</span><em>domain</em>, <em>slot</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/dst/multiwoz/evaluate.html#ResultStat.slot_acc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.dst.multiwoz.evaluate.ResultStat.slot_acc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.modules.dst.multiwoz.evaluate.convert2acc">
+<code class="descclassname">convlab.modules.dst.multiwoz.evaluate.</code><code class="descname">convert2acc</code><span class="sig-paren">(</span><em>a</em>, <em>b</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/dst/multiwoz/evaluate.html#convert2acc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.dst.multiwoz.evaluate.convert2acc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="convlab.modules.dst.multiwoz.evaluate.evaluate">
+<code class="descclassname">convlab.modules.dst.multiwoz.evaluate.</code><code class="descname">evaluate</code><span class="sig-paren">(</span><em>test_result</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/dst/multiwoz/evaluate.html#evaluate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.dst.multiwoz.evaluate.evaluate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="convlab.modules.dst.multiwoz.evaluate.load_data">
+<code class="descclassname">convlab.modules.dst.multiwoz.evaluate.</code><code class="descname">load_data</code><span class="sig-paren">(</span><em>path='../../../../data/multiwoz/test.json'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/dst/multiwoz/evaluate.html#load_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.dst.multiwoz.evaluate.load_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="convlab.modules.dst.multiwoz.evaluate.match_goal">
+<code class="descclassname">convlab.modules.dst.multiwoz.evaluate.</code><code class="descname">match_goal</code><span class="sig-paren">(</span><em>pred_state</em>, <em>goal</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/dst/multiwoz/evaluate.html#match_goal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.dst.multiwoz.evaluate.match_goal" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="convlab.modules.dst.multiwoz.evaluate.run_test">
+<code class="descclassname">convlab.modules.dst.multiwoz.evaluate.</code><code class="descname">run_test</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/dst/multiwoz/evaluate.html#run_test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.dst.multiwoz.evaluate.run_test" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-convlab.modules.dst.multiwoz.rule_dst">
+<span id="convlab-modules-dst-multiwoz-rule-dst-module"></span><h2>convlab.modules.dst.multiwoz.rule_dst module<a class="headerlink" href="#module-convlab.modules.dst.multiwoz.rule_dst" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="convlab.modules.dst.multiwoz.rule_dst.RuleDST">
+<em class="property">class </em><code class="descclassname">convlab.modules.dst.multiwoz.rule_dst.</code><code class="descname">RuleDST</code><a class="reference internal" href="_modules/convlab/modules/dst/multiwoz/rule_dst.html#RuleDST"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.dst.multiwoz.rule_dst.RuleDST" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="convlab.modules.dst.html#convlab.modules.dst.state_tracker.Tracker" title="convlab.modules.dst.state_tracker.Tracker"><code class="xref py py-class docutils literal notranslate"><span class="pre">convlab.modules.dst.state_tracker.Tracker</span></code></a></p>
+<p>Rule based DST which trivially updates new values from NLU result to states.</p>
+<dl class="method">
+<dt id="convlab.modules.dst.multiwoz.rule_dst.RuleDST.init_session">
+<code class="descname">init_session</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/dst/multiwoz/rule_dst.html#RuleDST.init_session"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.dst.multiwoz.rule_dst.RuleDST.init_session" title="Permalink to this definition">¶</a></dt>
+<dd><p>Init the Tracker to start a new session.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.modules.dst.multiwoz.rule_dst.RuleDST.update">
+<code class="descname">update</code><span class="sig-paren">(</span><em>user_act=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/dst/multiwoz/rule_dst.html#RuleDST.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.dst.multiwoz.rule_dst.RuleDST.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update dialog state based on new user dialog act.
+:param sess: (for models implemented using tensorflow) The Session Object to assist model running.
+:type sess: Session Object
+:param user_act: The dialog act (or utterance) of user input. The class of user_act depends on</p>
+<blockquote>
+<div>the method of state tracker. For example, for rule-based tracker, type(user_act) == dict; while for
+MDBT, type(user_act) == str.</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="docutils">
+<dt>Updated dialog state, with the same form of previous state. Note that the dialog state is</dt>
+<dd>also a private data member.</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">new_state (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a>)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-convlab.modules.dst.multiwoz">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-convlab.modules.dst.multiwoz" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, ConvLab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

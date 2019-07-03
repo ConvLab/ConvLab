@@ -1,0 +1,343 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>convlab.modules.nlu.multiwoz.svm.preprocess &mdash; ConvLab 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../../../" src="../../../../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../../../index.html" class="icon icon-home"> ConvLab
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../../index.html">ConvLab</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../../../../index.html">Module code</a> &raquo;</li>
+        
+      <li>convlab.modules.nlu.multiwoz.svm.preprocess</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for convlab.modules.nlu.multiwoz.svm.preprocess</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">zipfile</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">Counter</span>
+
+
+<div class="viewcode-block" id="read_zipped_json"><a class="viewcode-back" href="../../../../../../convlab.modules.nlu.multiwoz.svm.html#convlab.modules.nlu.multiwoz.svm.preprocess.read_zipped_json">[docs]</a><span class="k">def</span> <span class="nf">read_zipped_json</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+    <span class="n">archive</span> <span class="o">=</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">archive</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">data_dir</span> <span class="o">=</span> <span class="s1">&#39;../../../../../data/multiwoz&#39;</span>
+    <span class="n">processed_data_dir</span> <span class="o">=</span> <span class="s1">&#39;corpora/data&#39;</span>
+    <span class="n">data_key</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;val&#39;</span><span class="p">,</span> <span class="s1">&#39;test&#39;</span><span class="p">,</span> <span class="s1">&#39;train&#39;</span><span class="p">]</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">data_key</span><span class="p">:</span>
+        <span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">read_zipped_json</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span><span class="n">key</span><span class="o">+</span><span class="s1">&#39;.json.zip&#39;</span><span class="p">),</span> <span class="n">key</span><span class="o">+</span><span class="s1">&#39;.json&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;load </span><span class="si">{}</span><span class="s1">, size </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">])))</span>
+
+    <span class="n">db_dir</span> <span class="o">=</span> <span class="s1">&#39;../../../../../data/multiwoz/db&#39;</span>
+    <span class="n">db</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;attraction&#39;</span><span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">db_dir</span><span class="p">,</span><span class="s1">&#39;attraction_db.json&#39;</span><span class="p">))),</span>
+        <span class="s1">&#39;hotel&#39;</span><span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">db_dir</span><span class="p">,</span><span class="s1">&#39;hotel_db.json&#39;</span><span class="p">))),</span>
+        <span class="s1">&#39;restaurant&#39;</span><span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">db_dir</span><span class="p">,</span><span class="s1">&#39;restaurant_db.json&#39;</span><span class="p">))),</span>
+        <span class="s1">&#39;police&#39;</span><span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">db_dir</span><span class="p">,</span><span class="s1">&#39;police_db.json&#39;</span><span class="p">))),</span>
+        <span class="s1">&#39;hospital&#39;</span><span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">db_dir</span><span class="p">,</span><span class="s1">&#39;hospital_db.json&#39;</span><span class="p">))),</span>
+        <span class="s1">&#39;taxi&#39;</span><span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">db_dir</span><span class="p">,</span><span class="s1">&#39;taxi_db.json&#39;</span><span class="p">))),</span>
+        <span class="s1">&#39;train&#39;</span><span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">db_dir</span><span class="p">,</span><span class="s1">&#39;train_db.json&#39;</span><span class="p">)))</span>
+    <span class="p">}</span>
+    <span class="n">domain2slot2value</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">domain</span> <span class="ow">in</span> <span class="n">db</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">domain2slot2value</span><span class="p">[</span><span class="n">domain</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">domain</span> <span class="o">==</span> <span class="s1">&#39;taxi&#39;</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">db</span><span class="p">[</span><span class="n">domain</span><span class="p">]:</span>
+            <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">item</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;&#39;</span><span class="p">)):</span>
+                    <span class="n">domain2slot2value</span><span class="p">[</span><span class="n">domain</span><span class="p">]</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">Counter</span><span class="p">())</span>
+                    <span class="n">domain2slot2value</span><span class="p">[</span><span class="n">domain</span><span class="p">][</span><span class="n">s</span><span class="p">]</span> <span class="o">+=</span> <span class="n">Counter</span><span class="p">([</span><span class="n">v</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">domain2slot2value</span><span class="p">[</span><span class="n">domain</span><span class="p">]</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="p">[])</span>
+                    <span class="n">domain2slot2value</span><span class="p">[</span><span class="n">domain</span><span class="p">][</span><span class="n">s</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+
+    <span class="n">requestable_slots</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">informable_slots</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">no</span><span class="p">,</span> <span class="n">sess</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;train&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">turn</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sess</span><span class="p">[</span><span class="s1">&#39;log&#39;</span><span class="p">]):</span>
+            <span class="k">for</span> <span class="n">da</span><span class="p">,</span> <span class="n">svs</span> <span class="ow">in</span> <span class="n">turn</span><span class="p">[</span><span class="s1">&#39;dialog_act&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="s1">&#39;Request&#39;</span> <span class="ow">in</span> <span class="n">da</span><span class="p">:</span>
+                    <span class="n">requestable_slots</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">da</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;-&#39;</span> <span class="o">+</span> <span class="n">s</span> <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">svs</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">informable_slots</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">svs</span><span class="p">])</span>
+    <span class="n">requestable_slots</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">requestable_slots</span><span class="p">))</span>
+    <span class="n">informable_slots</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">informable_slots</span><span class="p">))</span>
+
+
+    <span class="k">def</span> <span class="nf">slot2all_value</span><span class="p">(</span><span class="n">slot</span><span class="p">):</span>
+        <span class="n">all_value</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">domain</span> <span class="ow">in</span> <span class="n">domain2slot2value</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">slot</span> <span class="ow">in</span> <span class="n">domain2slot2value</span><span class="p">[</span><span class="n">domain</span><span class="p">]:</span>
+                <span class="n">all_value</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">domain2slot2value</span><span class="p">[</span><span class="n">domain</span><span class="p">][</span><span class="n">slot</span><span class="p">]))</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">all_value</span><span class="p">))</span>
+
+
+    <span class="n">informable_onto</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">informable_onto</span><span class="p">[</span><span class="s1">&#39;Fee&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">slot2all_value</span><span class="p">(</span><span class="s1">&#39;entrance fee&#39;</span><span class="p">)</span>
+    <span class="n">informable_onto</span><span class="p">[</span><span class="s1">&#39;Addr&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">slot2all_value</span><span class="p">(</span><span class="s1">&#39;address&#39;</span><span class="p">)</span>
+    <span class="n">informable_onto</span><span class="p">[</span><span class="s1">&#39;Area&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">slot2all_value</span><span class="p">(</span><span class="s1">&#39;area&#39;</span><span class="p">)</span>
+    <span class="n">informable_onto</span><span class="p">[</span><span class="s1">&#39;Stars&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">slot2all_value</span><span class="p">(</span><span class="s1">&#39;stars&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;zero&#39;</span><span class="p">,</span> <span class="s1">&#39;one&#39;</span><span class="p">,</span> <span class="s1">&#39;two&#39;</span><span class="p">,</span> <span class="s1">&#39;three&#39;</span><span class="p">,</span> <span class="s1">&#39;four&#39;</span><span class="p">,</span> <span class="s1">&#39;five&#39;</span><span class="p">]</span>
+    <span class="n">informable_onto</span><span class="p">[</span><span class="s1">&#39;Internet&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">slot2all_value</span><span class="p">(</span><span class="s1">&#39;internet&#39;</span><span class="p">)</span>
+    <span class="n">informable_onto</span><span class="p">[</span><span class="s1">&#39;Department&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">slot2all_value</span><span class="p">(</span><span class="s1">&#39;department&#39;</span><span class="p">)</span>
+    <span class="n">informable_onto</span><span class="p">[</span><span class="s1">&#39;Stay&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)])</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;zero&#39;</span><span class="p">,</span> <span class="s1">&#39;one&#39;</span><span class="p">,</span> <span class="s1">&#39;two&#39;</span><span class="p">,</span> <span class="s1">&#39;three&#39;</span><span class="p">,</span> <span class="s1">&#39;four&#39;</span><span class="p">,</span> <span class="s1">&#39;five&#39;</span><span class="p">,</span> <span class="s1">&#39;six&#39;</span><span class="p">,</span>
+                                                                   <span class="s1">&#39;seven&#39;</span><span class="p">,</span> <span class="s1">&#39;eight&#39;</span><span class="p">,</span> <span class="s1">&#39;nine&#39;</span><span class="p">,</span> <span class="s1">&#39;ten&#39;</span><span class="p">]</span>
+    <span class="n">informable_onto</span><span class="p">[</span><span class="s1">&#39;Ref&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">informable_onto</span><span class="p">[</span><span class="s1">&#39;Food&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">slot2all_value</span><span class="p">(</span><span class="s1">&#39;food&#39;</span><span class="p">)</span>
+    <span class="n">informable_onto</span><span class="p">[</span><span class="s1">&#39;Type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">slot2all_value</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">)</span>
+    <span class="n">informable_onto</span><span class="p">[</span><span class="s1">&#39;Price&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">slot2all_value</span><span class="p">(</span><span class="s1">&#39;pricerange&#39;</span><span class="p">)</span>
+    <span class="n">informable_onto</span><span class="p">[</span><span class="s1">&#39;Choice&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">20</span><span class="p">)])</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;zero&#39;</span><span class="p">,</span> <span class="s1">&#39;one&#39;</span><span class="p">,</span> <span class="s1">&#39;two&#39;</span><span class="p">,</span> <span class="s1">&#39;three&#39;</span><span class="p">,</span> <span class="s1">&#39;four&#39;</span><span class="p">,</span> <span class="s1">&#39;five&#39;</span><span class="p">,</span>
+                                                                     <span class="s1">&#39;six&#39;</span><span class="p">,</span> <span class="s1">&#39;seven&#39;</span><span class="p">,</span> <span class="s1">&#39;eight&#39;</span><span class="p">,</span> <span class="s1">&#39;nine&#39;</span><span class="p">,</span> <span class="s1">&#39;ten&#39;</span><span class="p">]</span>
+    <span class="n">informable_onto</span><span class="p">[</span><span class="s1">&#39;Phone&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">informable_onto</span><span class="p">[</span><span class="s1">&#39;Ticket&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">domain2slot2value</span><span class="p">[</span><span class="s1">&#39;train&#39;</span><span class="p">][</span><span class="s1">&#39;price&#39;</span><span class="p">])</span>
+    <span class="n">informable_onto</span><span class="p">[</span><span class="s1">&#39;Day&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">slot2all_value</span><span class="p">(</span><span class="s1">&#39;day&#39;</span><span class="p">)</span>
+    <span class="n">informable_onto</span><span class="p">[</span><span class="s1">&#39;Name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">slot2all_value</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">)</span>
+    <span class="n">informable_onto</span><span class="p">[</span><span class="s1">&#39;Car&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="n">j</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="s2">&quot;white&quot;</span><span class="p">,</span> <span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="s2">&quot;yellow&quot;</span><span class="p">,</span> <span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="s2">&quot;grey&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span>
+                              <span class="p">[</span><span class="s2">&quot;toyota&quot;</span><span class="p">,</span> <span class="s2">&quot;skoda&quot;</span><span class="p">,</span> <span class="s2">&quot;bmw&quot;</span><span class="p">,</span> <span class="s2">&quot;honda&quot;</span><span class="p">,</span> <span class="s2">&quot;ford&quot;</span><span class="p">,</span> <span class="s2">&quot;audi&quot;</span><span class="p">,</span> <span class="s2">&quot;lexus&quot;</span><span class="p">,</span> <span class="s2">&quot;volvo&quot;</span><span class="p">,</span> <span class="s2">&quot;volkswagen&quot;</span><span class="p">,</span>
+                               <span class="s2">&quot;tesla&quot;</span><span class="p">]]</span>
+    <span class="n">informable_onto</span><span class="p">[</span><span class="s1">&#39;Leave&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">informable_onto</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">slot2all_value</span><span class="p">(</span><span class="s1">&#39;Duration&#39;</span><span class="p">)</span>
+    <span class="n">informable_onto</span><span class="p">[</span><span class="s1">&#39;Arrive&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">informable_onto</span><span class="p">[</span><span class="s1">&#39;Post&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">slot2all_value</span><span class="p">(</span><span class="s1">&#39;postcode&#39;</span><span class="p">)</span>
+    <span class="n">informable_onto</span><span class="p">[</span><span class="s1">&#39;none&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;none&#39;</span><span class="p">]</span>
+    <span class="n">informable_onto</span><span class="p">[</span><span class="s1">&#39;Depart&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">slot2all_value</span><span class="p">(</span><span class="s1">&#39;departure&#39;</span><span class="p">)</span>
+    <span class="n">informable_onto</span><span class="p">[</span><span class="s1">&#39;People&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)])</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;zero&#39;</span><span class="p">,</span> <span class="s1">&#39;one&#39;</span><span class="p">,</span> <span class="s1">&#39;two&#39;</span><span class="p">,</span> <span class="s1">&#39;three&#39;</span><span class="p">,</span> <span class="s1">&#39;four&#39;</span><span class="p">,</span> <span class="s1">&#39;five&#39;</span><span class="p">,</span>
+                                                                     <span class="s1">&#39;six&#39;</span><span class="p">,</span> <span class="s1">&#39;seven&#39;</span><span class="p">,</span> <span class="s1">&#39;eight&#39;</span><span class="p">,</span> <span class="s1">&#39;nine&#39;</span><span class="p">,</span> <span class="s1">&#39;ten&#39;</span><span class="p">]</span>
+    <span class="n">informable_onto</span><span class="p">[</span><span class="s1">&#39;Dest&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">slot2all_value</span><span class="p">(</span><span class="s1">&#39;destination&#39;</span><span class="p">)</span>
+    <span class="n">informable_onto</span><span class="p">[</span><span class="s1">&#39;Parking&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">slot2all_value</span><span class="p">(</span><span class="s1">&#39;parking&#39;</span><span class="p">)</span>
+    <span class="n">informable_onto</span><span class="p">[</span><span class="s1">&#39;Id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">slot2all_value</span><span class="p">(</span><span class="s1">&#39;trainID&#39;</span><span class="p">)</span>
+    <span class="c1"># remove `Open`</span>
+
+    <span class="n">da2slot2value</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">d_key</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">d_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">processed_data_dir</span><span class="p">,</span> <span class="n">d_key</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">d_dir</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">d_dir</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">no</span><span class="p">,</span> <span class="n">sess</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">label_json</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;session-id&quot;</span><span class="p">:</span> <span class="n">no</span><span class="p">}</span>
+            <span class="n">label_turns</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">log_json</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;session-id&quot;</span><span class="p">:</span> <span class="n">no</span><span class="p">}</span>
+            <span class="n">log_turns</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">turn</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sess</span><span class="p">[</span><span class="s1">&#39;log&#39;</span><span class="p">]):</span>
+                <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">turn</span><span class="p">[</span><span class="s1">&#39;dialog_act&#39;</span><span class="p">],</span> <span class="nb">type</span><span class="p">({}))</span>
+                <span class="n">new_das</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">da</span><span class="p">,</span> <span class="n">svs</span> <span class="ow">in</span> <span class="n">turn</span><span class="p">[</span><span class="s1">&#39;dialog_act&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">svs</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">s</span> <span class="o">==</span> <span class="s1">&#39;Open&#39;</span><span class="p">:</span>
+                            <span class="k">continue</span>
+                        <span class="k">if</span> <span class="s1">&#39;Request&#39;</span> <span class="ow">in</span> <span class="n">da</span><span class="p">:</span>
+                            <span class="n">domain</span><span class="p">,</span> <span class="n">act</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)</span>
+                            <span class="n">new_das</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;act&#39;</span><span class="p">:</span> <span class="s1">&#39;request&#39;</span><span class="p">,</span> <span class="s1">&#39;slots&#39;</span><span class="p">:</span> <span class="p">[[</span><span class="s1">&#39;slot&#39;</span><span class="p">,</span> <span class="n">domain</span> <span class="o">+</span> <span class="s1">&#39;-&#39;</span> <span class="o">+</span> <span class="n">s</span><span class="p">]]})</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">new_das</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;act&#39;</span><span class="p">:</span> <span class="n">da</span><span class="p">,</span> <span class="s1">&#39;slots&#39;</span><span class="p">:</span> <span class="p">[[</span><span class="n">s</span><span class="p">,</span> <span class="n">v</span><span class="o">.</span><span class="n">lower</span><span class="p">()]]})</span>
+                        <span class="n">da2slot2value</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">da</span><span class="p">,</span> <span class="p">{})</span>
+                        <span class="n">da2slot2value</span><span class="p">[</span><span class="n">da</span><span class="p">]</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="p">[])</span>
+                        <span class="n">da2slot2value</span><span class="p">[</span><span class="n">da</span><span class="p">][</span><span class="n">s</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+                <span class="n">label_turns</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;semantics&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;json&#39;</span><span class="p">:</span> <span class="n">new_das</span><span class="p">}})</span>
+                <span class="n">log_turn</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;input&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;live&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;asr-hyps&#39;</span><span class="p">:</span> <span class="p">[{</span><span class="s1">&#39;asr-hyp&#39;</span><span class="p">:</span> <span class="n">turn</span><span class="p">[</span><span class="s1">&#39;text&#39;</span><span class="p">],</span> <span class="s1">&#39;score&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}]}}}</span>
+                <span class="n">log_turns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">log_turn</span><span class="p">)</span>
+            <span class="n">label_json</span><span class="p">[</span><span class="s1">&#39;turns&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">label_turns</span>
+            <span class="n">log_json</span><span class="p">[</span><span class="s1">&#39;turns&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">log_turns</span>
+            <span class="n">f_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">d_dir</span><span class="p">,</span><span class="n">no</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">f_dir</span><span class="p">):</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">f_dir</span><span class="p">)</span>
+
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">label_json</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">f_dir</span><span class="p">,</span><span class="s1">&#39;label.json&#39;</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">),</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">log_json</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">f_dir</span><span class="p">,</span><span class="s1">&#39;log.json&#39;</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">),</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+
+    <span class="n">all_tuples</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">slots_enumerated</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Area&quot;</span><span class="p">,</span> <span class="s2">&quot;Type&quot;</span><span class="p">,</span> <span class="s2">&quot;Price&quot;</span><span class="p">,</span> <span class="s2">&quot;Day&quot;</span><span class="p">,</span> <span class="s2">&quot;Internet&quot;</span><span class="p">,</span> <span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="s2">&quot;Parking&quot;</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">da</span><span class="p">,</span> <span class="n">sv</span> <span class="ow">in</span> <span class="n">da2slot2value</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="s1">&#39;Request&#39;</span> <span class="ow">in</span> <span class="n">da</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">sv</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">v_cnt</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">s</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">slots_enumerated</span><span class="p">:</span>
+                    <span class="n">all_tuples</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">da</span><span class="p">,</span> <span class="n">s</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">dict</span><span class="p">(</span><span class="n">v_cnt</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                        <span class="k">if</span> <span class="n">c</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">informable_onto</span><span class="p">[</span><span class="n">s</span><span class="p">]</span> <span class="ow">or</span> <span class="n">i</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">informable_onto</span><span class="p">[</span><span class="n">s</span><span class="p">]:</span>
+                            <span class="n">all_tuples</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">da</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+
+    <span class="n">ontology_multiwoz</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;requestable&quot;</span><span class="p">:</span> <span class="n">requestable_slots</span><span class="p">,</span>
+        <span class="s2">&quot;informable&quot;</span><span class="p">:</span> <span class="n">informable_onto</span><span class="p">,</span>
+        <span class="s2">&quot;all_tuples&quot;</span><span class="p">:</span> <span class="n">all_tuples</span>
+    <span class="p">}</span>
+    <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">ontology_multiwoz</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;corpora/scripts/config/ontology_multiwoz.json&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">),</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, ConvLab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

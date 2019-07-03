@@ -1,0 +1,398 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>convlab.agent.algorithm.reinforce &mdash; ConvLab 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> ConvLab
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">ConvLab</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+          <li><a href="../../agent.html">convlab.agent</a> &raquo;</li>
+        
+      <li>convlab.agent.algorithm.reinforce</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for convlab.agent.algorithm.reinforce</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Modified by Microsoft Corporation.</span>
+<span class="c1"># Licensed under the MIT license.</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">convlab.agent</span> <span class="k">import</span> <span class="n">net</span>
+<span class="kn">from</span> <span class="nn">convlab.agent.algorithm</span> <span class="k">import</span> <span class="n">policy_util</span>
+<span class="kn">from</span> <span class="nn">convlab.agent.algorithm.base</span> <span class="k">import</span> <span class="n">Algorithm</span>
+<span class="kn">from</span> <span class="nn">convlab.agent.net</span> <span class="k">import</span> <span class="n">net_util</span>
+<span class="kn">from</span> <span class="nn">convlab.lib</span> <span class="k">import</span> <span class="n">logger</span><span class="p">,</span> <span class="n">math_util</span><span class="p">,</span> <span class="n">util</span>
+<span class="kn">from</span> <span class="nn">convlab.lib.decorator</span> <span class="k">import</span> <span class="n">lab_api</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Reinforce"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.reinforce.Reinforce">[docs]</a><span class="k">class</span> <span class="nc">Reinforce</span><span class="p">(</span><span class="n">Algorithm</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Implementation of REINFORCE (Williams, 1992) with baseline for discrete or continuous actions http://www-anw.cs.umass.edu/~barto/courses/cs687/williams92simple.pdf</span>
+<span class="sd">    Adapted from https://github.com/pytorch/examples/blob/master/reinforcement_learning/reinforce.py</span>
+<span class="sd">    Algorithm:</span>
+<span class="sd">        0. Collect n episodes of data</span>
+<span class="sd">        1. At each timestep in an episode</span>
+<span class="sd">            - Calculate the advantage of that timestep</span>
+<span class="sd">            - Multiply the advantage by the negative of the log probability of the action taken</span>
+<span class="sd">        2. Sum all the values above.</span>
+<span class="sd">        3. Calculate the gradient of this value with respect to all of the parameters of the network</span>
+<span class="sd">        4. Update the network parameters using the gradient</span>
+
+<span class="sd">    e.g. algorithm_spec:</span>
+<span class="sd">    &quot;algorithm&quot;: {</span>
+<span class="sd">        &quot;name&quot;: &quot;Reinforce&quot;,</span>
+<span class="sd">        &quot;action_pdtype&quot;: &quot;default&quot;,</span>
+<span class="sd">        &quot;action_policy&quot;: &quot;default&quot;,</span>
+<span class="sd">        &quot;explore_var_spec&quot;: null,</span>
+<span class="sd">        &quot;gamma&quot;: 0.99,</span>
+<span class="sd">        &quot;entropy_coef_spec&quot;: {</span>
+<span class="sd">          &quot;name&quot;: &quot;linear_decay&quot;,</span>
+<span class="sd">          &quot;start_val&quot;: 0.01,</span>
+<span class="sd">          &quot;end_val&quot;: 0.001,</span>
+<span class="sd">          &quot;start_step&quot;: 100,</span>
+<span class="sd">          &quot;end_step&quot;: 5000,</span>
+<span class="sd">        },</span>
+<span class="sd">        &quot;training_frequency&quot;: 1,</span>
+<span class="sd">    }</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="Reinforce.init_algorithm_params"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.reinforce.Reinforce.init_algorithm_params">[docs]</a>    <span class="nd">@lab_api</span>
+    <span class="k">def</span> <span class="nf">init_algorithm_params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Initialize other algorithm parameters&#39;&#39;&#39;</span>
+        <span class="c1"># set default</span>
+        <span class="n">util</span><span class="o">.</span><span class="n">set_attr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">action_pdtype</span><span class="o">=</span><span class="s1">&#39;default&#39;</span><span class="p">,</span>
+            <span class="n">action_policy</span><span class="o">=</span><span class="s1">&#39;default&#39;</span><span class="p">,</span>
+            <span class="n">explore_var_spec</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">entropy_coef_spec</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">policy_loss_coef</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+        <span class="p">))</span>
+        <span class="n">util</span><span class="o">.</span><span class="n">set_attr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">algorithm_spec</span><span class="p">,</span> <span class="p">[</span>
+            <span class="s1">&#39;action_pdtype&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;action_policy&#39;</span><span class="p">,</span>
+            <span class="c1"># theoretically, REINFORCE does not have policy update; but in this implementation we have such option</span>
+            <span class="s1">&#39;explore_var_spec&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;gamma&#39;</span><span class="p">,</span>  <span class="c1"># the discount factor</span>
+            <span class="s1">&#39;entropy_coef_spec&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;policy_loss_coef&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;training_frequency&#39;</span><span class="p">,</span>
+        <span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">to_train</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">action_policy</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">policy_util</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_policy</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">explore_var_scheduler</span> <span class="o">=</span> <span class="n">policy_util</span><span class="o">.</span><span class="n">VarScheduler</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">explore_var_spec</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">explore_var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">explore_var_scheduler</span><span class="o">.</span><span class="n">start_val</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">entropy_coef_spec</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">entropy_coef_scheduler</span> <span class="o">=</span> <span class="n">policy_util</span><span class="o">.</span><span class="n">VarScheduler</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">entropy_coef_spec</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">entropy_coef</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">entropy_coef_scheduler</span><span class="o">.</span><span class="n">start_val</span></div>
+
+<div class="viewcode-block" id="Reinforce.init_nets"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.reinforce.Reinforce.init_nets">[docs]</a>    <span class="nd">@lab_api</span>
+    <span class="k">def</span> <span class="nf">init_nets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">global_nets</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Initialize the neural network used to learn the policy function from the spec</span>
+<span class="sd">        Below we automatically select an appropriate net for a discrete or continuous action space if the setting is of the form &#39;MLPNet&#39;. Otherwise the correct type of network is assumed to be specified in the spec.</span>
+<span class="sd">        Networks for continuous action spaces have two heads and return two values, the first is a tensor containing the mean of the action policy, the second is a tensor containing the std deviation of the action policy. The distribution is assumed to be a Gaussian (Normal) distribution.</span>
+<span class="sd">        Networks for discrete action spaces have a single head and return the logits for a categorical probability distribution over the discrete actions</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">in_dim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">state_dim</span>
+        <span class="n">out_dim</span> <span class="o">=</span> <span class="n">net_util</span><span class="o">.</span><span class="n">get_out_dim</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="p">)</span>
+        <span class="n">NetClass</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">net</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">net_spec</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">net</span> <span class="o">=</span> <span class="n">NetClass</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">net_spec</span><span class="p">,</span> <span class="n">in_dim</span><span class="p">,</span> <span class="n">out_dim</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">net_names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;net&#39;</span><span class="p">]</span>
+        <span class="c1"># init net optimizer and its lr scheduler</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optim</span> <span class="o">=</span> <span class="n">net_util</span><span class="o">.</span><span class="n">get_optim</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">net</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">net</span><span class="o">.</span><span class="n">optim_spec</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lr_scheduler</span> <span class="o">=</span> <span class="n">net_util</span><span class="o">.</span><span class="n">get_lr_scheduler</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">optim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">net</span><span class="o">.</span><span class="n">lr_scheduler_spec</span><span class="p">)</span>
+        <span class="n">net_util</span><span class="o">.</span><span class="n">set_global_nets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">global_nets</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">post_init_nets</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Reinforce.calc_pdparam"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.reinforce.Reinforce.calc_pdparam">[docs]</a>    <span class="nd">@lab_api</span>
+    <span class="k">def</span> <span class="nf">calc_pdparam</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">net</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        The pdparam will be the logits for discrete prob. dist., or the mean and std for continuous prob. dist.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">net</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">net</span> <span class="k">if</span> <span class="n">net</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">net</span>
+        <span class="n">pdparam</span> <span class="o">=</span> <span class="n">net</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">pdparam</span></div>
+
+<div class="viewcode-block" id="Reinforce.act"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.reinforce.Reinforce.act">[docs]</a>    <span class="nd">@lab_api</span>
+    <span class="k">def</span> <span class="nf">act</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="n">body</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">body</span>
+        <span class="n">action</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_policy</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">body</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">action</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>  <span class="c1"># squeeze to handle scalar</span></div>
+
+<div class="viewcode-block" id="Reinforce.sample"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.reinforce.Reinforce.sample">[docs]</a>    <span class="nd">@lab_api</span>
+    <span class="k">def</span> <span class="nf">sample</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Samples a batch from memory&#39;&#39;&#39;</span>
+        <span class="n">batch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span>
+        <span class="n">batch</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">to_torch_batch</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">net</span><span class="o">.</span><span class="n">device</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">is_episodic</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">batch</span></div>
+
+<div class="viewcode-block" id="Reinforce.calc_pdparam_batch"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.reinforce.Reinforce.calc_pdparam_batch">[docs]</a>    <span class="k">def</span> <span class="nf">calc_pdparam_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Efficiently forward to get pdparam and by batch for loss computation&#39;&#39;&#39;</span>
+        <span class="n">states</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[</span><span class="s1">&#39;states&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">is_venv</span><span class="p">:</span>
+            <span class="n">states</span> <span class="o">=</span> <span class="n">math_util</span><span class="o">.</span><span class="n">venv_unpack</span><span class="p">(</span><span class="n">states</span><span class="p">)</span>
+        <span class="n">pdparam</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_pdparam</span><span class="p">(</span><span class="n">states</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">pdparam</span></div>
+
+<div class="viewcode-block" id="Reinforce.calc_ret_advs"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.reinforce.Reinforce.calc_ret_advs">[docs]</a>    <span class="k">def</span> <span class="nf">calc_ret_advs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Calculate plain returns; which is generalized to advantage in ActorCritic&#39;&#39;&#39;</span>
+        <span class="n">rets</span> <span class="o">=</span> <span class="n">math_util</span><span class="o">.</span><span class="n">calc_returns</span><span class="p">(</span><span class="n">batch</span><span class="p">[</span><span class="s1">&#39;rewards&#39;</span><span class="p">],</span> <span class="n">batch</span><span class="p">[</span><span class="s1">&#39;dones&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">gamma</span><span class="p">)</span>
+        <span class="n">advs</span> <span class="o">=</span> <span class="n">rets</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">is_venv</span><span class="p">:</span>
+            <span class="n">advs</span> <span class="o">=</span> <span class="n">math_util</span><span class="o">.</span><span class="n">venv_unpack</span><span class="p">(</span><span class="n">advs</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;advs: </span><span class="si">{advs}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">advs</span></div>
+
+<div class="viewcode-block" id="Reinforce.calc_policy_loss"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.reinforce.Reinforce.calc_policy_loss">[docs]</a>    <span class="k">def</span> <span class="nf">calc_policy_loss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">pdparams</span><span class="p">,</span> <span class="n">advs</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Calculate the actor&#39;s policy loss&#39;&#39;&#39;</span>
+        <span class="n">action_pd</span> <span class="o">=</span> <span class="n">policy_util</span><span class="o">.</span><span class="n">init_action_pd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">ActionPD</span><span class="p">,</span> <span class="n">pdparams</span><span class="p">)</span>
+        <span class="n">actions</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[</span><span class="s1">&#39;actions&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">is_venv</span><span class="p">:</span>
+            <span class="n">actions</span> <span class="o">=</span> <span class="n">math_util</span><span class="o">.</span><span class="n">venv_unpack</span><span class="p">(</span><span class="n">actions</span><span class="p">)</span>
+        <span class="n">log_probs</span> <span class="o">=</span> <span class="n">action_pd</span><span class="o">.</span><span class="n">log_prob</span><span class="p">(</span><span class="n">actions</span><span class="p">)</span>
+        <span class="n">policy_loss</span> <span class="o">=</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">policy_loss_coef</span> <span class="o">*</span> <span class="p">(</span><span class="n">log_probs</span> <span class="o">*</span> <span class="n">advs</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">entropy_coef_spec</span><span class="p">:</span>
+            <span class="n">entropy</span> <span class="o">=</span> <span class="n">action_pd</span><span class="o">.</span><span class="n">entropy</span><span class="p">()</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">mean_entropy</span> <span class="o">=</span> <span class="n">entropy</span>  <span class="c1"># update logging variable</span>
+            <span class="n">policy_loss</span> <span class="o">+=</span> <span class="p">(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">entropy_coef</span> <span class="o">*</span> <span class="n">entropy</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;Actor policy loss: </span><span class="si">{policy_loss:g}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">policy_loss</span></div>
+
+<div class="viewcode-block" id="Reinforce.train"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.reinforce.Reinforce.train">[docs]</a>    <span class="nd">@lab_api</span>
+    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">util</span><span class="o">.</span><span class="n">in_eval_lab_modes</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="n">clock</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">clock</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_train</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">batch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span>
+            <span class="n">clock</span><span class="o">.</span><span class="n">set_batch_size</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">batch</span><span class="p">))</span>
+            <span class="n">pdparams</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_pdparam_batch</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
+            <span class="n">advs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_ret_advs</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
+            <span class="n">loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_policy_loss</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">pdparams</span><span class="p">,</span> <span class="n">advs</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">net</span><span class="o">.</span><span class="n">train_step</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">optim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lr_scheduler</span><span class="p">,</span> <span class="n">clock</span><span class="o">=</span><span class="n">clock</span><span class="p">,</span> <span class="n">global_net</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">global_net</span><span class="p">)</span>
+            <span class="c1"># reset</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">to_train</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;Trained </span><span class="si">{self.name}</span><span class="s1"> at epi: </span><span class="si">{clock.epi}</span><span class="s1">, frame: </span><span class="si">{clock.frame}</span><span class="s1">, t: </span><span class="si">{clock.t}</span><span class="s1">, total_reward so far: </span><span class="si">{self.body.total_reward}</span><span class="s1">, loss: </span><span class="si">{loss:g}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">loss</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span></div>
+
+<div class="viewcode-block" id="Reinforce.update"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.reinforce.Reinforce.update">[docs]</a>    <span class="nd">@lab_api</span>
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">explore_var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">explore_var_scheduler</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">clock</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">entropy_coef_spec</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">entropy_coef</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">entropy_coef_scheduler</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">clock</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">explore_var</span></div></div>
+
+
+<div class="viewcode-block" id="WarmUpReinforce"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.reinforce.WarmUpReinforce">[docs]</a><span class="k">class</span> <span class="nc">WarmUpReinforce</span><span class="p">(</span><span class="n">Reinforce</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Implementation of REINFORCE (Williams, 1992) with baseline for discrete or continuous actions http://www-anw.cs.umass.edu/~barto/courses/cs687/williams92simple.pdf</span>
+<span class="sd">    Adapted from https://github.com/pytorch/examples/blob/master/reinforcement_learning/reinforce.py</span>
+<span class="sd">    Algorithm:</span>
+<span class="sd">        0. Collect n episodes of data</span>
+<span class="sd">        1. At each timestep in an episode</span>
+<span class="sd">            - Calculate the advantage of that timestep</span>
+<span class="sd">            - Multiply the advantage by the negative of the log probability of the action taken</span>
+<span class="sd">        2. Sum all the values above.</span>
+<span class="sd">        3. Calculate the gradient of this value with respect to all of the parameters of the network</span>
+<span class="sd">        4. Update the network parameters using the gradient</span>
+
+<span class="sd">    e.g. algorithm_spec:</span>
+<span class="sd">    &quot;algorithm&quot;: {</span>
+<span class="sd">        &quot;name&quot;: &quot;Reinforce&quot;,</span>
+<span class="sd">        &quot;action_pdtype&quot;: &quot;default&quot;,</span>
+<span class="sd">        &quot;action_policy&quot;: &quot;default&quot;,</span>
+<span class="sd">        &quot;warmup_epi&quot;: 300,</span>
+<span class="sd">        &quot;explore_var_spec&quot;: null,</span>
+<span class="sd">        &quot;gamma&quot;: 0.99,</span>
+<span class="sd">        &quot;entropy_coef_spec&quot;: {</span>
+<span class="sd">          &quot;name&quot;: &quot;linear_decay&quot;,</span>
+<span class="sd">          &quot;start_val&quot;: 0.01,</span>
+<span class="sd">          &quot;end_val&quot;: 0.001,</span>
+<span class="sd">          &quot;start_step&quot;: 100,</span>
+<span class="sd">          &quot;end_step&quot;: 5000,</span>
+<span class="sd">        },</span>
+<span class="sd">        &quot;training_frequency&quot;: 1,</span>
+<span class="sd">    }</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">agent</span><span class="p">,</span> <span class="n">global_nets</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">agent</span><span class="p">,</span> <span class="n">global_nets</span><span class="p">)</span>
+        <span class="n">util</span><span class="o">.</span><span class="n">set_attr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">algorithm_spec</span><span class="p">,</span> <span class="p">[</span>
+            <span class="s1">&#39;warmup_epi&#39;</span><span class="p">,</span>
+        <span class="p">])</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, ConvLab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

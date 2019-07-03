@@ -1,0 +1,532 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>convlab.modules.word_dst.multiwoz package &mdash; ConvLab 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> ConvLab
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">convlab.modules.word_dst.multiwoz package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-convlab.modules.word_dst.multiwoz.evaluate">convlab.modules.word_dst.multiwoz.evaluate module</a></li>
+<li><a class="reference internal" href="#module-convlab.modules.word_dst.multiwoz.mdbt">convlab.modules.word_dst.multiwoz.mdbt module</a></li>
+<li><a class="reference internal" href="#module-convlab.modules.word_dst.multiwoz.mdbt_util">convlab.modules.word_dst.multiwoz.mdbt_util module</a></li>
+<li><a class="reference internal" href="#module-convlab.modules.word_dst.multiwoz">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">ConvLab</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>convlab.modules.word_dst.multiwoz package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/convlab.modules.word_dst.multiwoz.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="convlab-modules-word-dst-multiwoz-package">
+<h1>convlab.modules.word_dst.multiwoz package<a class="headerlink" href="#convlab-modules-word-dst-multiwoz-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-convlab.modules.word_dst.multiwoz.evaluate">
+<span id="convlab-modules-word-dst-multiwoz-evaluate-module"></span><h2>convlab.modules.word_dst.multiwoz.evaluate module<a class="headerlink" href="#module-convlab.modules.word_dst.multiwoz.evaluate" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="convlab.modules.word_dst.multiwoz.evaluate.ResultStat">
+<em class="property">class </em><code class="descclassname">convlab.modules.word_dst.multiwoz.evaluate.</code><code class="descname">ResultStat</code><a class="reference internal" href="_modules/convlab/modules/word_dst/multiwoz/evaluate.html#ResultStat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.word_dst.multiwoz.evaluate.ResultStat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>A functional class for accuracy statistic.</p>
+<dl class="method">
+<dt id="convlab.modules.word_dst.multiwoz.evaluate.ResultStat.add">
+<code class="descname">add</code><span class="sig-paren">(</span><em>domain</em>, <em>slot</em>, <em>score</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/word_dst/multiwoz/evaluate.html#ResultStat.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.word_dst.multiwoz.evaluate.ResultStat.add" title="Permalink to this definition">¶</a></dt>
+<dd><p>score = 1 or 0</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.modules.word_dst.multiwoz.evaluate.ResultStat.all_acc">
+<code class="descname">all_acc</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/word_dst/multiwoz/evaluate.html#ResultStat.all_acc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.word_dst.multiwoz.evaluate.ResultStat.all_acc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="convlab.modules.word_dst.multiwoz.evaluate.ResultStat.domain_acc">
+<code class="descname">domain_acc</code><span class="sig-paren">(</span><em>domain</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/word_dst/multiwoz/evaluate.html#ResultStat.domain_acc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.word_dst.multiwoz.evaluate.ResultStat.domain_acc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="convlab.modules.word_dst.multiwoz.evaluate.ResultStat.slot_acc">
+<code class="descname">slot_acc</code><span class="sig-paren">(</span><em>domain</em>, <em>slot</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/word_dst/multiwoz/evaluate.html#ResultStat.slot_acc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.word_dst.multiwoz.evaluate.ResultStat.slot_acc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="convlab.modules.word_dst.multiwoz.evaluate.Word_DST">
+<em class="property">class </em><code class="descclassname">convlab.modules.word_dst.multiwoz.evaluate.</code><code class="descname">Word_DST</code><a class="reference internal" href="_modules/convlab/modules/word_dst/multiwoz/evaluate.html#Word_DST"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.word_dst.multiwoz.evaluate.Word_DST" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>A temporary semi-finishingv agent for word_dst testing, which takes as input utterances and output dialog state.</p>
+<dl class="method">
+<dt id="convlab.modules.word_dst.multiwoz.evaluate.Word_DST.reset">
+<code class="descname">reset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/word_dst/multiwoz/evaluate.html#Word_DST.reset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.word_dst.multiwoz.evaluate.Word_DST.reset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="convlab.modules.word_dst.multiwoz.evaluate.Word_DST.update">
+<code class="descname">update</code><span class="sig-paren">(</span><em>action</em>, <em>observation</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/word_dst/multiwoz/evaluate.html#Word_DST.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.word_dst.multiwoz.evaluate.Word_DST.update" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.modules.word_dst.multiwoz.evaluate.convert2acc">
+<code class="descclassname">convlab.modules.word_dst.multiwoz.evaluate.</code><code class="descname">convert2acc</code><span class="sig-paren">(</span><em>a</em>, <em>b</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/word_dst/multiwoz/evaluate.html#convert2acc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.word_dst.multiwoz.evaluate.convert2acc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="convlab.modules.word_dst.multiwoz.evaluate.evaluate">
+<code class="descclassname">convlab.modules.word_dst.multiwoz.evaluate.</code><code class="descname">evaluate</code><span class="sig-paren">(</span><em>test_result</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/word_dst/multiwoz/evaluate.html#evaluate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.word_dst.multiwoz.evaluate.evaluate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="convlab.modules.word_dst.multiwoz.evaluate.load_data">
+<code class="descclassname">convlab.modules.word_dst.multiwoz.evaluate.</code><code class="descname">load_data</code><span class="sig-paren">(</span><em>path='../../../../data/multiwoz/test.json'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/word_dst/multiwoz/evaluate.html#load_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.word_dst.multiwoz.evaluate.load_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load data (mainly for testing data).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.modules.word_dst.multiwoz.evaluate.match_goal">
+<code class="descclassname">convlab.modules.word_dst.multiwoz.evaluate.</code><code class="descname">match_goal</code><span class="sig-paren">(</span><em>pred_state</em>, <em>goal</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/word_dst/multiwoz/evaluate.html#match_goal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.word_dst.multiwoz.evaluate.match_goal" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="convlab.modules.word_dst.multiwoz.evaluate.run_test">
+<code class="descclassname">convlab.modules.word_dst.multiwoz.evaluate.</code><code class="descname">run_test</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/word_dst/multiwoz/evaluate.html#run_test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.word_dst.multiwoz.evaluate.run_test" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-convlab.modules.word_dst.multiwoz.mdbt">
+<span id="convlab-modules-word-dst-multiwoz-mdbt-module"></span><h2>convlab.modules.word_dst.multiwoz.mdbt module<a class="headerlink" href="#module-convlab.modules.word_dst.multiwoz.mdbt" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="convlab.modules.word_dst.multiwoz.mdbt.MDBTTracker">
+<em class="property">class </em><code class="descclassname">convlab.modules.word_dst.multiwoz.mdbt.</code><code class="descname">MDBTTracker</code><span class="sig-paren">(</span><em>data_dir='data/mdbt'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/word_dst/multiwoz/mdbt.html#MDBTTracker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.word_dst.multiwoz.mdbt.MDBTTracker" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="convlab.modules.dst.html#convlab.modules.dst.state_tracker.Tracker" title="convlab.modules.dst.state_tracker.Tracker"><code class="xref py py-class docutils literal notranslate"><span class="pre">convlab.modules.dst.state_tracker.Tracker</span></code></a></p>
+<p>A multi-domain belief tracker, adopted from <a class="reference external" href="https://github.com/osmanio2/multi-domain-belief-tracking">https://github.com/osmanio2/multi-domain-belief-tracking</a>.</p>
+<dl class="method">
+<dt id="convlab.modules.word_dst.multiwoz.mdbt.MDBTTracker.detect_requestable_slots">
+<code class="descname">detect_requestable_slots</code><span class="sig-paren">(</span><em>observation</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/word_dst/multiwoz/mdbt.html#MDBTTracker.detect_requestable_slots"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.word_dst.multiwoz.mdbt.MDBTTracker.detect_requestable_slots" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="convlab.modules.word_dst.multiwoz.mdbt.MDBTTracker.init_session">
+<code class="descname">init_session</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/word_dst/multiwoz/mdbt.html#MDBTTracker.init_session"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.word_dst.multiwoz.mdbt.MDBTTracker.init_session" title="Permalink to this definition">¶</a></dt>
+<dd><p>Init the Tracker to start a new session.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.modules.word_dst.multiwoz.mdbt.MDBTTracker.normalize_history">
+<code class="descname">normalize_history</code><span class="sig-paren">(</span><em>history</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/word_dst/multiwoz/mdbt.html#MDBTTracker.normalize_history"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.word_dst.multiwoz.mdbt.MDBTTracker.normalize_history" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace zero-length history.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.modules.word_dst.multiwoz.mdbt.MDBTTracker.restore">
+<code class="descname">restore</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/word_dst/multiwoz/mdbt.html#MDBTTracker.restore"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.word_dst.multiwoz.mdbt.MDBTTracker.restore" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="convlab.modules.word_dst.multiwoz.mdbt.MDBTTracker.restore_model">
+<code class="descname">restore_model</code><span class="sig-paren">(</span><em>sess</em>, <em>saver</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/word_dst/multiwoz/mdbt.html#MDBTTracker.restore_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.word_dst.multiwoz.mdbt.MDBTTracker.restore_model" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="convlab.modules.word_dst.multiwoz.mdbt.MDBTTracker.test">
+<code class="descname">test</code><span class="sig-paren">(</span><em>sess</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/word_dst/multiwoz/mdbt.html#MDBTTracker.test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.word_dst.multiwoz.mdbt.MDBTTracker.test" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test the MDBT model on mdbt dataset. Almost the same as original code.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.modules.word_dst.multiwoz.mdbt.MDBTTracker.train">
+<code class="descname">train</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/word_dst/multiwoz/mdbt.html#MDBTTracker.train"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.word_dst.multiwoz.mdbt.MDBTTracker.train" title="Permalink to this definition">¶</a></dt>
+<dd><p>Train the model.
+Model saved to</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.modules.word_dst.multiwoz.mdbt.MDBTTracker.update">
+<code class="descname">update</code><span class="sig-paren">(</span><em>user_act=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/word_dst/multiwoz/mdbt.html#MDBTTracker.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.word_dst.multiwoz.mdbt.MDBTTracker.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the dialog state.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.modules.word_dst.multiwoz.mdbt.evaluate_model">
+<code class="descclassname">convlab.modules.word_dst.multiwoz.mdbt.</code><code class="descname">evaluate_model</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/word_dst/multiwoz/mdbt.html#evaluate_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.word_dst.multiwoz.mdbt.evaluate_model" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="convlab.modules.word_dst.multiwoz.mdbt.test_update">
+<code class="descclassname">convlab.modules.word_dst.multiwoz.mdbt.</code><code class="descname">test_update</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/word_dst/multiwoz/mdbt.html#test_update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.word_dst.multiwoz.mdbt.test_update" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-convlab.modules.word_dst.multiwoz.mdbt_util">
+<span id="convlab-modules-word-dst-multiwoz-mdbt-util-module"></span><h2>convlab.modules.word_dst.multiwoz.mdbt_util module<a class="headerlink" href="#module-convlab.modules.word_dst.multiwoz.mdbt_util" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="convlab.modules.word_dst.multiwoz.mdbt_util.GRU">
+<em class="property">class </em><code class="descclassname">convlab.modules.word_dst.multiwoz.mdbt_util.</code><code class="descname">GRU</code><span class="sig-paren">(</span><em>W_h</em>, <em>U_h</em>, <em>M_h</em>, <em>W_m</em>, <em>U_m</em>, <em>label_size</em>, <em>reuse=None</em>, <em>binary_output=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/word_dst/multiwoz/mdbt_util.html#GRU"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.word_dst.multiwoz.mdbt_util.GRU" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.ops.rnn_cell_impl.RNNCell</span></code></p>
+<p>Create a Gated Recurrent unit to unroll the network through time
+for combining the current and previous belief states</p>
+<dl class="attribute">
+<dt id="convlab.modules.word_dst.multiwoz.mdbt_util.GRU.output_size">
+<code class="descname">output_size</code><a class="headerlink" href="#convlab.modules.word_dst.multiwoz.mdbt_util.GRU.output_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>size of outputs produced by this cell.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">Integer or TensorShape</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="convlab.modules.word_dst.multiwoz.mdbt_util.GRU.state_size">
+<code class="descname">state_size</code><a class="headerlink" href="#convlab.modules.word_dst.multiwoz.mdbt_util.GRU.state_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>size(s) of state(s) used by this cell.</p>
+<p>It can be represented by an Integer, a TensorShape or a tuple of Integers
+or TensorShapes.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.modules.word_dst.multiwoz.mdbt_util.define_CNN_model">
+<code class="descclassname">convlab.modules.word_dst.multiwoz.mdbt_util.</code><code class="descname">define_CNN_model</code><span class="sig-paren">(</span><em>utter</em>, <em>num_filters=300</em>, <em>name='r'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/word_dst/multiwoz/mdbt_util.html#define_CNN_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.word_dst.multiwoz.mdbt_util.define_CNN_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Better code for defining the CNN model.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.modules.word_dst.multiwoz.mdbt_util.evaluate_model">
+<code class="descclassname">convlab.modules.word_dst.multiwoz.mdbt_util.</code><code class="descname">evaluate_model</code><span class="sig-paren">(</span><em>sess</em>, <em>model_variables</em>, <em>val_data</em>, <em>summary</em>, <em>batch_id</em>, <em>i</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/word_dst/multiwoz/mdbt_util.html#evaluate_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.word_dst.multiwoz.mdbt_util.evaluate_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the model against validation set
+:param sess: training session
+:param model_variables: all model input variables
+:param val_data: validation data
+:param summary: For tensorboard
+:param batch_id: where we are in the training data
+:param i: the index of the validation data to load
+:return: evaluation accuracy and the summary</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.modules.word_dst.multiwoz.mdbt_util.generate_batch">
+<code class="descclassname">convlab.modules.word_dst.multiwoz.mdbt_util.</code><code class="descname">generate_batch</code><span class="sig-paren">(</span><em>dialogues</em>, <em>batch_no</em>, <em>batch_size</em>, <em>ontology_size</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/word_dst/multiwoz/mdbt_util.html#generate_batch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.word_dst.multiwoz.mdbt_util.generate_batch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate examples for minibatch training
+:param dialogues: list(num of turns, user_input vectors, system_response vectors, labels)
+:param batch_no: where we are in the training data
+:param batch_size: number of dialogues to generate
+:param ontology_size: no_slots
+:return: list(user_input, system_response, labels, user_sentence_length, system_sentence_length, number of turns)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.modules.word_dst.multiwoz.mdbt_util.get_available_devs">
+<code class="descclassname">convlab.modules.word_dst.multiwoz.mdbt_util.</code><code class="descname">get_available_devs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/word_dst/multiwoz/mdbt_util.html#get_available_devs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.word_dst.multiwoz.mdbt_util.get_available_devs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="convlab.modules.word_dst.multiwoz.mdbt_util.get_metrics">
+<code class="descclassname">convlab.modules.word_dst.multiwoz.mdbt_util.</code><code class="descname">get_metrics</code><span class="sig-paren">(</span><em>predictions</em>, <em>true_predictions</em>, <em>no_turns</em>, <em>mask</em>, <em>num_slots</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/word_dst/multiwoz/mdbt_util.html#get_metrics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.word_dst.multiwoz.mdbt_util.get_metrics" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="convlab.modules.word_dst.multiwoz.mdbt_util.load_ontology">
+<code class="descclassname">convlab.modules.word_dst.multiwoz.mdbt_util.</code><code class="descname">load_ontology</code><span class="sig-paren">(</span><em>url</em>, <em>word_vectors</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/word_dst/multiwoz/mdbt_util.html#load_ontology"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.word_dst.multiwoz.mdbt_util.load_ontology" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load the ontology from a file
+:param url: to the ontology
+:param word_vectors: dictionary of the word embeddings [words, vector_dimension]
+:return: list([domain-slot-value]), [no_slots, vector_dimension]</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.modules.word_dst.multiwoz.mdbt_util.load_word_vectors">
+<code class="descclassname">convlab.modules.word_dst.multiwoz.mdbt_util.</code><code class="descname">load_word_vectors</code><span class="sig-paren">(</span><em>url</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/word_dst/multiwoz/mdbt_util.html#load_word_vectors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.word_dst.multiwoz.mdbt_util.load_word_vectors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load the word embeddings from the url
+:param url: to the word vectors
+:return: dict of word and vector values</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.modules.word_dst.multiwoz.mdbt_util.load_woz_data">
+<code class="descclassname">convlab.modules.word_dst.multiwoz.mdbt_util.</code><code class="descname">load_woz_data</code><span class="sig-paren">(</span><em>data</em>, <em>word_vectors</em>, <em>ontology</em>, <em>url=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/word_dst/multiwoz/mdbt_util.html#load_woz_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.word_dst.multiwoz.mdbt_util.load_woz_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load the woz3 data and extract feature vectors
+:param data: the data to load
+:param word_vectors: word embeddings
+:param ontology: list of domain-slot-value
+:param url: Is the data coming from a url, default true
+:return: list(num of turns, user_input vectors, system_response vectors, labels)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.modules.word_dst.multiwoz.mdbt_util.lstm_model">
+<code class="descclassname">convlab.modules.word_dst.multiwoz.mdbt_util.</code><code class="descname">lstm_model</code><span class="sig-paren">(</span><em>text_input</em>, <em>utterance_length</em>, <em>num_hidden</em>, <em>name</em>, <em>net_type</em>, <em>bidir</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/word_dst/multiwoz/mdbt_util.html#lstm_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.word_dst.multiwoz.mdbt_util.lstm_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define an Lstm model that will run across the user input and system act
+:param text_input: [batch_size, max_num_turns, max_utterance_size, vector_dimension]
+:param utterance_length: number words in every utterance [batch_size, max_num_turns, 1]
+:param num_hidden: – int –
+:param name: The name of lstm network
+:param net_type: type of the network (“lstm” or “gru” or “rnn”)
+:param bidir: use a bidirectional network – bool –
+:return: output at each state [batch_size, max_num_turns, max_utterance_size, num_hidden],</p>
+<blockquote>
+<div>output of the final state [batch_size, max_num_turns, num_hidden]</div></blockquote>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.modules.word_dst.multiwoz.mdbt_util.model_definition">
+<code class="descclassname">convlab.modules.word_dst.multiwoz.mdbt_util.</code><code class="descname">model_definition</code><span class="sig-paren">(</span><em>ontology</em>, <em>num_slots</em>, <em>slots</em>, <em>num_hidden=None</em>, <em>net_type=None</em>, <em>bidir=None</em>, <em>test=False</em>, <em>dev=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/word_dst/multiwoz/mdbt_util.html#model_definition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.word_dst.multiwoz.mdbt_util.model_definition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create neural belief tracker model that is defined in my notes. It consists of encoding the user and system input,
+then use the ontology to decode the encoder in manner that detects if a domain-slot-value class is mentioned
+:param ontology: numpy array of the embedded vectors of the ontology [num_slots, 3*vector_dimension]
+:param num_slots: number of ontology classes –int–
+:param slots: indices of the values of each slot list of lists of ints
+:param num_hidden: Number of hidden units or dimension of the hidden space
+:param net_type: The type of the encoder network cnn, lstm, gru, rnn …etc
+:param bidir: For recurrent networks should it be bidirectional
+:param test: This is testing mode (no back-propagation)
+:param dev: Device to run the model on (cpu or gpu)
+:return: All input variable/placeholders output metrics (precision, recall, f1-score) and trainer</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.modules.word_dst.multiwoz.mdbt_util.normalise_word_vectors">
+<code class="descclassname">convlab.modules.word_dst.multiwoz.mdbt_util.</code><code class="descname">normalise_word_vectors</code><span class="sig-paren">(</span><em>word_vectors</em>, <em>norm=1.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/word_dst/multiwoz/mdbt_util.html#normalise_word_vectors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.word_dst.multiwoz.mdbt_util.normalise_word_vectors" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method normalises the collection of word vectors provided in the word_vectors dictionary.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.modules.word_dst.multiwoz.mdbt_util.process_booking">
+<code class="descclassname">convlab.modules.word_dst.multiwoz.mdbt_util.</code><code class="descname">process_booking</code><span class="sig-paren">(</span><em>ontolog_term</em>, <em>usr_input</em>, <em>previous_terms</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/word_dst/multiwoz/mdbt_util.html#process_booking"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.word_dst.multiwoz.mdbt_util.process_booking" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="convlab.modules.word_dst.multiwoz.mdbt_util.process_history">
+<code class="descclassname">convlab.modules.word_dst.multiwoz.mdbt_util.</code><code class="descname">process_history</code><span class="sig-paren">(</span><em>sessions</em>, <em>word_vectors</em>, <em>ontology</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/word_dst/multiwoz/mdbt_util.html#process_history"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.word_dst.multiwoz.mdbt_util.process_history" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load the woz3 data and extract feature vectors
+:param data: the data to load
+:param word_vectors: word embeddings
+:param ontology: list of domain-slot-value
+:param url: Is the data coming from a url, default true
+:return: list(num of turns, user_input vectors, system_response vectors, labels)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.modules.word_dst.multiwoz.mdbt_util.process_text">
+<code class="descclassname">convlab.modules.word_dst.multiwoz.mdbt_util.</code><code class="descname">process_text</code><span class="sig-paren">(</span><em>text</em>, <em>word_vectors</em>, <em>ontology=None</em>, <em>print_mode=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/word_dst/multiwoz/mdbt_util.html#process_text"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.word_dst.multiwoz.mdbt_util.process_text" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process a line/sentence converting words to feature vectors
+:param text: sentence
+:param word_vectors: word embeddings
+:param ontology: The ontology to do exact matching
+:param print_mode: Log the cases where the word is not in the pre-trained word vectors
+:return: [length of sentence, 300]</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.modules.word_dst.multiwoz.mdbt_util.process_turn">
+<code class="descclassname">convlab.modules.word_dst.multiwoz.mdbt_util.</code><code class="descname">process_turn</code><span class="sig-paren">(</span><em>turn</em>, <em>word_vectors</em>, <em>ontology</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/word_dst/multiwoz/mdbt_util.html#process_turn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.word_dst.multiwoz.mdbt_util.process_turn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process a single turn extracting and processing user text, system response and labels
+:param turn: dict
+:param word_vectors: word embeddings
+:param ontology: list(domain-slot-value)
+:return: ([utterance length, 300], [utterance length, 300], [no_slots])</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.modules.word_dst.multiwoz.mdbt_util.track_dialogue">
+<code class="descclassname">convlab.modules.word_dst.multiwoz.mdbt_util.</code><code class="descname">track_dialogue</code><span class="sig-paren">(</span><em>data</em>, <em>ontology</em>, <em>predictions</em>, <em>y</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/word_dst/multiwoz/mdbt_util.html#track_dialogue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.word_dst.multiwoz.mdbt_util.track_dialogue" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="convlab.modules.word_dst.multiwoz.mdbt_util.xavier_vector">
+<code class="descclassname">convlab.modules.word_dst.multiwoz.mdbt_util.</code><code class="descname">xavier_vector</code><span class="sig-paren">(</span><em>word</em>, <em>D=300</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/word_dst/multiwoz/mdbt_util.html#xavier_vector"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.word_dst.multiwoz.mdbt_util.xavier_vector" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a D-dimensional vector for the word.</p>
+<p>We hash the word to always get the same vector for the given word.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-convlab.modules.word_dst.multiwoz">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-convlab.modules.word_dst.multiwoz" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, ConvLab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

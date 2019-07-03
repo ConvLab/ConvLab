@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>tasktk &mdash; Tasktk  documentation</title>
+  <title>convlab &mdash; ConvLab 0.1 documentation</title>
   
 
   
@@ -24,6 +24,7 @@
         <script type="text/javascript" src="_static/jquery.js"></script>
         <script type="text/javascript" src="_static/underscore.js"></script>
         <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -40,15 +41,14 @@
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
-            <a href="index.html" class="icon icon-home"> Tasktk
+            <a href="index.html" class="icon icon-home"> ConvLab
           
 
           
@@ -78,11 +78,11 @@
               
             
             
-              <p class="caption"><span class="caption-text">Package Reference</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="nlu.html">NLU</a></li>
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">convlab</a></li>
 </ul>
-
+</div>
             
           
         </div>
@@ -95,7 +95,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">Tasktk</a>
+          <a href="index.html">ConvLab</a>
         
       </nav>
 
@@ -126,7 +126,7 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>tasktk</li>
+      <li>convlab</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -145,63 +145,82 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="tasktk">
-<h1>tasktk<a class="headerlink" href="#tasktk" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="convlab">
+<h1>convlab<a class="headerlink" href="#convlab" title="Permalink to this headline">¶</a></h1>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="tasktk.html">tasktk package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="tasktk.html#subpackages">Subpackages</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="tasktk.dialog_agent.html">tasktk.dialog_agent package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="tasktk.dialog_agent.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="tasktk.dialog_agent.html#module-tasktk.dialog_agent.system">tasktk.dialog_agent.system module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="tasktk.dialog_agent.html#module-tasktk.dialog_agent">Module contents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="convlab.html">convlab package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="convlab.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="convlab.agent.html">convlab.agent package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="convlab.agent.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="convlab.agent.html#module-convlab.agent">Module contents</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="tasktk.dst.html">tasktk.dst package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="tasktk.dst.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="tasktk.dst.html#module-tasktk.dst.state_tracker">tasktk.dst.state_tracker module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="tasktk.dst.html#module-tasktk.dst">Module contents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="convlab.env.html">convlab.env package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="convlab.env.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="convlab.env.html#module-convlab.env.base">convlab.env.base module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="convlab.env.html#module-convlab.env.movie">convlab.env.movie module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="convlab.env.html#module-convlab.env.multiwoz">convlab.env.multiwoz module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="convlab.env.html#module-convlab.env">Module contents</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="tasktk.nlg.html">tasktk.nlg package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="tasktk.nlg.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="tasktk.nlg.html#module-tasktk.nlg.nlg">tasktk.nlg.nlg module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="tasktk.nlg.html#module-tasktk.nlg">Module contents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="convlab.evaluator.html">convlab.evaluator package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="convlab.evaluator.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="convlab.evaluator.html#module-convlab.evaluator.evaluator">convlab.evaluator.evaluator module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="convlab.evaluator.html#module-convlab.evaluator.multiwoz">convlab.evaluator.multiwoz module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="convlab.evaluator.html#module-convlab.evaluator">Module contents</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="tasktk.nlu.html">tasktk.nlu package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="tasktk.nlu.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="tasktk.nlu.html#module-tasktk.nlu.error">tasktk.nlu.error module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="tasktk.nlu.html#module-tasktk.nlu.nlu">tasktk.nlu.nlu module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="tasktk.nlu.html#module-tasktk.nlu">Module contents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="convlab.experiment.html">convlab.experiment package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="convlab.experiment.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="convlab.experiment.html#module-convlab.experiment.analysis">convlab.experiment.analysis module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="convlab.experiment.html#convlab-experiment-control-module">convlab.experiment.control module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="convlab.experiment.html#module-convlab.experiment.retro_analysis">convlab.experiment.retro_analysis module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="convlab.experiment.html#convlab-experiment-search-module">convlab.experiment.search module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="convlab.experiment.html#module-convlab.experiment">Module contents</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="tasktk.policy.html">tasktk.policy package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="tasktk.policy.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="tasktk.policy.html#module-tasktk.policy.policy">tasktk.policy.policy module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="tasktk.policy.html#module-tasktk.policy.policy_user_rule">tasktk.policy.policy_user_rule module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="tasktk.policy.html#module-tasktk.policy">Module contents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="convlab.human_eval.html">convlab.human_eval package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="convlab.human_eval.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="convlab.human_eval.html#module-convlab.human_eval.analysis">convlab.human_eval.analysis module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="convlab.human_eval.html#convlab-human-eval-bot-server-module">convlab.human_eval.bot_server module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="convlab.human_eval.html#convlab-human-eval-cambot-server-module">convlab.human_eval.cambot_server module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="convlab.human_eval.html#convlab-human-eval-dqnbot-server-module">convlab.human_eval.dqnbot_server module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="convlab.human_eval.html#convlab-human-eval-rulebot-server-module">convlab.human_eval.rulebot_server module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="convlab.human_eval.html#convlab-human-eval-run-module">convlab.human_eval.run module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="convlab.human_eval.html#module-convlab.human_eval.sequicity_server">convlab.human_eval.sequicity_server module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="convlab.human_eval.html#module-convlab.human_eval.task_config">convlab.human_eval.task_config module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="convlab.human_eval.html#convlab-human-eval-worlds-module">convlab.human_eval.worlds module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="convlab.human_eval.html#module-convlab.human_eval">Module contents</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="tasktk.usr.html">tasktk.usr package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="tasktk.usr.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="tasktk.usr.html#module-tasktk.usr.simulator">tasktk.usr.simulator module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="tasktk.usr.html#module-tasktk.usr">Module contents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="convlab.lib.html">convlab.lib package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="convlab.lib.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="convlab.lib.html#module-convlab.lib.decorator">convlab.lib.decorator module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="convlab.lib.html#module-convlab.lib.distribution">convlab.lib.distribution module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="convlab.lib.html#module-convlab.lib.file_util">convlab.lib.file_util module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="convlab.lib.html#module-convlab.lib.logger">convlab.lib.logger module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="convlab.lib.html#module-convlab.lib.math_util">convlab.lib.math_util module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="convlab.lib.html#module-convlab.lib.optimizer">convlab.lib.optimizer module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="convlab.lib.html#module-convlab.lib.util">convlab.lib.util module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="convlab.lib.html#module-convlab.lib.viz">convlab.lib.viz module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="convlab.lib.html#module-convlab.lib">Module contents</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="tasktk.util.html">tasktk.util package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="tasktk.util.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="tasktk.util.html#module-tasktk.util.dataloader">tasktk.util.dataloader module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="tasktk.util.html#module-tasktk.util.dialog_act">tasktk.util.dialog_act module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="tasktk.util.html#module-tasktk.util.state">tasktk.util.state module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="tasktk.util.html#module-tasktk.util">Module contents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="convlab.modules.html">convlab.modules package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="convlab.modules.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="convlab.modules.html#module-convlab.modules">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="convlab.spec.html">convlab.spec package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="convlab.spec.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="convlab.spec.html#module-convlab.spec.spec_util">convlab.spec.spec_util module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="convlab.spec.html#module-convlab.spec">Module contents</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="tasktk.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tasktk.html#tasktk-dialog-session-module">tasktk.dialog_session module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tasktk.html#module-tasktk">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="convlab.html#module-convlab">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -219,7 +238,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2019, thu-coai
+        &copy; Copyright 2019, ConvLab
 
     </p>
   </div>

@@ -1,0 +1,447 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>convlab.modules.dst.multiwoz.dst_util &mdash; ConvLab 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../../" src="../../../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../../index.html" class="icon icon-home"> ConvLab
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">ConvLab</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../../../index.html">Module code</a> &raquo;</li>
+        
+      <li>convlab.modules.dst.multiwoz.dst_util</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for convlab.modules.dst.multiwoz.dst_util</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
+<span class="c1"># Licensed under the MIT license.</span>
+
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">difflib</span> <span class="k">import</span> <span class="n">SequenceMatcher</span>
+
+<span class="n">init_belief_state</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;police&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;book&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;booked&quot;</span><span class="p">:</span> <span class="p">[]</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;semi&quot;</span><span class="p">:</span> <span class="p">{}</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;hotel&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;book&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;booked&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;people&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;day&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;stay&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;semi&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;area&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;parking&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;pricerange&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;stars&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;internet&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span>
+            <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;attraction&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;book&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;booked&quot;</span><span class="p">:</span> <span class="p">[]</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;semi&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;area&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;entrance fee&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span>
+            <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;restaurant&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;book&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;booked&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;people&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;day&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;semi&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;food&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;pricerange&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;area&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;hospital&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;book&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;booked&quot;</span><span class="p">:</span> <span class="p">[]</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;semi&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;department&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span>
+            <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;taxi&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;book&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;booked&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;departure&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;destination&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;semi&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;leaveAt&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;arriveBy&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span>
+            <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;train&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;book&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;booked&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;people&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;trainID&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;semi&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;leaveAt&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;destination&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;day&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;arriveBy&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;departure&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+
+<div class="viewcode-block" id="init_state"><a class="viewcode-back" href="../../../../../convlab.modules.dst.multiwoz.html#convlab.modules.dst.multiwoz.dst_util.init_state">[docs]</a><span class="k">def</span> <span class="nf">init_state</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The init state to start a session.</span>
+<span class="sd">    Example:</span>
+<span class="sd">    state = {</span>
+<span class="sd">            &#39;user_action&#39;: None,</span>
+<span class="sd">            &#39;history&#39;: [],</span>
+<span class="sd">            &#39;belief_state&#39;: None,</span>
+<span class="sd">            &#39;request_state&#39;: {}</span>
+<span class="sd">        }</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># user_action = {&#39;general-hello&#39;:{}}</span>
+    <span class="n">user_action</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">state</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;user_action&#39;</span><span class="p">:</span> <span class="n">user_action</span><span class="p">,</span>
+             <span class="s1">&#39;belief_state&#39;</span><span class="p">:</span> <span class="n">init_belief_state</span><span class="p">,</span>
+             <span class="s1">&#39;request_state&#39;</span><span class="p">:</span> <span class="p">{},</span>
+             <span class="s1">&#39;history&#39;</span><span class="p">:</span> <span class="p">[]}</span>
+    <span class="k">return</span> <span class="n">state</span></div>
+
+<div class="viewcode-block" id="str_similar"><a class="viewcode-back" href="../../../../../convlab.modules.dst.multiwoz.html#convlab.modules.dst.multiwoz.dst_util.str_similar">[docs]</a><span class="k">def</span> <span class="nf">str_similar</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">SequenceMatcher</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span><span class="o">.</span><span class="n">ratio</span><span class="p">()</span></div>
+
+<span class="k">def</span> <span class="nf">_log</span><span class="p">(</span><span class="n">info</span><span class="p">):</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;fuzzy_recognition.log&#39;</span><span class="p">,</span> <span class="s1">&#39;a+&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">info</span><span class="p">))</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+<div class="viewcode-block" id="minDistance"><a class="viewcode-back" href="../../../../../convlab.modules.dst.multiwoz.html#convlab.modules.dst.multiwoz.dst_util.minDistance">[docs]</a><span class="k">def</span> <span class="nf">minDistance</span><span class="p">(</span><span class="n">word1</span><span class="p">,</span> <span class="n">word2</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;The minimum edit distance between word 1 and 2.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">word1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">word2</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">word2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">word1</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">0</span>
+    <span class="n">size1</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">word1</span><span class="p">)</span>
+    <span class="n">size2</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">word2</span><span class="p">)</span>
+    <span class="n">tmp</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">size2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">size1</span><span class="p">):</span>
+        <span class="n">tmp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">last</span> <span class="o">=</span> <span class="n">i</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">size2</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">word1</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="n">word2</span><span class="p">[</span><span class="n">j</span><span class="p">]:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">last</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="nb">min</span><span class="p">(</span><span class="n">last</span><span class="p">,</span> <span class="n">tmp</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">tmp</span><span class="p">[</span><span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
+            <span class="n">last</span> <span class="o">=</span> <span class="n">tmp</span><span class="p">[</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">tmp</span><span class="p">[</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+    <span class="k">return</span> <span class="n">value</span></div>
+
+<div class="viewcode-block" id="normalize_value"><a class="viewcode-back" href="../../../../../convlab.modules.dst.multiwoz.html#convlab.modules.dst.multiwoz.dst_util.normalize_value">[docs]</a><span class="k">def</span> <span class="nf">normalize_value</span><span class="p">(</span><span class="n">value_set</span><span class="p">,</span> <span class="n">domain</span><span class="p">,</span> <span class="n">slot</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Normalized the value produced by NLU module to map it to the ontology value space.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        value_set (dict): The value set of task ontology.</span>
+<span class="sd">        domain (str): The domain of the slot-value pairs.</span>
+<span class="sd">        slot (str): The slot of the value.</span>
+<span class="sd">        value (str): The raw value detected by NLU module.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        value (str): The normalized value, which fits with the domain ontology.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">slot</span> <span class="o">=</span> <span class="n">slot</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">domain</span> <span class="ow">in</span> <span class="n">value_set</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;domain &lt;</span><span class="si">{}</span><span class="s1">&gt; not found in value set&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">domain</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">slot</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">value_set</span><span class="p">[</span><span class="n">domain</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;slot &lt;</span><span class="si">{}</span><span class="s1">&gt; not found in db_values[</span><span class="si">{}</span><span class="s1">]&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">slot</span><span class="p">,</span> <span class="n">domain</span><span class="p">))</span>
+    <span class="n">value_list</span> <span class="o">=</span> <span class="n">value_set</span><span class="p">[</span><span class="n">domain</span><span class="p">][</span><span class="n">slot</span><span class="p">]</span>
+    <span class="c1"># exact match or containing match</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="n">_match_or_contain</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">value_list</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">v</span>
+    <span class="c1"># some transfomations</span>
+    <span class="n">cand_values</span> <span class="o">=</span> <span class="n">_transform_value</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">cv</span> <span class="ow">in</span> <span class="n">cand_values</span><span class="p">:</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">_match_or_contain</span><span class="p">(</span><span class="n">cv</span><span class="p">,</span> <span class="n">value_list</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">v</span>
+    <span class="c1"># special value matching</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="n">special_match</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="n">slot</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">v</span>
+    <span class="n">_log</span><span class="p">(</span><span class="s1">&#39;Failed: domain </span><span class="si">{}</span><span class="s1"> slot </span><span class="si">{}</span><span class="s1"> value </span><span class="si">{}</span><span class="s1">, raw value returned.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="n">slot</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">value</span></div>
+
+<span class="k">def</span> <span class="nf">_transform_value</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="n">cand_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1"># a &#39;s -&gt; a&#39;s</span>
+    <span class="k">if</span> <span class="s2">&quot; &#39;s&quot;</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
+        <span class="n">cand_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &#39;s&quot;</span><span class="p">,</span> <span class="s2">&quot;&#39;s&quot;</span><span class="p">))</span>
+    <span class="c1"># a - b -&gt; a-b</span>
+    <span class="k">if</span> <span class="s2">&quot; - &quot;</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
+        <span class="n">cand_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; - &quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">))</span>
+    <span class="c1"># center &lt;-&gt; centre</span>
+    <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="s1">&#39;center&#39;</span><span class="p">:</span>
+        <span class="n">cand_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;centre&#39;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">value</span> <span class="o">==</span> <span class="s1">&#39;centre&#39;</span><span class="p">:</span>
+        <span class="n">cand_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;center&#39;</span><span class="p">)</span>
+    <span class="c1"># the + value</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">value</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;the &#39;</span><span class="p">):</span>
+        <span class="n">cand_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;the &#39;</span> <span class="o">+</span> <span class="n">value</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">cand_list</span>
+
+<span class="k">def</span> <span class="nf">_match_or_contain</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">value_list</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;match value by exact match or containing&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">value_list</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">value</span>
+    <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value_list</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value</span> <span class="ow">or</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">v</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">v</span>
+    <span class="c1">## fuzzy match, when len(value) is large and distance(v1, v2) is small</span>
+    <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value_list</span><span class="p">:</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">minDistance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">d</span> <span class="o">&lt;=</span> <span class="mi">2</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">10</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">d</span> <span class="o">&lt;=</span> <span class="mi">3</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">15</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">v</span>
+    <span class="k">return</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="special_match"><a class="viewcode-back" href="../../../../../convlab.modules.dst.multiwoz.html#convlab.modules.dst.multiwoz.dst_util.special_match">[docs]</a><span class="k">def</span> <span class="nf">special_match</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="n">slot</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;special slot fuzzy matching&quot;&quot;&quot;</span>
+    <span class="n">matched_result</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">slot</span> <span class="o">==</span> <span class="s1">&#39;arriveby&#39;</span> <span class="ow">or</span> <span class="n">slot</span> <span class="o">==</span> <span class="s1">&#39;leaveat&#39;</span><span class="p">:</span>
+        <span class="n">matched_result</span> <span class="o">=</span> <span class="n">_match_time</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">slot</span> <span class="o">==</span> <span class="s1">&#39;price&#39;</span> <span class="ow">or</span> <span class="n">slot</span> <span class="o">==</span> <span class="s1">&#39;entrance fee&#39;</span><span class="p">:</span>
+        <span class="n">matched_result</span> <span class="o">=</span> <span class="n">_match_pound_price</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">slot</span> <span class="o">==</span> <span class="s1">&#39;trainid&#39;</span><span class="p">:</span>
+        <span class="n">matched_result</span> <span class="o">=</span> <span class="n">_match_trainid</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">slot</span> <span class="o">==</span> <span class="s1">&#39;duration&#39;</span><span class="p">:</span>
+        <span class="n">matched_result</span> <span class="o">=</span> <span class="n">_match_duration</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">matched_result</span></div>
+
+<span class="k">def</span> <span class="nf">_match_time</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return the time (leaveby, arriveat) in value, None if no time in value.&quot;&quot;&quot;</span>
+    <span class="n">mat</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(\d{1,2}:\d{1,2})&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">mat</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">mat</span><span class="o">.</span><span class="n">groups</span><span class="p">())</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">mat</span><span class="o">.</span><span class="n">groups</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="kc">None</span>
+
+<span class="k">def</span> <span class="nf">_match_trainid</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return the trainID in value, None if no trainID.&quot;&quot;&quot;</span>
+    <span class="n">mat</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;TR(\d</span><span class="si">{4}</span><span class="s2">)&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">mat</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">mat</span><span class="o">.</span><span class="n">groups</span><span class="p">())</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">mat</span><span class="o">.</span><span class="n">groups</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="kc">None</span>
+
+<span class="k">def</span> <span class="nf">_match_pound_price</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return the price with pounds in value, None if no trainID.&quot;&quot;&quot;</span>
+    <span class="n">mat</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(\d{1,2},\d{1,2} pounds)&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">mat</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">mat</span><span class="o">.</span><span class="n">groups</span><span class="p">())</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">mat</span><span class="o">.</span><span class="n">groups</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">mat</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(\d{1,2} pounds)&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">mat</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">mat</span><span class="o">.</span><span class="n">groups</span><span class="p">())</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">mat</span><span class="o">.</span><span class="n">groups</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="s2">&quot;1 pound&quot;</span> <span class="ow">in</span> <span class="n">value</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+        <span class="k">return</span> <span class="s1">&#39;1 pound&#39;</span>
+    <span class="k">if</span> <span class="s1">&#39;free&#39;</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s1">&#39;free&#39;</span>
+    <span class="k">return</span> <span class="kc">None</span>
+
+<span class="k">def</span> <span class="nf">_match_duration</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return the durations (by minute) in value, None if no trainID.&quot;&quot;&quot;</span>
+    <span class="n">mat</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(\d{1,2} minutes)&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">mat</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">mat</span><span class="o">.</span><span class="n">groups</span><span class="p">())</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">mat</span><span class="o">.</span><span class="n">groups</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="kc">None</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="c1"># value_set = json.load(open(&#39;../../../data/multiwoz/db/db_values.json&#39;))</span>
+    <span class="c1"># print(normalize_value(value_set, &#39;restaurant&#39;, &#39;address&#39;, &#39;regent street city center&#39;))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">minDistance</span><span class="p">(</span><span class="s2">&quot;museum of archaeology and anthropology&quot;</span><span class="p">,</span> <span class="s2">&quot;museum of archaelogy and anthropology&quot;</span><span class="p">))</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, ConvLab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

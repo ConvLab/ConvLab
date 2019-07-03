@@ -1,0 +1,736 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>convlab.modules.nlu.multiwoz.svm.Classifier &mdash; ConvLab 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../../../" src="../../../../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../../../index.html" class="icon icon-home"> ConvLab
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../../index.html">ConvLab</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../../../../index.html">Module code</a> &raquo;</li>
+        
+      <li>convlab.modules.nlu.multiwoz.svm.Classifier</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for convlab.modules.nlu.multiwoz.svm.Classifier</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Modified by Microsoft Corporation.</span>
+<span class="c1"># Licensed under the MIT license.</span>
+
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">multiprocessing</span> <span class="k">as</span> <span class="nn">mp</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">defaultdict</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">from</span> <span class="nn">scipy.sparse</span> <span class="k">import</span> <span class="n">lil_matrix</span>
+
+<span class="kn">from</span> <span class="nn">convlab.modules.nlu.multiwoz.svm</span> <span class="k">import</span> <span class="n">sutils</span><span class="p">,</span> <span class="n">Tuples</span>
+<span class="kn">from</span> <span class="nn">convlab.modules.nlu.multiwoz.svm.Features</span> <span class="k">import</span> <span class="n">cnet</span> <span class="k">as</span> <span class="n">cnet_extractor</span>
+
+<span class="n">names_to_classes</span> <span class="o">=</span> <span class="p">{}</span>
+
+<div class="viewcode-block" id="trainSVMwrapper"><a class="viewcode-back" href="../../../../../../convlab.modules.nlu.multiwoz.svm.html#convlab.modules.nlu.multiwoz.svm.Classifier.trainSVMwrapper">[docs]</a><span class="k">def</span> <span class="nf">trainSVMwrapper</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">y</span><span class="p">):</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">svm</span><span class="o">.</span><span class="n">SVC</span><span class="p">(</span><span class="n">kernel</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">probability</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="c1"># model.class_weight = &#39;auto&#39;</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">model</span></div>
+
+<div class="viewcode-block" id="classifier"><a class="viewcode-back" href="../../../../../../convlab.modules.nlu.multiwoz.svm.html#convlab.modules.nlu.multiwoz.svm.Classifier.classifier">[docs]</a><span class="k">class</span> <span class="nc">classifier</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+        <span class="c1"># classifier type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="s2">&quot;svm&quot;</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s2">&quot;classifier&quot;</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="p">)</span> <span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;classifier&quot;</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># min_examples</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_examples</span> <span class="o">=</span> <span class="mi">10</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s2">&quot;classifier&quot;</span><span class="p">,</span> <span class="s2">&quot;min_examples&quot;</span><span class="p">)</span> <span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">min_examples</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;classifier&quot;</span><span class="p">,</span><span class="s2">&quot;min_examples&quot;</span><span class="p">))</span>
+            
+        <span class="c1"># features</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">features</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;cnet&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s2">&quot;classifier&quot;</span><span class="p">,</span> <span class="s2">&quot;features&quot;</span><span class="p">)</span> <span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">features</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;classifier&quot;</span><span class="p">,</span> <span class="s2">&quot;features&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">feature_extractors</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">feature_extractors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">sutils</span><span class="o">.</span><span class="n">import_class</span><span class="p">(</span><span class="s2">&quot;convlab.modules.nlu.multiwoz.svm.Features.&quot;</span> <span class="o">+</span> <span class="n">feature</span><span class="p">)(</span><span class="n">config</span><span class="p">)</span>
+                <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">feature_extractors</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tuples</span> <span class="o">=</span> <span class="n">Tuples</span><span class="o">.</span><span class="n">tuples</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cnet_extractor</span> <span class="o">=</span> <span class="n">cnet_extractor</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        
+        <span class="c1"># store data:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">X</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">baseXs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">baseX_pointers</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fnames</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="c1"># @profile</span>
+<div class="viewcode-block" id="classifier.extractFeatures"><a class="viewcode-back" href="../../../../../../convlab.modules.nlu.multiwoz.svm.html#convlab.modules.nlu.multiwoz.svm.Classifier.classifier.extractFeatures">[docs]</a>    <span class="k">def</span> <span class="nf">extractFeatures</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dw</span><span class="p">,</span> <span class="n">log_input_key</span><span class="o">=</span><span class="s2">&quot;batch&quot;</span><span class="p">):</span>
+        <span class="c1"># given a dataset walker,</span>
+        <span class="c1"># adds examples to self.X and self.y</span>
+        <span class="n">total_calls</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dw</span><span class="o">.</span><span class="n">session_list</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">total_calls</span><span class="p">)</span>
+        <span class="c1"># print(dw.session_list)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([])</span>
+        <span class="k">for</span> <span class="n">call_num</span><span class="p">,</span> <span class="n">call</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dw</span><span class="p">)</span> <span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;[</span><span class="si">%d</span><span class="s1">/</span><span class="si">%d</span><span class="s1">]&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">call_num</span><span class="p">,</span><span class="n">total_calls</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">log_turn</span><span class="p">,</span> <span class="n">label_turn</span> <span class="ow">in</span> <span class="n">call</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">label_turn</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">uacts</span> <span class="o">=</span> <span class="n">label_turn</span><span class="p">[</span><span class="s1">&#39;semantics&#39;</span><span class="p">][</span><span class="s1">&#39;json&#39;</span><span class="p">]</span>
+                    <span class="n">these_tuples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tuples</span><span class="o">.</span><span class="n">uactsToTuples</span><span class="p">(</span><span class="n">uacts</span><span class="p">)</span>
+                    <span class="c1"># check there aren&#39;t any tuples we were not expecting:</span>
+                    <span class="k">for</span> <span class="n">this_tuple</span> <span class="ow">in</span> <span class="n">these_tuples</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">this_tuple</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tuples</span><span class="o">.</span><span class="n">all_tuples</span> <span class="p">:</span>
+                            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Warning: unexpected tuple&quot;</span><span class="p">,</span> <span class="n">this_tuple</span><span class="p">)</span>
+                    <span class="c1"># convert tuples to specific tuples:</span>
+                    <span class="n">these_tuples</span> <span class="o">=</span> <span class="p">[</span><span class="n">Tuples</span><span class="o">.</span><span class="n">generic_to_specific</span><span class="p">(</span><span class="n">tup</span><span class="p">)</span> <span class="k">for</span> <span class="n">tup</span> <span class="ow">in</span> <span class="n">these_tuples</span><span class="p">]</span>
+
+                <span class="c1"># which tuples would be considered (active) for this turn?</span>
+                <span class="n">active_tuples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tuples</span><span class="o">.</span><span class="n">activeTuples</span><span class="p">(</span><span class="n">log_turn</span><span class="p">)</span>
+
+                <span class="c1"># calculate base features that are independent of the tuple</span>
+                <span class="n">baseX</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">feature_extractor</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_extractors</span><span class="p">:</span>
+                    <span class="n">feature_name</span> <span class="o">=</span> <span class="n">feature_extractor</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+                    <span class="n">new_feats</span> <span class="o">=</span> <span class="n">feature_extractor</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span><span class="n">log_turn</span><span class="p">,</span> <span class="n">log_input_key</span><span class="o">=</span><span class="n">log_input_key</span><span class="p">)</span>
+                    <span class="c1"># if new_feats != {}:</span>
+                    <span class="c1">#     print(&#39;base feat:&#39;,new_feats.keys())</span>
+                    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">new_feats</span><span class="p">:</span>
+                        <span class="n">baseX</span><span class="p">[(</span><span class="n">feature_name</span><span class="p">,</span> <span class="n">key</span><span class="p">)]</span> <span class="o">+=</span> <span class="n">new_feats</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="n">feature_name</span><span class="p">,</span> <span class="n">key</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">baseXs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">baseX</span><span class="p">)</span>
+
+                <span class="c1"># print(&#39;these_tuples&#39;,these_tuples)</span>
+                <span class="c1"># print(&#39;active_tuples&#39;,active_tuples)</span>
+
+                <span class="k">for</span> <span class="n">this_tuple</span> <span class="ow">in</span> <span class="n">active_tuples</span><span class="p">:</span>
+                    <span class="c1"># print(this_tuple)</span>
+                    <span class="k">if</span> <span class="n">label_turn</span> <span class="o">!=</span> <span class="kc">None</span> <span class="p">:</span>
+                        <span class="n">y</span> <span class="o">=</span> <span class="p">(</span><span class="n">Tuples</span><span class="o">.</span><span class="n">generic_to_specific</span><span class="p">(</span><span class="n">this_tuple</span><span class="p">)</span> <span class="ow">in</span> <span class="n">these_tuples</span><span class="p">)</span>
+
+                    <span class="n">X</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">feature_extractor</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_extractors</span><span class="p">:</span>
+                        <span class="n">feature_name</span> <span class="o">=</span> <span class="n">feature_extractor</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+                        <span class="n">new_feats</span> <span class="o">=</span> <span class="n">feature_extractor</span><span class="o">.</span><span class="n">tuple_calculate</span><span class="p">(</span><span class="n">this_tuple</span><span class="p">,</span> <span class="n">log_turn</span><span class="p">,</span> <span class="n">log_input_key</span><span class="o">=</span><span class="n">log_input_key</span><span class="p">)</span>
+                        <span class="c1"># if new_feats!={}:</span>
+                        <span class="c1">#     print(&#39;tuple feat&#39;,new_feats.keys())</span>
+                        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">new_feats</span><span class="p">:</span>
+                            <span class="n">X</span><span class="p">[(</span><span class="n">feature_name</span><span class="p">,</span> <span class="n">key</span><span class="p">)]</span> <span class="o">+=</span> <span class="n">new_feats</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="n">feature_name</span><span class="p">,</span> <span class="n">key</span><span class="p">))</span>
+
+                    <span class="k">if</span> <span class="n">this_tuple</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">X</span> <span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">[</span><span class="n">this_tuple</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="k">if</span> <span class="n">this_tuple</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="n">this_tuple</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="k">if</span> <span class="n">this_tuple</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">baseX_pointers</span> <span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">baseX_pointers</span><span class="p">[</span><span class="n">this_tuple</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="c1"># if this_tuple not in self.fnames :</span>
+                    <span class="c1">#     self.fnames[this_tuple] = []</span>
+
+                    <span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">[</span><span class="n">this_tuple</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">label_turn</span> <span class="o">!=</span> <span class="kc">None</span> <span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="n">this_tuple</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+
+                    <span class="bp">self</span><span class="o">.</span><span class="n">baseX_pointers</span><span class="p">[</span><span class="n">this_tuple</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">baseXs</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span></div>
+
+                    <span class="c1"># self.fnames[this_tuple].append(log_turn[&quot;input&quot;][&quot;audio-file&quot;])</span>
+
+
+<div class="viewcode-block" id="classifier.extractFeatures2"><a class="viewcode-back" href="../../../../../../convlab.modules.nlu.multiwoz.svm.html#convlab.modules.nlu.multiwoz.svm.Classifier.classifier.extractFeatures2">[docs]</a>    <span class="k">def</span> <span class="nf">extractFeatures2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sentinfo</span><span class="p">,</span> <span class="n">log_input_key</span><span class="o">=</span><span class="s2">&quot;batch&quot;</span><span class="p">):</span>
+        <span class="c1"># given a dataset walker,</span>
+        <span class="c1"># adds examples to self.X and self.y</span>
+        <span class="n">total_calls</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([])</span>
+
+
+        <span class="c1"># calculate base features that are independent of the tuple</span>
+        <span class="n">baseX</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">feature_extractor</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_extractors</span><span class="p">:</span>
+            <span class="n">feature_name</span> <span class="o">=</span> <span class="n">feature_extractor</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+            <span class="n">new_feats</span> <span class="o">=</span> <span class="n">feature_extractor</span><span class="o">.</span><span class="n">calculate_sent</span><span class="p">(</span><span class="n">sentinfo</span><span class="p">,</span> <span class="n">log_input_key</span><span class="o">=</span><span class="n">log_input_key</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">new_feats</span><span class="p">:</span>
+                <span class="n">baseX</span><span class="p">[(</span><span class="n">feature_name</span><span class="p">,</span> <span class="n">key</span><span class="p">)]</span> <span class="o">+=</span> <span class="n">new_feats</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="n">feature_name</span><span class="p">,</span> <span class="n">key</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">baseXs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">baseX</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">this_tuple</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">classifiers</span><span class="p">:</span>
+                <span class="n">X</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">feature_extractor</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_extractors</span><span class="p">:</span>
+                    <span class="n">feature_name</span> <span class="o">=</span> <span class="n">feature_extractor</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+                    <span class="n">new_feats</span> <span class="o">=</span> <span class="n">feature_extractor</span><span class="o">.</span><span class="n">tuple_calculate</span><span class="p">(</span><span class="n">this_tuple</span><span class="p">,</span> <span class="n">sentinfo</span><span class="p">,</span> <span class="n">log_input_key</span><span class="o">=</span><span class="n">log_input_key</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">new_feats</span><span class="p">:</span>
+                        <span class="n">X</span><span class="p">[(</span><span class="n">feature_name</span><span class="p">,</span> <span class="n">key</span><span class="p">)]</span> <span class="o">+=</span> <span class="n">new_feats</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="n">feature_name</span><span class="p">,</span> <span class="n">key</span><span class="p">))</span>
+
+                <span class="k">if</span> <span class="n">this_tuple</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">X</span> <span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">[</span><span class="n">this_tuple</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">if</span> <span class="n">this_tuple</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="n">this_tuple</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">if</span> <span class="n">this_tuple</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">baseX_pointers</span> <span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">baseX_pointers</span><span class="p">[</span><span class="n">this_tuple</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="c1"># if this_tuple not in self.fnames :</span>
+                <span class="c1">#     self.fnames[this_tuple] = []</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">[</span><span class="n">this_tuple</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">baseX_pointers</span><span class="p">[</span><span class="n">this_tuple</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">baseXs</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="classifier.createDictionary"><a class="viewcode-back" href="../../../../../../convlab.modules.nlu.multiwoz.svm.html#convlab.modules.nlu.multiwoz.svm.Classifier.classifier.createDictionary">[docs]</a>    <span class="k">def</span> <span class="nf">createDictionary</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dictionary</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dictionary</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span></div>
+        
+        
+<div class="viewcode-block" id="classifier.cacheFeature"><a class="viewcode-back" href="../../../../../../convlab.modules.nlu.multiwoz.svm.html#convlab.modules.nlu.multiwoz.svm.Classifier.classifier.cacheFeature">[docs]</a>    <span class="k">def</span> <span class="nf">cacheFeature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dw</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">config</span> <span class="o">==</span> <span class="kc">None</span> <span class="p">:</span>
+            <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+        <span class="n">log_input_key</span> <span class="o">=</span> <span class="s2">&quot;batch&quot;</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s2">&quot;train&quot;</span><span class="p">,</span><span class="s2">&quot;log_input_key&quot;</span><span class="p">)</span> <span class="p">:</span>
+            <span class="n">log_input_key</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;train&quot;</span><span class="p">,</span><span class="s2">&quot;log_input_key&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;extracting features from turns&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extractFeatures</span><span class="p">(</span><span class="n">dw</span><span class="p">,</span> <span class="n">log_input_key</span><span class="o">=</span><span class="n">log_input_key</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;finished extracting features&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;creating feature dictionary&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">createDictionary</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;finished creating dictionary (of size&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dictionary</span><span class="p">),</span> <span class="s2">&quot;)&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="classifier.train"><a class="viewcode-back" href="../../../../../../convlab.modules.nlu.multiwoz.svm.html#convlab.modules.nlu.multiwoz.svm.Classifier.classifier.train">[docs]</a>    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dw</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="c1"># print &quot;creating feature dictionary&quot;</span>
+        <span class="c1"># self.createDictionary()</span>
+        <span class="c1"># print &quot;finished creating dictionary (of size&quot;,len(self.dictionary),&quot;)&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">classifiers</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">total_num</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tuples</span><span class="o">.</span><span class="n">all_tuples</span><span class="p">)</span>
+        <span class="n">cur_num</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tuples</span><span class="o">.</span><span class="n">all_tuples</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+        <span class="n">pool</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">Pool</span><span class="p">(</span><span class="n">processes</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">this_tuple</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tuples</span><span class="o">.</span><span class="n">all_tuples</span><span class="p">:</span>
+            <span class="n">cur_num</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">cur_num</span><span class="p">,</span> <span class="n">total_num</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;training&quot;</span><span class="p">,</span> <span class="n">this_tuple</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">this_tuple</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">X</span> <span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Warning: no examples of&quot;</span><span class="p">,</span> <span class="n">this_tuple</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">classifiers</span><span class="p">[</span><span class="n">this_tuple</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">continue</span>
+            <span class="n">baseXs</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">baseXs</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">baseX_pointers</span><span class="p">[</span><span class="n">this_tuple</span><span class="p">]]</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="n">this_tuple</span><span class="p">]))</span>
+            <span class="k">if</span> <span class="nb">sum</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_examples</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Warning:  not enough examples (</span><span class="si">%d</span><span class="s2">) of&quot;</span> <span class="o">%</span> <span class="nb">sum</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="n">this_tuple</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">classifiers</span><span class="p">[</span><span class="n">this_tuple</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">y</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Warning:  only one class of&quot;</span><span class="p">,</span> <span class="n">this_tuple</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">classifiers</span><span class="p">[</span><span class="n">this_tuple</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">continue</span>
+            <span class="c1"># print(self.X[this_tuple])</span>
+            <span class="n">X</span> <span class="o">=</span> <span class="n">toSparse</span><span class="p">(</span><span class="n">baseXs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">[</span><span class="n">this_tuple</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">dictionary</span><span class="p">)</span>
+            
+            
+            <span class="c1"># pick the right classifier class</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">classifiers</span><span class="p">[</span><span class="n">this_tuple</span><span class="p">]</span> <span class="o">=</span> <span class="n">names_to_classes</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">](</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+            <span class="c1"># self.classifiers[this_tuple].train(X,y)</span>
+
+            <span class="n">result</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">apply_async</span><span class="p">(</span><span class="n">trainSVMwrapper</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">y</span><span class="p">))</span>
+            <span class="n">res</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">result</span><span class="p">,</span><span class="n">this_tuple</span><span class="p">))</span>
+
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">[</span><span class="n">this_tuple</span><span class="p">]</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="n">this_tuple</span><span class="p">]</span>
+
+        <span class="n">pool</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">pool</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">result</span><span class="p">,</span><span class="n">this_tuple</span> <span class="ow">in</span> <span class="n">res</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">classifiers</span><span class="p">[</span><span class="n">this_tuple</span><span class="p">]</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+            <span class="c1"># print(result.get())</span>
+
+        <span class="n">no_models</span> <span class="o">=</span> <span class="p">[</span><span class="n">this_tuple</span> <span class="k">for</span> <span class="n">this_tuple</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">classifiers</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">classifiers</span><span class="p">[</span><span class="n">this_tuple</span><span class="p">]</span> <span class="o">==</span> <span class="kc">None</span><span class="p">]</span>
+        
+        <span class="k">if</span> <span class="n">no_models</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Not able to learn about: </span><span class="si">%d</span><span class="s2">/</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">no_models</span><span class="p">),</span> <span class="n">total_num</span><span class="p">))</span></div>
+            <span class="c1"># print(len(no_models))</span>
+            <span class="c1"># print &quot;, &quot;.join(map(str, no_models))</span>
+            
+<div class="viewcode-block" id="classifier.decode"><a class="viewcode-back" href="../../../../../../convlab.modules.nlu.multiwoz.svm.html#convlab.modules.nlu.multiwoz.svm.Classifier.classifier.decode">[docs]</a>    <span class="k">def</span> <span class="nf">decode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># run the classifiers on self.X, return results</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">this_tuple</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">classifiers</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">this_tuple</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">X</span> <span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;warning: Did not collect features for &quot;</span><span class="p">,</span> <span class="n">this_tuple</span><span class="p">)</span>
+                <span class="k">continue</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">[</span><span class="n">this_tuple</span><span class="p">])</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">classifiers</span><span class="p">[</span><span class="n">this_tuple</span><span class="p">]</span> <span class="o">==</span> <span class="kc">None</span> <span class="p">:</span>
+                <span class="n">results</span><span class="p">[</span><span class="n">this_tuple</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n</span><span class="p">,))</span>
+                <span class="k">continue</span>
+            <span class="n">baseXs</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">baseXs</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">baseX_pointers</span><span class="p">[</span><span class="n">this_tuple</span><span class="p">]]</span>
+            <span class="n">X</span> <span class="o">=</span> <span class="n">toSparse</span><span class="p">(</span><span class="n">baseXs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">[</span><span class="n">this_tuple</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">dictionary</span><span class="p">)</span>
+            <span class="n">results</span><span class="p">[</span><span class="n">this_tuple</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">classifiers</span><span class="p">[</span><span class="n">this_tuple</span><span class="p">]</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">results</span></div>
+        
+    
+<div class="viewcode-block" id="classifier.decodeToFile"><a class="viewcode-back" href="../../../../../../convlab.modules.nlu.multiwoz.svm.html#convlab.modules.nlu.multiwoz.svm.Classifier.classifier.decodeToFile">[docs]</a>    <span class="k">def</span> <span class="nf">decodeToFile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dw</span><span class="p">,</span> <span class="n">output_fname</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">config</span> <span class="o">==</span> <span class="kc">None</span> <span class="p">:</span>
+            <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+        <span class="n">t0</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;wall-time&quot;</span><span class="p">:</span><span class="mf">0.0</span><span class="p">,</span>  <span class="c1"># add later</span>
+            <span class="s2">&quot;dataset&quot;</span><span class="p">:</span> <span class="n">dw</span><span class="o">.</span><span class="n">datasets</span><span class="p">,</span>
+            <span class="s2">&quot;sessions&quot;</span><span class="p">:</span> <span class="p">[]</span>
+                <span class="p">}</span>
+        <span class="n">log_input_key</span> <span class="o">=</span> <span class="s2">&quot;batch&quot;</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s2">&quot;decode&quot;</span><span class="p">,</span><span class="s2">&quot;log_input_key&quot;</span><span class="p">)</span> <span class="p">:</span>
+            <span class="n">log_input_key</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;decode&quot;</span><span class="p">,</span><span class="s2">&quot;log_input_key&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># self.extractFeatures(dw,log_input_key=log_input_key)</span>
+        <span class="c1"># decode_results = self.decode()</span>
+        <span class="c1"># counter = defaultdict(int)</span>
+        <span class="n">total_calls</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dw</span><span class="o">.</span><span class="n">session_list</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">call_num</span><span class="p">,</span> <span class="n">call</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dw</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;[</span><span class="si">%d</span><span class="s1">/</span><span class="si">%d</span><span class="s1">]&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">call_num</span><span class="p">,</span> <span class="n">total_calls</span><span class="p">))</span>
+            <span class="n">session</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;session-id&quot;</span> <span class="p">:</span> <span class="n">call</span><span class="o">.</span><span class="n">log</span><span class="p">[</span><span class="s2">&quot;session-id&quot;</span><span class="p">],</span> <span class="s2">&quot;turns&quot;</span><span class="p">:[]}</span>
+            <span class="k">for</span> <span class="n">log_turn</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">call</span><span class="p">:</span>
+                <span class="n">slu_hyps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decode_sent</span><span class="p">(</span><span class="n">log_turn</span><span class="p">[</span><span class="s1">&#39;input&#39;</span><span class="p">][</span><span class="s1">&#39;live&#39;</span><span class="p">],</span><span class="n">config</span><span class="p">)</span>
+                <span class="c1"># active_tuples = self.tuples.activeTuples(log_turn)</span>
+                <span class="c1"># tuple_distribution = {}</span>
+                <span class="c1"># for this_tuple in active_tuples:</span>
+                <span class="c1">#     index = counter[this_tuple]</span>
+                <span class="c1">#     p = decode_results[this_tuple][index]</span>
+                <span class="c1">#     tuple_distribution[Tuples.generic_to_specific(this_tuple)] = p</span>
+                <span class="c1">#     # check we are decoding the right utterance</span>
+                <span class="c1">#     # assert self.fnames[this_tuple][index] == log_turn[&quot;input&quot;][&quot;audio-file&quot;]</span>
+                <span class="c1">#     counter[this_tuple] += 1</span>
+                <span class="c1"># slu_hyps = self.tuples.distributionToNbest(tuple_distribution)</span>
+                <span class="n">session</span><span class="p">[</span><span class="s2">&quot;turns&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                    <span class="s2">&quot;utterance&quot;</span><span class="p">:</span> <span class="n">log_turn</span><span class="p">[</span><span class="s1">&#39;input&#39;</span><span class="p">][</span><span class="s1">&#39;live&#39;</span><span class="p">][</span><span class="s1">&#39;asr-hyps&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;asr-hyp&#39;</span><span class="p">],</span>
+                    <span class="s2">&quot;predict&quot;</span><span class="p">:</span><span class="n">slu_hyps</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;slu-hyp&#39;</span><span class="p">]</span>
+                <span class="p">})</span>
+            <span class="n">results</span><span class="p">[</span><span class="s2">&quot;sessions&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">session</span><span class="p">)</span>
+        
+        <span class="n">results</span><span class="p">[</span><span class="s2">&quot;wall-time&quot;</span><span class="p">]</span> <span class="o">=</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">t0</span>
+        <span class="n">output_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_fname</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">output_file</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+        <span class="n">output_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+    
+<div class="viewcode-block" id="classifier.decode_sent"><a class="viewcode-back" href="../../../../../../convlab.modules.nlu.multiwoz.svm.html#convlab.modules.nlu.multiwoz.svm.Classifier.classifier.decode_sent">[docs]</a>    <span class="k">def</span> <span class="nf">decode_sent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sentinfo</span><span class="p">,</span> <span class="n">output_fname</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">config</span> <span class="o">==</span> <span class="kc">None</span> <span class="p">:</span>
+            <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+        <span class="n">t0</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">X</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">baseXs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">baseX_pointers</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fnames</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">log_input_key</span> <span class="o">=</span> <span class="s2">&quot;batch&quot;</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s2">&quot;decode&quot;</span><span class="p">,</span><span class="s2">&quot;log_input_key&quot;</span><span class="p">)</span> <span class="p">:</span>
+            <span class="n">log_input_key</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;decode&quot;</span><span class="p">,</span><span class="s2">&quot;log_input_key&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">extractFeatures2</span><span class="p">(</span><span class="n">sentinfo</span><span class="p">,</span><span class="n">log_input_key</span><span class="o">=</span><span class="n">log_input_key</span><span class="p">)</span>
+        <span class="n">decode_results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+        <span class="n">counter</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+        <span class="n">active_tuples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tuples</span><span class="o">.</span><span class="n">activeTuples_sent</span><span class="p">(</span><span class="n">sentinfo</span><span class="p">)</span>
+        <span class="n">tuple_distribution</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">this_tuple</span> <span class="ow">in</span> <span class="n">active_tuples</span><span class="p">:</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="n">counter</span><span class="p">[</span><span class="n">this_tuple</span><span class="p">]</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">decode_results</span><span class="p">[</span><span class="n">this_tuple</span><span class="p">])</span><span class="o">==</span><span class="mi">1</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">decode_results</span><span class="p">[</span><span class="n">this_tuple</span><span class="p">])</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">&lt;</span> <span class="n">index</span><span class="p">:</span>
+                <span class="n">p</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">p</span> <span class="o">=</span> <span class="n">decode_results</span><span class="p">[</span><span class="n">this_tuple</span><span class="p">][</span><span class="n">index</span><span class="p">]</span>
+            <span class="c1"># p = decode_results[this_tuple][index]</span>
+            <span class="n">tuple_distribution</span><span class="p">[</span><span class="n">Tuples</span><span class="o">.</span><span class="n">generic_to_specific</span><span class="p">(</span><span class="n">this_tuple</span><span class="p">)]</span> <span class="o">=</span> <span class="n">p</span>
+            <span class="c1"># check we are decoding the right utterance</span>
+            <span class="n">counter</span><span class="p">[</span><span class="n">this_tuple</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">slu_hyps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tuples</span><span class="o">.</span><span class="n">distributionToNbest</span><span class="p">(</span><span class="n">tuple_distribution</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">slu_hyps</span></div>
+
+
+
+
+<div class="viewcode-block" id="classifier.save"><a class="viewcode-back" href="../../../../../../convlab.modules.nlu.multiwoz.svm.html#convlab.modules.nlu.multiwoz.svm.Classifier.classifier.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">save_fname</span><span class="p">):</span>
+        <span class="n">classifier_params</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">this_tuple</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">classifiers</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">classifiers</span><span class="p">[</span><span class="n">this_tuple</span><span class="p">]</span> <span class="o">==</span> <span class="kc">None</span> <span class="p">:</span>
+                <span class="n">classifier_params</span><span class="p">[</span><span class="n">this_tuple</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">else</span> <span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;saving: &#39;</span><span class="p">,</span><span class="n">this_tuple</span><span class="p">)</span>
+                <span class="n">classifier_params</span><span class="p">[</span><span class="n">this_tuple</span><span class="p">]</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">classifiers</span><span class="p">[</span><span class="n">this_tuple</span><span class="p">]</span><span class="o">.</span><span class="n">params</span><span class="p">()</span>
+        
+        <span class="n">obj</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;classifier_params&quot;</span><span class="p">:</span><span class="n">classifier_params</span><span class="p">,</span>
+            <span class="s2">&quot;dictionary&quot;</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">dictionary</span>
+        <span class="p">}</span>
+        <span class="n">save_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">save_fname</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span>
+        <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">save_file</span><span class="p">)</span>
+        <span class="n">save_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+        
+    
+<div class="viewcode-block" id="classifier.load"><a class="viewcode-back" href="../../../../../../convlab.modules.nlu.multiwoz.svm.html#convlab.modules.nlu.multiwoz.svm.Classifier.classifier.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">):</span>
+        <span class="n">rootpath</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+        <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">rootpath</span><span class="p">,</span> <span class="n">fname</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;loading saved Classifier&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span><span class="s1">&#39;rb&#39;</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;loaded.&quot;</span><span class="p">)</span>
+        <span class="n">classifier_params</span> <span class="o">=</span> <span class="n">obj</span><span class="p">[</span><span class="s2">&quot;classifier_params&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">classifiers</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">this_tuple</span> <span class="ow">in</span> <span class="n">classifier_params</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">classifier_params</span><span class="p">[</span><span class="n">this_tuple</span><span class="p">]</span> <span class="o">==</span> <span class="kc">None</span> <span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">classifiers</span><span class="p">[</span><span class="n">this_tuple</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">else</span> <span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">classifiers</span><span class="p">[</span><span class="n">this_tuple</span><span class="p">]</span> <span class="o">=</span> <span class="n">names_to_classes</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">](</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">classifiers</span><span class="p">[</span><span class="n">this_tuple</span><span class="p">]</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">classifier_params</span><span class="p">[</span><span class="n">this_tuple</span><span class="p">])</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">dictionary</span> <span class="o">=</span> <span class="n">obj</span><span class="p">[</span><span class="s2">&quot;dictionary&quot;</span><span class="p">]</span></div>
+    
+<div class="viewcode-block" id="classifier.export"><a class="viewcode-back" href="../../../../../../convlab.modules.nlu.multiwoz.svm.html#convlab.modules.nlu.multiwoz.svm.Classifier.classifier.export">[docs]</a>    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">models_fname</span><span class="p">,</span> <span class="n">dictionary_fname</span><span class="p">,</span> <span class="n">config_fname</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;exporting Classifier for Caesar to read&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;models to be saved in&quot;</span><span class="p">,</span> <span class="n">models_fname</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;dictionary to be saved in&quot;</span><span class="p">,</span> <span class="n">dictionary_fname</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;config to be saved in&quot;</span><span class="p">,</span> <span class="n">config_fname</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">!=</span> <span class="s2">&quot;svm&quot;</span> <span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Only know how to export SVMs&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">this_tuple</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">classifiers</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">classifiers</span><span class="p">[</span><span class="n">this_tuple</span><span class="p">]</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">t</span> <span class="o">=</span> <span class="n">this_tuple</span>
+                <span class="k">if</span> <span class="n">Tuples</span><span class="o">.</span><span class="n">is_generic</span><span class="p">(</span><span class="n">this_tuple</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="p">:</span>
+                    <span class="n">t</span> <span class="o">=</span> <span class="n">this_tuple</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="s2">&quot;&lt;generic_value&gt;&quot;</span><span class="p">,)</span>
+                <span class="n">lines</span> <span class="o">+=</span> <span class="p">[</span><span class="s1">&#39;(&#39;</span><span class="o">+</span><span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;)&#39;</span><span class="p">]</span>
+                <span class="n">lines</span> <span class="o">+=</span> <span class="n">sutils</span><span class="o">.</span><span class="n">svm_to_libsvm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classifiers</span><span class="p">[</span><span class="n">this_tuple</span><span class="p">]</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
+                <span class="n">lines</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;.&quot;</span><span class="p">,</span><span class="s2">&quot;&quot;</span><span class="p">]</span>
+        <span class="n">models_savefile</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">models_fname</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+            <span class="n">models_savefile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">line</span><span class="o">+</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">models_savefile</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        
+        <span class="c1"># save dictionary</span>
+        <span class="n">json_dictionary</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">dictionary_items</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dictionary</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="n">dictionary_items</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">assert</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">dictionary_items</span><span class="p">]</span> <span class="o">==</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dictionary</span><span class="p">))</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">dictionary_items</span><span class="p">]</span>
+        
+        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span> <span class="n">keys</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="n">dictionary_fname</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">))</span>
+        
+        
+        <span class="c1"># save config</span>
+        <span class="n">config_savefile</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">config_fname</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
+        <span class="n">config_savefile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;# Automatically generated by CNetTrain scripts</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;FEATURES&quot;</span><span class="p">:</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">),</span>
+            <span class="s2">&quot;MAX_ACTIVE_TUPLES&quot;</span><span class="p">:</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tuples</span><span class="o">.</span><span class="n">max_active</span><span class="p">),</span>
+            <span class="s2">&quot;TAIL_CUTOFF&quot;</span><span class="p">:</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tuples</span><span class="o">.</span><span class="n">tail_cutoff</span><span class="p">),</span>
+            <span class="s2">&quot;MODELS&quot;</span><span class="p">:</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="n">models_fname</span><span class="p">),</span>
+            <span class="s2">&quot;DICTIONARY&quot;</span><span class="p">:</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="n">dictionary_fname</span><span class="p">),</span>
+            
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="s2">&quot;cnet&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">features</span> <span class="p">:</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;cnet&quot;</span><span class="p">)</span>
+            <span class="n">cnf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_extractors</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+            <span class="n">options</span><span class="p">[</span><span class="s2">&quot;MAX_NGRAM_LENGTH&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">cnf</span><span class="o">.</span><span class="n">max_length</span><span class="p">)</span>
+            <span class="n">options</span><span class="p">[</span><span class="s2">&quot;MAX_NGRAMS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">cnf</span><span class="o">.</span><span class="n">max_ngrams</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">options</span><span class="p">:</span>
+            <span class="n">this_line</span> <span class="o">=</span> <span class="s2">&quot;CNET   : </span><span class="si">%s</span><span class="s2">&quot;</span><span class="o">%</span> <span class="n">key</span>
+            <span class="n">this_line</span> <span class="o">=</span> <span class="n">this_line</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="mi">30</span><span class="p">)</span>
+            <span class="n">this_line</span> <span class="o">+=</span> <span class="s2">&quot;= &quot;</span><span class="o">+</span><span class="n">options</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+            <span class="n">config_savefile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="o">+</span><span class="n">this_line</span><span class="o">+</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">config_savefile</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;exported Classifier.&quot;</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="toSparse"><a class="viewcode-back" href="../../../../../../convlab.modules.nlu.multiwoz.svm.html#convlab.modules.nlu.multiwoz.svm.Classifier.toSparse">[docs]</a><span class="k">def</span> <span class="nf">toSparse</span><span class="p">(</span><span class="n">baseX</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">dictionary</span><span class="p">):</span>
+    <span class="c1"># convert baseX &amp; X (a list of dictionaries), to a sparse matrix, using dictionary to map to indices</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">lil_matrix</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">),</span><span class="nb">len</span><span class="p">(</span><span class="n">dictionary</span><span class="p">)))</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">basex</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">baseX</span><span class="p">,</span> <span class="n">X</span><span class="p">))</span> <span class="p">:</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">basex</span> <span class="p">:</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dictionary</span> <span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">out</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">dictionary</span><span class="p">[</span><span class="n">key</span><span class="p">]]</span> <span class="o">=</span> <span class="n">basex</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>  
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">x</span> <span class="p">:</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dictionary</span> <span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">out</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">dictionary</span><span class="p">[</span><span class="n">key</span><span class="p">]]</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+            
+    <span class="n">out</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">tocsr</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">out</span></div>
+
+    
+<span class="c1"># classifiers define :</span>
+<span class="c1">#  train(X,y)</span>
+<span class="c1">#  predict(X)</span>
+<span class="c1">#  params()</span>
+<span class="c1">#  load(params)</span>
+<span class="c1">#  X is a sparse matrix, y is a vector of class labels (ints)</span>
+<span class="kn">from</span> <span class="nn">sklearn</span> <span class="k">import</span> <span class="n">svm</span>
+<div class="viewcode-block" id="SVM"><a class="viewcode-back" href="../../../../../../convlab.modules.nlu.multiwoz.svm.html#convlab.modules.nlu.multiwoz.svm.Classifier.SVM">[docs]</a><span class="k">class</span> <span class="nc">SVM</span><span class="p">():</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">C</span> <span class="o">=</span> <span class="mi">1</span>
+        
+<div class="viewcode-block" id="SVM.pickC"><a class="viewcode-back" href="../../../../../../convlab.modules.nlu.multiwoz.svm.html#convlab.modules.nlu.multiwoz.svm.Classifier.SVM.pickC">[docs]</a>    <span class="k">def</span> <span class="nf">pickC</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="n">Cs</span> <span class="o">=</span>      <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">50</span><span class="p">]</span> <span class="c1"># 1 goes first as it should be preferred</span>
+        <span class="n">scores</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">dev_index</span> <span class="o">=</span> <span class="nb">max</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">n</span><span class="o">*</span><span class="mf">0.8</span><span class="p">),</span> <span class="mi">1</span><span class="o">+</span><span class="n">y</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="mi">1</span><span class="p">)])</span>
+        <span class="n">max_score</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">C</span> <span class="o">=</span> <span class="n">Cs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Warning, not picking C from validation&quot;</span><span class="p">)</span>
+        <span class="k">return</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">C</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">Cs</span><span class="p">)</span> <span class="p">:</span>
+            <span class="n">this_model</span> <span class="o">=</span> <span class="n">svm</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">SVC</span><span class="p">(</span><span class="n">C</span><span class="o">=</span><span class="n">C</span><span class="p">,</span> <span class="n">kernel</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">)</span>
+            <span class="n">this_model</span><span class="o">.</span><span class="n">probability</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">this_model</span><span class="o">.</span><span class="n">class_weight</span> <span class="o">=</span> <span class="s1">&#39;auto&#39;</span>
+            
+            <span class="n">this_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">[:</span><span class="n">dev_index</span><span class="p">,:],</span><span class="n">y</span><span class="p">[:</span><span class="n">dev_index</span><span class="p">])</span>
+            <span class="n">pred</span> <span class="o">=</span> <span class="n">this_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+            <span class="n">train_correct</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="n">dev_correct</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">y_j</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">y</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">dev_index</span> <span class="p">:</span>
+                    <span class="n">train_correct</span> <span class="o">+=</span> <span class="nb">int</span><span class="p">(</span><span class="n">y_j</span> <span class="o">==</span> <span class="n">pred</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+                <span class="k">else</span> <span class="p">:</span>
+                    <span class="n">dev_correct</span> <span class="o">+=</span> <span class="nb">int</span><span class="p">(</span><span class="n">y_j</span> <span class="o">==</span> <span class="n">pred</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+            <span class="n">train_acc</span> <span class="o">=</span> <span class="n">train_correct</span><span class="o">/</span><span class="n">dev_index</span>
+            <span class="n">dev_acc</span> <span class="o">=</span> <span class="n">dev_correct</span><span class="o">/</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="n">dev_index</span><span class="p">)</span>
+            <span class="n">score</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.1</span><span class="o">*</span><span class="n">train_acc</span> <span class="o">+</span> <span class="mf">0.9</span><span class="o">*</span><span class="n">dev_acc</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">for C=</span><span class="si">%.2f</span><span class="s2">;</span><span class="se">\n\t\t</span><span class="s2"> train_acc=</span><span class="si">%.4f</span><span class="s2">, dev_acc=</span><span class="si">%.4f</span><span class="s2">, score=</span><span class="si">%.4f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">C</span><span class="p">,</span> <span class="n">train_acc</span><span class="p">,</span> <span class="n">dev_acc</span><span class="p">,</span> <span class="n">score</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">score</span> <span class="o">&gt;</span> <span class="n">max_score</span> <span class="p">:</span>
+                <span class="n">max_score</span> <span class="o">=</span> <span class="n">score</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">C</span> <span class="o">=</span> <span class="n">C</span>
+            <span class="k">if</span> <span class="n">score</span> <span class="o">==</span> <span class="mf">1.0</span> <span class="p">:</span>
+                <span class="k">break</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Selected C=</span><span class="si">%.2f</span><span class="s2">&quot;</span><span class="o">%</span><span class="bp">self</span><span class="o">.</span><span class="n">C</span><span class="p">)</span></div>
+    
+        
+<div class="viewcode-block" id="SVM.train"><a class="viewcode-back" href="../../../../../../convlab.modules.nlu.multiwoz.svm.html#convlab.modules.nlu.multiwoz.svm.Classifier.SVM.train">[docs]</a>    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="c1"># print(&#39;train&#39;)</span>
+        <span class="c1"># print(X[0])</span>
+        <span class="c1"># print(type(X[0]))</span>
+        <span class="c1"># print(numpy.shape(X))</span>
+        <span class="c1"># print(y[0])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pickC</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="c1">#model = svm.sparse.SVC(kernel=&#39;linear&#39;, C=self.C)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">svm</span><span class="o">.</span><span class="n">SVC</span><span class="p">(</span><span class="n">kernel</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">C</span><span class="p">)</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">probability</span><span class="o">=</span><span class="kc">True</span>
+        <span class="c1"># model.class_weight = &#39;auto&#39;</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">y</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span></div>
+        
+<div class="viewcode-block" id="SVM.predict"><a class="viewcode-back" href="../../../../../../convlab.modules.nlu.multiwoz.svm.html#convlab.modules.nlu.multiwoz.svm.Classifier.SVM.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">y</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span></div>
+    
+<div class="viewcode-block" id="SVM.params"><a class="viewcode-back" href="../../../../../../convlab.modules.nlu.multiwoz.svm.html#convlab.modules.nlu.multiwoz.svm.Classifier.SVM.params">[docs]</a>    <span class="k">def</span> <span class="nf">params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span></div>
+    
+<div class="viewcode-block" id="SVM.load"><a class="viewcode-back" href="../../../../../../convlab.modules.nlu.multiwoz.svm.html#convlab.modules.nlu.multiwoz.svm.Classifier.SVM.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">params</span></div></div>
+        
+<span class="n">names_to_classes</span><span class="p">[</span><span class="s2">&quot;svm&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">SVM</span>
+    
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="k">import</span> <span class="n">SGDClassifier</span>
+<div class="viewcode-block" id="SGD"><a class="viewcode-back" href="../../../../../../convlab.modules.nlu.multiwoz.svm.html#convlab.modules.nlu.multiwoz.svm.Classifier.SGD">[docs]</a><span class="k">class</span> <span class="nc">SGD</span><span class="p">():</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+        <span class="k">pass</span>
+    
+<div class="viewcode-block" id="SGD.train"><a class="viewcode-back" href="../../../../../../convlab.modules.nlu.multiwoz.svm.html#convlab.modules.nlu.multiwoz.svm.Classifier.SGD.train">[docs]</a>    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">SGDClassifier</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span> <span class="n">penalty</span><span class="o">=</span><span class="s2">&quot;l2&quot;</span><span class="p">)</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">probability</span><span class="o">=</span><span class="kc">True</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">y</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span></div>
+        
+<div class="viewcode-block" id="SGD.predict"><a class="viewcode-back" href="../../../../../../convlab.modules.nlu.multiwoz.svm.html#convlab.modules.nlu.multiwoz.svm.Classifier.SGD.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">y</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span></div>
+    
+<div class="viewcode-block" id="SGD.params"><a class="viewcode-back" href="../../../../../../convlab.modules.nlu.multiwoz.svm.html#convlab.modules.nlu.multiwoz.svm.Classifier.SGD.params">[docs]</a>    <span class="k">def</span> <span class="nf">params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span></div>
+    
+<div class="viewcode-block" id="SGD.load"><a class="viewcode-back" href="../../../../../../convlab.modules.nlu.multiwoz.svm.html#convlab.modules.nlu.multiwoz.svm.Classifier.SGD.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">params</span></div></div>
+
+<span class="n">names_to_classes</span><span class="p">[</span><span class="s2">&quot;sgd&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">SGD</span>
+   
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, ConvLab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

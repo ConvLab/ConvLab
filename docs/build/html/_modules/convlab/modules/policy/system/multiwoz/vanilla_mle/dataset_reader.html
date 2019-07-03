@@ -1,0 +1,302 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>convlab.modules.policy.system.multiwoz.vanilla_mle.dataset_reader &mdash; ConvLab 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../../../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../../../../" src="../../../../../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../../../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../../../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../../../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../../../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../../../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../../../../index.html" class="icon icon-home"> ConvLab
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../../../index.html">ConvLab</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../../../../../index.html">Module code</a> &raquo;</li>
+        
+      <li>convlab.modules.policy.system.multiwoz.vanilla_mle.dataset_reader</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for convlab.modules.policy.system.multiwoz.vanilla_mle.dataset_reader</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">zipfile</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Dict</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">allennlp.data.dataset_readers.dataset_reader</span> <span class="k">import</span> <span class="n">DatasetReader</span>
+<span class="kn">from</span> <span class="nn">allennlp.data.fields</span> <span class="k">import</span> <span class="n">ArrayField</span><span class="p">,</span> <span class="n">LabelField</span><span class="p">,</span> <span class="n">Field</span>
+<span class="kn">from</span> <span class="nn">allennlp.data.instance</span> <span class="k">import</span> <span class="n">Instance</span>
+<span class="kn">from</span> <span class="nn">overrides</span> <span class="k">import</span> <span class="n">overrides</span>
+
+<span class="kn">from</span> <span class="nn">convlab.lib.file_util</span> <span class="k">import</span> <span class="n">cached_path</span>
+<span class="kn">from</span> <span class="nn">convlab.modules.dst.multiwoz.rule_dst</span> <span class="k">import</span> <span class="n">RuleDST</span>
+<span class="kn">from</span> <span class="nn">convlab.modules.policy.system.multiwoz.util</span> <span class="k">import</span> <span class="n">ActionVocab</span>
+<span class="kn">from</span> <span class="nn">convlab.modules.state_encoder.multiwoz.multiwoz_state_encoder</span> <span class="k">import</span> <span class="n">MultiWozStateEncoder</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>  <span class="c1"># pylint: disable=invalid-name</span>
+
+
+<div class="viewcode-block" id="MlePolicyDatasetReader"><a class="viewcode-back" href="../../../../../../../convlab.modules.policy.system.multiwoz.vanilla_mle.html#convlab.modules.policy.system.multiwoz.vanilla_mle.dataset_reader.MlePolicyDatasetReader">[docs]</a><span class="nd">@DatasetReader</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s2">&quot;mle_policy&quot;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">MlePolicyDatasetReader</span><span class="p">(</span><span class="n">DatasetReader</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Reads instances from a data file:</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">num_actions</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                 <span class="n">lazy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">lazy</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dst</span> <span class="o">=</span> <span class="n">RuleDST</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">action_vocab</span> <span class="o">=</span> <span class="n">ActionVocab</span><span class="p">(</span><span class="n">num_actions</span><span class="o">=</span><span class="n">num_actions</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">action_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_vocab</span><span class="o">.</span><span class="n">vocab</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state_encoder</span> <span class="o">=</span> <span class="n">MultiWozStateEncoder</span><span class="p">()</span>
+
+    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">_read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">):</span>
+        <span class="c1"># if `file_path` is a URL, redirect to the cache</span>
+        <span class="n">file_path</span> <span class="o">=</span> <span class="n">cached_path</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">file_path</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;zip&quot;</span><span class="p">):</span>
+            <span class="n">archive</span> <span class="o">=</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span>
+            <span class="n">data_file</span> <span class="o">=</span> <span class="n">archive</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">file_path</span><span class="p">)[:</span><span class="o">-</span><span class="mi">4</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">data_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Reading instances from lines in file at: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file_path</span><span class="p">)</span>
+
+        <span class="n">dialogs</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">data_file</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">dial_name</span> <span class="ow">in</span> <span class="n">dialogs</span><span class="p">:</span>
+            <span class="n">dialog</span> <span class="o">=</span> <span class="n">dialogs</span><span class="p">[</span><span class="n">dial_name</span><span class="p">][</span><span class="s2">&quot;log&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">init_session</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">turn</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dialog</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># user turn</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">user_act</span><span class="o">=</span><span class="n">turn</span><span class="p">[</span><span class="s2">&quot;dialog_act&quot;</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>  <span class="c1"># system turn</span>
+                    <span class="n">delex_act</span> <span class="o">=</span> <span class="p">{}</span>
+                    <span class="k">for</span> <span class="n">domain_act</span> <span class="ow">in</span> <span class="n">turn</span><span class="p">[</span><span class="s2">&quot;dialog_act&quot;</span><span class="p">]:</span>
+                        <span class="n">domain</span><span class="p">,</span> <span class="n">act_type</span> <span class="o">=</span> <span class="n">domain_act</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">act_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;NoOffer&#39;</span><span class="p">,</span> <span class="s1">&#39;OfferBook&#39;</span><span class="p">]:</span>
+                            <span class="n">delex_act</span><span class="p">[</span><span class="n">domain_act</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;none&#39;</span><span class="p">]</span>
+                        <span class="k">elif</span> <span class="n">act_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;Select&#39;</span><span class="p">]:</span>
+                            <span class="k">for</span> <span class="n">sv</span> <span class="ow">in</span> <span class="n">turn</span><span class="p">[</span><span class="s2">&quot;dialog_act&quot;</span><span class="p">][</span><span class="n">domain_act</span><span class="p">]:</span>
+                                <span class="k">if</span> <span class="n">sv</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;none&quot;</span><span class="p">:</span>
+                                    <span class="n">delex_act</span><span class="p">[</span><span class="n">domain_act</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">sv</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+                                    <span class="k">break</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">delex_act</span><span class="p">[</span><span class="n">domain_act</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">sv</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">sv</span> <span class="ow">in</span> <span class="n">turn</span><span class="p">[</span><span class="s2">&quot;dialog_act&quot;</span><span class="p">][</span><span class="n">domain_act</span><span class="p">]]</span>
+                    <span class="n">state_vector</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">state_encoder</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">state</span><span class="p">)</span>
+                    <span class="n">action_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_best_delex_act</span><span class="p">(</span><span class="n">delex_act</span><span class="p">)</span>
+
+                    <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">text_to_instance</span><span class="p">(</span><span class="n">state_vector</span><span class="p">,</span> <span class="n">action_index</span><span class="p">)</span>
+
+<div class="viewcode-block" id="MlePolicyDatasetReader.find_best_delex_act"><a class="viewcode-back" href="../../../../../../../convlab.modules.policy.system.multiwoz.vanilla_mle.html#convlab.modules.policy.system.multiwoz.vanilla_mle.dataset_reader.MlePolicyDatasetReader.find_best_delex_act">[docs]</a>    <span class="k">def</span> <span class="nf">find_best_delex_act</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">_score</span><span class="p">(</span><span class="n">a1</span><span class="p">,</span> <span class="n">a2</span><span class="p">):</span>
+            <span class="n">score</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">domain_act</span> <span class="ow">in</span> <span class="n">a1</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">domain_act</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">a2</span><span class="p">:</span>
+                    <span class="n">score</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">a1</span><span class="p">[</span><span class="n">domain_act</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">score</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">a1</span><span class="p">[</span><span class="n">domain_act</span><span class="p">])</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">a2</span><span class="p">[</span><span class="n">domain_act</span><span class="p">]))</span>
+            <span class="k">return</span> <span class="n">score</span>
+
+        <span class="n">best_p_action_index</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">best_p_score</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">inf</span>
+        <span class="n">best_pn_action_index</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">best_pn_score</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">inf</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">v_action</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">action_list</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">v_action</span> <span class="o">==</span> <span class="n">action</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">i</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">p_score</span> <span class="o">=</span> <span class="n">_score</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">v_action</span><span class="p">)</span>
+                <span class="n">n_score</span> <span class="o">=</span> <span class="n">_score</span><span class="p">(</span><span class="n">v_action</span><span class="p">,</span> <span class="n">action</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">p_score</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">n_score</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">p_score</span> <span class="o">&lt;</span> <span class="n">best_p_score</span><span class="p">:</span>
+                    <span class="n">best_p_action_index</span> <span class="o">=</span> <span class="n">i</span>
+                    <span class="n">best_p_score</span> <span class="o">=</span> <span class="n">p_score</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">p_score</span> <span class="o">+</span> <span class="n">n_score</span> <span class="o">&lt;</span> <span class="n">best_pn_score</span><span class="p">:</span>
+                        <span class="n">best_pn_action_index</span> <span class="o">=</span> <span class="n">i</span>
+                        <span class="n">best_pn_score</span> <span class="o">=</span> <span class="n">p_score</span> <span class="o">+</span> <span class="n">n_score</span>
+        <span class="k">if</span> <span class="n">best_p_action_index</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">best_p_action_index</span>
+        <span class="k">return</span> <span class="n">best_pn_action_index</span></div>
+
+<div class="viewcode-block" id="MlePolicyDatasetReader.text_to_instance"><a class="viewcode-back" href="../../../../../../../convlab.modules.policy.system.multiwoz.vanilla_mle.html#convlab.modules.policy.system.multiwoz.vanilla_mle.dataset_reader.MlePolicyDatasetReader.text_to_instance">[docs]</a>    <span class="k">def</span> <span class="nf">text_to_instance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Instance</span><span class="p">:</span>  <span class="c1"># type: ignore</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># pylint: disable=arguments-differ</span>
+        <span class="n">fields</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Field</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">fields</span><span class="p">[</span><span class="s2">&quot;states&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ArrayField</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">action</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fields</span><span class="p">[</span><span class="s2">&quot;actions&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">LabelField</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">skip_indexing</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Instance</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, ConvLab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

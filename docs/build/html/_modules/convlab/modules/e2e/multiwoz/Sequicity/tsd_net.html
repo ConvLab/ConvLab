@@ -1,0 +1,875 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>convlab.modules.e2e.multiwoz.Sequicity.tsd_net &mdash; ConvLab 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../../../" src="../../../../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../../../index.html" class="icon icon-home"> ConvLab
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../../index.html">ConvLab</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../../../../index.html">Module code</a> &raquo;</li>
+        
+      <li>convlab.modules.e2e.multiwoz.Sequicity.tsd_net</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for convlab.modules.e2e.multiwoz.Sequicity.tsd_net</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Modified by Microsoft Corporation.</span>
+<span class="c1"># Licensed under the MIT license.</span>
+
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">random</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.nn.functional</span> <span class="k">as</span> <span class="nn">F</span>
+<span class="kn">from</span> <span class="nn">torch</span> <span class="k">import</span> <span class="n">nn</span>
+<span class="kn">from</span> <span class="nn">torch.autograd</span> <span class="k">import</span> <span class="n">Variable</span>
+<span class="kn">from</span> <span class="nn">torch.distributions</span> <span class="k">import</span> <span class="n">Categorical</span>
+
+<span class="kn">from</span> <span class="nn">convlab.modules.e2e.multiwoz.Sequicity.config</span> <span class="k">import</span> <span class="n">global_config</span> <span class="k">as</span> <span class="n">cfg</span>
+<span class="kn">from</span> <span class="nn">convlab.modules.e2e.multiwoz.Sequicity.reader</span> <span class="k">import</span> <span class="n">pad_sequences</span>
+
+
+<div class="viewcode-block" id="cuda_"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.tsd_net.cuda_">[docs]</a><span class="k">def</span> <span class="nf">cuda_</span><span class="p">(</span><span class="n">var</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">var</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span> <span class="k">if</span> <span class="n">cfg</span><span class="o">.</span><span class="n">cuda</span> <span class="k">else</span> <span class="n">var</span></div>
+
+
+<div class="viewcode-block" id="toss_"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.tsd_net.toss_">[docs]</a><span class="k">def</span> <span class="nf">toss_</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">99</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">p</span></div>
+
+
+<div class="viewcode-block" id="nan"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.tsd_net.nan">[docs]</a><span class="k">def</span> <span class="nf">nan</span><span class="p">(</span><span class="n">v</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">v</span> <span class="o">==</span> <span class="nb">float</span><span class="p">(</span><span class="s1">&#39;nan&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()))</span></div>
+
+<div class="viewcode-block" id="get_sparse_input_aug"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.tsd_net.get_sparse_input_aug">[docs]</a><span class="k">def</span> <span class="nf">get_sparse_input_aug</span><span class="p">(</span><span class="n">x_input_np</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    sparse input of</span>
+<span class="sd">    :param x_input_np: [T,B]</span>
+<span class="sd">    :return: Numpy array: [B,T,aug_V]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ignore_index</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">unk</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">x_input_np</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x_input_np</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">cfg</span><span class="o">.</span><span class="n">vocab_size</span> <span class="o">+</span> <span class="n">x_input_np</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+                      <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="n">result</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="mf">1e-10</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">x_input_np</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+        <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">x_input_np</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="n">w</span> <span class="o">=</span> <span class="n">x_input_np</span><span class="p">[</span><span class="n">t</span><span class="p">][</span><span class="n">b</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">w</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ignore_index</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">w</span> <span class="o">!=</span> <span class="n">unk</span><span class="p">:</span>
+                    <span class="n">result</span><span class="p">[</span><span class="n">t</span><span class="p">][</span><span class="n">b</span><span class="p">][</span><span class="n">x_input_np</span><span class="p">[</span><span class="n">t</span><span class="p">][</span><span class="n">b</span><span class="p">]]</span> <span class="o">=</span> <span class="mf">1.0</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">result</span><span class="p">[</span><span class="n">t</span><span class="p">][</span><span class="n">b</span><span class="p">][</span><span class="n">cfg</span><span class="o">.</span><span class="n">vocab_size</span> <span class="o">+</span> <span class="n">t</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="n">result_np</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">transpose</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">result_np</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">result</span></div>
+
+<div class="viewcode-block" id="init_gru"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.tsd_net.init_gru">[docs]</a><span class="k">def</span> <span class="nf">init_gru</span><span class="p">(</span><span class="n">gru</span><span class="p">):</span>
+    <span class="n">gru</span><span class="o">.</span><span class="n">reset_parameters</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">hh</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">gru</span><span class="o">.</span><span class="n">all_weights</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">hh</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">gru</span><span class="o">.</span><span class="n">hidden_size</span><span class="p">):</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">orthogonal</span><span class="p">(</span><span class="n">hh</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="n">gru</span><span class="o">.</span><span class="n">hidden_size</span><span class="p">],</span><span class="n">gain</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Attn"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.tsd_net.Attn">[docs]</a><span class="k">class</span> <span class="nc">Attn</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hidden_size</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Attn</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hidden_size</span> <span class="o">=</span> <span class="n">hidden_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attn</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hidden_size</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="n">hidden_size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">v</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">hidden_size</span><span class="p">))</span>
+        <span class="n">stdv</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">normal_</span><span class="p">(</span><span class="n">mean</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">std</span><span class="o">=</span><span class="n">stdv</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Attn.forward"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.tsd_net.Attn.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hidden</span><span class="p">,</span> <span class="n">encoder_outputs</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="n">encoder_outputs</span> <span class="o">=</span> <span class="n">encoder_outputs</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># [B,T,H]</span>
+        <span class="n">attn_energies</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">hidden</span><span class="p">,</span> <span class="n">encoder_outputs</span><span class="p">)</span>
+        <span class="n">normalized_energy</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">attn_energies</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># [B,1,T]</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">bmm</span><span class="p">(</span><span class="n">normalized_energy</span><span class="p">,</span> <span class="n">encoder_outputs</span><span class="p">)</span>  <span class="c1"># [B,1,H]</span>
+        <span class="k">return</span> <span class="n">context</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># [1,B,H]</span></div>
+
+<div class="viewcode-block" id="Attn.score"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.tsd_net.Attn.score">[docs]</a>    <span class="k">def</span> <span class="nf">score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hidden</span><span class="p">,</span> <span class="n">encoder_outputs</span><span class="p">):</span>
+        <span class="n">max_len</span> <span class="o">=</span> <span class="n">encoder_outputs</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">H</span> <span class="o">=</span> <span class="n">hidden</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">max_len</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">energy</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">tanh</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attn</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">H</span><span class="p">,</span> <span class="n">encoder_outputs</span><span class="p">],</span> <span class="mi">2</span><span class="p">)))</span>  <span class="c1"># [B,T,2H]-&gt;[B,T,H]</span>
+        <span class="n">energy</span> <span class="o">=</span> <span class="n">energy</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># [B,H,T]</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">encoder_outputs</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># [B,1,H]</span>
+        <span class="n">energy</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">bmm</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">energy</span><span class="p">)</span>  <span class="c1"># [B,1,T]</span>
+        <span class="k">return</span> <span class="n">energy</span></div></div>
+
+<div class="viewcode-block" id="SimpleDynamicEncoder"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.tsd_net.SimpleDynamicEncoder">[docs]</a><span class="k">class</span> <span class="nc">SimpleDynamicEncoder</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_size</span><span class="p">,</span> <span class="n">embed_size</span><span class="p">,</span> <span class="n">hidden_size</span><span class="p">,</span> <span class="n">n_layers</span><span class="p">,</span> <span class="n">dropout</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_size</span> <span class="o">=</span> <span class="n">input_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hidden_size</span> <span class="o">=</span> <span class="n">hidden_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">embed_size</span> <span class="o">=</span> <span class="n">embed_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_layers</span> <span class="o">=</span> <span class="n">n_layers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span> <span class="o">=</span> <span class="n">dropout</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">embedding</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Embedding</span><span class="p">(</span><span class="n">input_size</span><span class="p">,</span> <span class="n">embed_size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gru</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">GRU</span><span class="p">(</span><span class="n">embed_size</span><span class="p">,</span> <span class="n">hidden_size</span><span class="p">,</span> <span class="n">n_layers</span><span class="p">,</span> <span class="n">dropout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">,</span> <span class="n">bidirectional</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">init_gru</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gru</span><span class="p">)</span>
+            
+<div class="viewcode-block" id="SimpleDynamicEncoder.forward"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.tsd_net.SimpleDynamicEncoder.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_seqs</span><span class="p">,</span> <span class="n">input_lens</span><span class="p">,</span> <span class="n">hidden</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        forward procedure. No need for inputs to be sorted</span>
+<span class="sd">        :param input_seqs: Variable of [T,B]</span>
+<span class="sd">        :param hidden:</span>
+<span class="sd">        :param input_lens: *numpy array* of len for each input sequence</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">batch_size</span> <span class="o">=</span> <span class="n">input_seqs</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">embedded</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">embedding</span><span class="p">(</span><span class="n">input_seqs</span><span class="p">)</span>
+        <span class="n">embedded</span> <span class="o">=</span> <span class="n">embedded</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># [B,T,E]</span>
+        <span class="n">sort_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="o">-</span><span class="n">input_lens</span><span class="p">)</span>
+        <span class="n">unsort_idx</span> <span class="o">=</span> <span class="n">cuda_</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">LongTensor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">sort_idx</span><span class="p">)))</span>
+        <span class="n">input_lens</span> <span class="o">=</span> <span class="n">input_lens</span><span class="p">[</span><span class="n">sort_idx</span><span class="p">]</span>
+        <span class="n">sort_idx</span> <span class="o">=</span> <span class="n">cuda_</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">LongTensor</span><span class="p">(</span><span class="n">sort_idx</span><span class="p">))</span>
+        <span class="n">embedded</span> <span class="o">=</span> <span class="n">embedded</span><span class="p">[</span><span class="n">sort_idx</span><span class="p">]</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># [T,B,E]</span>
+        <span class="n">packed</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">rnn</span><span class="o">.</span><span class="n">pack_padded_sequence</span><span class="p">(</span><span class="n">embedded</span><span class="p">,</span> <span class="n">input_lens</span><span class="p">)</span>
+        <span class="n">outputs</span><span class="p">,</span> <span class="n">hidden</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gru</span><span class="p">(</span><span class="n">packed</span><span class="p">,</span> <span class="n">hidden</span><span class="p">)</span>
+
+        <span class="n">outputs</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">rnn</span><span class="o">.</span><span class="n">pad_packed_sequence</span><span class="p">(</span><span class="n">outputs</span><span class="p">)</span>
+        <span class="n">outputs</span> <span class="o">=</span> <span class="n">outputs</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">hidden_size</span><span class="p">]</span> <span class="o">+</span> <span class="n">outputs</span><span class="p">[:,</span> <span class="p">:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden_size</span><span class="p">:]</span>
+        <span class="n">outputs</span> <span class="o">=</span> <span class="n">outputs</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="n">unsort_idx</span><span class="p">]</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">contiguous</span><span class="p">()</span>
+        <span class="n">hidden</span> <span class="o">=</span> <span class="n">hidden</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="n">unsort_idx</span><span class="p">]</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">contiguous</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">hidden</span><span class="p">,</span> <span class="n">embedded</span></div></div>
+
+
+<div class="viewcode-block" id="BSpanDecoder"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.tsd_net.BSpanDecoder">[docs]</a><span class="k">class</span> <span class="nc">BSpanDecoder</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">embed_size</span><span class="p">,</span> <span class="n">hidden_size</span><span class="p">,</span> <span class="n">vocab_size</span><span class="p">,</span> <span class="n">dropout_rate</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gru</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">GRU</span><span class="p">(</span><span class="n">hidden_size</span> <span class="o">+</span> <span class="n">embed_size</span><span class="p">,</span> <span class="n">hidden_size</span><span class="p">,</span> <span class="n">dropout</span><span class="o">=</span><span class="n">dropout_rate</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">proj</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">hidden_size</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="n">vocab_size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">emb</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Embedding</span><span class="p">(</span><span class="n">vocab_size</span><span class="p">,</span> <span class="n">embed_size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attn_u</span> <span class="o">=</span> <span class="n">Attn</span><span class="p">(</span><span class="n">hidden_size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">proj_copy1</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">hidden_size</span><span class="p">,</span> <span class="n">hidden_size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">proj_copy2</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">hidden_size</span><span class="p">,</span> <span class="n">hidden_size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dropout_rate</span> <span class="o">=</span> <span class="n">dropout_rate</span>
+        <span class="n">init_gru</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gru</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inp_dropout</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dropout_rate</span><span class="p">)</span>
+
+<div class="viewcode-block" id="BSpanDecoder.forward"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.tsd_net.BSpanDecoder.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u_enc_out</span><span class="p">,</span> <span class="n">z_tm1</span><span class="p">,</span> <span class="n">last_hidden</span><span class="p">,</span> <span class="n">u_input_np</span><span class="p">,</span> <span class="n">pv_z_enc_out</span><span class="p">,</span> <span class="n">prev_z_input_np</span><span class="p">,</span> <span class="n">u_emb</span><span class="p">,</span> <span class="n">pv_z_emb</span><span class="p">):</span>
+
+        <span class="n">sparse_u_input</span> <span class="o">=</span> <span class="n">Variable</span><span class="p">(</span><span class="n">get_sparse_input_aug</span><span class="p">(</span><span class="n">u_input_np</span><span class="p">),</span> <span class="n">requires_grad</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">pv_z_enc_out</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">context</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">attn_u</span><span class="p">(</span><span class="n">last_hidden</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">pv_z_enc_out</span><span class="p">,</span> <span class="n">u_enc_out</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">context</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">attn_u</span><span class="p">(</span><span class="n">last_hidden</span><span class="p">,</span> <span class="n">u_enc_out</span><span class="p">)</span>
+        <span class="n">embed_z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">emb</span><span class="p">(</span><span class="n">z_tm1</span><span class="p">)</span>
+        <span class="c1">#embed_z = F.dropout(embed_z, self.dropout_rate)</span>
+        <span class="c1">#embed_z = self.inp_dropout(embed_z)</span>
+
+        <span class="n">gru_in</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">embed_z</span><span class="p">,</span> <span class="n">context</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">gru_out</span><span class="p">,</span> <span class="n">last_hidden</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gru</span><span class="p">(</span><span class="n">gru_in</span><span class="p">,</span> <span class="n">last_hidden</span><span class="p">)</span>
+        <span class="c1">#gru_out = F.dropout(gru_out, self.dropout_rate)</span>
+        <span class="c1">#gru_out = self.inp_dropout(gru_out)</span>
+        <span class="n">gen_score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">gru_out</span><span class="p">,</span> <span class="n">context</span><span class="p">],</span> <span class="mi">2</span><span class="p">))</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="c1">#gen_score = F.dropout(gen_score, self.dropout_rate)</span>
+        <span class="c1">#gen_score = self.inp_dropout(gen_score)</span>
+        <span class="n">u_copy_score</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">tanh</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">proj_copy1</span><span class="p">(</span><span class="n">u_enc_out</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)))</span>  <span class="c1"># [B,T,H]</span>
+        <span class="c1"># stable version of copynet</span>
+        <span class="n">u_copy_score</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">u_copy_score</span><span class="p">,</span> <span class="n">gru_out</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">u_copy_score</span> <span class="o">=</span> <span class="n">u_copy_score</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span>
+        <span class="n">u_copy_score_max</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">u_copy_score</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">u_copy_score</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">u_copy_score</span> <span class="o">-</span> <span class="n">u_copy_score_max</span><span class="p">)</span>  <span class="c1"># [B,T]</span>
+        <span class="n">u_copy_score</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">bmm</span><span class="p">(</span><span class="n">u_copy_score</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">sparse_u_input</span><span class="p">))</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span>
+            <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">u_copy_score_max</span>  <span class="c1"># [B,V]</span>
+        <span class="n">u_copy_score</span> <span class="o">=</span> <span class="n">cuda_</span><span class="p">(</span><span class="n">u_copy_score</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">pv_z_enc_out</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1">#u_copy_score = F.dropout(u_copy_score, self.dropout_rate)</span>
+            <span class="c1">#u_copy_score = self.inp_dropout(u_copy_score)</span>
+            <span class="n">scores</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">gen_score</span><span class="p">,</span> <span class="n">u_copy_score</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">gen_score</span><span class="p">,</span> <span class="n">u_copy_score</span> <span class="o">=</span> <span class="n">scores</span><span class="p">[:,</span> <span class="p">:</span><span class="n">cfg</span><span class="o">.</span><span class="n">vocab_size</span><span class="p">],</span> \
+                                      <span class="n">scores</span><span class="p">[:,</span> <span class="n">cfg</span><span class="o">.</span><span class="n">vocab_size</span><span class="p">:]</span>
+            <span class="n">proba</span> <span class="o">=</span> <span class="n">gen_score</span> <span class="o">+</span> <span class="n">u_copy_score</span><span class="p">[:,</span> <span class="p">:</span><span class="n">cfg</span><span class="o">.</span><span class="n">vocab_size</span><span class="p">]</span>  <span class="c1"># [B,V]</span>
+            <span class="n">proba</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">proba</span><span class="p">,</span> <span class="n">u_copy_score</span><span class="p">[:,</span> <span class="n">cfg</span><span class="o">.</span><span class="n">vocab_size</span><span class="p">:]],</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sparse_pv_z_input</span> <span class="o">=</span> <span class="n">Variable</span><span class="p">(</span><span class="n">get_sparse_input_aug</span><span class="p">(</span><span class="n">prev_z_input_np</span><span class="p">),</span> <span class="n">requires_grad</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">pv_z_copy_score</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">tanh</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">proj_copy2</span><span class="p">(</span><span class="n">pv_z_enc_out</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)))</span>  <span class="c1"># [B,T,H]</span>
+            <span class="n">pv_z_copy_score</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">pv_z_copy_score</span><span class="p">,</span> <span class="n">gru_out</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">pv_z_copy_score</span> <span class="o">=</span> <span class="n">pv_z_copy_score</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span>
+            <span class="n">pv_z_copy_score_max</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">pv_z_copy_score</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">pv_z_copy_score</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">pv_z_copy_score</span> <span class="o">-</span> <span class="n">pv_z_copy_score_max</span><span class="p">)</span>  <span class="c1"># [B,T]</span>
+            <span class="n">pv_z_copy_score</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">bmm</span><span class="p">(</span><span class="n">pv_z_copy_score</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">sparse_pv_z_input</span><span class="p">))</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span>
+                <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">pv_z_copy_score_max</span>  <span class="c1"># [B,V]</span>
+            <span class="n">pv_z_copy_score</span> <span class="o">=</span> <span class="n">cuda_</span><span class="p">(</span><span class="n">pv_z_copy_score</span><span class="p">)</span>
+            <span class="n">scores</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">gen_score</span><span class="p">,</span> <span class="n">u_copy_score</span><span class="p">,</span> <span class="n">pv_z_copy_score</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">gen_score</span><span class="p">,</span> <span class="n">u_copy_score</span><span class="p">,</span> <span class="n">pv_z_copy_score</span> <span class="o">=</span> <span class="n">scores</span><span class="p">[:,</span> <span class="p">:</span><span class="n">cfg</span><span class="o">.</span><span class="n">vocab_size</span><span class="p">],</span> \
+                                                       <span class="n">scores</span><span class="p">[:,</span>
+                                                       <span class="n">cfg</span><span class="o">.</span><span class="n">vocab_size</span><span class="p">:</span><span class="mi">2</span> <span class="o">*</span> <span class="n">cfg</span><span class="o">.</span><span class="n">vocab_size</span> <span class="o">+</span> <span class="n">u_input_np</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> \
+                                                       <span class="n">scores</span><span class="p">[:,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">cfg</span><span class="o">.</span><span class="n">vocab_size</span> <span class="o">+</span> <span class="n">u_input_np</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]:]</span>
+            <span class="n">proba</span> <span class="o">=</span> <span class="n">gen_score</span> <span class="o">+</span> <span class="n">u_copy_score</span><span class="p">[:,</span> <span class="p">:</span><span class="n">cfg</span><span class="o">.</span><span class="n">vocab_size</span><span class="p">]</span> <span class="o">+</span> <span class="n">pv_z_copy_score</span><span class="p">[:,</span> <span class="p">:</span><span class="n">cfg</span><span class="o">.</span><span class="n">vocab_size</span><span class="p">]</span>  <span class="c1"># [B,V]</span>
+            <span class="n">proba</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">proba</span><span class="p">,</span> <span class="n">pv_z_copy_score</span><span class="p">[:,</span> <span class="n">cfg</span><span class="o">.</span><span class="n">vocab_size</span><span class="p">:],</span> <span class="n">u_copy_score</span><span class="p">[:,</span> <span class="n">cfg</span><span class="o">.</span><span class="n">vocab_size</span><span class="p">:]],</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">gru_out</span><span class="p">,</span> <span class="n">last_hidden</span><span class="p">,</span> <span class="n">proba</span></div></div>
+
+
+<div class="viewcode-block" id="ResponseDecoder"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.tsd_net.ResponseDecoder">[docs]</a><span class="k">class</span> <span class="nc">ResponseDecoder</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">embed_size</span><span class="p">,</span> <span class="n">hidden_size</span><span class="p">,</span> <span class="n">vocab_size</span><span class="p">,</span> <span class="n">degree_size</span><span class="p">,</span> <span class="n">dropout_rate</span><span class="p">,</span> <span class="n">gru</span><span class="p">,</span> <span class="n">proj</span><span class="p">,</span> <span class="n">emb</span><span class="p">,</span> <span class="n">vocab</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">emb</span> <span class="o">=</span> <span class="n">emb</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attn_z</span> <span class="o">=</span> <span class="n">Attn</span><span class="p">(</span><span class="n">hidden_size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attn_u</span> <span class="o">=</span> <span class="n">Attn</span><span class="p">(</span><span class="n">hidden_size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gru</span> <span class="o">=</span> <span class="n">gru</span>
+        <span class="n">init_gru</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gru</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">proj</span> <span class="o">=</span> <span class="n">proj</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">proj_copy1</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">hidden_size</span><span class="p">,</span> <span class="n">hidden_size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">proj_copy2</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">hidden_size</span><span class="p">,</span> <span class="n">hidden_size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dropout_rate</span> <span class="o">=</span> <span class="n">dropout_rate</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">vocab</span> <span class="o">=</span> <span class="n">vocab</span>
+
+<div class="viewcode-block" id="ResponseDecoder.get_sparse_selective_input"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.tsd_net.ResponseDecoder.get_sparse_selective_input">[docs]</a>    <span class="k">def</span> <span class="nf">get_sparse_selective_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_input_np</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">x_input_np</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x_input_np</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">cfg</span><span class="o">.</span><span class="n">vocab_size</span> <span class="o">+</span> <span class="n">x_input_np</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="mf">1e-10</span><span class="p">)</span>
+        <span class="n">reqs</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;address&#39;</span><span class="p">,</span> <span class="s1">&#39;phone&#39;</span><span class="p">,</span> <span class="s1">&#39;postcode&#39;</span><span class="p">,</span> <span class="s1">&#39;pricerange&#39;</span><span class="p">,</span> <span class="s1">&#39;area&#39;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">x_input_np</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">x_input_np</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+                <span class="n">w</span> <span class="o">=</span> <span class="n">x_input_np</span><span class="p">[</span><span class="n">t</span><span class="p">][</span><span class="n">b</span><span class="p">]</span>
+                <span class="n">word</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vocab</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">reqs</span><span class="p">:</span>
+                    <span class="n">slot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vocab</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">word</span> <span class="o">+</span> <span class="s1">&#39;_SLOT&#39;</span><span class="p">)</span>
+                    <span class="n">result</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">][</span><span class="n">b</span><span class="p">][</span><span class="n">slot</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">w</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">w</span> <span class="o">&gt;=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">vocab_size</span><span class="p">:</span>
+                        <span class="n">result</span><span class="p">[</span><span class="n">t</span><span class="o">+</span><span class="mi">1</span><span class="p">][</span><span class="n">b</span><span class="p">][</span><span class="n">cfg</span><span class="o">.</span><span class="n">vocab_size</span> <span class="o">+</span> <span class="n">t</span><span class="p">]</span> <span class="o">=</span> <span class="mf">5.0</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">result</span><span class="p">[</span><span class="n">t</span><span class="o">+</span><span class="mi">1</span><span class="p">][</span><span class="n">b</span><span class="p">][</span><span class="n">w</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="n">result_np</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">transpose</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">result_np</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+<div class="viewcode-block" id="ResponseDecoder.forward"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.tsd_net.ResponseDecoder.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z_enc_out</span><span class="p">,</span> <span class="n">u_enc_out</span><span class="p">,</span> <span class="n">u_input_np</span><span class="p">,</span> <span class="n">m_t_input</span><span class="p">,</span> <span class="n">degree_input</span><span class="p">,</span> <span class="n">last_hidden</span><span class="p">,</span> <span class="n">z_input_np</span><span class="p">):</span>
+        <span class="n">sparse_z_input</span> <span class="o">=</span> <span class="n">Variable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_sparse_selective_input</span><span class="p">(</span><span class="n">z_input_np</span><span class="p">),</span> <span class="n">requires_grad</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="n">m_embed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">emb</span><span class="p">(</span><span class="n">m_t_input</span><span class="p">)</span>
+        <span class="n">z_context</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">attn_z</span><span class="p">(</span><span class="n">last_hidden</span><span class="p">,</span> <span class="n">z_enc_out</span><span class="p">)</span>
+        <span class="n">u_context</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">attn_u</span><span class="p">(</span><span class="n">last_hidden</span><span class="p">,</span> <span class="n">u_enc_out</span><span class="p">)</span>
+        <span class="n">gru_in</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">m_embed</span><span class="p">,</span> <span class="n">u_context</span><span class="p">,</span> <span class="n">z_context</span><span class="p">,</span> <span class="n">degree_input</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">gru_out</span><span class="p">,</span> <span class="n">last_hidden</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gru</span><span class="p">(</span><span class="n">gru_in</span><span class="p">,</span> <span class="n">last_hidden</span><span class="p">)</span>
+        <span class="n">gen_score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">z_context</span><span class="p">,</span> <span class="n">u_context</span><span class="p">,</span> <span class="n">gru_out</span><span class="p">],</span> <span class="mi">2</span><span class="p">))</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">z_copy_score</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">tanh</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">proj_copy2</span><span class="p">(</span><span class="n">z_enc_out</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)))</span>
+        <span class="n">z_copy_score</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">z_copy_score</span><span class="p">,</span> <span class="n">gru_out</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">z_copy_score</span> <span class="o">=</span> <span class="n">z_copy_score</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span>
+        <span class="n">z_copy_score_max</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">z_copy_score</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">z_copy_score</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">z_copy_score</span> <span class="o">-</span> <span class="n">z_copy_score_max</span><span class="p">)</span>  <span class="c1"># [B,T]</span>
+        <span class="n">z_copy_score</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">bmm</span><span class="p">(</span><span class="n">z_copy_score</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">sparse_z_input</span><span class="p">))</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span>
+            <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">z_copy_score_max</span>  <span class="c1"># [B,V]</span>
+        <span class="n">z_copy_score</span> <span class="o">=</span> <span class="n">cuda_</span><span class="p">(</span><span class="n">z_copy_score</span><span class="p">)</span>
+
+        <span class="n">scores</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">gen_score</span><span class="p">,</span> <span class="n">z_copy_score</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">gen_score</span><span class="p">,</span> <span class="n">z_copy_score</span> <span class="o">=</span> <span class="n">scores</span><span class="p">[:,</span> <span class="p">:</span><span class="n">cfg</span><span class="o">.</span><span class="n">vocab_size</span><span class="p">],</span> \
+                                  <span class="n">scores</span><span class="p">[:,</span> <span class="n">cfg</span><span class="o">.</span><span class="n">vocab_size</span><span class="p">:]</span>
+        <span class="n">proba</span> <span class="o">=</span> <span class="n">gen_score</span> <span class="o">+</span> <span class="n">z_copy_score</span><span class="p">[:,</span> <span class="p">:</span><span class="n">cfg</span><span class="o">.</span><span class="n">vocab_size</span><span class="p">]</span>  <span class="c1"># [B,V]</span>
+        <span class="n">proba</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">proba</span><span class="p">,</span> <span class="n">z_copy_score</span><span class="p">[:,</span> <span class="n">cfg</span><span class="o">.</span><span class="n">vocab_size</span><span class="p">:]],</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">proba</span><span class="p">,</span> <span class="n">last_hidden</span><span class="p">,</span> <span class="n">gru_out</span></div></div>
+
+
+<div class="viewcode-block" id="TSD"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.tsd_net.TSD">[docs]</a><span class="k">class</span> <span class="nc">TSD</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">embed_size</span><span class="p">,</span> <span class="n">hidden_size</span><span class="p">,</span> <span class="n">vocab_size</span><span class="p">,</span> <span class="n">degree_size</span><span class="p">,</span> <span class="n">layer_num</span><span class="p">,</span> <span class="n">dropout_rate</span><span class="p">,</span> <span class="n">z_length</span><span class="p">,</span>
+                 <span class="n">max_ts</span><span class="p">,</span> <span class="n">beam_search</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">teacher_force</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vocab</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;vocab&#39;</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">emb</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Embedding</span><span class="p">(</span><span class="n">vocab_size</span><span class="p">,</span> <span class="n">embed_size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dec_gru</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">GRU</span><span class="p">(</span><span class="n">degree_size</span> <span class="o">+</span> <span class="n">embed_size</span> <span class="o">+</span> <span class="n">hidden_size</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="n">hidden_size</span><span class="p">,</span> <span class="n">dropout</span><span class="o">=</span><span class="n">dropout_rate</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">proj</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">hidden_size</span> <span class="o">*</span> <span class="mi">3</span><span class="p">,</span> <span class="n">vocab_size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">u_encoder</span> <span class="o">=</span> <span class="n">SimpleDynamicEncoder</span><span class="p">(</span><span class="n">vocab_size</span><span class="p">,</span> <span class="n">embed_size</span><span class="p">,</span> <span class="n">hidden_size</span><span class="p">,</span> <span class="n">layer_num</span><span class="p">,</span> <span class="n">dropout_rate</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">z_decoder</span> <span class="o">=</span> <span class="n">BSpanDecoder</span><span class="p">(</span><span class="n">embed_size</span><span class="p">,</span> <span class="n">hidden_size</span><span class="p">,</span> <span class="n">vocab_size</span><span class="p">,</span> <span class="n">dropout_rate</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">m_decoder</span> <span class="o">=</span> <span class="n">ResponseDecoder</span><span class="p">(</span><span class="n">embed_size</span><span class="p">,</span> <span class="n">hidden_size</span><span class="p">,</span> <span class="n">vocab_size</span><span class="p">,</span> <span class="n">degree_size</span><span class="p">,</span> <span class="n">dropout_rate</span><span class="p">,</span>
+                                               <span class="bp">self</span><span class="o">.</span><span class="n">dec_gru</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">emb</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">vocab</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">embed_size</span> <span class="o">=</span> <span class="n">embed_size</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">z_length</span> <span class="o">=</span> <span class="n">z_length</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_ts</span> <span class="o">=</span> <span class="n">max_ts</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">beam_search</span> <span class="o">=</span> <span class="n">beam_search</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">teacher_force</span> <span class="o">=</span> <span class="n">teacher_force</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">pr_loss</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">NLLLoss</span><span class="p">(</span><span class="n">ignore_index</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dec_loss</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">NLLLoss</span><span class="p">(</span><span class="n">ignore_index</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">saved_log_policy</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">beam_search</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">beam_size</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;beam_size&#39;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">eos_token_idx</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;eos_token_idx&#39;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="TSD.forward"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.tsd_net.TSD.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u_input</span><span class="p">,</span> <span class="n">u_input_np</span><span class="p">,</span> <span class="n">m_input</span><span class="p">,</span> <span class="n">m_input_np</span><span class="p">,</span> <span class="n">z_input</span><span class="p">,</span> <span class="n">u_len</span><span class="p">,</span> <span class="n">m_len</span><span class="p">,</span> <span class="n">turn_states</span><span class="p">,</span>
+                <span class="n">degree_input</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;train&#39;</span> <span class="ow">or</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;valid&#39;</span><span class="p">:</span>
+            <span class="n">pz_proba</span><span class="p">,</span> <span class="n">pm_dec_proba</span><span class="p">,</span> <span class="n">turn_states</span> <span class="o">=</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">forward_turn</span><span class="p">(</span><span class="n">u_input</span><span class="p">,</span> <span class="n">u_len</span><span class="p">,</span> <span class="n">m_input</span><span class="o">=</span><span class="n">m_input</span><span class="p">,</span> <span class="n">m_len</span><span class="o">=</span><span class="n">m_len</span><span class="p">,</span> <span class="n">z_input</span><span class="o">=</span><span class="n">z_input</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;train&#39;</span><span class="p">,</span>
+                                  <span class="n">turn_states</span><span class="o">=</span><span class="n">turn_states</span><span class="p">,</span> <span class="n">degree_input</span><span class="o">=</span><span class="n">degree_input</span><span class="p">,</span> <span class="n">u_input_np</span><span class="o">=</span><span class="n">u_input_np</span><span class="p">,</span>
+                                  <span class="n">m_input_np</span><span class="o">=</span><span class="n">m_input_np</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">loss</span><span class="p">,</span> <span class="n">pr_loss</span><span class="p">,</span> <span class="n">m_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">supervised_loss</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">pz_proba</span><span class="p">),</span> <span class="n">torch</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">pm_dec_proba</span><span class="p">),</span>
+                                                         <span class="n">z_input</span><span class="p">,</span> <span class="n">m_input</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">loss</span><span class="p">,</span> <span class="n">pr_loss</span><span class="p">,</span> <span class="n">m_loss</span><span class="p">,</span> <span class="n">turn_states</span>
+
+        <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;test&#39;</span><span class="p">:</span>
+            <span class="n">m_output_index</span><span class="p">,</span> <span class="n">pz_index</span><span class="p">,</span> <span class="n">turn_states</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">forward_turn</span><span class="p">(</span><span class="n">u_input</span><span class="p">,</span> <span class="n">u_len</span><span class="o">=</span><span class="n">u_len</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;test&#39;</span><span class="p">,</span>
+                                                                      <span class="n">turn_states</span><span class="o">=</span><span class="n">turn_states</span><span class="p">,</span>
+                                                                      <span class="n">degree_input</span><span class="o">=</span><span class="n">degree_input</span><span class="p">,</span>
+                                                                      <span class="n">u_input_np</span><span class="o">=</span><span class="n">u_input_np</span><span class="p">,</span> <span class="n">m_input_np</span><span class="o">=</span><span class="n">m_input_np</span><span class="p">,</span>
+                                                                      <span class="o">**</span><span class="n">kwargs</span>
+                                                                      <span class="p">)</span>
+            <span class="k">return</span> <span class="n">m_output_index</span><span class="p">,</span> <span class="n">pz_index</span><span class="p">,</span> <span class="n">turn_states</span>
+        <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;rl&#39;</span><span class="p">:</span>
+            <span class="n">loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">forward_turn</span><span class="p">(</span><span class="n">u_input</span><span class="p">,</span> <span class="n">u_len</span><span class="o">=</span><span class="n">u_len</span><span class="p">,</span> <span class="n">is_train</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;rl&#39;</span><span class="p">,</span>
+                                     <span class="n">turn_states</span><span class="o">=</span><span class="n">turn_states</span><span class="p">,</span>
+                                     <span class="n">degree_input</span><span class="o">=</span><span class="n">degree_input</span><span class="p">,</span>
+                                     <span class="n">u_input_np</span><span class="o">=</span><span class="n">u_input_np</span><span class="p">,</span> <span class="n">m_input_np</span><span class="o">=</span><span class="n">m_input_np</span><span class="p">,</span>
+                                     <span class="o">**</span><span class="n">kwargs</span>
+                                     <span class="p">)</span>
+            <span class="k">return</span> <span class="n">loss</span></div>
+
+<div class="viewcode-block" id="TSD.forward_turn"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.tsd_net.TSD.forward_turn">[docs]</a>    <span class="k">def</span> <span class="nf">forward_turn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u_input</span><span class="p">,</span> <span class="n">u_len</span><span class="p">,</span> <span class="n">turn_states</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">degree_input</span><span class="p">,</span> <span class="n">u_input_np</span><span class="p">,</span> <span class="n">m_input_np</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="n">m_input</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">m_len</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">z_input</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        compute required outputs for a single dialogue turn. Turn state{Dict} will be updated in each call.</span>
+<span class="sd">        :param u_input_np:</span>
+<span class="sd">        :param m_input_np:</span>
+<span class="sd">        :param u_len:</span>
+<span class="sd">        :param turn_states:</span>
+<span class="sd">        :param is_train:</span>
+<span class="sd">        :param u_input: [T,B]</span>
+<span class="sd">        :param m_input: [T,B]</span>
+<span class="sd">        :param z_input: [T,B]</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">prev_z_input</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;prev_z_input&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">prev_z_input_np</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;prev_z_input_np&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">prev_z_len</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;prev_z_len&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">pv_z_emb</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">batch_size</span> <span class="o">=</span> <span class="n">u_input</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">pv_z_enc_out</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">prev_z_input</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">pv_z_enc_out</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">pv_z_emb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">u_encoder</span><span class="p">(</span><span class="n">prev_z_input</span><span class="p">,</span> <span class="n">prev_z_len</span><span class="p">)</span>
+        <span class="n">u_enc_out</span><span class="p">,</span> <span class="n">u_enc_hidden</span><span class="p">,</span> <span class="n">u_emb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">u_encoder</span><span class="p">(</span><span class="n">u_input</span><span class="p">,</span> <span class="n">u_len</span><span class="p">)</span>
+        <span class="n">last_hidden</span> <span class="o">=</span> <span class="n">u_enc_hidden</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">z_tm1</span> <span class="o">=</span> <span class="n">cuda_</span><span class="p">(</span><span class="n">Variable</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">)</span><span class="o">.</span><span class="n">long</span><span class="p">()</span> <span class="o">*</span> <span class="mi">3</span><span class="p">))</span>  <span class="c1"># GO_2 token</span>
+        <span class="n">m_tm1</span> <span class="o">=</span> <span class="n">cuda_</span><span class="p">(</span><span class="n">Variable</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">)</span><span class="o">.</span><span class="n">long</span><span class="p">()))</span>  <span class="c1"># GO token</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;train&#39;</span><span class="p">:</span>
+            <span class="n">pz_dec_outs</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">pz_proba</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">z_length</span> <span class="o">=</span> <span class="n">z_input</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="k">if</span> <span class="n">z_input</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">z_length</span>  <span class="c1"># GO token</span>
+            <span class="n">hiddens</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">batch_size</span>
+            <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">z_length</span><span class="p">):</span>
+                <span class="n">pz_dec_out</span><span class="p">,</span> <span class="n">last_hidden</span><span class="p">,</span> <span class="n">proba</span> <span class="o">=</span> \
+                    <span class="bp">self</span><span class="o">.</span><span class="n">z_decoder</span><span class="p">(</span><span class="n">u_enc_out</span><span class="o">=</span><span class="n">u_enc_out</span><span class="p">,</span> <span class="n">u_input_np</span><span class="o">=</span><span class="n">u_input_np</span><span class="p">,</span>
+                                   <span class="n">z_tm1</span><span class="o">=</span><span class="n">z_tm1</span><span class="p">,</span> <span class="n">last_hidden</span><span class="o">=</span><span class="n">last_hidden</span><span class="p">,</span>
+                                   <span class="n">pv_z_enc_out</span><span class="o">=</span><span class="n">pv_z_enc_out</span><span class="p">,</span> <span class="n">prev_z_input_np</span><span class="o">=</span><span class="n">prev_z_input_np</span><span class="p">,</span>
+                                   <span class="n">u_emb</span><span class="o">=</span><span class="n">u_emb</span><span class="p">,</span> <span class="n">pv_z_emb</span><span class="o">=</span><span class="n">pv_z_emb</span><span class="p">)</span>
+                <span class="n">pz_proba</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">proba</span><span class="p">)</span>
+                <span class="n">pz_dec_outs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pz_dec_out</span><span class="p">)</span>
+                <span class="n">z_np</span> <span class="o">=</span> <span class="n">z_tm1</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">batch_size</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">z_np</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">vocab</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;EOS_Z2&#39;</span><span class="p">):</span>
+                        <span class="n">hiddens</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">last_hidden</span><span class="p">[:,</span><span class="n">i</span><span class="p">,:]</span>
+                <span class="n">z_tm1</span> <span class="o">=</span> <span class="n">z_input</span><span class="p">[</span><span class="n">t</span><span class="p">]</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">batch_size</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">hiddens</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">hiddens</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">last_hidden</span><span class="p">[:,</span><span class="n">i</span><span class="p">,:]</span>
+            <span class="n">last_hidden</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">hiddens</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="n">z_input_np</span> <span class="o">=</span> <span class="n">z_input</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+
+            <span class="n">pz_dec_outs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span><span class="n">pz_dec_outs</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># [Tz,B,H]</span>
+            <span class="n">pz_proba</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">pz_proba</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="c1"># P(m|z,u)</span>
+            <span class="n">pm_dec_proba</span><span class="p">,</span> <span class="n">m_dec_outs</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+            <span class="n">m_length</span> <span class="o">=</span> <span class="n">m_input</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># Tm</span>
+            <span class="c1">#last_hidden = u_enc_hidden[:-1]</span>
+            <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m_length</span><span class="p">):</span>
+                <span class="n">teacher_forcing</span> <span class="o">=</span> <span class="n">toss_</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">teacher_force</span><span class="p">)</span>
+                <span class="n">proba</span><span class="p">,</span> <span class="n">last_hidden</span><span class="p">,</span> <span class="n">dec_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_decoder</span><span class="p">(</span><span class="n">pz_dec_outs</span><span class="p">,</span> <span class="n">u_enc_out</span><span class="p">,</span> <span class="n">u_input_np</span><span class="p">,</span> <span class="n">m_tm1</span><span class="p">,</span>
+                                                             <span class="n">degree_input</span><span class="p">,</span> <span class="n">last_hidden</span><span class="p">,</span> <span class="n">z_input_np</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">teacher_forcing</span><span class="p">:</span>
+                    <span class="n">m_tm1</span> <span class="o">=</span> <span class="n">m_input</span><span class="p">[</span><span class="n">t</span><span class="p">]</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">_</span><span class="p">,</span> <span class="n">m_tm1</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">topk</span><span class="p">(</span><span class="n">proba</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="n">m_tm1</span> <span class="o">=</span> <span class="n">m_tm1</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">pm_dec_proba</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">proba</span><span class="p">)</span>
+                <span class="n">m_dec_outs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dec_out</span><span class="p">)</span>
+
+            <span class="n">pm_dec_proba</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">pm_dec_proba</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># [T,B,V]</span>
+            <span class="k">return</span> <span class="n">pz_proba</span><span class="p">,</span> <span class="n">pm_dec_proba</span><span class="p">,</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pz_dec_outs</span><span class="p">,</span> <span class="n">bspan_index</span><span class="p">,</span><span class="n">last_hidden</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bspan_decoder</span><span class="p">(</span><span class="n">u_enc_out</span><span class="p">,</span> <span class="n">z_tm1</span><span class="p">,</span> <span class="n">last_hidden</span><span class="p">,</span> <span class="n">u_input_np</span><span class="p">,</span>
+                                                          <span class="n">pv_z_enc_out</span><span class="o">=</span><span class="n">pv_z_enc_out</span><span class="p">,</span> <span class="n">prev_z_input_np</span><span class="o">=</span><span class="n">prev_z_input_np</span><span class="p">,</span>
+                                                          <span class="n">u_emb</span><span class="o">=</span><span class="n">u_emb</span><span class="p">,</span> <span class="n">pv_z_emb</span><span class="o">=</span><span class="n">pv_z_emb</span><span class="p">)</span>
+            <span class="n">pz_dec_outs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span><span class="n">pz_dec_outs</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;test&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">degree_input</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">degree</span><span class="p">,</span> <span class="n">degree_input</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;func&#39;</span><span class="p">)(</span><span class="n">bspan_index</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">degree</span> <span class="o">=</span> <span class="kc">None</span>
+                
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">beam_search</span><span class="p">:</span>
+                    <span class="n">m_output_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">greedy_decode</span><span class="p">(</span><span class="n">pz_dec_outs</span><span class="p">,</span> <span class="n">u_enc_out</span><span class="p">,</span> <span class="n">m_tm1</span><span class="p">,</span> <span class="n">u_input_np</span><span class="p">,</span> <span class="n">last_hidden</span><span class="p">,</span>
+                                                        <span class="n">degree_input</span><span class="p">,</span> <span class="n">bspan_index</span><span class="p">)</span>
+
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">m_output_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">beam_search_decode</span><span class="p">(</span><span class="n">pz_dec_outs</span><span class="p">,</span> <span class="n">u_enc_out</span><span class="p">,</span> <span class="n">m_tm1</span><span class="p">,</span> <span class="n">u_input_np</span><span class="p">,</span> <span class="n">last_hidden</span><span class="p">,</span>
+                                                             <span class="n">degree_input</span><span class="p">,</span> <span class="n">bspan_index</span><span class="p">)</span>
+
+                <span class="k">return</span> <span class="n">m_output_index</span><span class="p">,</span> <span class="n">bspan_index</span><span class="p">,</span> <span class="n">degree</span>
+            <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;rl&#39;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampling_decode</span><span class="p">(</span><span class="n">pz_dec_outs</span><span class="p">,</span> <span class="n">u_enc_out</span><span class="p">,</span> <span class="n">m_tm1</span><span class="p">,</span> <span class="n">u_input_np</span><span class="p">,</span> <span class="n">last_hidden</span><span class="p">,</span>
+                                            <span class="n">degree_input</span><span class="p">,</span> <span class="n">bspan_index</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TSD.bspan_decoder"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.tsd_net.TSD.bspan_decoder">[docs]</a>    <span class="k">def</span> <span class="nf">bspan_decoder</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u_enc_out</span><span class="p">,</span> <span class="n">z_tm1</span><span class="p">,</span> <span class="n">last_hidden</span><span class="p">,</span> <span class="n">u_input_np</span><span class="p">,</span> <span class="n">pv_z_enc_out</span><span class="p">,</span> <span class="n">prev_z_input_np</span><span class="p">,</span> <span class="n">u_emb</span><span class="p">,</span> <span class="n">pv_z_emb</span><span class="p">):</span>
+        <span class="n">pz_dec_outs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">pz_proba</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">decoded</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">batch_size</span> <span class="o">=</span> <span class="n">u_enc_out</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">hiddens</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">batch_size</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">z_length</span><span class="p">):</span>
+            <span class="n">pz_dec_out</span><span class="p">,</span> <span class="n">last_hidden</span><span class="p">,</span> <span class="n">proba</span> <span class="o">=</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">z_decoder</span><span class="p">(</span><span class="n">u_enc_out</span><span class="o">=</span><span class="n">u_enc_out</span><span class="p">,</span> <span class="n">u_input_np</span><span class="o">=</span><span class="n">u_input_np</span><span class="p">,</span>
+                               <span class="n">z_tm1</span><span class="o">=</span><span class="n">z_tm1</span><span class="p">,</span> <span class="n">last_hidden</span><span class="o">=</span><span class="n">last_hidden</span><span class="p">,</span> <span class="n">pv_z_enc_out</span><span class="o">=</span><span class="n">pv_z_enc_out</span><span class="p">,</span>
+                               <span class="n">prev_z_input_np</span><span class="o">=</span><span class="n">prev_z_input_np</span><span class="p">,</span> <span class="n">u_emb</span><span class="o">=</span><span class="n">u_emb</span><span class="p">,</span> <span class="n">pv_z_emb</span><span class="o">=</span><span class="n">pv_z_emb</span><span class="p">)</span>
+            <span class="n">pz_proba</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">proba</span><span class="p">)</span>
+            <span class="n">pz_dec_outs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pz_dec_out</span><span class="p">)</span>
+            <span class="n">z_proba</span><span class="p">,</span> <span class="n">z_index</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">topk</span><span class="p">(</span><span class="n">proba</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># [B,1]</span>
+            <span class="n">z_index</span> <span class="o">=</span> <span class="n">z_index</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">decoded</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">z_index</span><span class="o">.</span><span class="n">clone</span><span class="p">())</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">z_index</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">)):</span>
+                <span class="k">if</span> <span class="n">z_index</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">vocab_size</span><span class="p">:</span>
+                    <span class="n">z_index</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>  <span class="c1"># unk</span>
+            <span class="n">z_np</span> <span class="o">=</span> <span class="n">z_tm1</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">batch_size</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">z_np</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">vocab</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;EOS_Z2&#39;</span><span class="p">):</span>
+                    <span class="n">hiddens</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">last_hidden</span><span class="p">[:,</span> <span class="n">i</span><span class="p">,</span> <span class="p">:]</span>
+            <span class="n">z_tm1</span> <span class="o">=</span> <span class="n">cuda_</span><span class="p">(</span><span class="n">Variable</span><span class="p">(</span><span class="n">z_index</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">batch_size</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">hiddens</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">hiddens</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">last_hidden</span><span class="p">[:,</span> <span class="n">i</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">last_hidden</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">hiddens</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">decoded</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">decoded</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">decoded</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">decoded</span><span class="p">)</span>
+        <span class="n">decoded</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">_</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">decoded</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">pz_dec_outs</span><span class="p">,</span> <span class="n">decoded</span><span class="p">,</span> <span class="n">last_hidden</span></div>
+
+<div class="viewcode-block" id="TSD.greedy_decode"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.tsd_net.TSD.greedy_decode">[docs]</a>    <span class="k">def</span> <span class="nf">greedy_decode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pz_dec_outs</span><span class="p">,</span> <span class="n">u_enc_out</span><span class="p">,</span> <span class="n">m_tm1</span><span class="p">,</span> <span class="n">u_input_np</span><span class="p">,</span> <span class="n">last_hidden</span><span class="p">,</span> <span class="n">degree_input</span><span class="p">,</span> <span class="n">bspan_index</span><span class="p">):</span>
+        <span class="n">decoded</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">bspan_index_np</span> <span class="o">=</span> <span class="n">pad_sequences</span><span class="p">(</span><span class="n">bspan_index</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_ts</span><span class="p">):</span>
+            <span class="n">proba</span><span class="p">,</span> <span class="n">last_hidden</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_decoder</span><span class="p">(</span><span class="n">pz_dec_outs</span><span class="p">,</span> <span class="n">u_enc_out</span><span class="p">,</span> <span class="n">u_input_np</span><span class="p">,</span> <span class="n">m_tm1</span><span class="p">,</span>
+                                                   <span class="n">degree_input</span><span class="p">,</span> <span class="n">last_hidden</span><span class="p">,</span> <span class="n">bspan_index_np</span><span class="p">)</span>
+            <span class="n">proba</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">((</span><span class="n">proba</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">2</span><span class="p">],</span> <span class="n">proba</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">:]),</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">mt_proba</span><span class="p">,</span> <span class="n">mt_index</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">topk</span><span class="p">(</span><span class="n">proba</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># [B,1]</span>
+            <span class="n">mt_index</span><span class="o">.</span><span class="n">add_</span><span class="p">(</span><span class="n">mt_index</span><span class="o">.</span><span class="n">ge</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">long</span><span class="p">())</span>
+            <span class="n">mt_index</span> <span class="o">=</span> <span class="n">mt_index</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">decoded</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mt_index</span><span class="o">.</span><span class="n">clone</span><span class="p">())</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">mt_index</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">)):</span>
+                <span class="k">if</span> <span class="n">mt_index</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">vocab_size</span><span class="p">:</span>
+                    <span class="n">mt_index</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>  <span class="c1"># unk</span>
+            <span class="n">m_tm1</span> <span class="o">=</span> <span class="n">cuda_</span><span class="p">(</span><span class="n">Variable</span><span class="p">(</span><span class="n">mt_index</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+        <span class="n">decoded</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">decoded</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">decoded</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">decoded</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">_</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">decoded</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="TSD.beam_search_decode_single"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.tsd_net.TSD.beam_search_decode_single">[docs]</a>    <span class="k">def</span> <span class="nf">beam_search_decode_single</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pz_dec_outs</span><span class="p">,</span> <span class="n">u_enc_out</span><span class="p">,</span> <span class="n">m_tm1</span><span class="p">,</span> <span class="n">u_input_np</span><span class="p">,</span> <span class="n">last_hidden</span><span class="p">,</span> <span class="n">degree_input</span><span class="p">,</span>
+                                  <span class="n">bspan_index</span><span class="p">):</span>
+        <span class="n">eos_token_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vocab</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">eos_m_token</span><span class="p">)</span>
+        <span class="n">batch_size</span> <span class="o">=</span> <span class="n">pz_dec_outs</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">batch_size</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;&quot;Beam search single&quot; requires batch size to be 1&#39;</span><span class="p">)</span>
+
+        <span class="k">class</span> <span class="nc">BeamState</span><span class="p">:</span>
+            <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">score</span><span class="p">,</span> <span class="n">last_hidden</span><span class="p">,</span> <span class="n">decoded</span><span class="p">,</span> <span class="n">length</span><span class="p">):</span>
+                <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">                Beam state in beam decoding</span>
+<span class="sd">                :param score: sum of log-probabilities</span>
+<span class="sd">                :param last_hidden: last hidden</span>
+<span class="sd">                :param decoded: list of *Variable[1*1]* of all decoded words</span>
+<span class="sd">                :param length: current decoded sentence length</span>
+<span class="sd">                &quot;&quot;&quot;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">score</span> <span class="o">=</span> <span class="n">score</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">last_hidden</span> <span class="o">=</span> <span class="n">last_hidden</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">decoded</span> <span class="o">=</span> <span class="n">decoded</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">length</span> <span class="o">=</span> <span class="n">length</span>
+
+            <span class="k">def</span> <span class="nf">update_clone</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">score_incre</span><span class="p">,</span> <span class="n">last_hidden</span><span class="p">,</span> <span class="n">decoded_t</span><span class="p">):</span>
+                <span class="n">decoded</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">decoded</span><span class="p">)</span>
+                <span class="n">decoded</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">decoded_t</span><span class="p">)</span>
+                <span class="n">clone</span> <span class="o">=</span> <span class="n">BeamState</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">score</span> <span class="o">+</span> <span class="n">score_incre</span><span class="p">,</span> <span class="n">last_hidden</span><span class="p">,</span> <span class="n">decoded</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">length</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">clone</span>
+
+        <span class="k">def</span> <span class="nf">beam_result_valid</span><span class="p">(</span><span class="n">decoded_t</span><span class="p">,</span> <span class="n">bspan_index</span><span class="p">):</span>
+            <span class="n">decoded_t</span> <span class="o">=</span> <span class="p">[</span><span class="n">_</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">decoded_t</span><span class="p">]</span>
+            <span class="n">req_slots</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_req_slots</span><span class="p">(</span><span class="n">bspan_index</span><span class="p">)</span>
+            <span class="n">decoded_sentence</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vocab</span><span class="o">.</span><span class="n">sentence_decode</span><span class="p">(</span><span class="n">decoded_t</span><span class="p">,</span> <span class="n">cfg</span><span class="o">.</span><span class="n">eos_m_token</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">req</span> <span class="ow">in</span> <span class="n">req_slots</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">req</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">decoded_sentence</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="k">def</span> <span class="nf">score_bonus</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">decoded</span><span class="p">,</span> <span class="n">bspan_index</span><span class="p">):</span>
+            <span class="n">bonus</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">beam_len_bonus</span>
+            <span class="k">return</span> <span class="n">bonus</span>
+
+        <span class="k">def</span> <span class="nf">soft_score_incre</span><span class="p">(</span><span class="n">score</span><span class="p">,</span> <span class="n">turn</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">score</span>
+
+        <span class="n">finished</span><span class="p">,</span> <span class="n">failed</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+        <span class="n">states</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># sorted by score decreasingly</span>
+        <span class="n">dead_k</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">states</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">BeamState</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">last_hidden</span><span class="p">,</span> <span class="p">[</span><span class="n">m_tm1</span><span class="p">],</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="n">bspan_index_np</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">bspan_index</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_ts</span><span class="p">):</span>
+            <span class="n">new_states</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">k</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">while</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">states</span><span class="p">)</span> <span class="ow">and</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">beam_size</span> <span class="o">-</span> <span class="n">dead_k</span><span class="p">:</span>
+                <span class="n">state</span> <span class="o">=</span> <span class="n">states</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+                <span class="n">last_hidden</span><span class="p">,</span> <span class="n">m_tm1</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">last_hidden</span><span class="p">,</span> <span class="n">state</span><span class="o">.</span><span class="n">decoded</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">proba</span><span class="p">,</span> <span class="n">last_hidden</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_decoder</span><span class="p">(</span><span class="n">pz_dec_outs</span><span class="p">,</span> <span class="n">u_enc_out</span><span class="p">,</span> <span class="n">u_input_np</span><span class="p">,</span> <span class="n">m_tm1</span><span class="p">,</span> <span class="n">degree_input</span><span class="p">,</span>
+                                                       <span class="n">last_hidden</span><span class="p">,</span> <span class="n">bspan_index_np</span><span class="p">)</span>
+
+                <span class="n">proba</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">proba</span><span class="p">)</span>
+                <span class="n">mt_proba</span><span class="p">,</span> <span class="n">mt_index</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">topk</span><span class="p">(</span><span class="n">proba</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">beam_size</span> <span class="o">-</span> <span class="n">dead_k</span><span class="p">)</span>  <span class="c1"># [1,K]</span>
+                <span class="k">for</span> <span class="n">new_k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">beam_size</span> <span class="o">-</span> <span class="n">dead_k</span><span class="p">):</span>
+                    <span class="n">score_incre</span> <span class="o">=</span> <span class="n">soft_score_incre</span><span class="p">(</span><span class="n">mt_proba</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">new_k</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">t</span><span class="p">)</span> <span class="o">+</span> <span class="n">score_bonus</span><span class="p">(</span><span class="n">state</span><span class="p">,</span>
+                                                                                                <span class="n">mt_index</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">new_k</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">bspan_index</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_states</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">beam_size</span> <span class="o">-</span> <span class="n">dead_k</span> <span class="ow">and</span> <span class="n">state</span><span class="o">.</span><span class="n">score</span> <span class="o">+</span> <span class="n">score_incre</span> <span class="o">&lt;</span> <span class="n">new_states</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">score</span><span class="p">:</span>
+                        <span class="k">break</span>
+                    <span class="n">decoded_t</span> <span class="o">=</span> <span class="n">mt_index</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">new_k</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">decoded_t</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">vocab_size</span><span class="p">:</span>
+                        <span class="n">decoded_t</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>  <span class="c1"># unk</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">vocab</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">decoded_t</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="n">cfg</span><span class="o">.</span><span class="n">eos_m_token</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">beam_result_valid</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">decoded</span><span class="p">,</span> <span class="n">bspan_index</span><span class="p">):</span>
+                            <span class="n">finished</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+                            <span class="n">dead_k</span> <span class="o">+=</span> <span class="mi">1</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">failed</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">decoded_t</span> <span class="o">=</span> <span class="n">decoded_t</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+                        <span class="n">new_state</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">update_clone</span><span class="p">(</span><span class="n">score_incre</span><span class="p">,</span> <span class="n">last_hidden</span><span class="p">,</span> <span class="n">decoded_t</span><span class="p">)</span>
+                        <span class="n">new_states</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_state</span><span class="p">)</span>
+
+                <span class="n">k</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">beam_size</span> <span class="o">-</span> <span class="n">dead_k</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="n">new_states</span> <span class="o">=</span> <span class="n">new_states</span><span class="p">[:</span><span class="bp">self</span><span class="o">.</span><span class="n">beam_size</span> <span class="o">-</span> <span class="n">dead_k</span><span class="p">]</span>
+            <span class="n">new_states</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="o">-</span><span class="n">x</span><span class="o">.</span><span class="n">score</span><span class="p">)</span>
+            <span class="n">states</span> <span class="o">=</span> <span class="n">new_states</span>
+
+            <span class="k">if</span> <span class="n">t</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_ts</span> <span class="o">-</span> <span class="mi">1</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">finished</span><span class="p">:</span>
+                <span class="n">finished</span> <span class="o">=</span> <span class="n">failed</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;FAIL&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">finished</span><span class="p">:</span>
+                    <span class="n">finished</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">states</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="n">finished</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="o">-</span><span class="n">x</span><span class="o">.</span><span class="n">score</span><span class="p">)</span>
+        <span class="n">decoded_t</span> <span class="o">=</span> <span class="n">finished</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">decoded</span>
+        <span class="n">decoded_t</span> <span class="o">=</span> <span class="p">[</span><span class="n">_</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">decoded_t</span><span class="p">]</span>
+        <span class="n">decoded_sentence</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vocab</span><span class="o">.</span><span class="n">sentence_decode</span><span class="p">(</span><span class="n">decoded_t</span><span class="p">,</span> <span class="n">cfg</span><span class="o">.</span><span class="n">eos_m_token</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">decoded_sentence</span><span class="p">)</span>
+        <span class="n">generated</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span><span class="n">finished</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">decoded</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">data</span>  <span class="c1"># [B=1, T]</span>
+        <span class="k">return</span> <span class="n">generated</span></div>
+
+<div class="viewcode-block" id="TSD.beam_search_decode"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.tsd_net.TSD.beam_search_decode">[docs]</a>    <span class="k">def</span> <span class="nf">beam_search_decode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pz_dec_outs</span><span class="p">,</span> <span class="n">u_enc_out</span><span class="p">,</span> <span class="n">m_tm1</span><span class="p">,</span> <span class="n">u_input_np</span><span class="p">,</span> <span class="n">last_hidden</span><span class="p">,</span> <span class="n">degree_input</span><span class="p">,</span> <span class="n">bspan_index</span><span class="p">):</span>
+        <span class="nb">vars</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">pz_dec_outs</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">torch</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">u_enc_out</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">torch</span><span class="o">.</span><span class="n">split</span><span class="p">(</span>
+            <span class="n">m_tm1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">torch</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">last_hidden</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">torch</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">degree_input</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">decoded</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">pz_dec_out_s</span><span class="p">,</span> <span class="n">u_enc_out_s</span><span class="p">,</span> <span class="n">m_tm1_s</span><span class="p">,</span> <span class="n">last_hidden_s</span><span class="p">,</span> <span class="n">degree_input_s</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="nb">vars</span><span class="p">)):</span>
+            <span class="n">decoded_s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">beam_search_decode_single</span><span class="p">(</span><span class="n">pz_dec_out_s</span><span class="p">,</span> <span class="n">u_enc_out_s</span><span class="p">,</span> <span class="n">m_tm1_s</span><span class="p">,</span>
+                                                       <span class="n">u_input_np</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span>
+                                                       <span class="n">last_hidden_s</span><span class="p">,</span> <span class="n">degree_input_s</span><span class="p">,</span> <span class="n">bspan_index</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="n">decoded</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">decoded_s</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">_</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">decoded</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="TSD.supervised_loss"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.tsd_net.TSD.supervised_loss">[docs]</a>    <span class="k">def</span> <span class="nf">supervised_loss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pz_proba</span><span class="p">,</span> <span class="n">pm_dec_proba</span><span class="p">,</span> <span class="n">z_input</span><span class="p">,</span> <span class="n">m_input</span><span class="p">):</span>
+        <span class="n">pz_proba</span><span class="p">,</span> <span class="n">pm_dec_proba</span> <span class="o">=</span> <span class="n">pz_proba</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:</span><span class="n">cfg</span><span class="o">.</span><span class="n">vocab_size</span><span class="p">]</span><span class="o">.</span><span class="n">contiguous</span><span class="p">(),</span> <span class="n">pm_dec_proba</span><span class="p">[:,</span> <span class="p">:,</span>
+                                                                               <span class="p">:</span><span class="n">cfg</span><span class="o">.</span><span class="n">vocab_size</span><span class="p">]</span><span class="o">.</span><span class="n">contiguous</span><span class="p">()</span>
+        <span class="n">pr_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pr_loss</span><span class="p">(</span><span class="n">pz_proba</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">pz_proba</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">2</span><span class="p">)),</span> <span class="n">z_input</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+        <span class="n">m_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dec_loss</span><span class="p">(</span><span class="n">pm_dec_proba</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">pm_dec_proba</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">2</span><span class="p">)),</span> <span class="n">m_input</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+
+        <span class="n">loss</span> <span class="o">=</span> <span class="n">pr_loss</span> <span class="o">+</span> <span class="n">m_loss</span>
+        <span class="k">return</span> <span class="n">loss</span><span class="p">,</span> <span class="n">pr_loss</span><span class="p">,</span> <span class="n">m_loss</span></div>
+
+<div class="viewcode-block" id="TSD.self_adjust"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.tsd_net.TSD.self_adjust">[docs]</a>    <span class="k">def</span> <span class="nf">self_adjust</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epoch</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+    <span class="c1"># REINFORCEMENT fine-tuning with MC</span>
+
+<div class="viewcode-block" id="TSD.get_req_slots"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.tsd_net.TSD.get_req_slots">[docs]</a>    <span class="k">def</span> <span class="nf">get_req_slots</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bspan_index</span><span class="p">):</span>
+        <span class="n">reqs</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;address&#39;</span><span class="p">,</span> <span class="s1">&#39;phone&#39;</span><span class="p">,</span> <span class="s1">&#39;postcode&#39;</span><span class="p">,</span> <span class="s1">&#39;pricerange&#39;</span><span class="p">,</span> <span class="s1">&#39;area&#39;</span><span class="p">]</span>
+        <span class="n">reqs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vocab</span><span class="o">.</span><span class="n">sentence_decode</span><span class="p">(</span><span class="n">bspan_index</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">())</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">reqs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">_</span> <span class="o">+</span> <span class="s1">&#39;_SLOT&#39;</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">reqs</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="TSD.reward"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.tsd_net.TSD.reward">[docs]</a>    <span class="k">def</span> <span class="nf">reward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m_tm1</span><span class="p">,</span> <span class="n">decoded</span><span class="p">,</span> <span class="n">bspan_index</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The setting of the reward function is heuristic. It can be better optimized.</span>
+<span class="sd">        :param m_tm1:</span>
+<span class="sd">        :param decoded:</span>
+<span class="sd">        :param bspan_index:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">req_slots</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_req_slots</span><span class="p">(</span><span class="n">bspan_index</span><span class="p">)</span>
+        <span class="n">all_reqs</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;address&#39;</span><span class="p">,</span> <span class="s1">&#39;phone&#39;</span><span class="p">,</span> <span class="s1">&#39;postcode&#39;</span><span class="p">,</span> <span class="s1">&#39;pricerange&#39;</span><span class="p">,</span> <span class="s1">&#39;area&#39;</span><span class="p">]</span>
+        <span class="n">all_reqs</span> <span class="o">=</span> <span class="p">[</span><span class="n">_</span> <span class="o">+</span> <span class="s1">&#39;_SLOT&#39;</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">all_reqs</span><span class="p">]</span>
+
+        <span class="n">m_tm1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vocab</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">m_tm1</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">finished</span> <span class="o">=</span> <span class="n">m_tm1</span> <span class="o">==</span> <span class="s1">&#39;EOS_M&#39;</span>
+        <span class="n">decoded</span> <span class="o">=</span> <span class="p">[</span><span class="n">_</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">decoded</span><span class="p">]</span>
+        <span class="n">decoded_sentence</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vocab</span><span class="o">.</span><span class="n">sentence_decode</span><span class="p">(</span><span class="n">decoded</span><span class="p">,</span> <span class="n">cfg</span><span class="o">.</span><span class="n">eos_m_token</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="n">reward</span> <span class="o">=</span> <span class="mf">0.0</span> <span class="c1"># -0.1</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        if not finished:</span>
+<span class="sd">            if m_tm1 in req_slots:</span>
+<span class="sd">                if decoded_sentence and m_tm1 not in decoded_sentence[:-1]:</span>
+<span class="sd">                    reward = 1.0</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="c1"># some modification for reward function.</span>
+        <span class="k">if</span> <span class="n">m_tm1</span> <span class="ow">in</span> <span class="n">req_slots</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">decoded_sentence</span> <span class="ow">and</span> <span class="n">m_tm1</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">decoded_sentence</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="n">reward</span> <span class="o">+=</span> <span class="mf">1.5</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">reward</span> <span class="o">-=</span> <span class="mf">1.0</span> <span class="c1"># repeat</span>
+        <span class="k">elif</span> <span class="n">m_tm1</span> <span class="ow">in</span> <span class="n">all_reqs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">decoded_sentence</span> <span class="ow">and</span> <span class="n">m_tm1</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">decoded_sentence</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="n">reward</span> <span class="o">+=</span> <span class="mf">0.5</span>
+        <span class="k">return</span> <span class="n">reward</span><span class="p">,</span> <span class="n">finished</span></div>
+
+<div class="viewcode-block" id="TSD.sampling_decode"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.tsd_net.TSD.sampling_decode">[docs]</a>    <span class="k">def</span> <span class="nf">sampling_decode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pz_dec_outs</span><span class="p">,</span> <span class="n">u_enc_out</span><span class="p">,</span> <span class="n">m_tm1</span><span class="p">,</span> <span class="n">u_input_np</span><span class="p">,</span> <span class="n">last_hidden</span><span class="p">,</span> <span class="n">degree_input</span><span class="p">,</span> <span class="n">bspan_index</span><span class="p">):</span>
+        <span class="nb">vars</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">pz_dec_outs</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">torch</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">u_enc_out</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">torch</span><span class="o">.</span><span class="n">split</span><span class="p">(</span>
+            <span class="n">m_tm1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">torch</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">last_hidden</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">torch</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">degree_input</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">batch_loss</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">sample_num</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">pz_dec_out_s</span><span class="p">,</span> <span class="n">u_enc_out_s</span><span class="p">,</span> <span class="n">m_tm1_s</span><span class="p">,</span> <span class="n">last_hidden_s</span><span class="p">,</span> <span class="n">degree_input_s</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="nb">vars</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_req_slots</span><span class="p">(</span><span class="n">bspan_index</span><span class="p">[</span><span class="n">i</span><span class="p">]):</span>
+                <span class="k">continue</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sample_num</span><span class="p">):</span>
+                <span class="n">loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampling_decode_single</span><span class="p">(</span><span class="n">pz_dec_out_s</span><span class="p">,</span> <span class="n">u_enc_out_s</span><span class="p">,</span> <span class="n">m_tm1_s</span><span class="p">,</span> <span class="n">u_input_np</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span>
+                                                   <span class="n">last_hidden_s</span><span class="p">,</span> <span class="n">degree_input_s</span><span class="p">,</span> <span class="n">bspan_index</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                <span class="n">batch_loss</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">batch_loss</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">batch_loss</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">batch_loss</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TSD.sampling_decode_single"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.tsd_net.TSD.sampling_decode_single">[docs]</a>    <span class="k">def</span> <span class="nf">sampling_decode_single</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pz_dec_outs</span><span class="p">,</span> <span class="n">u_enc_out</span><span class="p">,</span> <span class="n">m_tm1</span><span class="p">,</span> <span class="n">u_input_np</span><span class="p">,</span> <span class="n">last_hidden</span><span class="p">,</span> <span class="n">degree_input</span><span class="p">,</span> <span class="n">bspan_index</span><span class="p">):</span>
+        <span class="n">decoded</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">reward_sum</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">log_probs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">rewards</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">bspan_index_np</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">bspan_index</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_ts</span><span class="p">):</span>
+            <span class="c1"># reward</span>
+            <span class="n">reward</span><span class="p">,</span> <span class="n">finished</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reward</span><span class="p">(</span><span class="n">m_tm1</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">decoded</span><span class="p">,</span> <span class="n">bspan_index</span><span class="p">)</span>
+            <span class="n">reward_sum</span> <span class="o">+=</span> <span class="n">reward</span>
+            <span class="n">rewards</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">reward</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">t</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_ts</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">finished</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="n">finished</span><span class="p">:</span>
+                <span class="n">loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">finish_episode</span><span class="p">(</span><span class="n">log_probs</span><span class="p">,</span> <span class="n">rewards</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">loss</span>
+            <span class="c1"># action</span>
+            <span class="n">proba</span><span class="p">,</span> <span class="n">last_hidden</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_decoder</span><span class="p">(</span><span class="n">pz_dec_outs</span><span class="p">,</span> <span class="n">u_enc_out</span><span class="p">,</span> <span class="n">u_input_np</span><span class="p">,</span> <span class="n">m_tm1</span><span class="p">,</span>
+                                                   <span class="n">degree_input</span><span class="p">,</span> <span class="n">last_hidden</span><span class="p">,</span> <span class="n">bspan_index_np</span><span class="p">)</span>
+            <span class="n">proba</span> <span class="o">=</span> <span class="n">proba</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># [B,V]</span>
+            <span class="n">dis</span> <span class="o">=</span> <span class="n">Categorical</span><span class="p">(</span><span class="n">proba</span><span class="p">)</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="n">dis</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span>
+            <span class="n">log_probs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dis</span><span class="o">.</span><span class="n">log_prob</span><span class="p">(</span><span class="n">action</span><span class="p">))</span>
+            <span class="n">mt_index</span> <span class="o">=</span> <span class="n">action</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">decoded</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mt_index</span><span class="o">.</span><span class="n">clone</span><span class="p">())</span>
+
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">mt_index</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">)):</span>
+                <span class="k">if</span> <span class="n">mt_index</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">vocab_size</span><span class="p">:</span>
+                    <span class="n">mt_index</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>  <span class="c1"># unk</span>
+
+            <span class="n">m_tm1</span> <span class="o">=</span> <span class="n">cuda_</span><span class="p">(</span><span class="n">Variable</span><span class="p">(</span><span class="n">mt_index</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="TSD.finish_episode"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.tsd_net.TSD.finish_episode">[docs]</a>    <span class="k">def</span> <span class="nf">finish_episode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">log_probas</span><span class="p">,</span> <span class="n">saved_rewards</span><span class="p">):</span>
+        <span class="n">R</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">policy_loss</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">rewards</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">saved_rewards</span><span class="p">:</span>
+            <span class="n">R</span> <span class="o">=</span> <span class="n">r</span> <span class="o">+</span> <span class="mf">0.8</span> <span class="o">*</span> <span class="n">R</span>
+            <span class="n">rewards</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">R</span><span class="p">)</span>
+
+        <span class="n">rewards</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">(</span><span class="n">rewards</span><span class="p">)</span>
+        <span class="c1"># update: we notice improved performance without reward normalization</span>
+        <span class="c1"># rewards = (rewards - rewards.mean()) / (rewards.std() + np.finfo(np.float32).eps)</span>
+
+        <span class="k">for</span> <span class="n">log_prob</span><span class="p">,</span> <span class="n">reward</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">log_probas</span><span class="p">,</span> <span class="n">rewards</span><span class="p">):</span>
+            <span class="n">policy_loss</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="o">-</span><span class="n">log_prob</span> <span class="o">*</span> <span class="n">reward</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">policy_loss</span><span class="p">)</span>
+        <span class="n">policy_loss</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span><span class="n">policy_loss</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">policy_loss</span> <span class="o">/</span> <span class="n">l</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, ConvLab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

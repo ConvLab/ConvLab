@@ -1,0 +1,547 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>convlab.agent.algorithm.dqn &mdash; ConvLab 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> ConvLab
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">ConvLab</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+          <li><a href="../../agent.html">convlab.agent</a> &raquo;</li>
+        
+      <li>convlab.agent.algorithm.dqn</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for convlab.agent.algorithm.dqn</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Modified by Microsoft Corporation.</span>
+<span class="c1"># Licensed under the MIT license.</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+
+<span class="kn">from</span> <span class="nn">convlab.agent</span> <span class="k">import</span> <span class="n">memory</span>
+<span class="kn">from</span> <span class="nn">convlab.agent</span> <span class="k">import</span> <span class="n">net</span>
+<span class="kn">from</span> <span class="nn">convlab.agent.algorithm.sarsa</span> <span class="k">import</span> <span class="n">SARSA</span>
+<span class="kn">from</span> <span class="nn">convlab.agent.net</span> <span class="k">import</span> <span class="n">net_util</span>
+<span class="kn">from</span> <span class="nn">convlab.lib</span> <span class="k">import</span> <span class="n">logger</span><span class="p">,</span> <span class="n">util</span>
+<span class="kn">from</span> <span class="nn">convlab.lib.decorator</span> <span class="k">import</span> <span class="n">lab_api</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="VanillaDQN"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.dqn.VanillaDQN">[docs]</a><span class="k">class</span> <span class="nc">VanillaDQN</span><span class="p">(</span><span class="n">SARSA</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Implementation of a simple DQN algorithm.</span>
+<span class="sd">    Algorithm:</span>
+<span class="sd">        1. Collect some examples by acting in the environment and store them in a replay memory</span>
+<span class="sd">        2. Every K steps sample N examples from replay memory</span>
+<span class="sd">        3. For each example calculate the target (bootstrapped estimate of the discounted value of the state and action taken), y, using a neural network to approximate the Q function. s&#39; is the next state following the action actually taken.</span>
+<span class="sd">                y_t = r_t + gamma * argmax_a Q(s_t&#39;, a)</span>
+<span class="sd">        4. For each example calculate the current estimate of the discounted value of the state and action taken</span>
+<span class="sd">                x_t = Q(s_t, a_t)</span>
+<span class="sd">        5. Calculate L(x, y) where L is a regression loss (eg. mse)</span>
+<span class="sd">        6. Calculate the gradient of L with respect to all the parameters in the network and update the network parameters using the gradient</span>
+<span class="sd">        7. Repeat steps 3 - 6 M times</span>
+<span class="sd">        8. Repeat steps 2 - 7 Z times</span>
+<span class="sd">        9. Repeat steps 1 - 8</span>
+
+<span class="sd">    For more information on Q-Learning see Sergey Levine&#39;s lectures 6 and 7 from CS294-112 Fall 2017</span>
+<span class="sd">    https://www.youtube.com/playlist?list=PLkFD6_40KJIznC9CDbVTjAF2oyt8_VAe3</span>
+
+<span class="sd">    e.g. algorithm_spec</span>
+<span class="sd">    &quot;algorithm&quot;: {</span>
+<span class="sd">        &quot;name&quot;: &quot;VanillaDQN&quot;,</span>
+<span class="sd">        &quot;action_pdtype&quot;: &quot;Argmax&quot;,</span>
+<span class="sd">        &quot;action_policy&quot;: &quot;epsilon_greedy&quot;,</span>
+<span class="sd">        &quot;explore_var_spec&quot;: {</span>
+<span class="sd">            &quot;name&quot;: &quot;linear_decay&quot;,</span>
+<span class="sd">            &quot;start_val&quot;: 1.0,</span>
+<span class="sd">            &quot;end_val&quot;: 0.1,</span>
+<span class="sd">            &quot;start_step&quot;: 10,</span>
+<span class="sd">            &quot;end_step&quot;: 1000,</span>
+<span class="sd">        },</span>
+<span class="sd">        &quot;gamma&quot;: 0.99,</span>
+<span class="sd">        &quot;training_batch_iter&quot;: 8,</span>
+<span class="sd">        &quot;training_iter&quot;: 4,</span>
+<span class="sd">        &quot;training_frequency&quot;: 10,</span>
+<span class="sd">        &quot;training_start_step&quot;: 10,</span>
+<span class="sd">    }</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="VanillaDQN.init_algorithm_params"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.dqn.VanillaDQN.init_algorithm_params">[docs]</a>    <span class="nd">@lab_api</span>
+    <span class="k">def</span> <span class="nf">init_algorithm_params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># set default</span>
+        <span class="n">util</span><span class="o">.</span><span class="n">set_attr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">action_pdtype</span><span class="o">=</span><span class="s1">&#39;Argmax&#39;</span><span class="p">,</span>
+            <span class="n">action_policy</span><span class="o">=</span><span class="s1">&#39;epsilon_greedy&#39;</span><span class="p">,</span>
+            <span class="n">explore_var_spec</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="p">))</span>
+        <span class="n">util</span><span class="o">.</span><span class="n">set_attr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">algorithm_spec</span><span class="p">,</span> <span class="p">[</span>
+            <span class="s1">&#39;action_pdtype&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;action_policy&#39;</span><span class="p">,</span>
+            <span class="c1"># explore_var is epsilon, tau or etc. depending on the action policy</span>
+            <span class="c1"># these control the trade off between exploration and exploitaton</span>
+            <span class="s1">&#39;explore_var_spec&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;gamma&#39;</span><span class="p">,</span>  <span class="c1"># the discount factor</span>
+            <span class="s1">&#39;training_batch_iter&#39;</span><span class="p">,</span>  <span class="c1"># how many gradient updates per batch</span>
+            <span class="s1">&#39;training_iter&#39;</span><span class="p">,</span>  <span class="c1"># how many batches to train each time</span>
+            <span class="s1">&#39;training_frequency&#39;</span><span class="p">,</span>  <span class="c1"># how often to train (once a few timesteps)</span>
+            <span class="s1">&#39;training_start_step&#39;</span><span class="p">,</span>  <span class="c1"># how long before starting training</span>
+        <span class="p">])</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">init_algorithm_params</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="VanillaDQN.init_nets"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.dqn.VanillaDQN.init_nets">[docs]</a>    <span class="nd">@lab_api</span>
+    <span class="k">def</span> <span class="nf">init_nets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">global_nets</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Initialize the neural network used to learn the Q function from the spec&#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">algorithm_spec</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;VanillaDQN&#39;</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">net_spec</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;update_type&#39;</span><span class="p">,</span> <span class="s1">&#39;update_frequency&#39;</span><span class="p">,</span> <span class="s1">&#39;polyak_coef&#39;</span><span class="p">]),</span> <span class="s1">&#39;Network update not available for VanillaDQN; use DQN.&#39;</span>
+        <span class="n">in_dim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">state_dim</span>
+        <span class="n">out_dim</span> <span class="o">=</span> <span class="n">net_util</span><span class="o">.</span><span class="n">get_out_dim</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="p">)</span>
+        <span class="n">NetClass</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">net</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">net_spec</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">net</span> <span class="o">=</span> <span class="n">NetClass</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">net_spec</span><span class="p">,</span> <span class="n">in_dim</span><span class="p">,</span> <span class="n">out_dim</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">net_names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;net&#39;</span><span class="p">]</span>
+        <span class="c1"># init net optimizer and its lr scheduler</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optim</span> <span class="o">=</span> <span class="n">net_util</span><span class="o">.</span><span class="n">get_optim</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">net</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">net</span><span class="o">.</span><span class="n">optim_spec</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lr_scheduler</span> <span class="o">=</span> <span class="n">net_util</span><span class="o">.</span><span class="n">get_lr_scheduler</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">optim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">net</span><span class="o">.</span><span class="n">lr_scheduler_spec</span><span class="p">)</span>
+        <span class="n">net_util</span><span class="o">.</span><span class="n">set_global_nets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">global_nets</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">post_init_nets</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="VanillaDQN.calc_q_loss"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.dqn.VanillaDQN.calc_q_loss">[docs]</a>    <span class="k">def</span> <span class="nf">calc_q_loss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Compute the Q value loss using predicted and target Q values from the appropriate networks&#39;&#39;&#39;</span>
+        <span class="n">states</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[</span><span class="s1">&#39;states&#39;</span><span class="p">]</span>
+        <span class="n">next_states</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[</span><span class="s1">&#39;next_states&#39;</span><span class="p">]</span>
+        <span class="n">q_preds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">net</span><span class="p">(</span><span class="n">states</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+            <span class="n">next_q_preds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">net</span><span class="p">(</span><span class="n">next_states</span><span class="p">)</span>
+        <span class="n">act_q_preds</span> <span class="o">=</span> <span class="n">q_preds</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">batch</span><span class="p">[</span><span class="s1">&#39;actions&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">long</span><span class="p">()</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="c1"># Bellman equation: compute max_q_targets using reward and max estimated Q values (0 if no next_state)</span>
+        <span class="n">max_next_q_preds</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">next_q_preds</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">max_q_targets</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[</span><span class="s1">&#39;rewards&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">gamma</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">batch</span><span class="p">[</span><span class="s1">&#39;dones&#39;</span><span class="p">])</span> <span class="o">*</span> <span class="n">max_next_q_preds</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;act_q_preds: </span><span class="si">{act_q_preds}</span><span class="se">\n</span><span class="s1">max_q_targets: </span><span class="si">{max_q_targets}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">q_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">net</span><span class="o">.</span><span class="n">loss_fn</span><span class="p">(</span><span class="n">act_q_preds</span><span class="p">,</span> <span class="n">max_q_targets</span><span class="p">)</span>
+
+        <span class="c1"># TODO use the same loss_fn but do not reduce yet</span>
+        <span class="k">if</span> <span class="s1">&#39;Prioritized&#39;</span> <span class="ow">in</span> <span class="n">util</span><span class="o">.</span><span class="n">get_class_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">memory</span><span class="p">):</span>  <span class="c1"># PER</span>
+            <span class="n">errors</span> <span class="o">=</span> <span class="p">(</span><span class="n">max_q_targets</span> <span class="o">-</span> <span class="n">act_q_preds</span><span class="o">.</span><span class="n">detach</span><span class="p">())</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">update_priorities</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">q_loss</span></div>
+
+<div class="viewcode-block" id="VanillaDQN.act"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.dqn.VanillaDQN.act">[docs]</a>    <span class="nd">@lab_api</span>
+    <span class="k">def</span> <span class="nf">act</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Selects and returns a discrete action for body using the action policy&#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">act</span><span class="p">(</span><span class="n">state</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="VanillaDQN.sample"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.dqn.VanillaDQN.sample">[docs]</a>    <span class="nd">@lab_api</span>
+    <span class="k">def</span> <span class="nf">sample</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Samples a batch from memory of size self.memory_spec[&#39;batch_size&#39;]&#39;&#39;&#39;</span>
+        <span class="n">batch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span>
+        <span class="n">batch</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">to_torch_batch</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">net</span><span class="o">.</span><span class="n">device</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">is_episodic</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">batch</span></div>
+
+<div class="viewcode-block" id="VanillaDQN.train"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.dqn.VanillaDQN.train">[docs]</a>    <span class="nd">@lab_api</span>
+    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Completes one training step for the agent if it is time to train.</span>
+<span class="sd">        i.e. the environment timestep is greater than the minimum training timestep and a multiple of the training_frequency.</span>
+<span class="sd">        Each training step consists of sampling n batches from the agent&#39;s memory.</span>
+<span class="sd">        For each of the batches, the target Q values (q_targets) are computed and a single training step is taken k times</span>
+<span class="sd">        Otherwise this function does nothing.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">util</span><span class="o">.</span><span class="n">in_eval_lab_modes</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="n">clock</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">clock</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_train</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">total_loss</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">training_iter</span><span class="p">):</span>
+                <span class="n">batch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span>
+                <span class="n">clock</span><span class="o">.</span><span class="n">set_batch_size</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">batch</span><span class="p">))</span>
+                <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">training_batch_iter</span><span class="p">):</span>
+                    <span class="n">loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_q_loss</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">net</span><span class="o">.</span><span class="n">train_step</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">optim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lr_scheduler</span><span class="p">,</span> <span class="n">clock</span><span class="o">=</span><span class="n">clock</span><span class="p">,</span> <span class="n">global_net</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">global_net</span><span class="p">)</span>
+                    <span class="n">total_loss</span> <span class="o">+=</span> <span class="n">loss</span>
+            <span class="n">loss</span> <span class="o">=</span> <span class="n">total_loss</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">training_iter</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">training_batch_iter</span><span class="p">)</span>
+            <span class="c1"># reset</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">to_train</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;Trained </span><span class="si">{self.name}</span><span class="s1"> at epi: </span><span class="si">{clock.epi}</span><span class="s1">, frame: </span><span class="si">{clock.frame}</span><span class="s1">, t: </span><span class="si">{clock.t}</span><span class="s1">, total_reward so far: </span><span class="si">{self.body.total_reward}</span><span class="s1">, loss: </span><span class="si">{loss:g}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">loss</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span></div>
+
+<div class="viewcode-block" id="VanillaDQN.update"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.dqn.VanillaDQN.update">[docs]</a>    <span class="nd">@lab_api</span>
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Update the agent after training&#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">update</span><span class="p">()</span></div></div>
+
+
+<div class="viewcode-block" id="DQNBase"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.dqn.DQNBase">[docs]</a><span class="k">class</span> <span class="nc">DQNBase</span><span class="p">(</span><span class="n">VanillaDQN</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Implementation of the base DQN algorithm.</span>
+<span class="sd">    The algorithm follows the same general approach as VanillaDQN but is more general since it allows</span>
+<span class="sd">    for two different networks (through self.net and self.target_net).</span>
+
+<span class="sd">    self.net is used to act, and is the network trained.</span>
+<span class="sd">    self.target_net is used to estimate the maximum value of the Q-function in the next state when calculating the target (see VanillaDQN comments).</span>
+<span class="sd">    self.target_net is updated periodically to either match self.net (self.net.update_type = &quot;replace&quot;) or to be a weighted average of self.net and the previous self.target_net (self.net.update_type = &quot;polyak&quot;)</span>
+<span class="sd">    If desired, self.target_net can be updated slowly, and this can help to stabilize learning.</span>
+
+<span class="sd">    It also allows for different nets to be used to select the action in the next state and to evaluate the value of that action through self.online_net and self.eval_net. This can help reduce the tendency of DQN&#39;s to overestimate the value of the Q-function. Following this approach leads to the DoubleDQN algorithm.</span>
+
+<span class="sd">    Setting all nets to self.net reduces to the VanillaDQN case.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="DQNBase.init_nets"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.dqn.DQNBase.init_nets">[docs]</a>    <span class="nd">@lab_api</span>
+    <span class="k">def</span> <span class="nf">init_nets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">global_nets</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Initialize networks&#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">algorithm_spec</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;DQNBase&#39;</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">net_spec</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;update_type&#39;</span><span class="p">,</span> <span class="s1">&#39;update_frequency&#39;</span><span class="p">,</span> <span class="s1">&#39;polyak_coef&#39;</span><span class="p">]),</span> <span class="s1">&#39;Network update not available for DQNBase; use DQN.&#39;</span>
+        <span class="n">in_dim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">state_dim</span>
+        <span class="n">out_dim</span> <span class="o">=</span> <span class="n">net_util</span><span class="o">.</span><span class="n">get_out_dim</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="p">)</span>
+        <span class="n">NetClass</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">net</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">net_spec</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">net</span> <span class="o">=</span> <span class="n">NetClass</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">net_spec</span><span class="p">,</span> <span class="n">in_dim</span><span class="p">,</span> <span class="n">out_dim</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target_net</span> <span class="o">=</span> <span class="n">NetClass</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">net_spec</span><span class="p">,</span> <span class="n">in_dim</span><span class="p">,</span> <span class="n">out_dim</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">net_names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;net&#39;</span><span class="p">,</span> <span class="s1">&#39;target_net&#39;</span><span class="p">]</span>
+        <span class="c1"># init net optimizer and its lr scheduler</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optim</span> <span class="o">=</span> <span class="n">net_util</span><span class="o">.</span><span class="n">get_optim</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">net</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">net</span><span class="o">.</span><span class="n">optim_spec</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lr_scheduler</span> <span class="o">=</span> <span class="n">net_util</span><span class="o">.</span><span class="n">get_lr_scheduler</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">optim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">net</span><span class="o">.</span><span class="n">lr_scheduler_spec</span><span class="p">)</span>
+        <span class="n">net_util</span><span class="o">.</span><span class="n">set_global_nets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">global_nets</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">post_init_nets</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">online_net</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_net</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eval_net</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_net</span></div>
+
+<div class="viewcode-block" id="DQNBase.calc_q_loss"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.dqn.DQNBase.calc_q_loss">[docs]</a>    <span class="k">def</span> <span class="nf">calc_q_loss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Compute the Q value loss using predicted and target Q values from the appropriate networks&#39;&#39;&#39;</span>
+        <span class="n">states</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[</span><span class="s1">&#39;states&#39;</span><span class="p">]</span>
+        <span class="n">next_states</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[</span><span class="s1">&#39;next_states&#39;</span><span class="p">]</span>
+        <span class="n">q_preds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">net</span><span class="p">(</span><span class="n">states</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+            <span class="c1"># Use online_net to select actions in next state</span>
+            <span class="n">online_next_q_preds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">online_net</span><span class="p">(</span><span class="n">next_states</span><span class="p">)</span>
+            <span class="c1"># Use eval_net to calculate next_q_preds for actions chosen by online_net</span>
+            <span class="n">next_q_preds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eval_net</span><span class="p">(</span><span class="n">next_states</span><span class="p">)</span>
+        <span class="n">act_q_preds</span> <span class="o">=</span> <span class="n">q_preds</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">batch</span><span class="p">[</span><span class="s1">&#39;actions&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">long</span><span class="p">()</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">online_actions</span> <span class="o">=</span> <span class="n">online_next_q_preds</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">max_next_q_preds</span> <span class="o">=</span> <span class="n">next_q_preds</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">online_actions</span><span class="p">)</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">max_q_targets</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[</span><span class="s1">&#39;rewards&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">gamma</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">batch</span><span class="p">[</span><span class="s1">&#39;dones&#39;</span><span class="p">])</span> <span class="o">*</span> <span class="n">max_next_q_preds</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;act_q_preds: </span><span class="si">{act_q_preds}</span><span class="se">\n</span><span class="s1">max_q_targets: </span><span class="si">{max_q_targets}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">q_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">net</span><span class="o">.</span><span class="n">loss_fn</span><span class="p">(</span><span class="n">act_q_preds</span><span class="p">,</span> <span class="n">max_q_targets</span><span class="p">)</span>
+
+        <span class="c1"># TODO use the same loss_fn but do not reduce yet</span>
+        <span class="k">if</span> <span class="s1">&#39;Prioritized&#39;</span> <span class="ow">in</span> <span class="n">util</span><span class="o">.</span><span class="n">get_class_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">memory</span><span class="p">):</span>  <span class="c1"># PER</span>
+            <span class="n">errors</span> <span class="o">=</span> <span class="p">(</span><span class="n">max_q_targets</span> <span class="o">-</span> <span class="n">act_q_preds</span><span class="o">.</span><span class="n">detach</span><span class="p">())</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">update_priorities</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">q_loss</span></div>
+
+<div class="viewcode-block" id="DQNBase.update_nets"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.dqn.DQNBase.update_nets">[docs]</a>    <span class="k">def</span> <span class="nf">update_nets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">util</span><span class="o">.</span><span class="n">frame_mod</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">clock</span><span class="o">.</span><span class="n">frame</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">net</span><span class="o">.</span><span class="n">update_frequency</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">num_envs</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">net</span><span class="o">.</span><span class="n">update_type</span> <span class="o">==</span> <span class="s1">&#39;replace&#39;</span><span class="p">:</span>
+                <span class="n">net_util</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">net</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_net</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">net</span><span class="o">.</span><span class="n">update_type</span> <span class="o">==</span> <span class="s1">&#39;polyak&#39;</span><span class="p">:</span>
+                <span class="n">net_util</span><span class="o">.</span><span class="n">polyak_update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">net</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_net</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">net</span><span class="o">.</span><span class="n">polyak_coef</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Unknown net.update_type. Should be &quot;replace&quot; or &quot;polyak&quot;. Exiting.&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DQNBase.update"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.dqn.DQNBase.update">[docs]</a>    <span class="nd">@lab_api</span>
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Updates self.target_net and the explore variables&#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_nets</span><span class="p">()</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">update</span><span class="p">()</span></div></div>
+
+
+<div class="viewcode-block" id="DQN"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.dqn.DQN">[docs]</a><span class="k">class</span> <span class="nc">DQN</span><span class="p">(</span><span class="n">DQNBase</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    DQN class</span>
+
+<span class="sd">    e.g. algorithm_spec</span>
+<span class="sd">    &quot;algorithm&quot;: {</span>
+<span class="sd">        &quot;name&quot;: &quot;DQN&quot;,</span>
+<span class="sd">        &quot;action_pdtype&quot;: &quot;Argmax&quot;,</span>
+<span class="sd">        &quot;action_policy&quot;: &quot;epsilon_greedy&quot;,</span>
+<span class="sd">        &quot;explore_var_spec&quot;: {</span>
+<span class="sd">            &quot;name&quot;: &quot;linear_decay&quot;,</span>
+<span class="sd">            &quot;start_val&quot;: 1.0,</span>
+<span class="sd">            &quot;end_val&quot;: 0.1,</span>
+<span class="sd">            &quot;start_step&quot;: 10,</span>
+<span class="sd">            &quot;end_step&quot;: 1000,</span>
+<span class="sd">        },</span>
+<span class="sd">        &quot;gamma&quot;: 0.99,</span>
+<span class="sd">        &quot;training_batch_iter&quot;: 8,</span>
+<span class="sd">        &quot;training_iter&quot;: 4,</span>
+<span class="sd">        &quot;training_frequency&quot;: 10,</span>
+<span class="sd">        &quot;training_start_step&quot;: 10</span>
+<span class="sd">    }</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+<div class="viewcode-block" id="DQN.init_nets"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.dqn.DQN.init_nets">[docs]</a>    <span class="nd">@lab_api</span>
+    <span class="k">def</span> <span class="nf">init_nets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">global_nets</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">init_nets</span><span class="p">(</span><span class="n">global_nets</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="WarmUpDQN"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.dqn.WarmUpDQN">[docs]</a><span class="k">class</span> <span class="nc">WarmUpDQN</span><span class="p">(</span><span class="n">DQN</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    DQN class</span>
+
+<span class="sd">    e.g. algorithm_spec</span>
+<span class="sd">    &quot;algorithm&quot;: {</span>
+<span class="sd">        &quot;name&quot;: &quot;WarmUpDQN&quot;,</span>
+<span class="sd">        &quot;action_pdtype&quot;: &quot;Argmax&quot;,</span>
+<span class="sd">        &quot;action_policy&quot;: &quot;epsilon_greedy&quot;,</span>
+<span class="sd">        &quot;warmup_epi&quot;: 300,</span>
+<span class="sd">        &quot;explore_var_spec&quot;: {</span>
+<span class="sd">            &quot;name&quot;: &quot;linear_decay&quot;,</span>
+<span class="sd">            &quot;start_val&quot;: 1.0,</span>
+<span class="sd">            &quot;end_val&quot;: 0.1,</span>
+<span class="sd">            &quot;start_step&quot;: 10,</span>
+<span class="sd">            &quot;end_step&quot;: 1000,</span>
+<span class="sd">        },</span>
+<span class="sd">        &quot;gamma&quot;: 0.99,</span>
+<span class="sd">        &quot;training_batch_iter&quot;: 8,</span>
+<span class="sd">        &quot;training_iter&quot;: 4,</span>
+<span class="sd">        &quot;training_frequency&quot;: 10,</span>
+<span class="sd">        &quot;training_start_step&quot;: 10</span>
+<span class="sd">    }</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">agent</span><span class="p">,</span> <span class="n">global_nets</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">agent</span><span class="p">,</span> <span class="n">global_nets</span><span class="p">)</span>
+        <span class="n">util</span><span class="o">.</span><span class="n">set_attr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">algorithm_spec</span><span class="p">,</span> <span class="p">[</span>
+            <span class="s1">&#39;warmup_epi&#39;</span><span class="p">,</span>
+        <span class="p">])</span>
+        <span class="c1"># create the extra replay memory for warm-up </span>
+        <span class="n">MemoryClass</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">memory</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">memory_spec</span><span class="p">[</span><span class="s1">&#39;warmup_name&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">warmup_memory</span> <span class="o">=</span> <span class="n">MemoryClass</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">memory_spec</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="p">)</span>
+
+<div class="viewcode-block" id="WarmUpDQN.init_nets"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.dqn.WarmUpDQN.init_nets">[docs]</a>    <span class="nd">@lab_api</span>
+    <span class="k">def</span> <span class="nf">init_nets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">global_nets</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">init_nets</span><span class="p">(</span><span class="n">global_nets</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="WarmUpDQN.warmup_sample"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.dqn.WarmUpDQN.warmup_sample">[docs]</a>    <span class="k">def</span> <span class="nf">warmup_sample</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Samples a batch from warm-up memory&#39;&#39;&#39;</span>
+        <span class="n">batch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">warmup_memory</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span>
+        <span class="n">batch</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">to_torch_batch</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">net</span><span class="o">.</span><span class="n">device</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">warmup_memory</span><span class="o">.</span><span class="n">is_episodic</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">batch</span></div>
+
+<div class="viewcode-block" id="WarmUpDQN.train"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.dqn.WarmUpDQN.train">[docs]</a>    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">util</span><span class="o">.</span><span class="n">in_eval_lab_modes</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="n">clock</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">clock</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_train</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">total_loss</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">training_iter</span><span class="p">):</span>
+                <span class="n">batches</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">warmup_memory</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">warmup_memory</span><span class="o">.</span><span class="n">batch_size</span><span class="p">:</span>
+                    <span class="n">batches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">warmup_sample</span><span class="p">())</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">batch_size</span><span class="p">:</span>
+                    <span class="n">batches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sample</span><span class="p">())</span>
+                <span class="n">clock</span><span class="o">.</span><span class="n">set_batch_size</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span> <span class="k">for</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">batches</span><span class="p">))</span>
+                <span class="k">for</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">batches</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">training_batch_iter</span><span class="p">):</span>
+                        <span class="n">loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_q_loss</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">net</span><span class="o">.</span><span class="n">train_step</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">optim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lr_scheduler</span><span class="p">,</span> <span class="n">clock</span><span class="o">=</span><span class="n">clock</span><span class="p">,</span> <span class="n">global_net</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">global_net</span><span class="p">)</span>
+                        <span class="n">total_loss</span> <span class="o">+=</span> <span class="n">loss</span>
+            <span class="n">loss</span> <span class="o">=</span> <span class="n">total_loss</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">training_iter</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">training_batch_iter</span><span class="p">)</span>
+            <span class="c1"># reset</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">to_train</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;Trained </span><span class="si">{self.name}</span><span class="s1"> at epi: </span><span class="si">{clock.epi}</span><span class="s1">, warmup_size: </span><span class="si">{self.body.warmup_memory.size}</span><span class="s1">, memory_size: </span><span class="si">{self.body.memory.size}</span><span class="s1">, loss: </span><span class="si">{loss:g}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">loss</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span></div></div>
+
+
+<div class="viewcode-block" id="DoubleDQN"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.dqn.DoubleDQN">[docs]</a><span class="k">class</span> <span class="nc">DoubleDQN</span><span class="p">(</span><span class="n">DQN</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Double-DQN (DDQN) class</span>
+
+<span class="sd">    e.g. algorithm_spec</span>
+<span class="sd">    &quot;algorithm&quot;: {</span>
+<span class="sd">        &quot;name&quot;: &quot;DDQN&quot;,</span>
+<span class="sd">        &quot;action_pdtype&quot;: &quot;Argmax&quot;,</span>
+<span class="sd">        &quot;action_policy&quot;: &quot;epsilon_greedy&quot;,</span>
+<span class="sd">        &quot;explore_var_spec&quot;: {</span>
+<span class="sd">            &quot;name&quot;: &quot;linear_decay&quot;,</span>
+<span class="sd">            &quot;start_val&quot;: 1.0,</span>
+<span class="sd">            &quot;end_val&quot;: 0.1,</span>
+<span class="sd">            &quot;start_step&quot;: 10,</span>
+<span class="sd">            &quot;end_step&quot;: 1000,</span>
+<span class="sd">        },</span>
+<span class="sd">        &quot;gamma&quot;: 0.99,</span>
+<span class="sd">        &quot;training_batch_iter&quot;: 8,</span>
+<span class="sd">        &quot;training_iter&quot;: 4,</span>
+<span class="sd">        &quot;training_frequency&quot;: 10,</span>
+<span class="sd">        &quot;training_start_step&quot;: 10</span>
+<span class="sd">    }</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+<div class="viewcode-block" id="DoubleDQN.init_nets"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.dqn.DoubleDQN.init_nets">[docs]</a>    <span class="nd">@lab_api</span>
+    <span class="k">def</span> <span class="nf">init_nets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">global_nets</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">init_nets</span><span class="p">(</span><span class="n">global_nets</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">online_net</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">net</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eval_net</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_net</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, ConvLab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

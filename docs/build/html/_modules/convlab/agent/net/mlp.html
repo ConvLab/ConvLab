@@ -1,0 +1,546 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>convlab.agent.net.mlp &mdash; ConvLab 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> ConvLab
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">ConvLab</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+          <li><a href="../../agent.html">convlab.agent</a> &raquo;</li>
+        
+      <li>convlab.agent.net.mlp</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for convlab.agent.net.mlp</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Modified by Microsoft Corporation.</span>
+<span class="c1"># Licensed under the MIT license.</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pydash</span> <span class="k">as</span> <span class="nn">ps</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
+
+<span class="kn">from</span> <span class="nn">convlab.agent.net</span> <span class="k">import</span> <span class="n">net_util</span>
+<span class="kn">from</span> <span class="nn">convlab.agent.net.base</span> <span class="k">import</span> <span class="n">Net</span>
+<span class="kn">from</span> <span class="nn">convlab.lib</span> <span class="k">import</span> <span class="n">math_util</span><span class="p">,</span> <span class="n">util</span>
+
+
+<div class="viewcode-block" id="MLPNet"><a class="viewcode-back" href="../../../../convlab.agent.net.html#convlab.agent.net.mlp.MLPNet">[docs]</a><span class="k">class</span> <span class="nc">MLPNet</span><span class="p">(</span><span class="n">Net</span><span class="p">,</span> <span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Class for generating arbitrary sized feedforward neural network</span>
+<span class="sd">    If more than 1 output tensors, will create a self.model_tails instead of making last layer part of self.model</span>
+
+<span class="sd">    e.g. net_spec</span>
+<span class="sd">    &quot;net&quot;: {</span>
+<span class="sd">        &quot;type&quot;: &quot;MLPNet&quot;,</span>
+<span class="sd">        &quot;shared&quot;: true,</span>
+<span class="sd">        &quot;hid_layers&quot;: [32],</span>
+<span class="sd">        &quot;hid_layers_activation&quot;: &quot;relu&quot;,</span>
+<span class="sd">        &quot;out_layer_activation&quot;: null,</span>
+<span class="sd">        &quot;init_fn&quot;: &quot;xavier_uniform_&quot;,</span>
+<span class="sd">        &quot;clip_grad_val&quot;: 1.0,</span>
+<span class="sd">        &quot;loss_spec&quot;: {</span>
+<span class="sd">          &quot;name&quot;: &quot;MSELoss&quot;</span>
+<span class="sd">        },</span>
+<span class="sd">        &quot;optim_spec&quot;: {</span>
+<span class="sd">          &quot;name&quot;: &quot;Adam&quot;,</span>
+<span class="sd">          &quot;lr&quot;: 0.02</span>
+<span class="sd">        },</span>
+<span class="sd">        &quot;lr_scheduler_spec&quot;: {</span>
+<span class="sd">            &quot;name&quot;: &quot;StepLR&quot;,</span>
+<span class="sd">            &quot;step_size&quot;: 30,</span>
+<span class="sd">            &quot;gamma&quot;: 0.1</span>
+<span class="sd">        },</span>
+<span class="sd">        &quot;update_type&quot;: &quot;replace&quot;,</span>
+<span class="sd">        &quot;update_frequency&quot;: 1,</span>
+<span class="sd">        &quot;polyak_coef&quot;: 0.9,</span>
+<span class="sd">        &quot;gpu&quot;: true</span>
+<span class="sd">    }</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">net_spec</span><span class="p">,</span> <span class="n">in_dim</span><span class="p">,</span> <span class="n">out_dim</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        net_spec:</span>
+<span class="sd">        hid_layers: list containing dimensions of the hidden layers</span>
+<span class="sd">        hid_layers_activation: activation function for the hidden layers</span>
+<span class="sd">        out_layer_activation: activation function for the output layer, same shape as out_dim</span>
+<span class="sd">        init_fn: weight initialization function</span>
+<span class="sd">        clip_grad_val: clip gradient norm if value is not None</span>
+<span class="sd">        loss_spec: measure of error between model predictions and correct outputs</span>
+<span class="sd">        optim_spec: parameters for initializing the optimizer</span>
+<span class="sd">        lr_scheduler_spec: Pytorch optim.lr_scheduler</span>
+<span class="sd">        update_type: method to update network weights: &#39;replace&#39; or &#39;polyak&#39;</span>
+<span class="sd">        update_frequency: how many total timesteps per update</span>
+<span class="sd">        polyak_coef: ratio of polyak weight update</span>
+<span class="sd">        gpu: whether to train using a GPU. Note this will only work if a GPU is available, othewise setting gpu=True does nothing</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">net_spec</span><span class="p">,</span> <span class="n">in_dim</span><span class="p">,</span> <span class="n">out_dim</span><span class="p">)</span>
+        <span class="c1"># set default</span>
+        <span class="n">util</span><span class="o">.</span><span class="n">set_attr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">out_layer_activation</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">init_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">clip_grad_val</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">loss_spec</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;MSELoss&#39;</span><span class="p">},</span>
+            <span class="n">optim_spec</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;Adam&#39;</span><span class="p">},</span>
+            <span class="n">lr_scheduler_spec</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">update_type</span><span class="o">=</span><span class="s1">&#39;replace&#39;</span><span class="p">,</span>
+            <span class="n">update_frequency</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">polyak_coef</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+            <span class="n">gpu</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">))</span>
+        <span class="n">util</span><span class="o">.</span><span class="n">set_attr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">net_spec</span><span class="p">,</span> <span class="p">[</span>
+            <span class="s1">&#39;shared&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;hid_layers&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;hid_layers_activation&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;out_layer_activation&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;init_fn&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;clip_grad_val&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;loss_spec&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;optim_spec&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;lr_scheduler_spec&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;update_type&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;update_frequency&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;polyak_coef&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;gpu&#39;</span><span class="p">,</span>
+        <span class="p">])</span>
+
+        <span class="n">dims</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">in_dim</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">hid_layers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">net_util</span><span class="o">.</span><span class="n">build_fc_model</span><span class="p">(</span><span class="n">dims</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hid_layers_activation</span><span class="p">)</span>
+        <span class="c1"># add last layer with no activation</span>
+        <span class="c1"># tails. avoid list for single-tail for compute speed</span>
+        <span class="k">if</span> <span class="n">ps</span><span class="o">.</span><span class="n">is_integer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">out_dim</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model_tail</span> <span class="o">=</span> <span class="n">net_util</span><span class="o">.</span><span class="n">build_fc_model</span><span class="p">([</span><span class="n">dims</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">out_dim</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">out_layer_activation</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">ps</span><span class="o">.</span><span class="n">is_list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">out_layer_activation</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">out_layer_activation</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">out_layer_activation</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">out_dim</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">out_layer_activation</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">out_dim</span><span class="p">)</span>
+            <span class="n">tails</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">out_d</span><span class="p">,</span> <span class="n">out_activ</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">out_dim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">out_layer_activation</span><span class="p">):</span>
+                <span class="n">tail</span> <span class="o">=</span> <span class="n">net_util</span><span class="o">.</span><span class="n">build_fc_model</span><span class="p">([</span><span class="n">dims</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">out_d</span><span class="p">],</span> <span class="n">out_activ</span><span class="p">)</span>
+                <span class="n">tails</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tail</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model_tails</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">ModuleList</span><span class="p">(</span><span class="n">tails</span><span class="p">)</span>
+
+        <span class="n">net_util</span><span class="o">.</span><span class="n">init_layers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_fn</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loss_fn</span> <span class="o">=</span> <span class="n">net_util</span><span class="o">.</span><span class="n">get_loss_fn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">loss_spec</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+
+<div class="viewcode-block" id="MLPNet.forward"><a class="viewcode-back" href="../../../../convlab.agent.net.html#convlab.agent.net.mlp.MLPNet.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;The feedforward step&#39;&#39;&#39;</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;model_tails&#39;</span><span class="p">):</span>
+            <span class="n">outs</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">model_tail</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_tails</span><span class="p">:</span>
+                <span class="n">outs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model_tail</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">outs</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_tail</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="HydraMLPNet"><a class="viewcode-back" href="../../../../convlab.agent.net.html#convlab.agent.net.mlp.HydraMLPNet">[docs]</a><span class="k">class</span> <span class="nc">HydraMLPNet</span><span class="p">(</span><span class="n">Net</span><span class="p">,</span> <span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Class for generating arbitrary sized feedforward neural network with multiple state and action heads, and a single shared body.</span>
+
+<span class="sd">    e.g. net_spec</span>
+<span class="sd">    &quot;net&quot;: {</span>
+<span class="sd">        &quot;type&quot;: &quot;HydraMLPNet&quot;,</span>
+<span class="sd">        &quot;shared&quot;: true,</span>
+<span class="sd">        &quot;hid_layers&quot;: [</span>
+<span class="sd">            [[32],[32]], # 2 heads with hidden layers</span>
+<span class="sd">            [64], # body</span>
+<span class="sd">            [] # tail, no hidden layers</span>
+<span class="sd">        ],</span>
+<span class="sd">        &quot;hid_layers_activation&quot;: &quot;relu&quot;,</span>
+<span class="sd">        &quot;out_layer_activation&quot;: null,</span>
+<span class="sd">        &quot;init_fn&quot;: &quot;xavier_uniform_&quot;,</span>
+<span class="sd">        &quot;clip_grad_val&quot;: 1.0,</span>
+<span class="sd">        &quot;loss_spec&quot;: {</span>
+<span class="sd">          &quot;name&quot;: &quot;MSELoss&quot;</span>
+<span class="sd">        },</span>
+<span class="sd">        &quot;optim_spec&quot;: {</span>
+<span class="sd">          &quot;name&quot;: &quot;Adam&quot;,</span>
+<span class="sd">          &quot;lr&quot;: 0.02</span>
+<span class="sd">        },</span>
+<span class="sd">        &quot;lr_scheduler_spec&quot;: {</span>
+<span class="sd">            &quot;name&quot;: &quot;StepLR&quot;,</span>
+<span class="sd">            &quot;step_size&quot;: 30,</span>
+<span class="sd">            &quot;gamma&quot;: 0.1</span>
+<span class="sd">        },</span>
+<span class="sd">        &quot;update_type&quot;: &quot;replace&quot;,</span>
+<span class="sd">        &quot;update_frequency&quot;: 1,</span>
+<span class="sd">        &quot;polyak_coef&quot;: 0.9,</span>
+<span class="sd">        &quot;gpu&quot;: true</span>
+<span class="sd">    }</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">net_spec</span><span class="p">,</span> <span class="n">in_dim</span><span class="p">,</span> <span class="n">out_dim</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Multi state processing heads, single shared body, and multi action tails.</span>
+<span class="sd">        There is one state and action head per body/environment</span>
+<span class="sd">        Example:</span>
+
+<span class="sd">          env 1 state       env 2 state</span>
+<span class="sd">         _______|______    _______|______</span>
+<span class="sd">        |    head 1    |  |    head 2    |</span>
+<span class="sd">        |______________|  |______________|</span>
+<span class="sd">                |                  |</span>
+<span class="sd">                |__________________|</span>
+<span class="sd">         ________________|_______________</span>
+<span class="sd">        |          Shared body           |</span>
+<span class="sd">        |________________________________|</span>
+<span class="sd">                         |</span>
+<span class="sd">                 ________|_______</span>
+<span class="sd">                |                |</span>
+<span class="sd">         _______|______    ______|_______</span>
+<span class="sd">        |    tail 1    |  |    tail 2    |</span>
+<span class="sd">        |______________|  |______________|</span>
+<span class="sd">                |                |</span>
+<span class="sd">           env 1 action      env 2 action</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">net_spec</span><span class="p">,</span> <span class="n">in_dim</span><span class="p">,</span> <span class="n">out_dim</span><span class="p">)</span>
+        <span class="c1"># set default</span>
+        <span class="n">util</span><span class="o">.</span><span class="n">set_attr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">out_layer_activation</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">init_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">clip_grad_val</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">loss_spec</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;MSELoss&#39;</span><span class="p">},</span>
+            <span class="n">optim_spec</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;Adam&#39;</span><span class="p">},</span>
+            <span class="n">lr_scheduler_spec</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">update_type</span><span class="o">=</span><span class="s1">&#39;replace&#39;</span><span class="p">,</span>
+            <span class="n">update_frequency</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">polyak_coef</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+            <span class="n">gpu</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">))</span>
+        <span class="n">util</span><span class="o">.</span><span class="n">set_attr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">net_spec</span><span class="p">,</span> <span class="p">[</span>
+            <span class="s1">&#39;hid_layers&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;hid_layers_activation&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;out_layer_activation&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;init_fn&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;clip_grad_val&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;loss_spec&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;optim_spec&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;lr_scheduler_spec&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;update_type&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;update_frequency&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;polyak_coef&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;gpu&#39;</span><span class="p">,</span>
+        <span class="p">])</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hid_layers</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;Your hidden layers must specify [*heads], [body], [*tails]. If not, use MLPNet&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">in_dim</span><span class="p">,</span> <span class="nb">list</span><span class="p">),</span> <span class="s1">&#39;Hydra network needs in_dim as list&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">out_dim</span><span class="p">,</span> <span class="nb">list</span><span class="p">),</span> <span class="s1">&#39;Hydra network needs out_dim as list&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">head_hid_layers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hid_layers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">body_hid_layers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hid_layers</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tail_hid_layers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hid_layers</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">head_hid_layers</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">head_hid_layers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">head_hid_layers</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">in_dim</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tail_hid_layers</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tail_hid_layers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tail_hid_layers</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">out_dim</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_heads</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_model_heads</span><span class="p">(</span><span class="n">in_dim</span><span class="p">)</span>
+        <span class="n">heads_out_dim</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">([</span><span class="n">head_hid_layers</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">head_hid_layers</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">head_hid_layers</span><span class="p">])</span>
+        <span class="n">dims</span> <span class="o">=</span> <span class="p">[</span><span class="n">heads_out_dim</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">body_hid_layers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_body</span> <span class="o">=</span> <span class="n">net_util</span><span class="o">.</span><span class="n">build_fc_model</span><span class="p">(</span><span class="n">dims</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hid_layers_activation</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_tails</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_model_tails</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">out_dim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">out_layer_activation</span><span class="p">)</span>
+
+        <span class="n">net_util</span><span class="o">.</span><span class="n">init_layers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_fn</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loss_fn</span> <span class="o">=</span> <span class="n">net_util</span><span class="o">.</span><span class="n">get_loss_fn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">loss_spec</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+
+<div class="viewcode-block" id="HydraMLPNet.build_model_heads"><a class="viewcode-back" href="../../../../convlab.agent.net.html#convlab.agent.net.mlp.HydraMLPNet.build_model_heads">[docs]</a>    <span class="k">def</span> <span class="nf">build_model_heads</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">in_dim</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Build each model_head. These are stored as Sequential models in model_heads&#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">head_hid_layers</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">in_dim</span><span class="p">),</span> <span class="s1">&#39;Hydra head hid_params inconsistent with number in dims&#39;</span>
+        <span class="n">model_heads</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">ModuleList</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">in_d</span><span class="p">,</span> <span class="n">hid_layers</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">in_dim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">head_hid_layers</span><span class="p">):</span>
+            <span class="n">dims</span> <span class="o">=</span> <span class="p">[</span><span class="n">in_d</span><span class="p">]</span> <span class="o">+</span> <span class="n">hid_layers</span>
+            <span class="n">model_head</span> <span class="o">=</span> <span class="n">net_util</span><span class="o">.</span><span class="n">build_fc_model</span><span class="p">(</span><span class="n">dims</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hid_layers_activation</span><span class="p">)</span>
+            <span class="n">model_heads</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model_head</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">model_heads</span></div>
+
+<div class="viewcode-block" id="HydraMLPNet.build_model_tails"><a class="viewcode-back" href="../../../../convlab.agent.net.html#convlab.agent.net.mlp.HydraMLPNet.build_model_tails">[docs]</a>    <span class="k">def</span> <span class="nf">build_model_tails</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out_dim</span><span class="p">,</span> <span class="n">out_layer_activation</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Build each model_tail. These are stored as Sequential models in model_tails&#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">ps</span><span class="o">.</span><span class="n">is_list</span><span class="p">(</span><span class="n">out_layer_activation</span><span class="p">):</span>
+            <span class="n">out_layer_activation</span> <span class="o">=</span> <span class="p">[</span><span class="n">out_layer_activation</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">out_dim</span><span class="p">)</span>
+        <span class="n">model_tails</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">ModuleList</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">ps</span><span class="o">.</span><span class="n">is_empty</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tail_hid_layers</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">out_d</span><span class="p">,</span> <span class="n">out_activ</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">out_dim</span><span class="p">,</span> <span class="n">out_layer_activation</span><span class="p">):</span>
+                <span class="n">tail</span> <span class="o">=</span> <span class="n">net_util</span><span class="o">.</span><span class="n">build_fc_model</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">body_hid_layers</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">out_d</span><span class="p">],</span> <span class="n">out_activ</span><span class="p">)</span>
+                <span class="n">model_tails</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tail</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tail_hid_layers</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">out_dim</span><span class="p">),</span> <span class="s1">&#39;Hydra tail hid_params inconsistent with number out dims&#39;</span>
+            <span class="k">for</span> <span class="n">out_d</span><span class="p">,</span> <span class="n">out_activ</span><span class="p">,</span> <span class="n">hid_layers</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">out_dim</span><span class="p">,</span> <span class="n">out_layer_activation</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tail_hid_layers</span><span class="p">):</span>
+                <span class="n">dims</span> <span class="o">=</span> <span class="n">hid_layers</span>
+                <span class="n">model_tail</span> <span class="o">=</span> <span class="n">net_util</span><span class="o">.</span><span class="n">build_fc_model</span><span class="p">(</span><span class="n">dims</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hid_layers_activation</span><span class="p">)</span>
+                <span class="n">tail_out</span> <span class="o">=</span> <span class="n">net_util</span><span class="o">.</span><span class="n">build_fc_model</span><span class="p">([</span><span class="n">dims</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">out_d</span><span class="p">],</span> <span class="n">out_activ</span><span class="p">)</span>
+                <span class="n">model_tail</span><span class="o">.</span><span class="n">add_module</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">model_tail</span><span class="p">)),</span> <span class="n">tail_out</span><span class="p">)</span>
+                <span class="n">model_tails</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model_tail</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">model_tails</span></div>
+
+<div class="viewcode-block" id="HydraMLPNet.forward"><a class="viewcode-back" href="../../../../convlab.agent.net.html#convlab.agent.net.mlp.HydraMLPNet.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xs</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;The feedforward step&#39;&#39;&#39;</span>
+        <span class="n">head_xs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">model_head</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_heads</span><span class="p">,</span> <span class="n">xs</span><span class="p">):</span>
+            <span class="n">head_xs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model_head</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+        <span class="n">head_xs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span><span class="n">head_xs</span><span class="p">,</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">body_x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_body</span><span class="p">(</span><span class="n">head_xs</span><span class="p">)</span>
+        <span class="n">outs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">model_tail</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_tails</span><span class="p">:</span>
+            <span class="n">outs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model_tail</span><span class="p">(</span><span class="n">body_x</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">outs</span></div></div>
+
+
+<div class="viewcode-block" id="DuelingMLPNet"><a class="viewcode-back" href="../../../../convlab.agent.net.html#convlab.agent.net.mlp.DuelingMLPNet">[docs]</a><span class="k">class</span> <span class="nc">DuelingMLPNet</span><span class="p">(</span><span class="n">MLPNet</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Class for generating arbitrary sized feedforward neural network, with dueling heads. Intended for Q-Learning algorithms only.</span>
+<span class="sd">    Implementation based on &quot;Dueling Network Architectures for Deep Reinforcement Learning&quot; http://proceedings.mlr.press/v48/wangf16.pdf</span>
+
+<span class="sd">    e.g. net_spec</span>
+<span class="sd">    &quot;net&quot;: {</span>
+<span class="sd">        &quot;type&quot;: &quot;DuelingMLPNet&quot;,</span>
+<span class="sd">        &quot;shared&quot;: true,</span>
+<span class="sd">        &quot;hid_layers&quot;: [32],</span>
+<span class="sd">        &quot;hid_layers_activation&quot;: &quot;relu&quot;,</span>
+<span class="sd">        &quot;init_fn&quot;: &quot;xavier_uniform_&quot;,</span>
+<span class="sd">        &quot;clip_grad_val&quot;: 1.0,</span>
+<span class="sd">        &quot;loss_spec&quot;: {</span>
+<span class="sd">          &quot;name&quot;: &quot;MSELoss&quot;</span>
+<span class="sd">        },</span>
+<span class="sd">        &quot;optim_spec&quot;: {</span>
+<span class="sd">          &quot;name&quot;: &quot;Adam&quot;,</span>
+<span class="sd">          &quot;lr&quot;: 0.02</span>
+<span class="sd">        },</span>
+<span class="sd">        &quot;lr_scheduler_spec&quot;: {</span>
+<span class="sd">            &quot;name&quot;: &quot;StepLR&quot;,</span>
+<span class="sd">            &quot;step_size&quot;: 30,</span>
+<span class="sd">            &quot;gamma&quot;: 0.1</span>
+<span class="sd">        },</span>
+<span class="sd">        &quot;update_type&quot;: &quot;replace&quot;,</span>
+<span class="sd">        &quot;update_frequency&quot;: 1,</span>
+<span class="sd">        &quot;polyak_coef&quot;: 0.9,</span>
+<span class="sd">        &quot;gpu&quot;: true</span>
+<span class="sd">    }</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">net_spec</span><span class="p">,</span> <span class="n">in_dim</span><span class="p">,</span> <span class="n">out_dim</span><span class="p">):</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">Net</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">net_spec</span><span class="p">,</span> <span class="n">in_dim</span><span class="p">,</span> <span class="n">out_dim</span><span class="p">)</span>
+        <span class="c1"># set default</span>
+        <span class="n">util</span><span class="o">.</span><span class="n">set_attr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">init_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">clip_grad_val</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">loss_spec</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;MSELoss&#39;</span><span class="p">},</span>
+            <span class="n">optim_spec</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;Adam&#39;</span><span class="p">},</span>
+            <span class="n">lr_scheduler_spec</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">update_type</span><span class="o">=</span><span class="s1">&#39;replace&#39;</span><span class="p">,</span>
+            <span class="n">update_frequency</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">polyak_coef</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+            <span class="n">gpu</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">))</span>
+        <span class="n">util</span><span class="o">.</span><span class="n">set_attr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">net_spec</span><span class="p">,</span> <span class="p">[</span>
+            <span class="s1">&#39;shared&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;hid_layers&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;hid_layers_activation&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;init_fn&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;clip_grad_val&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;loss_spec&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;optim_spec&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;lr_scheduler_spec&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;update_type&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;update_frequency&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;polyak_coef&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;gpu&#39;</span><span class="p">,</span>
+        <span class="p">])</span>
+
+        <span class="c1"># Guard against inappropriate algorithms and environments</span>
+        <span class="c1"># Build model body</span>
+        <span class="n">dims</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">in_dim</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">hid_layers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_body</span> <span class="o">=</span> <span class="n">net_util</span><span class="o">.</span><span class="n">build_fc_model</span><span class="p">(</span><span class="n">dims</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hid_layers_activation</span><span class="p">)</span>
+        <span class="c1"># output layers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">v</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">dims</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># state value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">adv</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">dims</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">out_dim</span><span class="p">)</span>  <span class="c1"># action dependent raw advantage</span>
+        <span class="n">net_util</span><span class="o">.</span><span class="n">init_layers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_fn</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loss_fn</span> <span class="o">=</span> <span class="n">net_util</span><span class="o">.</span><span class="n">get_loss_fn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">loss_spec</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+
+<div class="viewcode-block" id="DuelingMLPNet.forward"><a class="viewcode-back" href="../../../../convlab.agent.net.html#convlab.agent.net.mlp.DuelingMLPNet.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;The feedforward step&#39;&#39;&#39;</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_body</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">state_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">raw_advantages</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adv</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">math_util</span><span class="o">.</span><span class="n">calc_q_value_logits</span><span class="p">(</span><span class="n">state_value</span><span class="p">,</span> <span class="n">raw_advantages</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">out</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, ConvLab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

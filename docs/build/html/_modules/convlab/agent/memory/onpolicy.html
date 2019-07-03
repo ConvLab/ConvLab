@@ -1,0 +1,333 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>convlab.agent.memory.onpolicy &mdash; ConvLab 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> ConvLab
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">ConvLab</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+          <li><a href="../../agent.html">convlab.agent</a> &raquo;</li>
+        
+      <li>convlab.agent.memory.onpolicy</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for convlab.agent.memory.onpolicy</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Modified by Microsoft Corporation.</span>
+<span class="c1"># Licensed under the MIT license.</span>
+
+<span class="kn">from</span> <span class="nn">convlab.agent.memory.base</span> <span class="k">import</span> <span class="n">Memory</span>
+<span class="kn">from</span> <span class="nn">convlab.lib</span> <span class="k">import</span> <span class="n">logger</span><span class="p">,</span> <span class="n">util</span>
+<span class="kn">from</span> <span class="nn">convlab.lib.decorator</span> <span class="k">import</span> <span class="n">lab_api</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="OnPolicyReplay"><a class="viewcode-back" href="../../../../convlab.agent.memory.html#convlab.agent.memory.onpolicy.OnPolicyReplay">[docs]</a><span class="k">class</span> <span class="nc">OnPolicyReplay</span><span class="p">(</span><span class="n">Memory</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Stores agent experiences and returns them in a batch for agent training.</span>
+
+<span class="sd">    An experience consists of</span>
+<span class="sd">        - state: representation of a state</span>
+<span class="sd">        - action: action taken</span>
+<span class="sd">        - reward: scalar value</span>
+<span class="sd">        - next state: representation of next state (should be same as state)</span>
+<span class="sd">        - done: 0 / 1 representing if the current state is the last in an episode</span>
+
+<span class="sd">    The memory does not have a fixed size. Instead the memory stores data from N episodes, where N is determined by the user. After N episodes, all of the examples are returned to the agent to learn from.</span>
+
+<span class="sd">    When the examples are returned to the agent, the memory is cleared to prevent the agent from learning from off policy experiences. This memory is intended for on policy algorithms.</span>
+
+<span class="sd">    Differences vs. Replay memory:</span>
+<span class="sd">        - Experiences are nested into episodes. In Replay experiences are flat, and episode is not tracked</span>
+<span class="sd">        - The entire memory constitues a batch. In Replay batches are sampled from memory.</span>
+<span class="sd">        - The memory is cleared automatically when a batch is given to the agent.</span>
+
+<span class="sd">    e.g. memory_spec</span>
+<span class="sd">    &quot;memory&quot;: {</span>
+<span class="sd">        &quot;name&quot;: &quot;OnPolicyReplay&quot;</span>
+<span class="sd">    }</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">memory_spec</span><span class="p">,</span> <span class="n">body</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">memory_spec</span><span class="p">,</span> <span class="n">body</span><span class="p">)</span>
+        <span class="c1"># NOTE for OnPolicy replay, frequency = episode; for other classes below frequency = frames</span>
+        <span class="n">util</span><span class="o">.</span><span class="n">set_attr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">agent_spec</span><span class="p">[</span><span class="s1">&#39;algorithm&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;training_frequency&#39;</span><span class="p">])</span>
+        <span class="c1"># Don&#39;t want total experiences reset when memory is</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_episodic</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># total experiences stored</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">seen_size</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># total experiences seen cumulatively</span>
+        <span class="c1"># declare what data keys to store</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;states&#39;</span><span class="p">,</span> <span class="s1">&#39;actions&#39;</span><span class="p">,</span> <span class="s1">&#39;rewards&#39;</span><span class="p">,</span> <span class="s1">&#39;next_states&#39;</span><span class="p">,</span> <span class="s1">&#39;dones&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+
+<div class="viewcode-block" id="OnPolicyReplay.reset"><a class="viewcode-back" href="../../../../convlab.agent.memory.html#convlab.agent.memory.onpolicy.OnPolicyReplay.reset">[docs]</a>    <span class="nd">@lab_api</span>
+    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Resets the memory. Also used to initialize memory vars&#39;&#39;&#39;</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_keys</span><span class="p">:</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cur_epi_data</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_keys</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">most_recent</span> <span class="o">=</span> <span class="p">(</span><span class="kc">None</span><span class="p">,)</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_keys</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="OnPolicyReplay.update"><a class="viewcode-back" href="../../../../convlab.agent.memory.html#convlab.agent.memory.onpolicy.OnPolicyReplay.update">[docs]</a>    <span class="nd">@lab_api</span>
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">next_state</span><span class="p">,</span> <span class="n">done</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Interface method to update memory&#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_experience</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">next_state</span><span class="p">,</span> <span class="n">done</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="OnPolicyReplay.add_experience"><a class="viewcode-back" href="../../../../convlab.agent.memory.html#convlab.agent.memory.onpolicy.OnPolicyReplay.add_experience">[docs]</a>    <span class="k">def</span> <span class="nf">add_experience</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">next_state</span><span class="p">,</span> <span class="n">done</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Interface helper method for update() to add experience to memory&#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">most_recent</span> <span class="o">=</span> <span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">next_state</span><span class="p">,</span> <span class="n">done</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_keys</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cur_epi_data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">most_recent</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span>
+        <span class="c1"># If episode ended, add to memory and clear cur_epi_data</span>
+        <span class="k">if</span> <span class="n">util</span><span class="o">.</span><span class="n">epi_done</span><span class="p">(</span><span class="n">done</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_keys</span><span class="p">:</span>
+                <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cur_epi_data</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cur_epi_data</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_keys</span><span class="p">}</span>
+            <span class="c1"># If agent has collected the desired number of episodes, it is ready to train</span>
+            <span class="c1"># length is num of epis due to nested structure</span>
+            <span class="c1"># if len(self.states) == self.body.agent.algorithm.training_frequency:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">states</span><span class="p">)</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">training_frequency</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">to_train</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="c1"># Track memory size and num experiences</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">seen_size</span> <span class="o">+=</span> <span class="mi">1</span></div>
+
+<div class="viewcode-block" id="OnPolicyReplay.get_most_recent_experience"><a class="viewcode-back" href="../../../../convlab.agent.memory.html#convlab.agent.memory.onpolicy.OnPolicyReplay.get_most_recent_experience">[docs]</a>    <span class="k">def</span> <span class="nf">get_most_recent_experience</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Returns the most recent experience&#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">most_recent</span></div>
+
+<div class="viewcode-block" id="OnPolicyReplay.sample"><a class="viewcode-back" href="../../../../convlab.agent.memory.html#convlab.agent.memory.onpolicy.OnPolicyReplay.sample">[docs]</a>    <span class="k">def</span> <span class="nf">sample</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Returns all the examples from memory in a single batch. Batch is stored as a dict.</span>
+<span class="sd">        Keys are the names of the different elements of an experience. Values are nested lists of the corresponding sampled elements. Elements are nested into episodes</span>
+<span class="sd">        e.g.</span>
+<span class="sd">        batch = {</span>
+<span class="sd">            &#39;states&#39;     : [[s_epi1], [s_epi2], ...],</span>
+<span class="sd">            &#39;actions&#39;    : [[a_epi1], [a_epi2], ...],</span>
+<span class="sd">            &#39;rewards&#39;    : [[r_epi1], [r_epi2], ...],</span>
+<span class="sd">            &#39;next_states&#39;: [[ns_epi1], [ns_epi2], ...],</span>
+<span class="sd">            &#39;dones&#39;      : [[d_epi1], [d_epi2], ...]}</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">batch</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_keys</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">batch</span></div></div>
+
+
+<div class="viewcode-block" id="OnPolicyBatchReplay"><a class="viewcode-back" href="../../../../convlab.agent.memory.html#convlab.agent.memory.onpolicy.OnPolicyBatchReplay">[docs]</a><span class="k">class</span> <span class="nc">OnPolicyBatchReplay</span><span class="p">(</span><span class="n">OnPolicyReplay</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Same as OnPolicyReplay Memory with the following difference.</span>
+
+<span class="sd">    The memory does not have a fixed size. Instead the memory stores data from N experiences, where N is determined by the user. After N experiences or if an episode has ended, all of the examples are returned to the agent to learn from.</span>
+
+<span class="sd">    In contrast, OnPolicyReplay stores entire episodes and stores them in a nested structure. OnPolicyBatchReplay stores experiences in a flat structure.</span>
+
+<span class="sd">    e.g. memory_spec</span>
+<span class="sd">    &quot;memory&quot;: {</span>
+<span class="sd">        &quot;name&quot;: &quot;OnPolicyBatchReplay&quot;</span>
+<span class="sd">    }</span>
+<span class="sd">    * batch_size is training_frequency provided by algorithm_spec</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">memory_spec</span><span class="p">,</span> <span class="n">body</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">memory_spec</span><span class="p">,</span> <span class="n">body</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_episodic</span> <span class="o">=</span> <span class="kc">False</span>
+
+<div class="viewcode-block" id="OnPolicyBatchReplay.add_experience"><a class="viewcode-back" href="../../../../convlab.agent.memory.html#convlab.agent.memory.onpolicy.OnPolicyBatchReplay.add_experience">[docs]</a>    <span class="k">def</span> <span class="nf">add_experience</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">next_state</span><span class="p">,</span> <span class="n">done</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Interface helper method for update() to add experience to memory&#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">most_recent</span> <span class="o">=</span> <span class="p">[</span><span class="n">state</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">next_state</span><span class="p">,</span> <span class="n">done</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_keys</span><span class="p">):</span>
+            <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">most_recent</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span>
+        <span class="c1"># Track memory size and num experiences</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">seen_size</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="c1"># Decide if agent is to train</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">states</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">training_frequency</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">to_train</span> <span class="o">=</span> <span class="mi">1</span></div>
+
+<div class="viewcode-block" id="OnPolicyBatchReplay.sample"><a class="viewcode-back" href="../../../../convlab.agent.memory.html#convlab.agent.memory.onpolicy.OnPolicyBatchReplay.sample">[docs]</a>    <span class="k">def</span> <span class="nf">sample</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Returns all the examples from memory in a single batch. Batch is stored as a dict.</span>
+<span class="sd">        Keys are the names of the different elements of an experience. Values are a list of the corresponding sampled elements</span>
+<span class="sd">        e.g.</span>
+<span class="sd">        batch = {</span>
+<span class="sd">            &#39;states&#39;     : states,</span>
+<span class="sd">            &#39;actions&#39;    : actions,</span>
+<span class="sd">            &#39;rewards&#39;    : rewards,</span>
+<span class="sd">            &#39;next_states&#39;: next_states,</span>
+<span class="sd">            &#39;dones&#39;      : dones}</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, ConvLab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

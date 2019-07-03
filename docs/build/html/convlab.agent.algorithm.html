@@ -1,0 +1,1488 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>convlab.agent.algorithm package &mdash; ConvLab 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> ConvLab
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">convlab.agent.algorithm package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-convlab.agent.algorithm.actor_critic">convlab.agent.algorithm.actor_critic module</a></li>
+<li><a class="reference internal" href="#module-convlab.agent.algorithm.base">convlab.agent.algorithm.base module</a></li>
+<li><a class="reference internal" href="#module-convlab.agent.algorithm.dqn">convlab.agent.algorithm.dqn module</a></li>
+<li><a class="reference internal" href="#module-convlab.agent.algorithm.external">convlab.agent.algorithm.external module</a></li>
+<li><a class="reference internal" href="#module-convlab.agent.algorithm.policy_util">convlab.agent.algorithm.policy_util module</a></li>
+<li><a class="reference internal" href="#module-convlab.agent.algorithm.ppo">convlab.agent.algorithm.ppo module</a></li>
+<li><a class="reference internal" href="#module-convlab.agent.algorithm.random">convlab.agent.algorithm.random module</a></li>
+<li><a class="reference internal" href="#module-convlab.agent.algorithm.reinforce">convlab.agent.algorithm.reinforce module</a></li>
+<li><a class="reference internal" href="#module-convlab.agent.algorithm.sarsa">convlab.agent.algorithm.sarsa module</a></li>
+<li><a class="reference internal" href="#module-convlab.agent.algorithm.sil">convlab.agent.algorithm.sil module</a></li>
+<li><a class="reference internal" href="#module-convlab.agent.algorithm">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">ConvLab</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>convlab.agent.algorithm package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/convlab.agent.algorithm.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="convlab-agent-algorithm-package">
+<h1>convlab.agent.algorithm package<a class="headerlink" href="#convlab-agent-algorithm-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-convlab.agent.algorithm.actor_critic">
+<span id="convlab-agent-algorithm-actor-critic-module"></span><h2>convlab.agent.algorithm.actor_critic module<a class="headerlink" href="#module-convlab.agent.algorithm.actor_critic" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="convlab.agent.algorithm.actor_critic.ActorCritic">
+<em class="property">class </em><code class="descclassname">convlab.agent.algorithm.actor_critic.</code><code class="descname">ActorCritic</code><span class="sig-paren">(</span><em>agent</em>, <em>global_nets=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/actor_critic.html#ActorCritic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.actor_critic.ActorCritic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#convlab.agent.algorithm.reinforce.Reinforce" title="convlab.agent.algorithm.reinforce.Reinforce"><code class="xref py py-class docutils literal notranslate"><span class="pre">convlab.agent.algorithm.reinforce.Reinforce</span></code></a></p>
+<p>Implementation of single threaded Advantage Actor Critic
+Original paper: “Asynchronous Methods for Deep Reinforcement Learning”
+<a class="reference external" href="https://arxiv.org/abs/1602.01783">https://arxiv.org/abs/1602.01783</a>
+Algorithm specific spec param:
+memory.name: batch (through OnPolicyBatchReplay memory class) or episodic through (OnPolicyReplay memory class)
+lam: if not null, used as the lambda value of generalized advantage estimation (GAE) introduced in “High-Dimensional Continuous Control Using Generalized Advantage Estimation <a class="reference external" href="https://arxiv.org/abs/1506.02438">https://arxiv.org/abs/1506.02438</a>. This lambda controls the bias variance tradeoff for GAE. Floating point value between 0 and 1. Lower values correspond to more bias, less variance. Higher values to more variance, less bias. Algorithm becomes A2C(GAE).
+num_step_returns: if lam is null and this is not null, specifies the number of steps for N-step returns from “Asynchronous Methods for Deep Reinforcement Learning”. The algorithm becomes A2C(Nstep).
+If both lam and num_step_returns are null, use the default TD error. Then the algorithm stays as AC.
+net.type: whether the actor and critic should share params (e.g. through ‘MLPNetShared’) or have separate params (e.g. through ‘MLPNetSeparate’). If param sharing is used then there is also the option to control the weight given to the policy and value components of the loss function through ‘policy_loss_coef’ and ‘val_loss_coef’
+Algorithm - separate actor and critic:</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>Repeat:</dt>
+<dd><ol class="first last arabic simple">
+<li>Collect k examples</li>
+<li>Train the critic network using these examples</li>
+<li>Calculate the advantage of each example using the critic</li>
+<li>Multiply the advantage by the negative of log probability of the action taken, and sum all the values. This is the policy loss.</li>
+<li>Calculate the gradient the parameters of the actor network with respect to the policy loss</li>
+<li>Update the actor network parameters using the gradient</li>
+</ol>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="docutils">
+<dt>Algorithm - shared parameters:</dt>
+<dd><dl class="first last docutils">
+<dt>Repeat:</dt>
+<dd><ol class="first last arabic simple">
+<li>Collect k examples</li>
+<li>Calculate the target for each example for the critic</li>
+<li>Compute current estimate of state-value for each example using the critic</li>
+<li>Calculate the critic loss using a regression loss (e.g. square loss) between the target and estimate of the state-value for each example</li>
+<li>Calculate the advantage of each example using the rewards and critic</li>
+<li>Multiply the advantage by the negative of log probability of the action taken, and sum all the values. This is the policy loss.</li>
+<li>Compute the total loss by summing the value and policy lossses</li>
+<li>Calculate the gradient of the parameters of shared network with respect to the total loss</li>
+<li>Update the shared network parameters using the gradient</li>
+</ol>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>e.g. algorithm_spec
+“algorithm”: {</p>
+<blockquote>
+<div><p>“name”: “ActorCritic”,
+“action_pdtype”: “default”,
+“action_policy”: “default”,
+“explore_var_spec”: null,
+“gamma”: 0.99,
+“lam”: 1.0,
+“num_step_returns”: 100,
+“entropy_coef_spec”: {</p>
+<blockquote>
+<div>“name”: “linear_decay”,
+“start_val”: 0.01,
+“end_val”: 0.001,
+“start_step”: 100,
+“end_step”: 5000,</div></blockquote>
+<p>},
+“policy_loss_coef”: 1.0,
+“val_loss_coef”: 0.01,
+“training_frequency”: 1,</p>
+</div></blockquote>
+<p>}</p>
+<p>e.g. special net_spec param “shared” to share/separate Actor/Critic
+“net”: {</p>
+<blockquote>
+<div>“type”: “MLPNet”,
+“shared”: true,
+…</div></blockquote>
+<dl class="method">
+<dt id="convlab.agent.algorithm.actor_critic.ActorCritic.calc_gae_advs_v_targets">
+<code class="descname">calc_gae_advs_v_targets</code><span class="sig-paren">(</span><em>batch</em>, <em>v_preds</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/actor_critic.html#ActorCritic.calc_gae_advs_v_targets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.actor_critic.ActorCritic.calc_gae_advs_v_targets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate GAE, and advs = GAE, v_targets = advs + v_preds
+See GAE from Schulman et al. <a class="reference external" href="https://arxiv.org/pdf/1506.02438.pdf">https://arxiv.org/pdf/1506.02438.pdf</a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.actor_critic.ActorCritic.calc_nstep_advs_v_targets">
+<code class="descname">calc_nstep_advs_v_targets</code><span class="sig-paren">(</span><em>batch</em>, <em>v_preds</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/actor_critic.html#ActorCritic.calc_nstep_advs_v_targets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.actor_critic.ActorCritic.calc_nstep_advs_v_targets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate N-step returns, and advs = nstep_rets - v_preds, v_targets = nstep_rets
+See n-step advantage under <a class="reference external" href="http://rail.eecs.berkeley.edu/deeprlcourse-fa17/f17docs/lecture_5_actor_critic_pdf.pdf">http://rail.eecs.berkeley.edu/deeprlcourse-fa17/f17docs/lecture_5_actor_critic_pdf.pdf</a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.actor_critic.ActorCritic.calc_pdparam">
+<code class="descname">calc_pdparam</code><span class="sig-paren">(</span><em>x</em>, <em>net=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/actor_critic.html#ActorCritic.calc_pdparam"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.actor_critic.ActorCritic.calc_pdparam" title="Permalink to this definition">¶</a></dt>
+<dd><p>The pdparam will be the logits for discrete prob. dist., or the mean and std for continuous prob. dist.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.actor_critic.ActorCritic.calc_pdparam_v">
+<code class="descname">calc_pdparam_v</code><span class="sig-paren">(</span><em>batch</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/actor_critic.html#ActorCritic.calc_pdparam_v"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.actor_critic.ActorCritic.calc_pdparam_v" title="Permalink to this definition">¶</a></dt>
+<dd><p>Efficiently forward to get pdparam and v by batch for loss computation</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.actor_critic.ActorCritic.calc_policy_loss">
+<code class="descname">calc_policy_loss</code><span class="sig-paren">(</span><em>batch</em>, <em>pdparams</em>, <em>advs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/actor_critic.html#ActorCritic.calc_policy_loss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.actor_critic.ActorCritic.calc_policy_loss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the actor’s policy loss</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.actor_critic.ActorCritic.calc_ret_advs_v_targets">
+<code class="descname">calc_ret_advs_v_targets</code><span class="sig-paren">(</span><em>batch</em>, <em>v_preds</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/actor_critic.html#ActorCritic.calc_ret_advs_v_targets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.actor_critic.ActorCritic.calc_ret_advs_v_targets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate plain returns, and advs = rets - v_preds, v_targets = rets</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.actor_critic.ActorCritic.calc_v">
+<code class="descname">calc_v</code><span class="sig-paren">(</span><em>x</em>, <em>net=None</em>, <em>use_cache=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/actor_critic.html#ActorCritic.calc_v"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.actor_critic.ActorCritic.calc_v" title="Permalink to this definition">¶</a></dt>
+<dd><p>Forward-pass to calculate the predicted state-value from critic_net.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.actor_critic.ActorCritic.calc_val_loss">
+<code class="descname">calc_val_loss</code><span class="sig-paren">(</span><em>v_preds</em>, <em>v_targets</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/actor_critic.html#ActorCritic.calc_val_loss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.actor_critic.ActorCritic.calc_val_loss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the critic’s value loss</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.actor_critic.ActorCritic.init_algorithm_params">
+<code class="descname">init_algorithm_params</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/actor_critic.html#ActorCritic.init_algorithm_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.actor_critic.ActorCritic.init_algorithm_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize other algorithm parameters</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.actor_critic.ActorCritic.init_nets">
+<code class="descname">init_nets</code><span class="sig-paren">(</span><em>global_nets=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/actor_critic.html#ActorCritic.init_nets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.actor_critic.ActorCritic.init_nets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize the neural networks used to learn the actor and critic from the spec
+Below we automatically select an appropriate net based on two different conditions
+1. If the action space is discrete or continuous action</p>
+<blockquote>
+<div><ul class="simple">
+<li>Networks for continuous action spaces have two heads and return two values, the first is a tensor containing the mean of the action policy, the second is a tensor containing the std deviation of the action policy. The distribution is assumed to be a Gaussian (Normal) distribution.</li>
+<li>Networks for discrete action spaces have a single head and return the logits for a categorical probability distribution over the discrete actions</li>
+</ul>
+</div></blockquote>
+<ol class="arabic simple" start="2">
+<li><dl class="first docutils">
+<dt>If the actor and critic are separate or share weights</dt>
+<dd><ul class="first last">
+<li>If the networks share weights then the single network returns a list.</li>
+<li>Continuous action spaces: The return list contains 3 elements: The first element contains the mean output for the actor (policy), the second element the std dev of the policy, and the third element is the state-value estimated by the network.</li>
+<li>Discrete action spaces: The return list contains 2 element. The first element is a tensor containing the logits for a categorical probability distribution over the actions. The second element contains the state-value estimated by the network.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>If the network type is feedforward, convolutional, or recurrent</dt>
+<dd><ul class="first last">
+<li>Feedforward and convolutional networks take a single state as input and require an OnPolicyReplay or OnPolicyBatchReplay memory</li>
+<li>Recurrent networks take n states as input and require env spec “frame_op”: “concat”, “frame_op_len”: seq_len</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ol>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.actor_critic.ActorCritic.train">
+<code class="descname">train</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/actor_critic.html#ActorCritic.train"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.actor_critic.ActorCritic.train" title="Permalink to this definition">¶</a></dt>
+<dd><p>Train actor critic by computing the loss in batch efficiently</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.actor_critic.ActorCritic.update">
+<code class="descname">update</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/actor_critic.html#ActorCritic.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.actor_critic.ActorCritic.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implement algorithm update, or throw NotImplementedError</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-convlab.agent.algorithm.base">
+<span id="convlab-agent-algorithm-base-module"></span><h2>convlab.agent.algorithm.base module<a class="headerlink" href="#module-convlab.agent.algorithm.base" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="convlab.agent.algorithm.base.Algorithm">
+<em class="property">class </em><code class="descclassname">convlab.agent.algorithm.base.</code><code class="descname">Algorithm</code><span class="sig-paren">(</span><em>agent</em>, <em>global_nets=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/base.html#Algorithm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.base.Algorithm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></a></p>
+<p>Abstract class ancestor to all Algorithms,
+specifies the necessary design blueprint for agent to work in Lab.
+Mostly, implement just the abstract methods and properties.</p>
+<dl class="method">
+<dt id="convlab.agent.algorithm.base.Algorithm.act">
+<code class="descname">act</code><span class="sig-paren">(</span><em>state</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/base.html#Algorithm.act"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.base.Algorithm.act" title="Permalink to this definition">¶</a></dt>
+<dd><p>Standard act method.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.base.Algorithm.calc_pdparam">
+<code class="descname">calc_pdparam</code><span class="sig-paren">(</span><em>x</em>, <em>evaluate=True</em>, <em>net=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/base.html#Algorithm.calc_pdparam"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.base.Algorithm.calc_pdparam" title="Permalink to this definition">¶</a></dt>
+<dd><p>To get the pdparam for action policy sampling, do a forward pass of the appropriate net, and pick the correct outputs.
+The pdparam will be the logits for discrete prob. dist., or the mean and std for continuous prob. dist.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.base.Algorithm.init_algorithm_params">
+<code class="descname">init_algorithm_params</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/base.html#Algorithm.init_algorithm_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.base.Algorithm.init_algorithm_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize other algorithm parameters</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.base.Algorithm.init_nets">
+<code class="descname">init_nets</code><span class="sig-paren">(</span><em>global_nets=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/base.html#Algorithm.init_nets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.base.Algorithm.init_nets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize the neural network from the spec</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.base.Algorithm.load">
+<code class="descname">load</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/base.html#Algorithm.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.base.Algorithm.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load net models for algorithm given the required property self.net_names</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.base.Algorithm.nanflat_to_data_a">
+<code class="descname">nanflat_to_data_a</code><span class="sig-paren">(</span><em>data_name</em>, <em>nanflat_data_a</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/base.html#Algorithm.nanflat_to_data_a"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.base.Algorithm.nanflat_to_data_a" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reshape nanflat_data_a, e.g. action_a, from a single pass back into the API-conforming data_a</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.base.Algorithm.post_init_nets">
+<code class="descname">post_init_nets</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/base.html#Algorithm.post_init_nets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.base.Algorithm.post_init_nets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to conditionally load models.
+Call at the end of init_nets() after setting self.net_names</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.base.Algorithm.sample">
+<code class="descname">sample</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/base.html#Algorithm.sample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.base.Algorithm.sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Samples a batch from memory</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.base.Algorithm.save">
+<code class="descname">save</code><span class="sig-paren">(</span><em>ckpt=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/base.html#Algorithm.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.base.Algorithm.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save net models for algorithm given the required property self.net_names</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.base.Algorithm.space_act">
+<code class="descname">space_act</code><span class="sig-paren">(</span><em>state_a</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/base.html#Algorithm.space_act"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.base.Algorithm.space_act" title="Permalink to this definition">¶</a></dt>
+<dd><p>Interface-level agent act method for all its bodies. Resolves state to state; get action and compose into action.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.base.Algorithm.space_sample">
+<code class="descname">space_sample</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/base.html#Algorithm.space_sample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.base.Algorithm.space_sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Samples a batch from memory</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.base.Algorithm.space_train">
+<code class="descname">space_train</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/base.html#Algorithm.space_train"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.base.Algorithm.space_train" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.base.Algorithm.space_update">
+<code class="descname">space_update</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/base.html#Algorithm.space_update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.base.Algorithm.space_update" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.base.Algorithm.train">
+<code class="descname">train</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/base.html#Algorithm.train"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.base.Algorithm.train" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implement algorithm train, or throw NotImplementedError</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.base.Algorithm.update">
+<code class="descname">update</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/base.html#Algorithm.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.base.Algorithm.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implement algorithm update, or throw NotImplementedError</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-convlab.agent.algorithm.dqn">
+<span id="convlab-agent-algorithm-dqn-module"></span><h2>convlab.agent.algorithm.dqn module<a class="headerlink" href="#module-convlab.agent.algorithm.dqn" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="convlab.agent.algorithm.dqn.DQN">
+<em class="property">class </em><code class="descclassname">convlab.agent.algorithm.dqn.</code><code class="descname">DQN</code><span class="sig-paren">(</span><em>agent</em>, <em>global_nets=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/dqn.html#DQN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.dqn.DQN" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#convlab.agent.algorithm.dqn.DQNBase" title="convlab.agent.algorithm.dqn.DQNBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">convlab.agent.algorithm.dqn.DQNBase</span></code></a></p>
+<p>DQN class</p>
+<p>e.g. algorithm_spec
+“algorithm”: {</p>
+<blockquote>
+<div><p>“name”: “DQN”,
+“action_pdtype”: “Argmax”,
+“action_policy”: “epsilon_greedy”,
+“explore_var_spec”: {</p>
+<blockquote>
+<div>“name”: “linear_decay”,
+“start_val”: 1.0,
+“end_val”: 0.1,
+“start_step”: 10,
+“end_step”: 1000,</div></blockquote>
+<p>},
+“gamma”: 0.99,
+“training_batch_iter”: 8,
+“training_iter”: 4,
+“training_frequency”: 10,
+“training_start_step”: 10</p>
+</div></blockquote>
+<p>}</p>
+<dl class="method">
+<dt id="convlab.agent.algorithm.dqn.DQN.init_nets">
+<code class="descname">init_nets</code><span class="sig-paren">(</span><em>global_nets=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/dqn.html#DQN.init_nets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.dqn.DQN.init_nets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize networks</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="convlab.agent.algorithm.dqn.DQNBase">
+<em class="property">class </em><code class="descclassname">convlab.agent.algorithm.dqn.</code><code class="descname">DQNBase</code><span class="sig-paren">(</span><em>agent</em>, <em>global_nets=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/dqn.html#DQNBase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.dqn.DQNBase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#convlab.agent.algorithm.dqn.VanillaDQN" title="convlab.agent.algorithm.dqn.VanillaDQN"><code class="xref py py-class docutils literal notranslate"><span class="pre">convlab.agent.algorithm.dqn.VanillaDQN</span></code></a></p>
+<p>Implementation of the base DQN algorithm.
+The algorithm follows the same general approach as VanillaDQN but is more general since it allows
+for two different networks (through self.net and self.target_net).</p>
+<p>self.net is used to act, and is the network trained.
+self.target_net is used to estimate the maximum value of the Q-function in the next state when calculating the target (see VanillaDQN comments).
+self.target_net is updated periodically to either match self.net (self.net.update_type = “replace”) or to be a weighted average of self.net and the previous self.target_net (self.net.update_type = “polyak”)
+If desired, self.target_net can be updated slowly, and this can help to stabilize learning.</p>
+<p>It also allows for different nets to be used to select the action in the next state and to evaluate the value of that action through self.online_net and self.eval_net. This can help reduce the tendency of DQN’s to overestimate the value of the Q-function. Following this approach leads to the DoubleDQN algorithm.</p>
+<p>Setting all nets to self.net reduces to the VanillaDQN case.</p>
+<dl class="method">
+<dt id="convlab.agent.algorithm.dqn.DQNBase.calc_q_loss">
+<code class="descname">calc_q_loss</code><span class="sig-paren">(</span><em>batch</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/dqn.html#DQNBase.calc_q_loss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.dqn.DQNBase.calc_q_loss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the Q value loss using predicted and target Q values from the appropriate networks</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.dqn.DQNBase.init_nets">
+<code class="descname">init_nets</code><span class="sig-paren">(</span><em>global_nets=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/dqn.html#DQNBase.init_nets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.dqn.DQNBase.init_nets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize networks</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.dqn.DQNBase.update">
+<code class="descname">update</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/dqn.html#DQNBase.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.dqn.DQNBase.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates self.target_net and the explore variables</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.dqn.DQNBase.update_nets">
+<code class="descname">update_nets</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/dqn.html#DQNBase.update_nets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.dqn.DQNBase.update_nets" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="convlab.agent.algorithm.dqn.DoubleDQN">
+<em class="property">class </em><code class="descclassname">convlab.agent.algorithm.dqn.</code><code class="descname">DoubleDQN</code><span class="sig-paren">(</span><em>agent</em>, <em>global_nets=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/dqn.html#DoubleDQN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.dqn.DoubleDQN" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#convlab.agent.algorithm.dqn.DQN" title="convlab.agent.algorithm.dqn.DQN"><code class="xref py py-class docutils literal notranslate"><span class="pre">convlab.agent.algorithm.dqn.DQN</span></code></a></p>
+<p>Double-DQN (DDQN) class</p>
+<p>e.g. algorithm_spec
+“algorithm”: {</p>
+<blockquote>
+<div><p>“name”: “DDQN”,
+“action_pdtype”: “Argmax”,
+“action_policy”: “epsilon_greedy”,
+“explore_var_spec”: {</p>
+<blockquote>
+<div>“name”: “linear_decay”,
+“start_val”: 1.0,
+“end_val”: 0.1,
+“start_step”: 10,
+“end_step”: 1000,</div></blockquote>
+<p>},
+“gamma”: 0.99,
+“training_batch_iter”: 8,
+“training_iter”: 4,
+“training_frequency”: 10,
+“training_start_step”: 10</p>
+</div></blockquote>
+<p>}</p>
+<dl class="method">
+<dt id="convlab.agent.algorithm.dqn.DoubleDQN.init_nets">
+<code class="descname">init_nets</code><span class="sig-paren">(</span><em>global_nets=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/dqn.html#DoubleDQN.init_nets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.dqn.DoubleDQN.init_nets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize networks</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="convlab.agent.algorithm.dqn.VanillaDQN">
+<em class="property">class </em><code class="descclassname">convlab.agent.algorithm.dqn.</code><code class="descname">VanillaDQN</code><span class="sig-paren">(</span><em>agent</em>, <em>global_nets=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/dqn.html#VanillaDQN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.dqn.VanillaDQN" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#convlab.agent.algorithm.sarsa.SARSA" title="convlab.agent.algorithm.sarsa.SARSA"><code class="xref py py-class docutils literal notranslate"><span class="pre">convlab.agent.algorithm.sarsa.SARSA</span></code></a></p>
+<p>Implementation of a simple DQN algorithm.
+Algorithm:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>Collect some examples by acting in the environment and store them in a replay memory</li>
+<li>Every K steps sample N examples from replay memory</li>
+<li><dl class="first docutils">
+<dt>For each example calculate the target (bootstrapped estimate of the discounted value of the state and action taken), y, using a neural network to approximate the Q function. s’ is the next state following the action actually taken.</dt>
+<dd>y_t = r_t + gamma * argmax_a Q(s_t’, a)</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>For each example calculate the current estimate of the discounted value of the state and action taken</dt>
+<dd>x_t = Q(s_t, a_t)</dd>
+</dl>
+</li>
+<li>Calculate L(x, y) where L is a regression loss (eg. mse)</li>
+<li>Calculate the gradient of L with respect to all the parameters in the network and update the network parameters using the gradient</li>
+<li>Repeat steps 3 - 6 M times</li>
+<li>Repeat steps 2 - 7 Z times</li>
+<li>Repeat steps 1 - 8</li>
+</ol>
+</div></blockquote>
+<p>For more information on Q-Learning see Sergey Levine’s lectures 6 and 7 from CS294-112 Fall 2017
+<a class="reference external" href="https://www.youtube.com/playlist?list=PLkFD6_40KJIznC9CDbVTjAF2oyt8_VAe3">https://www.youtube.com/playlist?list=PLkFD6_40KJIznC9CDbVTjAF2oyt8_VAe3</a></p>
+<p>e.g. algorithm_spec
+“algorithm”: {</p>
+<blockquote>
+<div><p>“name”: “VanillaDQN”,
+“action_pdtype”: “Argmax”,
+“action_policy”: “epsilon_greedy”,
+“explore_var_spec”: {</p>
+<blockquote>
+<div>“name”: “linear_decay”,
+“start_val”: 1.0,
+“end_val”: 0.1,
+“start_step”: 10,
+“end_step”: 1000,</div></blockquote>
+<p>},
+“gamma”: 0.99,
+“training_batch_iter”: 8,
+“training_iter”: 4,
+“training_frequency”: 10,
+“training_start_step”: 10,</p>
+</div></blockquote>
+<p>}</p>
+<dl class="method">
+<dt id="convlab.agent.algorithm.dqn.VanillaDQN.act">
+<code class="descname">act</code><span class="sig-paren">(</span><em>state</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/dqn.html#VanillaDQN.act"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.dqn.VanillaDQN.act" title="Permalink to this definition">¶</a></dt>
+<dd><p>Selects and returns a discrete action for body using the action policy</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.dqn.VanillaDQN.calc_q_loss">
+<code class="descname">calc_q_loss</code><span class="sig-paren">(</span><em>batch</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/dqn.html#VanillaDQN.calc_q_loss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.dqn.VanillaDQN.calc_q_loss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the Q value loss using predicted and target Q values from the appropriate networks</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.dqn.VanillaDQN.init_algorithm_params">
+<code class="descname">init_algorithm_params</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/dqn.html#VanillaDQN.init_algorithm_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.dqn.VanillaDQN.init_algorithm_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize other algorithm parameters.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.dqn.VanillaDQN.init_nets">
+<code class="descname">init_nets</code><span class="sig-paren">(</span><em>global_nets=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/dqn.html#VanillaDQN.init_nets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.dqn.VanillaDQN.init_nets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize the neural network used to learn the Q function from the spec</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.dqn.VanillaDQN.sample">
+<code class="descname">sample</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/dqn.html#VanillaDQN.sample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.dqn.VanillaDQN.sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Samples a batch from memory of size self.memory_spec[‘batch_size’]</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.dqn.VanillaDQN.train">
+<code class="descname">train</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/dqn.html#VanillaDQN.train"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.dqn.VanillaDQN.train" title="Permalink to this definition">¶</a></dt>
+<dd><p>Completes one training step for the agent if it is time to train.
+i.e. the environment timestep is greater than the minimum training timestep and a multiple of the training_frequency.
+Each training step consists of sampling n batches from the agent’s memory.
+For each of the batches, the target Q values (q_targets) are computed and a single training step is taken k times
+Otherwise this function does nothing.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.dqn.VanillaDQN.update">
+<code class="descname">update</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/dqn.html#VanillaDQN.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.dqn.VanillaDQN.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the agent after training</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="convlab.agent.algorithm.dqn.WarmUpDQN">
+<em class="property">class </em><code class="descclassname">convlab.agent.algorithm.dqn.</code><code class="descname">WarmUpDQN</code><span class="sig-paren">(</span><em>agent</em>, <em>global_nets=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/dqn.html#WarmUpDQN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.dqn.WarmUpDQN" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#convlab.agent.algorithm.dqn.DQN" title="convlab.agent.algorithm.dqn.DQN"><code class="xref py py-class docutils literal notranslate"><span class="pre">convlab.agent.algorithm.dqn.DQN</span></code></a></p>
+<p>DQN class</p>
+<p>e.g. algorithm_spec
+“algorithm”: {</p>
+<blockquote>
+<div><p>“name”: “WarmUpDQN”,
+“action_pdtype”: “Argmax”,
+“action_policy”: “epsilon_greedy”,
+“warmup_epi”: 300,
+“explore_var_spec”: {</p>
+<blockquote>
+<div>“name”: “linear_decay”,
+“start_val”: 1.0,
+“end_val”: 0.1,
+“start_step”: 10,
+“end_step”: 1000,</div></blockquote>
+<p>},
+“gamma”: 0.99,
+“training_batch_iter”: 8,
+“training_iter”: 4,
+“training_frequency”: 10,
+“training_start_step”: 10</p>
+</div></blockquote>
+<p>}</p>
+<dl class="method">
+<dt id="convlab.agent.algorithm.dqn.WarmUpDQN.init_nets">
+<code class="descname">init_nets</code><span class="sig-paren">(</span><em>global_nets=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/dqn.html#WarmUpDQN.init_nets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.dqn.WarmUpDQN.init_nets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize networks</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.dqn.WarmUpDQN.train">
+<code class="descname">train</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/dqn.html#WarmUpDQN.train"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.dqn.WarmUpDQN.train" title="Permalink to this definition">¶</a></dt>
+<dd><p>Completes one training step for the agent if it is time to train.
+i.e. the environment timestep is greater than the minimum training timestep and a multiple of the training_frequency.
+Each training step consists of sampling n batches from the agent’s memory.
+For each of the batches, the target Q values (q_targets) are computed and a single training step is taken k times
+Otherwise this function does nothing.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.dqn.WarmUpDQN.warmup_sample">
+<code class="descname">warmup_sample</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/dqn.html#WarmUpDQN.warmup_sample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.dqn.WarmUpDQN.warmup_sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Samples a batch from warm-up memory</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-convlab.agent.algorithm.external">
+<span id="convlab-agent-algorithm-external-module"></span><h2>convlab.agent.algorithm.external module<a class="headerlink" href="#module-convlab.agent.algorithm.external" title="Permalink to this headline">¶</a></h2>
+<p>The random agent algorithm
+For basic dev purpose.</p>
+<dl class="class">
+<dt id="convlab.agent.algorithm.external.ExternalPolicy">
+<em class="property">class </em><code class="descclassname">convlab.agent.algorithm.external.</code><code class="descname">ExternalPolicy</code><span class="sig-paren">(</span><em>agent</em>, <em>global_nets=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/external.html#ExternalPolicy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.external.ExternalPolicy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#convlab.agent.algorithm.base.Algorithm" title="convlab.agent.algorithm.base.Algorithm"><code class="xref py py-class docutils literal notranslate"><span class="pre">convlab.agent.algorithm.base.Algorithm</span></code></a></p>
+<p>Example Random agent that works in both discrete and continuous envs</p>
+<dl class="method">
+<dt id="convlab.agent.algorithm.external.ExternalPolicy.act">
+<code class="descname">act</code><span class="sig-paren">(</span><em>state</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/external.html#ExternalPolicy.act"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.external.ExternalPolicy.act" title="Permalink to this definition">¶</a></dt>
+<dd><p>Standard act method.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.external.ExternalPolicy.init_algorithm_params">
+<code class="descname">init_algorithm_params</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/external.html#ExternalPolicy.init_algorithm_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.external.ExternalPolicy.init_algorithm_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize other algorithm parameters</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.external.ExternalPolicy.init_nets">
+<code class="descname">init_nets</code><span class="sig-paren">(</span><em>global_nets=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/external.html#ExternalPolicy.init_nets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.external.ExternalPolicy.init_nets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize the neural network from the spec</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.external.ExternalPolicy.reset">
+<code class="descname">reset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/external.html#ExternalPolicy.reset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.external.ExternalPolicy.reset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.external.ExternalPolicy.sample">
+<code class="descname">sample</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/external.html#ExternalPolicy.sample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.external.ExternalPolicy.sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Samples a batch from memory</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.external.ExternalPolicy.train">
+<code class="descname">train</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/external.html#ExternalPolicy.train"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.external.ExternalPolicy.train" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implement algorithm train, or throw NotImplementedError</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.external.ExternalPolicy.update">
+<code class="descname">update</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/external.html#ExternalPolicy.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.external.ExternalPolicy.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implement algorithm update, or throw NotImplementedError</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-convlab.agent.algorithm.policy_util">
+<span id="convlab-agent-algorithm-policy-util-module"></span><h2>convlab.agent.algorithm.policy_util module<a class="headerlink" href="#module-convlab.agent.algorithm.policy_util" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="convlab.agent.algorithm.policy_util.VarScheduler">
+<em class="property">class </em><code class="descclassname">convlab.agent.algorithm.policy_util.</code><code class="descname">VarScheduler</code><span class="sig-paren">(</span><em>var_decay_spec=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/policy_util.html#VarScheduler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.policy_util.VarScheduler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Variable scheduler for decaying variables such as explore_var (epsilon, tau) and entropy</p>
+<p>e.g. spec
+“explore_var_spec”: {</p>
+<blockquote>
+<div>“name”: “linear_decay”,
+“start_val”: 1.0,
+“end_val”: 0.1,
+“start_step”: 0,
+“end_step”: 800,</div></blockquote>
+<p>},</p>
+<dl class="method">
+<dt id="convlab.agent.algorithm.policy_util.VarScheduler.update">
+<code class="descname">update</code><span class="sig-paren">(</span><em>algorithm</em>, <em>clock</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/policy_util.html#VarScheduler.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.policy_util.VarScheduler.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get an updated value for var</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.agent.algorithm.policy_util.boltzmann">
+<code class="descclassname">convlab.agent.algorithm.policy_util.</code><code class="descname">boltzmann</code><span class="sig-paren">(</span><em>state</em>, <em>algorithm</em>, <em>body</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/policy_util.html#boltzmann"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.policy_util.boltzmann" title="Permalink to this definition">¶</a></dt>
+<dd><p>Boltzmann policy: adjust pdparam with temperature tau; the higher the more randomness/noise in action.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.agent.algorithm.policy_util.calc_pdparam">
+<code class="descclassname">convlab.agent.algorithm.policy_util.</code><code class="descname">calc_pdparam</code><span class="sig-paren">(</span><em>state</em>, <em>algorithm</em>, <em>body</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/policy_util.html#calc_pdparam"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.policy_util.calc_pdparam" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prepare the state and run algorithm.calc_pdparam to get pdparam for action_pd
+&#64;param tensor:state For pdparam = net(state)
+&#64;param algorithm The algorithm containing self.net
+&#64;param body Body which links algorithm to the env which the action is for
+&#64;returns tensor:pdparam
+&#64;example</p>
+<p>pdparam = calc_pdparam(state, algorithm, body)
+action_pd = ActionPD(logits=pdparam)  # e.g. ActionPD is Categorical
+action = action_pd.sample()</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.agent.algorithm.policy_util.default">
+<code class="descclassname">convlab.agent.algorithm.policy_util.</code><code class="descname">default</code><span class="sig-paren">(</span><em>state</em>, <em>algorithm</em>, <em>body</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/policy_util.html#default"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.policy_util.default" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plain policy by direct sampling from a default action probability defined by body.ActionPD</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.agent.algorithm.policy_util.epsilon_greedy">
+<code class="descclassname">convlab.agent.algorithm.policy_util.</code><code class="descname">epsilon_greedy</code><span class="sig-paren">(</span><em>state</em>, <em>algorithm</em>, <em>body</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/policy_util.html#epsilon_greedy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.policy_util.epsilon_greedy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Epsilon-greedy policy: with probability epsilon, do random action, otherwise do default sampling.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.agent.algorithm.policy_util.get_action_pd_cls">
+<code class="descclassname">convlab.agent.algorithm.policy_util.</code><code class="descname">get_action_pd_cls</code><span class="sig-paren">(</span><em>action_pdtype</em>, <em>action_type</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/policy_util.html#get_action_pd_cls"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.policy_util.get_action_pd_cls" title="Permalink to this definition">¶</a></dt>
+<dd><p>Verify and get the action prob. distribution class for construction
+Called by body at init to set its own ActionPD</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.agent.algorithm.policy_util.get_action_type">
+<code class="descclassname">convlab.agent.algorithm.policy_util.</code><code class="descname">get_action_type</code><span class="sig-paren">(</span><em>action_space</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/policy_util.html#get_action_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.policy_util.get_action_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to get the action type to choose prob. dist. to sample actions from NN logits output</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.agent.algorithm.policy_util.guard_tensor">
+<code class="descclassname">convlab.agent.algorithm.policy_util.</code><code class="descname">guard_tensor</code><span class="sig-paren">(</span><em>state</em>, <em>body</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/policy_util.html#guard_tensor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.policy_util.guard_tensor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Guard-cast tensor before being input to network</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.agent.algorithm.policy_util.init_action_pd">
+<code class="descclassname">convlab.agent.algorithm.policy_util.</code><code class="descname">init_action_pd</code><span class="sig-paren">(</span><em>ActionPD</em>, <em>pdparam</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/policy_util.html#init_action_pd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.policy_util.init_action_pd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize the action_pd for discrete or continuous actions:
+- discrete: action_pd = ActionPD(logits)
+- continuous: action_pd = ActionPD(loc, scale)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.agent.algorithm.policy_util.multi_boltzmann">
+<code class="descclassname">convlab.agent.algorithm.policy_util.</code><code class="descname">multi_boltzmann</code><span class="sig-paren">(</span><em>states</em>, <em>algorithm</em>, <em>body_list</em>, <em>pdparam</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/policy_util.html#multi_boltzmann"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.policy_util.multi_boltzmann" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply Boltzmann policy body-wise</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.agent.algorithm.policy_util.multi_default">
+<code class="descclassname">convlab.agent.algorithm.policy_util.</code><code class="descname">multi_default</code><span class="sig-paren">(</span><em>states</em>, <em>algorithm</em>, <em>body_list</em>, <em>pdparam</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/policy_util.html#multi_default"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.policy_util.multi_default" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply default policy body-wise
+Note, for efficiency, do a single forward pass to calculate pdparam, then call this policy like:
+&#64;example</p>
+<p>pdparam = self.calc_pdparam(state)
+action_a = self.action_policy(pdparam, self, body_list)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.agent.algorithm.policy_util.multi_epsilon_greedy">
+<code class="descclassname">convlab.agent.algorithm.policy_util.</code><code class="descname">multi_epsilon_greedy</code><span class="sig-paren">(</span><em>states</em>, <em>algorithm</em>, <em>body_list</em>, <em>pdparam</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/policy_util.html#multi_epsilon_greedy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.policy_util.multi_epsilon_greedy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply epsilon-greedy policy body-wise</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.agent.algorithm.policy_util.multi_random">
+<code class="descclassname">convlab.agent.algorithm.policy_util.</code><code class="descname">multi_random</code><span class="sig-paren">(</span><em>states</em>, <em>algorithm</em>, <em>body_list</em>, <em>pdparam</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/policy_util.html#multi_random"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.policy_util.multi_random" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply random policy body-wise.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.agent.algorithm.policy_util.random">
+<code class="descclassname">convlab.agent.algorithm.policy_util.</code><code class="descname">random</code><span class="sig-paren">(</span><em>state</em>, <em>algorithm</em>, <em>body</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/policy_util.html#random"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.policy_util.random" title="Permalink to this definition">¶</a></dt>
+<dd><p>Random action using gym.action_space.sample(), with the same format as default()</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.agent.algorithm.policy_util.rule_guide">
+<code class="descclassname">convlab.agent.algorithm.policy_util.</code><code class="descname">rule_guide</code><span class="sig-paren">(</span><em>state</em>, <em>algorithm</em>, <em>body</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/policy_util.html#rule_guide"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.policy_util.rule_guide" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="convlab.agent.algorithm.policy_util.sample_action">
+<code class="descclassname">convlab.agent.algorithm.policy_util.</code><code class="descname">sample_action</code><span class="sig-paren">(</span><em>ActionPD</em>, <em>pdparam</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/policy_util.html#sample_action"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.policy_util.sample_action" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenience method to sample action(s) from action_pd = ActionPD(pdparam)
+Works with batched pdparam too
+&#64;returns tensor:action Sampled action(s)
+&#64;example</p>
+<p># policy contains:
+pdparam = calc_pdparam(state, algorithm, body)
+action = sample_action(body.ActionPD, pdparam)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.agent.algorithm.policy_util.warmup_default">
+<code class="descclassname">convlab.agent.algorithm.policy_util.</code><code class="descname">warmup_default</code><span class="sig-paren">(</span><em>state</em>, <em>algorithm</em>, <em>body</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/policy_util.html#warmup_default"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.policy_util.warmup_default" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="convlab.agent.algorithm.policy_util.warmup_epsilon_greedy">
+<code class="descclassname">convlab.agent.algorithm.policy_util.</code><code class="descname">warmup_epsilon_greedy</code><span class="sig-paren">(</span><em>state</em>, <em>algorithm</em>, <em>body</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/policy_util.html#warmup_epsilon_greedy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.policy_util.warmup_epsilon_greedy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-convlab.agent.algorithm.ppo">
+<span id="convlab-agent-algorithm-ppo-module"></span><h2>convlab.agent.algorithm.ppo module<a class="headerlink" href="#module-convlab.agent.algorithm.ppo" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="convlab.agent.algorithm.ppo.PPO">
+<em class="property">class </em><code class="descclassname">convlab.agent.algorithm.ppo.</code><code class="descname">PPO</code><span class="sig-paren">(</span><em>agent</em>, <em>global_nets=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/ppo.html#PPO"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.ppo.PPO" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#convlab.agent.algorithm.actor_critic.ActorCritic" title="convlab.agent.algorithm.actor_critic.ActorCritic"><code class="xref py py-class docutils literal notranslate"><span class="pre">convlab.agent.algorithm.actor_critic.ActorCritic</span></code></a></p>
+<p>Implementation of PPO
+This is actually just ActorCritic with a custom loss function
+Original paper: “Proximal Policy Optimization Algorithms”
+<a class="reference external" href="https://arxiv.org/pdf/1707.06347.pdf">https://arxiv.org/pdf/1707.06347.pdf</a></p>
+<p>Adapted from OpenAI baselines, CPU version <a class="reference external" href="https://github.com/openai/baselines/tree/master/baselines/ppo1">https://github.com/openai/baselines/tree/master/baselines/ppo1</a>
+Algorithm:
+for iteration = 1, 2, 3, … do</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>for actor = 1, 2, 3, …, N do</dt>
+<dd>run policy pi_old in env for T timesteps
+compute advantage A_1, …, A_T</dd>
+</dl>
+<p>end for
+optimize surrogate L wrt theta, with K epochs and minibatch size M &lt;= NT</p>
+</div></blockquote>
+<p>end for</p>
+<p>e.g. algorithm_spec
+“algorithm”: {</p>
+<blockquote>
+<div><p>“name”: “PPO”,
+“action_pdtype”: “default”,
+“action_policy”: “default”,
+“explore_var_spec”: null,
+“gamma”: 0.99,
+“lam”: 1.0,
+“clip_eps_spec”: {</p>
+<blockquote>
+<div>“name”: “linear_decay”,
+“start_val”: 0.01,
+“end_val”: 0.001,
+“start_step”: 100,
+“end_step”: 5000,</div></blockquote>
+<p>},
+“entropy_coef_spec”: {</p>
+<blockquote>
+<div>“name”: “linear_decay”,
+“start_val”: 0.01,
+“end_val”: 0.001,
+“start_step”: 100,
+“end_step”: 5000,</div></blockquote>
+<p>},
+“minibatch_size”: 256,
+“training_frequency”: 1,
+“training_epoch”: 8,</p>
+</div></blockquote>
+<p>}</p>
+<p>e.g. special net_spec param “shared” to share/separate Actor/Critic
+“net”: {</p>
+<blockquote>
+<div>“type”: “MLPNet”,
+“shared”: true,
+…</div></blockquote>
+<dl class="method">
+<dt id="convlab.agent.algorithm.ppo.PPO.calc_policy_loss">
+<code class="descname">calc_policy_loss</code><span class="sig-paren">(</span><em>batch</em>, <em>pdparams</em>, <em>advs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/ppo.html#PPO.calc_policy_loss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.ppo.PPO.calc_policy_loss" title="Permalink to this definition">¶</a></dt>
+<dd><p>The PPO loss function (subscript t is omitted)
+L^{CLIP+VF+S} = E[ L^CLIP - c1 * L^VF + c2 * S[pi](s) ]</p>
+<p>Breakdown piecewise,
+1. L^CLIP = E[ min(ratio * A, clip(ratio, 1-eps, 1+eps) * A) ]
+where ratio = pi(a|s) / pi_old(a|s)</p>
+<ol class="arabic simple" start="2">
+<li>L^VF = E[ mse(V(s_t), V^target) ]</li>
+<li>S = E[ entropy ]</li>
+</ol>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.ppo.PPO.init_algorithm_params">
+<code class="descname">init_algorithm_params</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/ppo.html#PPO.init_algorithm_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.ppo.PPO.init_algorithm_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize other algorithm parameters</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.ppo.PPO.init_nets">
+<code class="descname">init_nets</code><span class="sig-paren">(</span><em>global_nets=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/ppo.html#PPO.init_nets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.ppo.PPO.init_nets" title="Permalink to this definition">¶</a></dt>
+<dd><p>PPO uses old and new to calculate ratio for loss</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.ppo.PPO.train">
+<code class="descname">train</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/ppo.html#PPO.train"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.ppo.PPO.train" title="Permalink to this definition">¶</a></dt>
+<dd><p>Train actor critic by computing the loss in batch efficiently</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.ppo.PPO.update">
+<code class="descname">update</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/ppo.html#PPO.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.ppo.PPO.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implement algorithm update, or throw NotImplementedError</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-convlab.agent.algorithm.random">
+<span id="convlab-agent-algorithm-random-module"></span><h2>convlab.agent.algorithm.random module<a class="headerlink" href="#module-convlab.agent.algorithm.random" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="convlab.agent.algorithm.random.Random">
+<em class="property">class </em><code class="descclassname">convlab.agent.algorithm.random.</code><code class="descname">Random</code><span class="sig-paren">(</span><em>agent</em>, <em>global_nets=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/random.html#Random"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.random.Random" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#convlab.agent.algorithm.base.Algorithm" title="convlab.agent.algorithm.base.Algorithm"><code class="xref py py-class docutils literal notranslate"><span class="pre">convlab.agent.algorithm.base.Algorithm</span></code></a></p>
+<p>Example Random agent that works in both discrete and continuous envs</p>
+<dl class="method">
+<dt id="convlab.agent.algorithm.random.Random.act">
+<code class="descname">act</code><span class="sig-paren">(</span><em>state</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/random.html#Random.act"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.random.Random.act" title="Permalink to this definition">¶</a></dt>
+<dd><p>Random action</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.random.Random.init_algorithm_params">
+<code class="descname">init_algorithm_params</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/random.html#Random.init_algorithm_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.random.Random.init_algorithm_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize other algorithm parameters</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.random.Random.init_nets">
+<code class="descname">init_nets</code><span class="sig-paren">(</span><em>global_nets=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/random.html#Random.init_nets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.random.Random.init_nets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize the neural network from the spec</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.random.Random.sample">
+<code class="descname">sample</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/random.html#Random.sample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.random.Random.sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Samples a batch from memory</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.random.Random.train">
+<code class="descname">train</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/random.html#Random.train"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.random.Random.train" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implement algorithm train, or throw NotImplementedError</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.random.Random.update">
+<code class="descname">update</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/random.html#Random.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.random.Random.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implement algorithm update, or throw NotImplementedError</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-convlab.agent.algorithm.reinforce">
+<span id="convlab-agent-algorithm-reinforce-module"></span><h2>convlab.agent.algorithm.reinforce module<a class="headerlink" href="#module-convlab.agent.algorithm.reinforce" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="convlab.agent.algorithm.reinforce.Reinforce">
+<em class="property">class </em><code class="descclassname">convlab.agent.algorithm.reinforce.</code><code class="descname">Reinforce</code><span class="sig-paren">(</span><em>agent</em>, <em>global_nets=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/reinforce.html#Reinforce"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.reinforce.Reinforce" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#convlab.agent.algorithm.base.Algorithm" title="convlab.agent.algorithm.base.Algorithm"><code class="xref py py-class docutils literal notranslate"><span class="pre">convlab.agent.algorithm.base.Algorithm</span></code></a></p>
+<p>Implementation of REINFORCE (Williams, 1992) with baseline for discrete or continuous actions <a class="reference external" href="http://www-anw.cs.umass.edu/~barto/courses/cs687/williams92simple.pdf">http://www-anw.cs.umass.edu/~barto/courses/cs687/williams92simple.pdf</a>
+Adapted from <a class="reference external" href="https://github.com/pytorch/examples/blob/master/reinforcement_learning/reinforce.py">https://github.com/pytorch/examples/blob/master/reinforcement_learning/reinforce.py</a>
+Algorithm:</p>
+<blockquote>
+<div><ol class="arabic simple" start="0">
+<li>Collect n episodes of data</li>
+<li><dl class="first docutils">
+<dt>At each timestep in an episode</dt>
+<dd><ul class="first last">
+<li>Calculate the advantage of that timestep</li>
+<li>Multiply the advantage by the negative of the log probability of the action taken</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li>Sum all the values above.</li>
+<li>Calculate the gradient of this value with respect to all of the parameters of the network</li>
+<li>Update the network parameters using the gradient</li>
+</ol>
+</div></blockquote>
+<p>e.g. algorithm_spec:
+“algorithm”: {</p>
+<blockquote>
+<div><p>“name”: “Reinforce”,
+“action_pdtype”: “default”,
+“action_policy”: “default”,
+“explore_var_spec”: null,
+“gamma”: 0.99,
+“entropy_coef_spec”: {</p>
+<blockquote>
+<div>“name”: “linear_decay”,
+“start_val”: 0.01,
+“end_val”: 0.001,
+“start_step”: 100,
+“end_step”: 5000,</div></blockquote>
+<p>},
+“training_frequency”: 1,</p>
+</div></blockquote>
+<p>}</p>
+<dl class="method">
+<dt id="convlab.agent.algorithm.reinforce.Reinforce.act">
+<code class="descname">act</code><span class="sig-paren">(</span><em>state</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/reinforce.html#Reinforce.act"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.reinforce.Reinforce.act" title="Permalink to this definition">¶</a></dt>
+<dd><p>Standard act method.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.reinforce.Reinforce.calc_pdparam">
+<code class="descname">calc_pdparam</code><span class="sig-paren">(</span><em>x</em>, <em>net=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/reinforce.html#Reinforce.calc_pdparam"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.reinforce.Reinforce.calc_pdparam" title="Permalink to this definition">¶</a></dt>
+<dd><p>The pdparam will be the logits for discrete prob. dist., or the mean and std for continuous prob. dist.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.reinforce.Reinforce.calc_pdparam_batch">
+<code class="descname">calc_pdparam_batch</code><span class="sig-paren">(</span><em>batch</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/reinforce.html#Reinforce.calc_pdparam_batch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.reinforce.Reinforce.calc_pdparam_batch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Efficiently forward to get pdparam and by batch for loss computation</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.reinforce.Reinforce.calc_policy_loss">
+<code class="descname">calc_policy_loss</code><span class="sig-paren">(</span><em>batch</em>, <em>pdparams</em>, <em>advs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/reinforce.html#Reinforce.calc_policy_loss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.reinforce.Reinforce.calc_policy_loss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the actor’s policy loss</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.reinforce.Reinforce.calc_ret_advs">
+<code class="descname">calc_ret_advs</code><span class="sig-paren">(</span><em>batch</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/reinforce.html#Reinforce.calc_ret_advs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.reinforce.Reinforce.calc_ret_advs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate plain returns; which is generalized to advantage in ActorCritic</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.reinforce.Reinforce.init_algorithm_params">
+<code class="descname">init_algorithm_params</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/reinforce.html#Reinforce.init_algorithm_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.reinforce.Reinforce.init_algorithm_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize other algorithm parameters</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.reinforce.Reinforce.init_nets">
+<code class="descname">init_nets</code><span class="sig-paren">(</span><em>global_nets=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/reinforce.html#Reinforce.init_nets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.reinforce.Reinforce.init_nets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize the neural network used to learn the policy function from the spec
+Below we automatically select an appropriate net for a discrete or continuous action space if the setting is of the form ‘MLPNet’. Otherwise the correct type of network is assumed to be specified in the spec.
+Networks for continuous action spaces have two heads and return two values, the first is a tensor containing the mean of the action policy, the second is a tensor containing the std deviation of the action policy. The distribution is assumed to be a Gaussian (Normal) distribution.
+Networks for discrete action spaces have a single head and return the logits for a categorical probability distribution over the discrete actions</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.reinforce.Reinforce.sample">
+<code class="descname">sample</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/reinforce.html#Reinforce.sample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.reinforce.Reinforce.sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Samples a batch from memory</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.reinforce.Reinforce.train">
+<code class="descname">train</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/reinforce.html#Reinforce.train"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.reinforce.Reinforce.train" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implement algorithm train, or throw NotImplementedError</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.reinforce.Reinforce.update">
+<code class="descname">update</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/reinforce.html#Reinforce.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.reinforce.Reinforce.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implement algorithm update, or throw NotImplementedError</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="convlab.agent.algorithm.reinforce.WarmUpReinforce">
+<em class="property">class </em><code class="descclassname">convlab.agent.algorithm.reinforce.</code><code class="descname">WarmUpReinforce</code><span class="sig-paren">(</span><em>agent</em>, <em>global_nets=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/reinforce.html#WarmUpReinforce"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.reinforce.WarmUpReinforce" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#convlab.agent.algorithm.reinforce.Reinforce" title="convlab.agent.algorithm.reinforce.Reinforce"><code class="xref py py-class docutils literal notranslate"><span class="pre">convlab.agent.algorithm.reinforce.Reinforce</span></code></a></p>
+<p>Implementation of REINFORCE (Williams, 1992) with baseline for discrete or continuous actions <a class="reference external" href="http://www-anw.cs.umass.edu/~barto/courses/cs687/williams92simple.pdf">http://www-anw.cs.umass.edu/~barto/courses/cs687/williams92simple.pdf</a>
+Adapted from <a class="reference external" href="https://github.com/pytorch/examples/blob/master/reinforcement_learning/reinforce.py">https://github.com/pytorch/examples/blob/master/reinforcement_learning/reinforce.py</a>
+Algorithm:</p>
+<blockquote>
+<div><ol class="arabic simple" start="0">
+<li>Collect n episodes of data</li>
+<li><dl class="first docutils">
+<dt>At each timestep in an episode</dt>
+<dd><ul class="first last">
+<li>Calculate the advantage of that timestep</li>
+<li>Multiply the advantage by the negative of the log probability of the action taken</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li>Sum all the values above.</li>
+<li>Calculate the gradient of this value with respect to all of the parameters of the network</li>
+<li>Update the network parameters using the gradient</li>
+</ol>
+</div></blockquote>
+<p>e.g. algorithm_spec:
+“algorithm”: {</p>
+<blockquote>
+<div><p>“name”: “Reinforce”,
+“action_pdtype”: “default”,
+“action_policy”: “default”,
+“warmup_epi”: 300,
+“explore_var_spec”: null,
+“gamma”: 0.99,
+“entropy_coef_spec”: {</p>
+<blockquote>
+<div>“name”: “linear_decay”,
+“start_val”: 0.01,
+“end_val”: 0.001,
+“start_step”: 100,
+“end_step”: 5000,</div></blockquote>
+<p>},
+“training_frequency”: 1,</p>
+</div></blockquote>
+<p>}</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-convlab.agent.algorithm.sarsa">
+<span id="convlab-agent-algorithm-sarsa-module"></span><h2>convlab.agent.algorithm.sarsa module<a class="headerlink" href="#module-convlab.agent.algorithm.sarsa" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="convlab.agent.algorithm.sarsa.SARSA">
+<em class="property">class </em><code class="descclassname">convlab.agent.algorithm.sarsa.</code><code class="descname">SARSA</code><span class="sig-paren">(</span><em>agent</em>, <em>global_nets=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/sarsa.html#SARSA"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.sarsa.SARSA" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#convlab.agent.algorithm.base.Algorithm" title="convlab.agent.algorithm.base.Algorithm"><code class="xref py py-class docutils literal notranslate"><span class="pre">convlab.agent.algorithm.base.Algorithm</span></code></a></p>
+<p>Implementation of SARSA.</p>
+<p>Algorithm:
+Repeat:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>Collect some examples by acting in the environment and store them in an on policy replay memory (either batch or episodic)</li>
+<li><dl class="first docutils">
+<dt>For each example calculate the target (bootstrapped estimate of the discounted value of the state and action taken), y, using a neural network to approximate the Q function. s_t’ is the next state following the action actually taken, a_t. a_t’ is the action actually taken in the next state s_t’.</dt>
+<dd>y_t = r_t + gamma * Q(s_t’, a_t’)</dd>
+</dl>
+</li>
+</ol>
+<ol class="arabic simple" start="4">
+<li><dl class="first docutils">
+<dt>For each example calculate the current estimate of the discounted value of the state and action taken</dt>
+<dd>x_t = Q(s_t, a_t)</dd>
+</dl>
+</li>
+<li>Calculate L(x, y) where L is a regression loss (eg. mse)</li>
+<li>Calculate the gradient of L with respect to all the parameters in the network and update the network parameters using the gradient</li>
+</ol>
+</div></blockquote>
+<p>e.g. algorithm_spec
+“algorithm”: {</p>
+<blockquote>
+<div><p>“name”: “SARSA”,
+“action_pdtype”: “default”,
+“action_policy”: “boltzmann”,
+“explore_var_spec”: {</p>
+<blockquote>
+<div>“name”: “linear_decay”,
+“start_val”: 1.0,
+“end_val”: 0.1,
+“start_step”: 10,
+“end_step”: 1000,</div></blockquote>
+<p>},
+“gamma”: 0.99,
+“training_frequency”: 10,</p>
+</div></blockquote>
+<p>}</p>
+<dl class="method">
+<dt id="convlab.agent.algorithm.sarsa.SARSA.act">
+<code class="descname">act</code><span class="sig-paren">(</span><em>state</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/sarsa.html#SARSA.act"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.sarsa.SARSA.act" title="Permalink to this definition">¶</a></dt>
+<dd><p>Note, SARSA is discrete-only</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.sarsa.SARSA.calc_pdparam">
+<code class="descname">calc_pdparam</code><span class="sig-paren">(</span><em>x</em>, <em>net=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/sarsa.html#SARSA.calc_pdparam"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.sarsa.SARSA.calc_pdparam" title="Permalink to this definition">¶</a></dt>
+<dd><p>To get the pdparam for action policy sampling, do a forward pass of the appropriate net, and pick the correct outputs.
+The pdparam will be the logits for discrete prob. dist., or the mean and std for continuous prob. dist.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.sarsa.SARSA.calc_q_loss">
+<code class="descname">calc_q_loss</code><span class="sig-paren">(</span><em>batch</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/sarsa.html#SARSA.calc_q_loss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.sarsa.SARSA.calc_q_loss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the Q value loss using predicted and target Q values from the appropriate networks</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.sarsa.SARSA.init_algorithm_params">
+<code class="descname">init_algorithm_params</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/sarsa.html#SARSA.init_algorithm_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.sarsa.SARSA.init_algorithm_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize other algorithm parameters.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.sarsa.SARSA.init_nets">
+<code class="descname">init_nets</code><span class="sig-paren">(</span><em>global_nets=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/sarsa.html#SARSA.init_nets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.sarsa.SARSA.init_nets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize the neural network used to learn the Q function from the spec</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.sarsa.SARSA.sample">
+<code class="descname">sample</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/sarsa.html#SARSA.sample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.sarsa.SARSA.sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Samples a batch from memory</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.sarsa.SARSA.train">
+<code class="descname">train</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/sarsa.html#SARSA.train"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.sarsa.SARSA.train" title="Permalink to this definition">¶</a></dt>
+<dd><p>Completes one training step for the agent if it is time to train.
+Otherwise this function does nothing.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.sarsa.SARSA.update">
+<code class="descname">update</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/sarsa.html#SARSA.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.sarsa.SARSA.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the agent after training</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-convlab.agent.algorithm.sil">
+<span id="convlab-agent-algorithm-sil-module"></span><h2>convlab.agent.algorithm.sil module<a class="headerlink" href="#module-convlab.agent.algorithm.sil" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="convlab.agent.algorithm.sil.PPOSIL">
+<em class="property">class </em><code class="descclassname">convlab.agent.algorithm.sil.</code><code class="descname">PPOSIL</code><span class="sig-paren">(</span><em>agent</em>, <em>global_nets=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/sil.html#PPOSIL"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.sil.PPOSIL" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#convlab.agent.algorithm.sil.SIL" title="convlab.agent.algorithm.sil.SIL"><code class="xref py py-class docutils literal notranslate"><span class="pre">convlab.agent.algorithm.sil.SIL</span></code></a>, <a class="reference internal" href="#convlab.agent.algorithm.ppo.PPO" title="convlab.agent.algorithm.ppo.PPO"><code class="xref py py-class docutils literal notranslate"><span class="pre">convlab.agent.algorithm.ppo.PPO</span></code></a></p>
+<p>SIL extended from PPO. This will call the SIL methods and use PPO as super().</p>
+<p>e.g. algorithm_spec
+“algorithm”: {</p>
+<blockquote>
+<div><p>“name”: “PPOSIL”,
+“action_pdtype”: “default”,
+“action_policy”: “default”,
+“explore_var_spec”: null,
+“gamma”: 0.99,
+“lam”: 1.0,
+“clip_eps_spec”: {</p>
+<blockquote>
+<div>“name”: “linear_decay”,
+“start_val”: 0.01,
+“end_val”: 0.001,
+“start_step”: 100,
+“end_step”: 5000,</div></blockquote>
+<p>},
+“entropy_coef_spec”: {</p>
+<blockquote>
+<div>“name”: “linear_decay”,
+“start_val”: 0.01,
+“end_val”: 0.001,
+“start_step”: 100,
+“end_step”: 5000,</div></blockquote>
+<p>},
+“sil_policy_loss_coef”: 1.0,
+“sil_val_loss_coef”: 0.01,
+“training_frequency”: 1,
+“training_batch_iter”: 8,
+“training_iter”: 8,
+“training_epoch”: 8,</p>
+</div></blockquote>
+<p>}</p>
+<p>e.g. special memory_spec
+“memory”: {</p>
+<blockquote>
+<div>“name”: “OnPolicyReplay”,
+“sil_replay_name”: “Replay”,
+“batch_size”: 32,
+“max_size”: 10000,
+“use_cer”: true</div></blockquote>
+<p>}</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="convlab.agent.algorithm.sil.SIL">
+<em class="property">class </em><code class="descclassname">convlab.agent.algorithm.sil.</code><code class="descname">SIL</code><span class="sig-paren">(</span><em>agent</em>, <em>global_nets=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/sil.html#SIL"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.sil.SIL" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#convlab.agent.algorithm.actor_critic.ActorCritic" title="convlab.agent.algorithm.actor_critic.ActorCritic"><code class="xref py py-class docutils literal notranslate"><span class="pre">convlab.agent.algorithm.actor_critic.ActorCritic</span></code></a></p>
+<p>Implementation of Self-Imitation Learning (SIL) <a class="reference external" href="https://arxiv.org/abs/1806.05635">https://arxiv.org/abs/1806.05635</a>
+This is actually just A2C with an extra SIL loss function</p>
+<p>e.g. algorithm_spec
+“algorithm”: {</p>
+<blockquote>
+<div><p>“name”: “SIL”,
+“action_pdtype”: “default”,
+“action_policy”: “default”,
+“explore_var_spec”: null,
+“gamma”: 0.99,
+“lam”: 1.0,
+“num_step_returns”: 100,
+“entropy_coef_spec”: {</p>
+<blockquote>
+<div>“name”: “linear_decay”,
+“start_val”: 0.01,
+“end_val”: 0.001,
+“start_step”: 100,
+“end_step”: 5000,</div></blockquote>
+<p>},
+“policy_loss_coef”: 1.0,
+“val_loss_coef”: 0.01,
+“sil_policy_loss_coef”: 1.0,
+“sil_val_loss_coef”: 0.01,
+“training_batch_iter”: 8,
+“training_frequency”: 1,
+“training_iter”: 8,</p>
+</div></blockquote>
+<p>}</p>
+<p>e.g. special memory_spec
+“memory”: {</p>
+<blockquote>
+<div>“name”: “OnPolicyReplay”,
+“sil_replay_name”: “Replay”,
+“batch_size”: 32,
+“max_size”: 10000,
+“use_cer”: true</div></blockquote>
+<p>}</p>
+<dl class="method">
+<dt id="convlab.agent.algorithm.sil.SIL.calc_sil_policy_val_loss">
+<code class="descname">calc_sil_policy_val_loss</code><span class="sig-paren">(</span><em>batch</em>, <em>pdparams</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/sil.html#SIL.calc_sil_policy_val_loss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.sil.SIL.calc_sil_policy_val_loss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the SIL policy losses for actor and critic
+sil_policy_loss = -log_prob * max(R - v_pred, 0)
+sil_val_loss = (max(R - v_pred, 0)^2) / 2
+This is called on a randomly-sample batch from experience replay</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.sil.SIL.init_algorithm_params">
+<code class="descname">init_algorithm_params</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/sil.html#SIL.init_algorithm_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.sil.SIL.init_algorithm_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize other algorithm parameters</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.sil.SIL.replay_sample">
+<code class="descname">replay_sample</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/sil.html#SIL.replay_sample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.sil.SIL.replay_sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Samples a batch from memory</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.sil.SIL.sample">
+<code class="descname">sample</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/sil.html#SIL.sample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.sil.SIL.sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Modify the onpolicy sample to also append to replay</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.algorithm.sil.SIL.train">
+<code class="descname">train</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/algorithm/sil.html#SIL.train"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.algorithm.sil.SIL.train" title="Permalink to this definition">¶</a></dt>
+<dd><p>Train actor critic by computing the loss in batch efficiently</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-convlab.agent.algorithm">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-convlab.agent.algorithm" title="Permalink to this headline">¶</a></h2>
+<p>The algorithm module
+Contains implementations of reinforcement learning algorithms.
+Uses the nets module to build neural networks as the relevant function approximators</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, ConvLab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

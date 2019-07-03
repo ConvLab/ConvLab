@@ -1,0 +1,935 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>convlab.lib.util &mdash; ConvLab 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> ConvLab
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">ConvLab</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>convlab.lib.util</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for convlab.lib.util</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Modified by Microsoft Corporation.</span>
+<span class="c1"># Licensed under the MIT license.</span>
+
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">operator</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">deque</span>
+<span class="kn">from</span> <span class="nn">contextlib</span> <span class="k">import</span> <span class="n">contextmanager</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">importlib</span> <span class="k">import</span> <span class="n">reload</span>
+<span class="kn">from</span> <span class="nn">pprint</span> <span class="k">import</span> <span class="n">pformat</span>
+
+<span class="kn">import</span> <span class="nn">cv2</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">pydash</span> <span class="k">as</span> <span class="nn">ps</span>
+<span class="kn">import</span> <span class="nn">regex</span> <span class="k">as</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.multiprocessing</span> <span class="k">as</span> <span class="nn">mp</span>
+<span class="kn">import</span> <span class="nn">ujson</span>
+<span class="kn">import</span> <span class="nn">yaml</span>
+
+<span class="kn">from</span> <span class="nn">convlab</span> <span class="k">import</span> <span class="n">ROOT_DIR</span><span class="p">,</span> <span class="n">EVAL_MODES</span>
+
+<span class="n">NUM_CPUS</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span>
+<span class="n">FILE_TS_FORMAT</span> <span class="o">=</span> <span class="s1">&#39;%Y_%m_</span><span class="si">%d</span><span class="s1">_%H%M%S&#39;</span>
+<span class="n">RE_FILE_TS</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;(\d</span><span class="si">{4}</span><span class="s1">_\d</span><span class="si">{2}</span><span class="s1">_\d</span><span class="si">{2}</span><span class="s1">_\d</span><span class="si">{6}</span><span class="s1">)&#39;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="LabJsonEncoder"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.util.LabJsonEncoder">[docs]</a><span class="k">class</span> <span class="nc">LabJsonEncoder</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">JSONEncoder</span><span class="p">):</span>
+<div class="viewcode-block" id="LabJsonEncoder.default"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.util.LabJsonEncoder.default">[docs]</a>    <span class="k">def</span> <span class="nf">default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="batch_get"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.util.batch_get">[docs]</a><span class="k">def</span> <span class="nf">batch_get</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">idxs</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Get multi-idxs from an array depending if it&#39;s a python list or np.array&#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="n">deque</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">itemgetter</span><span class="p">(</span><span class="o">*</span><span class="n">idxs</span><span class="p">)(</span><span class="n">arr</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">arr</span><span class="p">[</span><span class="n">idxs</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="calc_srs_mean_std"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.util.calc_srs_mean_std">[docs]</a><span class="k">def</span> <span class="nf">calc_srs_mean_std</span><span class="p">(</span><span class="n">sr_list</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Given a list of series, calculate their mean and std&#39;&#39;&#39;</span>
+    <span class="n">cat_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="nb">enumerate</span><span class="p">(</span><span class="n">sr_list</span><span class="p">)))</span>
+    <span class="n">mean_sr</span> <span class="o">=</span> <span class="n">cat_df</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">std_sr</span> <span class="o">=</span> <span class="n">cat_df</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">mean_sr</span><span class="p">,</span> <span class="n">std_sr</span></div>
+
+
+<div class="viewcode-block" id="calc_ts_diff"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.util.calc_ts_diff">[docs]</a><span class="k">def</span> <span class="nf">calc_ts_diff</span><span class="p">(</span><span class="n">ts2</span><span class="p">,</span> <span class="n">ts1</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Calculate the time from tss ts1 to ts2</span>
+<span class="sd">    @param {str} ts2 Later ts in the FILE_TS_FORMAT</span>
+<span class="sd">    @param {str} ts1 Earlier ts in the FILE_TS_FORMAT</span>
+<span class="sd">    @returns {str} delta_t in %H:%M:%S format</span>
+<span class="sd">    @example</span>
+
+<span class="sd">    ts1 = &#39;2017_10_17_084739&#39;</span>
+<span class="sd">    ts2 = &#39;2017_10_17_084740&#39;</span>
+<span class="sd">    ts_diff = util.calc_ts_diff(ts2, ts1)</span>
+<span class="sd">    # =&gt; &#39;0:00:01&#39;</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">delta_t</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">ts2</span><span class="p">,</span> <span class="n">FILE_TS_FORMAT</span><span class="p">)</span> <span class="o">-</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">ts1</span><span class="p">,</span> <span class="n">FILE_TS_FORMAT</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">delta_t</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="cast_df"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.util.cast_df">[docs]</a><span class="k">def</span> <span class="nf">cast_df</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;missing pydash method to cast value as DataFrame&#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">val</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">val</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="cast_list"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.util.cast_list">[docs]</a><span class="k">def</span> <span class="nf">cast_list</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;missing pydash method to cast value as list&#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">ps</span><span class="o">.</span><span class="n">is_list</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">val</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">val</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="clear_periodic_ckpt"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.util.clear_periodic_ckpt">[docs]</a><span class="k">def</span> <span class="nf">clear_periodic_ckpt</span><span class="p">(</span><span class="n">prepath</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Clear periodic (with -epi) ckpt files in prepath&#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="s1">&#39;-epi&#39;</span> <span class="ow">in</span> <span class="n">prepath</span><span class="p">:</span>
+        <span class="n">run_cmd</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;rm </span><span class="si">{prepath}</span><span class="s1">*&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="concat_batches"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.util.concat_batches">[docs]</a><span class="k">def</span> <span class="nf">concat_batches</span><span class="p">(</span><span class="n">batches</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Concat batch objects from body.memory.sample() into one batch, when all bodies experience similar envs</span>
+<span class="sd">    Also concat any nested epi sub-batches into flat batch</span>
+<span class="sd">    {k: arr1} + {k: arr2} = {k: arr1 + arr2}</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="c1"># if is nested, then is episodic</span>
+    <span class="n">is_episodic</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">batches</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;dones&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">))</span>
+    <span class="n">concat_batch</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">batches</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+        <span class="n">datas</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">batches</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">is_episodic</span><span class="p">:</span>  <span class="c1"># make into plain batch instead of nested</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">datas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">concat_batch</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">datas</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">concat_batch</span></div>
+
+
+<div class="viewcode-block" id="downcast_float32"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.util.downcast_float32">[docs]</a><span class="k">def</span> <span class="nf">downcast_float32</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Downcast any float64 col to float32 to allow safer pandas comparison&#39;&#39;&#39;</span>
+    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="s1">&#39;float&#39;</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+<div class="viewcode-block" id="epi_done"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.util.epi_done">[docs]</a><span class="k">def</span> <span class="nf">epi_done</span><span class="p">(</span><span class="n">done</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    General method to check if episode is done for both single and vectorized env</span>
+<span class="sd">    Only return True for singleton done since vectorized env does not have a natural episode boundary</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">isscalar</span><span class="p">(</span><span class="n">done</span><span class="p">)</span> <span class="ow">and</span> <span class="n">done</span></div>
+
+
+<div class="viewcode-block" id="find_ckpt"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.util.find_ckpt">[docs]</a><span class="k">def</span> <span class="nf">find_ckpt</span><span class="p">(</span><span class="n">prepath</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Find the ckpt-lorem-ipsum in a string and return lorem-ipsum&#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="s1">&#39;ckpt&#39;</span> <span class="ow">in</span> <span class="n">prepath</span><span class="p">:</span>
+        <span class="n">ckpt_str</span> <span class="o">=</span> <span class="n">ps</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">prepath</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">),</span> <span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">s</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;ckpt&#39;</span><span class="p">))</span>
+        <span class="n">ckpt</span> <span class="o">=</span> <span class="n">ckpt_str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;ckpt-&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">ckpt</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">ckpt</span></div>
+
+
+<div class="viewcode-block" id="frame_mod"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.util.frame_mod">[docs]</a><span class="k">def</span> <span class="nf">frame_mod</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">frequency</span><span class="p">,</span> <span class="n">num_envs</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Generic mod for (frame % frequency == 0) for when num_envs is 1 or more,</span>
+<span class="sd">    since frame will increase multiple ticks for vector env, use the remainder&#39;&#39;&#39;</span>
+    <span class="n">remainder</span> <span class="o">=</span> <span class="n">num_envs</span> <span class="ow">or</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">frame</span> <span class="o">%</span> <span class="n">frequency</span> <span class="o">&lt;</span> <span class="n">remainder</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="flatten_dict"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.util.flatten_dict">[docs]</a><span class="k">def</span> <span class="nf">flatten_dict</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">delim</span><span class="o">=</span><span class="s1">&#39;.&#39;</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Missing pydash method to flatten dict&#39;&#39;&#39;</span>
+    <span class="n">nobj</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">ps</span><span class="o">.</span><span class="n">is_dict</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">ps</span><span class="o">.</span><span class="n">is_empty</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
+            <span class="n">strip</span> <span class="o">=</span> <span class="n">flatten_dict</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">delim</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">strip</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">nobj</span><span class="p">[</span><span class="n">key</span> <span class="o">+</span> <span class="n">delim</span> <span class="o">+</span> <span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+        <span class="k">elif</span> <span class="n">ps</span><span class="o">.</span><span class="n">is_list</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">ps</span><span class="o">.</span><span class="n">is_empty</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="ow">and</span> <span class="n">ps</span><span class="o">.</span><span class="n">is_dict</span><span class="p">(</span><span class="n">val</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
+                <span class="n">nobj</span><span class="p">[</span><span class="n">key</span> <span class="o">+</span> <span class="n">delim</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">)]</span> <span class="o">=</span> <span class="n">v</span>
+                <span class="k">if</span> <span class="n">ps</span><span class="o">.</span><span class="n">is_object</span><span class="p">(</span><span class="n">v</span><span class="p">):</span>
+                    <span class="n">nobj</span> <span class="o">=</span> <span class="n">flatten_dict</span><span class="p">(</span><span class="n">nobj</span><span class="p">,</span> <span class="n">delim</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">nobj</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+    <span class="k">return</span> <span class="n">nobj</span></div>
+
+
+<div class="viewcode-block" id="get_class_name"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.util.get_class_name">[docs]</a><span class="k">def</span> <span class="nf">get_class_name</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Get the class name of an object&#39;&#39;&#39;</span>
+    <span class="n">class_name</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+    <span class="k">if</span> <span class="n">lower</span><span class="p">:</span>
+        <span class="n">class_name</span> <span class="o">=</span> <span class="n">class_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">class_name</span></div>
+
+
+<div class="viewcode-block" id="get_class_attr"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.util.get_class_attr">[docs]</a><span class="k">def</span> <span class="nf">get_class_attr</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Get the class attr of an object as dict&#39;&#39;&#39;</span>
+    <span class="n">attr_dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="s1">&#39;__dict__&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">ps</span><span class="o">.</span><span class="n">is_tuple</span><span class="p">(</span><span class="n">v</span><span class="p">):</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="n">v</span>
+        <span class="n">attr_dict</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+    <span class="k">return</span> <span class="n">attr_dict</span></div>
+
+
+<div class="viewcode-block" id="get_file_ext"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.util.get_file_ext">[docs]</a><span class="k">def</span> <span class="nf">get_file_ext</span><span class="p">(</span><span class="n">data_path</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;get the `.ext` of file.ext&#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">data_path</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="get_fn_list"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.util.get_fn_list">[docs]</a><span class="k">def</span> <span class="nf">get_fn_list</span><span class="p">(</span><span class="n">a_cls</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Get the callable, non-private functions of a class</span>
+<span class="sd">    @returns {[*str]} A list of strings of fn names</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">fn_list</span> <span class="o">=</span> <span class="n">ps</span><span class="o">.</span><span class="n">filter_</span><span class="p">(</span><span class="nb">dir</span><span class="p">(</span><span class="n">a_cls</span><span class="p">),</span> <span class="k">lambda</span> <span class="n">fn</span><span class="p">:</span> <span class="ow">not</span> <span class="n">fn</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;__&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">callable</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">a_cls</span><span class="p">,</span> <span class="n">fn</span><span class="p">)))</span>
+    <span class="k">return</span> <span class="n">fn_list</span></div>
+
+
+<div class="viewcode-block" id="get_git_sha"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.util.get_git_sha">[docs]</a><span class="k">def</span> <span class="nf">get_git_sha</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">([</span><span class="s1">&#39;git&#39;</span><span class="p">,</span> <span class="s1">&#39;rev-parse&#39;</span><span class="p">,</span> <span class="s1">&#39;HEAD&#39;</span><span class="p">],</span> <span class="n">close_fds</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">ROOT_DIR</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="get_lab_mode"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.util.get_lab_mode">[docs]</a><span class="k">def</span> <span class="nf">get_lab_mode</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;lab_mode&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_prepath"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.util.get_prepath">[docs]</a><span class="k">def</span> <span class="nf">get_prepath</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;experiment&#39;</span><span class="p">):</span>
+    <span class="n">spec_name</span> <span class="o">=</span> <span class="n">spec</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+    <span class="n">meta_spec</span> <span class="o">=</span> <span class="n">spec</span><span class="p">[</span><span class="s1">&#39;meta&#39;</span><span class="p">]</span>
+    <span class="n">predir</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;output/</span><span class="si">{spec_name}</span><span class="s1">_</span><span class="si">{meta_spec[&quot;experiment_ts&quot;]}</span><span class="s1">&#39;</span>
+    <span class="n">prename</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;</span><span class="si">{spec_name}</span><span class="s1">&#39;</span>
+    <span class="n">trial_index</span> <span class="o">=</span> <span class="n">meta_spec</span><span class="p">[</span><span class="s1">&#39;trial&#39;</span><span class="p">]</span>
+    <span class="n">session_index</span> <span class="o">=</span> <span class="n">meta_spec</span><span class="p">[</span><span class="s1">&#39;session&#39;</span><span class="p">]</span>
+    <span class="n">t_str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span> <span class="k">if</span> <span class="n">trial_index</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">f</span><span class="s1">&#39;_t</span><span class="si">{trial_index}</span><span class="s1">&#39;</span>
+    <span class="n">s_str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span> <span class="k">if</span> <span class="n">session_index</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">f</span><span class="s1">&#39;_s</span><span class="si">{session_index}</span><span class="s1">&#39;</span>
+    <span class="k">if</span> <span class="n">unit</span> <span class="o">==</span> <span class="s1">&#39;trial&#39;</span><span class="p">:</span>
+        <span class="n">prename</span> <span class="o">+=</span> <span class="n">t_str</span>
+    <span class="k">elif</span> <span class="n">unit</span> <span class="o">==</span> <span class="s1">&#39;session&#39;</span><span class="p">:</span>
+        <span class="n">prename</span> <span class="o">+=</span> <span class="n">f</span><span class="s1">&#39;</span><span class="si">{t_str}{s_str}</span><span class="s1">&#39;</span>
+    <span class="n">ckpt</span> <span class="o">=</span> <span class="n">meta_spec</span><span class="p">[</span><span class="s1">&#39;ckpt&#39;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">ckpt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">prename</span> <span class="o">+=</span> <span class="n">f</span><span class="s1">&#39;_ckpt-</span><span class="si">{ckpt}</span><span class="s1">&#39;</span>
+    <span class="n">prepath</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;</span><span class="si">{predir}</span><span class="s1">/</span><span class="si">{prename}</span><span class="s1">&#39;</span>
+    <span class="k">return</span> <span class="n">prepath</span></div>
+
+
+<div class="viewcode-block" id="get_ts"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.util.get_ts">[docs]</a><span class="k">def</span> <span class="nf">get_ts</span><span class="p">(</span><span class="n">pattern</span><span class="o">=</span><span class="n">FILE_TS_FORMAT</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Get current ts, defaults to format used for filename</span>
+<span class="sd">    @param {str} pattern To format the ts</span>
+<span class="sd">    @returns {str} ts</span>
+<span class="sd">    @example</span>
+
+<span class="sd">    util.get_ts()</span>
+<span class="sd">    # =&gt; &#39;2017_10_17_084739&#39;</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">ts_obj</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+    <span class="n">ts</span> <span class="o">=</span> <span class="n">ts_obj</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">pattern</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">RE_FILE_TS</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">ts</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ts</span></div>
+
+
+<div class="viewcode-block" id="insert_folder"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.util.insert_folder">[docs]</a><span class="k">def</span> <span class="nf">insert_folder</span><span class="p">(</span><span class="n">prepath</span><span class="p">,</span> <span class="n">folder</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Insert a folder into prepath&#39;&#39;&#39;</span>
+    <span class="n">split_path</span> <span class="o">=</span> <span class="n">prepath</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
+    <span class="n">prename</span> <span class="o">=</span> <span class="n">split_path</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+    <span class="n">split_path</span> <span class="o">+=</span> <span class="p">[</span><span class="n">folder</span><span class="p">,</span> <span class="n">prename</span><span class="p">]</span>
+    <span class="k">return</span> <span class="s1">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">split_path</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="in_eval_lab_modes"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.util.in_eval_lab_modes">[docs]</a><span class="k">def</span> <span class="nf">in_eval_lab_modes</span><span class="p">():</span>
+    <span class="sd">&#39;&#39;&#39;Check if lab_mode is one of EVAL_MODES&#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">get_lab_mode</span><span class="p">()</span> <span class="ow">in</span> <span class="n">EVAL_MODES</span></div>
+
+
+<div class="viewcode-block" id="is_jupyter"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.util.is_jupyter">[docs]</a><span class="k">def</span> <span class="nf">is_jupyter</span><span class="p">():</span>
+    <span class="sd">&#39;&#39;&#39;Check if process is in Jupyter kernel&#39;&#39;&#39;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">get_ipython</span><span class="p">()</span><span class="o">.</span><span class="n">config</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">except</span> <span class="ne">NameError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="ctx_lab_mode"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.util.ctx_lab_mode">[docs]</a><span class="nd">@contextmanager</span>
+<span class="k">def</span> <span class="nf">ctx_lab_mode</span><span class="p">(</span><span class="n">lab_mode</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Creates context to run method with a specific lab_mode</span>
+<span class="sd">    @example</span>
+<span class="sd">    with util.ctx_lab_mode(&#39;eval&#39;):</span>
+<span class="sd">        foo()</span>
+
+<span class="sd">    @util.ctx_lab_mode(&#39;eval&#39;)</span>
+<span class="sd">    def foo():</span>
+<span class="sd">        ...</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">prev_lab_mode</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;lab_mode&#39;</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;lab_mode&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lab_mode</span>
+    <span class="k">yield</span>
+    <span class="k">if</span> <span class="n">prev_lab_mode</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">del</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;lab_mode&#39;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;lab_mode&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">prev_lab_mode</span></div>
+
+
+<div class="viewcode-block" id="monkey_patch"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.util.monkey_patch">[docs]</a><span class="k">def</span> <span class="nf">monkey_patch</span><span class="p">(</span><span class="n">base_cls</span><span class="p">,</span> <span class="n">extend_cls</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Monkey patch a base class with methods from extend_cls&#39;&#39;&#39;</span>
+    <span class="n">ext_fn_list</span> <span class="o">=</span> <span class="n">get_fn_list</span><span class="p">(</span><span class="n">extend_cls</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">fn</span> <span class="ow">in</span> <span class="n">ext_fn_list</span><span class="p">:</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="n">base_cls</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">extend_cls</span><span class="p">,</span> <span class="n">fn</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="parallelize"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.util.parallelize">[docs]</a><span class="k">def</span> <span class="nf">parallelize</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">num_cpus</span><span class="o">=</span><span class="n">NUM_CPUS</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Parallelize a method fn, args and return results with order preserved per args.</span>
+<span class="sd">    args should be a list of tuples.</span>
+<span class="sd">    @returns {list} results Order preserved output from fn.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">pool</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">Pool</span><span class="p">(</span><span class="n">num_cpus</span><span class="p">,</span> <span class="n">maxtasksperchild</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">starmap</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+    <span class="n">pool</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="n">pool</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">results</span></div>
+
+
+<div class="viewcode-block" id="prepath_split"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.util.prepath_split">[docs]</a><span class="k">def</span> <span class="nf">prepath_split</span><span class="p">(</span><span class="n">prepath</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Split prepath into useful names. Works with predir (prename will be None)</span>
+<span class="sd">    prepath: output/dqn_pong_2018_12_02_082510/dqn_pong_t0_s0</span>
+<span class="sd">    predir: output/dqn_pong_2018_12_02_082510</span>
+<span class="sd">    prefolder: dqn_pong_2018_12_02_082510</span>
+<span class="sd">    prename: dqn_pong_t0_s0</span>
+<span class="sd">    spec_name: dqn_pong</span>
+<span class="sd">    experiment_ts: 2018_12_02_082510</span>
+<span class="sd">    ckpt: ckpt-best of dqn_pong_t0_s0_ckpt-best if available</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">prepath</span> <span class="o">=</span> <span class="n">prepath</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span>
+    <span class="n">tail</span> <span class="o">=</span> <span class="n">prepath</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;output/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">ckpt</span> <span class="o">=</span> <span class="n">find_ckpt</span><span class="p">(</span><span class="n">tail</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ckpt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># separate ckpt</span>
+        <span class="n">tail</span> <span class="o">=</span> <span class="n">tail</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;_ckpt-</span><span class="si">{ckpt}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s1">&#39;/&#39;</span> <span class="ow">in</span> <span class="n">tail</span><span class="p">:</span>  <span class="c1"># tail = prefolder/prename</span>
+        <span class="n">prefolder</span><span class="p">,</span> <span class="n">prename</span> <span class="o">=</span> <span class="n">tail</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">prefolder</span><span class="p">,</span> <span class="n">prename</span> <span class="o">=</span> <span class="n">tail</span><span class="p">,</span> <span class="kc">None</span>
+    <span class="n">predir</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;output/</span><span class="si">{prefolder}</span><span class="s1">&#39;</span>
+    <span class="n">spec_name</span> <span class="o">=</span> <span class="n">RE_FILE_TS</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">prefolder</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span>
+    <span class="n">experiment_ts</span> <span class="o">=</span> <span class="n">RE_FILE_TS</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">prefolder</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">predir</span><span class="p">,</span> <span class="n">prefolder</span><span class="p">,</span> <span class="n">prename</span><span class="p">,</span> <span class="n">spec_name</span><span class="p">,</span> <span class="n">experiment_ts</span><span class="p">,</span> <span class="n">ckpt</span></div>
+
+
+<div class="viewcode-block" id="prepath_to_idxs"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.util.prepath_to_idxs">[docs]</a><span class="k">def</span> <span class="nf">prepath_to_idxs</span><span class="p">(</span><span class="n">prepath</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Extract trial index and session index from prepath if available&#39;&#39;&#39;</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">prename</span><span class="p">,</span> <span class="n">spec_name</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">prepath_split</span><span class="p">(</span><span class="n">prepath</span><span class="p">)</span>
+    <span class="n">idxs_tail</span> <span class="o">=</span> <span class="n">prename</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">spec_name</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span>
+    <span class="n">idxs_strs</span> <span class="o">=</span> <span class="n">ps</span><span class="o">.</span><span class="n">compact</span><span class="p">(</span><span class="n">idxs_tail</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[:</span><span class="mi">2</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">ps</span><span class="o">.</span><span class="n">is_empty</span><span class="p">(</span><span class="n">idxs_strs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+    <span class="n">tidx</span> <span class="o">=</span> <span class="n">idxs_strs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="n">tidx</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;t&#39;</span><span class="p">)</span>
+    <span class="n">trial_index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">tidx</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;t&#39;</span><span class="p">))</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">idxs_strs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># has session</span>
+        <span class="n">session_index</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">sidx</span> <span class="o">=</span> <span class="n">idxs_strs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">sidx</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;s&#39;</span><span class="p">)</span>
+        <span class="n">session_index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">sidx</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;s&#39;</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">trial_index</span><span class="p">,</span> <span class="n">session_index</span></div>
+
+
+<div class="viewcode-block" id="prepath_to_spec"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.util.prepath_to_spec">[docs]</a><span class="k">def</span> <span class="nf">prepath_to_spec</span><span class="p">(</span><span class="n">prepath</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Given a prepath, read the correct spec recover the meta_spec that will return the same prepath for eval lab modes</span>
+<span class="sd">    example: output/a2c_cartpole_2018_06_13_220436/a2c_cartpole_t0_s0</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">predir</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">prename</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">experiment_ts</span><span class="p">,</span> <span class="n">ckpt</span> <span class="o">=</span> <span class="n">prepath_split</span><span class="p">(</span><span class="n">prepath</span><span class="p">)</span>
+    <span class="n">sidx_res</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s1">&#39;_s\d+&#39;</span><span class="p">,</span> <span class="n">prename</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">sidx_res</span><span class="p">:</span>  <span class="c1"># replace the _s0 if any</span>
+        <span class="n">prename</span> <span class="o">=</span> <span class="n">prename</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">sidx_res</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+    <span class="n">spec_path</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;</span><span class="si">{predir}</span><span class="s1">/</span><span class="si">{prename}</span><span class="s1">_spec.json&#39;</span>
+    <span class="c1"># read the spec of prepath</span>
+    <span class="n">spec</span> <span class="o">=</span> <span class="n">read</span><span class="p">(</span><span class="n">spec_path</span><span class="p">)</span>
+    <span class="c1"># recover meta_spec</span>
+    <span class="n">trial_index</span><span class="p">,</span> <span class="n">session_index</span> <span class="o">=</span> <span class="n">prepath_to_idxs</span><span class="p">(</span><span class="n">prepath</span><span class="p">)</span>
+    <span class="n">meta_spec</span> <span class="o">=</span> <span class="n">spec</span><span class="p">[</span><span class="s1">&#39;meta&#39;</span><span class="p">]</span>
+    <span class="n">meta_spec</span><span class="p">[</span><span class="s1">&#39;experiment_ts&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">experiment_ts</span>
+    <span class="n">meta_spec</span><span class="p">[</span><span class="s1">&#39;ckpt&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ckpt</span>
+    <span class="n">meta_spec</span><span class="p">[</span><span class="s1">&#39;experiment&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">meta_spec</span><span class="p">[</span><span class="s1">&#39;trial&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">trial_index</span>
+    <span class="n">meta_spec</span><span class="p">[</span><span class="s1">&#39;session&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">session_index</span>
+    <span class="n">check_prepath</span> <span class="o">=</span> <span class="n">get_prepath</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;session&#39;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">check_prepath</span> <span class="ow">in</span> <span class="n">prepath</span><span class="p">,</span> <span class="n">f</span><span class="s1">&#39;</span><span class="si">{check_prepath}</span><span class="s1">, </span><span class="si">{prepath}</span><span class="s1">&#39;</span>
+    <span class="k">return</span> <span class="n">spec</span></div>
+
+
+<div class="viewcode-block" id="read"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.util.read">[docs]</a><span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Universal data reading method with smart data parsing</span>
+<span class="sd">    - {.csv} to DataFrame</span>
+<span class="sd">    - {.json} to dict, list</span>
+<span class="sd">    - {.yml} to dict</span>
+<span class="sd">    - {*} to str</span>
+<span class="sd">    @param {str} data_path The data path to read from</span>
+<span class="sd">    @returns {data} The read data in sensible format</span>
+<span class="sd">    @example</span>
+
+<span class="sd">    data_df = util.read(&#39;test/fixture/lib/util/test_df.csv&#39;)</span>
+<span class="sd">    # =&gt; &lt;DataFrame&gt;</span>
+
+<span class="sd">    data_dict = util.read(&#39;test/fixture/lib/util/test_dict.json&#39;)</span>
+<span class="sd">    data_dict = util.read(&#39;test/fixture/lib/util/test_dict.yml&#39;)</span>
+<span class="sd">    # =&gt; &lt;dict&gt;</span>
+
+<span class="sd">    data_list = util.read(&#39;test/fixture/lib/util/test_list.json&#39;)</span>
+<span class="sd">    # =&gt; &lt;list&gt;</span>
+
+<span class="sd">    data_str = util.read(&#39;test/fixture/lib/util/test_str.txt&#39;)</span>
+<span class="sd">    # =&gt; &lt;str&gt;</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">data_path</span> <span class="o">=</span> <span class="n">smart_path</span><span class="p">(</span><span class="n">data_path</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">data_path</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">AssertionError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="n">data_path</span><span class="p">)</span>
+    <span class="n">ext</span> <span class="o">=</span> <span class="n">get_file_ext</span><span class="p">(</span><span class="n">data_path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ext</span> <span class="o">==</span> <span class="s1">&#39;.csv&#39;</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">read_as_df</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">ext</span> <span class="o">==</span> <span class="s1">&#39;.pkl&#39;</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">read_as_pickle</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">read_as_plain</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">data</span></div>
+
+
+<div class="viewcode-block" id="read_as_df"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.util.read_as_df">[docs]</a><span class="k">def</span> <span class="nf">read_as_df</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Submethod to read data as DataFrame&#39;&#39;&#39;</span>
+    <span class="n">ext</span> <span class="o">=</span> <span class="n">get_file_ext</span><span class="p">(</span><span class="n">data_path</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">data</span></div>
+
+
+<div class="viewcode-block" id="read_as_pickle"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.util.read_as_pickle">[docs]</a><span class="k">def</span> <span class="nf">read_as_pickle</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Submethod to read data as pickle&#39;&#39;&#39;</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">data</span></div>
+
+
+<div class="viewcode-block" id="read_as_plain"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.util.read_as_plain">[docs]</a><span class="k">def</span> <span class="nf">read_as_plain</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Submethod to read data as plain type&#39;&#39;&#39;</span>
+    <span class="n">open_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+    <span class="n">ext</span> <span class="o">=</span> <span class="n">get_file_ext</span><span class="p">(</span><span class="n">data_path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ext</span> <span class="o">==</span> <span class="s1">&#39;.json&#39;</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">ujson</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">open_file</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">ext</span> <span class="o">==</span> <span class="s1">&#39;.yml&#39;</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">open_file</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">open_file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+    <span class="n">open_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">data</span></div>
+
+
+<div class="viewcode-block" id="run_cmd"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.util.run_cmd">[docs]</a><span class="k">def</span> <span class="nf">run_cmd</span><span class="p">(</span><span class="n">cmd</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Run shell command&#39;&#39;&#39;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;+ </span><span class="si">{cmd}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">proc</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">ROOT_DIR</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">STDOUT</span><span class="p">,</span> <span class="n">close_fds</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">proc</span></div>
+
+
+<div class="viewcode-block" id="run_cmd_wait"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.util.run_cmd_wait">[docs]</a><span class="k">def</span> <span class="nf">run_cmd_wait</span><span class="p">(</span><span class="n">proc</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Wait on a running process created by util.run_cmd and print its stdout&#39;&#39;&#39;</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">proc</span><span class="o">.</span><span class="n">stdout</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">decode</span><span class="p">(),</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="n">proc</span><span class="o">.</span><span class="n">communicate</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">proc</span><span class="o">.</span><span class="n">returncode</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span><span class="p">(</span><span class="n">proc</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="n">proc</span><span class="o">.</span><span class="n">returncode</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">output</span></div>
+
+
+<div class="viewcode-block" id="self_desc"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.util.self_desc">[docs]</a><span class="k">def</span> <span class="nf">self_desc</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Method to get self description, used at init.&#39;&#39;&#39;</span>
+    <span class="n">desc_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="s1">&#39;{get_class_name(cls)}:&#39;</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">get_class_attr</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="s1">&#39;spec&#39;</span><span class="p">:</span>
+            <span class="n">desc_v</span> <span class="o">=</span> <span class="n">v</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">ps</span><span class="o">.</span><span class="n">is_dict</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="ow">or</span> <span class="n">ps</span><span class="o">.</span><span class="n">is_dict</span><span class="p">(</span><span class="n">ps</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="n">v</span><span class="p">)):</span>
+            <span class="n">desc_v</span> <span class="o">=</span> <span class="n">pformat</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">desc_v</span> <span class="o">=</span> <span class="n">v</span>
+        <span class="n">desc_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;- </span><span class="si">{k}</span><span class="s1"> = </span><span class="si">{desc_v}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">desc</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">desc_list</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">desc</span></div>
+
+
+<div class="viewcode-block" id="set_attr"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.util.set_attr">[docs]</a><span class="k">def</span> <span class="nf">set_attr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">attr_dict</span><span class="p">,</span> <span class="n">keys</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Set attribute of an object from a dict&#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">keys</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">attr_dict</span> <span class="o">=</span> <span class="n">ps</span><span class="o">.</span><span class="n">pick</span><span class="p">(</span><span class="n">attr_dict</span><span class="p">,</span> <span class="n">keys</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">attr</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">attr_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">obj</span></div>
+
+
+<div class="viewcode-block" id="set_cuda_id"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.util.set_cuda_id">[docs]</a><span class="k">def</span> <span class="nf">set_cuda_id</span><span class="p">(</span><span class="n">spec</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Use trial and session id to hash and modulo cuda device count for a cuda_id to maximize device usage. Sets the net_spec for the base Net class to pick up.&#39;&#39;&#39;</span>
+    <span class="c1"># Don&#39;t trigger any cuda call if not using GPU. Otherwise will break multiprocessing on machines with CUDA.</span>
+    <span class="c1"># see issues https://github.com/pytorch/pytorch/issues/334 https://github.com/pytorch/pytorch/issues/3491 https://github.com/pytorch/pytorch/issues/9996</span>
+    <span class="k">for</span> <span class="n">agent_spec</span> <span class="ow">in</span> <span class="n">spec</span><span class="p">[</span><span class="s1">&#39;agent&#39;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="s1">&#39;net&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">agent_spec</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">agent_spec</span><span class="p">[</span><span class="s1">&#39;net&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;gpu&#39;</span><span class="p">):</span>
+            <span class="k">return</span>
+    <span class="n">meta_spec</span> <span class="o">=</span> <span class="n">spec</span><span class="p">[</span><span class="s1">&#39;meta&#39;</span><span class="p">]</span>
+    <span class="n">trial_idx</span> <span class="o">=</span> <span class="n">meta_spec</span><span class="p">[</span><span class="s1">&#39;trial&#39;</span><span class="p">]</span> <span class="ow">or</span> <span class="mi">0</span>
+    <span class="n">session_idx</span> <span class="o">=</span> <span class="n">meta_spec</span><span class="p">[</span><span class="s1">&#39;session&#39;</span><span class="p">]</span> <span class="ow">or</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="n">meta_spec</span><span class="p">[</span><span class="s1">&#39;distributed&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;shared&#39;</span><span class="p">:</span>  <span class="c1"># shared hogwild uses only global networks, offset them to idx 0</span>
+        <span class="n">session_idx</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">job_idx</span> <span class="o">=</span> <span class="n">trial_idx</span> <span class="o">*</span> <span class="n">meta_spec</span><span class="p">[</span><span class="s1">&#39;max_session&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">session_idx</span>
+    <span class="n">job_idx</span> <span class="o">+=</span> <span class="n">meta_spec</span><span class="p">[</span><span class="s1">&#39;cuda_offset&#39;</span><span class="p">]</span>
+    <span class="n">device_count</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">device_count</span><span class="p">()</span>
+    <span class="n">cuda_id</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">device_count</span> <span class="k">else</span> <span class="n">job_idx</span> <span class="o">%</span> <span class="n">device_count</span>
+
+    <span class="k">for</span> <span class="n">agent_spec</span> <span class="ow">in</span> <span class="n">spec</span><span class="p">[</span><span class="s1">&#39;agent&#39;</span><span class="p">]:</span>
+        <span class="n">agent_spec</span><span class="p">[</span><span class="s1">&#39;net&#39;</span><span class="p">][</span><span class="s1">&#39;cuda_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cuda_id</span></div>
+
+
+<div class="viewcode-block" id="set_logger"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.util.set_logger">[docs]</a><span class="k">def</span> <span class="nf">set_logger</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Set the logger for a lab unit give its spec&#39;&#39;&#39;</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;LOG_PREPATH&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">insert_folder</span><span class="p">(</span><span class="n">get_prepath</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">unit</span><span class="p">),</span> <span class="s1">&#39;log&#39;</span><span class="p">)</span>
+    <span class="n">reload</span><span class="p">(</span><span class="n">logger</span><span class="p">)</span>  <span class="c1"># to set session-specific logger</span></div>
+
+
+<div class="viewcode-block" id="set_random_seed"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.util.set_random_seed">[docs]</a><span class="k">def</span> <span class="nf">set_random_seed</span><span class="p">(</span><span class="n">spec</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Generate and set random seed for relevant modules, and record it in spec.meta.random_seed&#39;&#39;&#39;</span>
+    <span class="n">torch</span><span class="o">.</span><span class="n">set_num_threads</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># prevent multithread slowdown, set again for hogwild</span>
+    <span class="n">trial</span> <span class="o">=</span> <span class="n">spec</span><span class="p">[</span><span class="s1">&#39;meta&#39;</span><span class="p">][</span><span class="s1">&#39;trial&#39;</span><span class="p">]</span>
+    <span class="n">session</span> <span class="o">=</span> <span class="n">spec</span><span class="p">[</span><span class="s1">&#39;meta&#39;</span><span class="p">][</span><span class="s1">&#39;session&#39;</span><span class="p">]</span>
+    <span class="n">random_seed</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">1e5</span> <span class="o">*</span> <span class="p">(</span><span class="n">trial</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1e3</span> <span class="o">*</span> <span class="p">(</span><span class="n">session</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">())</span>
+    <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">manual_seed_all</span><span class="p">(</span><span class="n">random_seed</span><span class="p">)</span>
+    <span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="n">random_seed</span><span class="p">)</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">random_seed</span><span class="p">)</span>
+    <span class="n">spec</span><span class="p">[</span><span class="s1">&#39;meta&#39;</span><span class="p">][</span><span class="s1">&#39;random_seed&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">random_seed</span>
+    <span class="k">return</span> <span class="n">random_seed</span></div>
+
+
+<span class="k">def</span> <span class="nf">_sizeof</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">seen</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Recursively finds size of objects&#39;&#39;&#39;</span>
+    <span class="n">size</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">getsizeof</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">seen</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">seen</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="n">obj_id</span> <span class="o">=</span> <span class="nb">id</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">obj_id</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    <span class="c1"># Important mark as seen *before* entering recursion to gracefully handle</span>
+    <span class="c1"># self-referential objects</span>
+    <span class="n">seen</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">obj_id</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="n">size</span> <span class="o">+=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">_sizeof</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">seen</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">values</span><span class="p">()])</span>
+        <span class="n">size</span> <span class="o">+=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">_sizeof</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">seen</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">keys</span><span class="p">()])</span>
+    <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s1">&#39;__dict__&#39;</span><span class="p">):</span>
+        <span class="n">size</span> <span class="o">+=</span> <span class="n">_sizeof</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">,</span> <span class="n">seen</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s1">&#39;__iter__&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">,</span> <span class="nb">bytearray</span><span class="p">)):</span>
+        <span class="n">size</span> <span class="o">+=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">_sizeof</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">seen</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">obj</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">size</span>
+
+
+<div class="viewcode-block" id="sizeof"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.util.sizeof">[docs]</a><span class="k">def</span> <span class="nf">sizeof</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">divisor</span><span class="o">=</span><span class="mf">1e6</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Return the size of object, in MB by default&#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">_sizeof</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="o">/</span> <span class="n">divisor</span></div>
+
+
+<div class="viewcode-block" id="smart_path"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.util.smart_path">[docs]</a><span class="k">def</span> <span class="nf">smart_path</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="n">as_dir</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Resolve data_path into abspath with fallback to join from ROOT_DIR</span>
+<span class="sd">    @param {str} data_path The input data path to resolve</span>
+<span class="sd">    @param {bool} as_dir Whether to return as dirname</span>
+<span class="sd">    @returns {str} The normalized absolute data_path</span>
+<span class="sd">    @example</span>
+
+<span class="sd">    util.smart_path(&#39;convlab/lib&#39;)</span>
+<span class="sd">    # =&gt; &#39;/Users/ANON/Documents/convlab/convlab/lib&#39;</span>
+
+<span class="sd">    util.smart_path(&#39;/tmp&#39;)</span>
+<span class="sd">    # =&gt; &#39;/tmp&#39;</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isabs</span><span class="p">(</span><span class="n">data_path</span><span class="p">):</span>
+        <span class="n">abs_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">data_path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">abs_path</span><span class="p">):</span>
+            <span class="n">data_path</span> <span class="o">=</span> <span class="n">abs_path</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">data_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ROOT_DIR</span><span class="p">,</span> <span class="n">data_path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">as_dir</span><span class="p">:</span>
+        <span class="n">data_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">data_path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">data_path</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="split_minibatch"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.util.split_minibatch">[docs]</a><span class="k">def</span> <span class="nf">split_minibatch</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">mb_size</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Split a batch into minibatches of mb_size or smaller, without replacement&#39;&#39;&#39;</span>
+    <span class="n">size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">batch</span><span class="p">[</span><span class="s1">&#39;rewards&#39;</span><span class="p">])</span>
+    <span class="k">assert</span> <span class="n">mb_size</span> <span class="o">&lt;</span> <span class="n">size</span><span class="p">,</span> <span class="n">f</span><span class="s1">&#39;Minibatch size </span><span class="si">{mb_size}</span><span class="s1"> must be &lt; batch size </span><span class="si">{size}</span><span class="s1">&#39;</span>
+    <span class="n">idxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">idxs</span><span class="p">)</span>
+    <span class="n">chunks</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">size</span> <span class="o">/</span> <span class="n">mb_size</span><span class="p">)</span>
+    <span class="n">nested_idxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array_split</span><span class="p">(</span><span class="n">idxs</span><span class="p">,</span> <span class="n">chunks</span><span class="p">)</span>
+    <span class="n">mini_batches</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">minibatch_idxs</span> <span class="ow">in</span> <span class="n">nested_idxs</span><span class="p">:</span>
+        <span class="n">minibatch</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span><span class="p">[</span><span class="n">minibatch_idxs</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">batch</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="n">mini_batches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">minibatch</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">mini_batches</span></div>
+
+
+<div class="viewcode-block" id="to_json"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.util.to_json">[docs]</a><span class="k">def</span> <span class="nf">to_json</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Shorthand method for stringify JSON with indent&#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="n">indent</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="n">LabJsonEncoder</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="to_render"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.util.to_render">[docs]</a><span class="k">def</span> <span class="nf">to_render</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">get_lab_mode</span><span class="p">()</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;dev&#39;</span><span class="p">,</span> <span class="s1">&#39;enjoy&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;RENDER&#39;</span><span class="p">,</span> <span class="s1">&#39;true&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;true&#39;</span></div>
+
+
+<div class="viewcode-block" id="to_torch_batch"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.util.to_torch_batch">[docs]</a><span class="k">def</span> <span class="nf">to_torch_batch</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">device</span><span class="p">,</span> <span class="n">is_episodic</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Mutate a batch (dict) to make its values from numpy into PyTorch tensor&#39;&#39;&#39;</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">batch</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">is_episodic</span><span class="p">:</span>  <span class="c1"># for episodic format</span>
+            <span class="n">batch</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">batch</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="n">ps</span><span class="o">.</span><span class="n">is_list</span><span class="p">(</span><span class="n">batch</span><span class="p">[</span><span class="n">k</span><span class="p">]):</span>
+            <span class="n">batch</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">batch</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
+        <span class="n">batch</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">batch</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">batch</span></div>
+
+
+<div class="viewcode-block" id="write"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.util.write">[docs]</a><span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_path</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Universal data writing method with smart data parsing</span>
+<span class="sd">    - {.csv} from DataFrame</span>
+<span class="sd">    - {.json} from dict, list</span>
+<span class="sd">    - {.yml} from dict</span>
+<span class="sd">    - {*} from str(*)</span>
+<span class="sd">    @param {*} data The data to write</span>
+<span class="sd">    @param {str} data_path The data path to write to</span>
+<span class="sd">    @returns {data_path} The data path written to</span>
+<span class="sd">    @example</span>
+
+<span class="sd">    data_path = util.write(data_df, &#39;test/fixture/lib/util/test_df.csv&#39;)</span>
+
+<span class="sd">    data_path = util.write(data_dict, &#39;test/fixture/lib/util/test_dict.json&#39;)</span>
+<span class="sd">    data_path = util.write(data_dict, &#39;test/fixture/lib/util/test_dict.yml&#39;)</span>
+
+<span class="sd">    data_path = util.write(data_list, &#39;test/fixture/lib/util/test_list.json&#39;)</span>
+
+<span class="sd">    data_path = util.write(data_str, &#39;test/fixture/lib/util/test_str.txt&#39;)</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">data_path</span> <span class="o">=</span> <span class="n">smart_path</span><span class="p">(</span><span class="n">data_path</span><span class="p">)</span>
+    <span class="n">data_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">data_path</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">ext</span> <span class="o">=</span> <span class="n">get_file_ext</span><span class="p">(</span><span class="n">data_path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ext</span> <span class="o">==</span> <span class="s1">&#39;.csv&#39;</span><span class="p">:</span>
+        <span class="n">write_as_df</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_path</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">ext</span> <span class="o">==</span> <span class="s1">&#39;.pkl&#39;</span><span class="p">:</span>
+        <span class="n">write_as_pickle</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_path</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">write_as_plain</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">data_path</span></div>
+
+
+<div class="viewcode-block" id="write_as_df"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.util.write_as_df">[docs]</a><span class="k">def</span> <span class="nf">write_as_df</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_path</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Submethod to write data as DataFrame&#39;&#39;&#39;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">cast_df</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">ext</span> <span class="o">=</span> <span class="n">get_file_ext</span><span class="p">(</span><span class="n">data_path</span><span class="p">)</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">data_path</span></div>
+
+
+<div class="viewcode-block" id="write_as_pickle"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.util.write_as_pickle">[docs]</a><span class="k">def</span> <span class="nf">write_as_pickle</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_path</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Submethod to write data as pickle&#39;&#39;&#39;</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">data_path</span></div>
+
+
+<div class="viewcode-block" id="write_as_plain"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.util.write_as_plain">[docs]</a><span class="k">def</span> <span class="nf">write_as_plain</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_path</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Submethod to write data as plain type&#39;&#39;&#39;</span>
+    <span class="n">open_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
+    <span class="n">ext</span> <span class="o">=</span> <span class="n">get_file_ext</span><span class="p">(</span><span class="n">data_path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ext</span> <span class="o">==</span> <span class="s1">&#39;.json&#39;</span><span class="p">:</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">open_file</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="n">LabJsonEncoder</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">ext</span> <span class="o">==</span> <span class="s1">&#39;.yml&#39;</span><span class="p">:</span>
+        <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">open_file</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">open_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+    <span class="n">open_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">data_path</span></div>
+
+
+<span class="c1"># Atari image preprocessing</span>
+
+
+<div class="viewcode-block" id="to_opencv_image"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.util.to_opencv_image">[docs]</a><span class="k">def</span> <span class="nf">to_opencv_image</span><span class="p">(</span><span class="n">im</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Convert to OpenCV image shape h,w,c&#39;&#39;&#39;</span>
+    <span class="n">shape</span> <span class="o">=</span> <span class="n">im</span><span class="o">.</span><span class="n">shape</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">im</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">im</span></div>
+
+
+<div class="viewcode-block" id="to_pytorch_image"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.util.to_pytorch_image">[docs]</a><span class="k">def</span> <span class="nf">to_pytorch_image</span><span class="p">(</span><span class="n">im</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Convert to PyTorch image shape c,h,w&#39;&#39;&#39;</span>
+    <span class="n">shape</span> <span class="o">=</span> <span class="n">im</span><span class="o">.</span><span class="n">shape</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">im</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">im</span></div>
+
+
+<div class="viewcode-block" id="grayscale_image"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.util.grayscale_image">[docs]</a><span class="k">def</span> <span class="nf">grayscale_image</span><span class="p">(</span><span class="n">im</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_RGB2GRAY</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="resize_image"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.util.resize_image">[docs]</a><span class="k">def</span> <span class="nf">resize_image</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">w_h</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">cv2</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">w_h</span><span class="p">,</span> <span class="n">interpolation</span><span class="o">=</span><span class="n">cv2</span><span class="o">.</span><span class="n">INTER_AREA</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="normalize_image"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.util.normalize_image">[docs]</a><span class="k">def</span> <span class="nf">normalize_image</span><span class="p">(</span><span class="n">im</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Normalizing image by dividing max value 255&#39;&#39;&#39;</span>
+    <span class="c1"># NOTE: beware in its application, may cause loss to be 255 times lower due to smaller input values</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="mf">255.0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="preprocess_image"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.util.preprocess_image">[docs]</a><span class="k">def</span> <span class="nf">preprocess_image</span><span class="p">(</span><span class="n">im</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Image preprocessing using OpenAI Baselines method: grayscale, resize</span>
+<span class="sd">    This resize uses stretching instead of cropping</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">im</span> <span class="o">=</span> <span class="n">to_opencv_image</span><span class="p">(</span><span class="n">im</span><span class="p">)</span>
+    <span class="n">im</span> <span class="o">=</span> <span class="n">grayscale_image</span><span class="p">(</span><span class="n">im</span><span class="p">)</span>
+    <span class="n">im</span> <span class="o">=</span> <span class="n">resize_image</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="p">(</span><span class="mi">84</span><span class="p">,</span> <span class="mi">84</span><span class="p">))</span>
+    <span class="n">im</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">im</span></div>
+
+
+<div class="viewcode-block" id="debug_image"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.util.debug_image">[docs]</a><span class="k">def</span> <span class="nf">debug_image</span><span class="p">(</span><span class="n">im</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Renders an image for debugging; pauses process until key press</span>
+<span class="sd">    Handles tensor/numpy and conventions among libraries</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">is_tensor</span><span class="p">(</span><span class="n">im</span><span class="p">):</span>  <span class="c1"># if PyTorch tensor, get numpy</span>
+        <span class="n">im</span> <span class="o">=</span> <span class="n">im</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+    <span class="n">im</span> <span class="o">=</span> <span class="n">to_opencv_image</span><span class="p">(</span><span class="n">im</span><span class="p">)</span>
+    <span class="n">im</span> <span class="o">=</span> <span class="n">im</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>  <span class="c1"># typecast guard</span>
+    <span class="k">if</span> <span class="n">im</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>  <span class="c1"># RGB image</span>
+        <span class="c1"># accommodate from RGB (numpy) to BGR (cv2)</span>
+        <span class="n">im</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BGR2RGB</span><span class="p">)</span>
+    <span class="n">cv2</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="s1">&#39;debug image&#39;</span><span class="p">,</span> <span class="n">im</span><span class="p">)</span>
+    <span class="n">cv2</span><span class="o">.</span><span class="n">waitKey</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="mpl_debug_image"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.util.mpl_debug_image">[docs]</a><span class="k">def</span> <span class="nf">mpl_debug_image</span><span class="p">(</span><span class="n">im</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Uses matplotlib to plot image with bigger size, axes, and false color on greyscaled images&#39;&#39;&#39;</span>
+    <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">im</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, ConvLab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
