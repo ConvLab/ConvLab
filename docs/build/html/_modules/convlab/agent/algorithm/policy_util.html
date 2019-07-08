@@ -1,0 +1,504 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>convlab.agent.algorithm.policy_util &mdash; ConvLab 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> ConvLab
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">ConvLab</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+          <li><a href="../../agent.html">convlab.agent</a> &raquo;</li>
+        
+      <li>convlab.agent.algorithm.policy_util</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for convlab.agent.algorithm.policy_util</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Modified by Microsoft Corporation.</span>
+<span class="c1"># Licensed under the MIT license.</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.nn.functional</span> <span class="k">as</span> <span class="nn">F</span>
+<span class="c1"># Action policy module</span>
+<span class="c1"># Constructs action probability distribution used by agent to sample action and calculate log_prob, entropy, etc.</span>
+<span class="kn">from</span> <span class="nn">gym</span> <span class="k">import</span> <span class="n">spaces</span>
+<span class="kn">from</span> <span class="nn">torch</span> <span class="k">import</span> <span class="n">distributions</span>
+
+<span class="c1"># from convlab.env.wrapper import LazyFrames</span>
+<span class="kn">from</span> <span class="nn">convlab.lib</span> <span class="k">import</span> <span class="n">distribution</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">math_util</span><span class="p">,</span> <span class="n">util</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="c1"># register custom distributions</span>
+<span class="nb">setattr</span><span class="p">(</span><span class="n">distributions</span><span class="p">,</span> <span class="s1">&#39;Argmax&#39;</span><span class="p">,</span> <span class="n">distribution</span><span class="o">.</span><span class="n">Argmax</span><span class="p">)</span>
+<span class="nb">setattr</span><span class="p">(</span><span class="n">distributions</span><span class="p">,</span> <span class="s1">&#39;GumbelCategorical&#39;</span><span class="p">,</span> <span class="n">distribution</span><span class="o">.</span><span class="n">GumbelCategorical</span><span class="p">)</span>
+<span class="nb">setattr</span><span class="p">(</span><span class="n">distributions</span><span class="p">,</span> <span class="s1">&#39;MultiCategorical&#39;</span><span class="p">,</span> <span class="n">distribution</span><span class="o">.</span><span class="n">MultiCategorical</span><span class="p">)</span>
+<span class="c1"># probability distributions constraints for different action types; the first in the list is the default</span>
+<span class="n">ACTION_PDS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;continuous&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;Normal&#39;</span><span class="p">,</span> <span class="s1">&#39;Beta&#39;</span><span class="p">,</span> <span class="s1">&#39;Gumbel&#39;</span><span class="p">,</span> <span class="s1">&#39;LogNormal&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;multi_continuous&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;MultivariateNormal&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;discrete&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;Categorical&#39;</span><span class="p">,</span> <span class="s1">&#39;Argmax&#39;</span><span class="p">,</span> <span class="s1">&#39;GumbelCategorical&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;multi_discrete&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;MultiCategorical&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;multi_binary&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;Bernoulli&#39;</span><span class="p">],</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="get_action_type"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.policy_util.get_action_type">[docs]</a><span class="k">def</span> <span class="nf">get_action_type</span><span class="p">(</span><span class="n">action_space</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Method to get the action type to choose prob. dist. to sample actions from NN logits output&#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">action_space</span><span class="p">,</span> <span class="n">spaces</span><span class="o">.</span><span class="n">Box</span><span class="p">):</span>
+        <span class="n">shape</span> <span class="o">=</span> <span class="n">action_space</span><span class="o">.</span><span class="n">shape</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s1">&#39;continuous&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s1">&#39;multi_continuous&#39;</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">action_space</span><span class="p">,</span> <span class="n">spaces</span><span class="o">.</span><span class="n">Discrete</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;discrete&#39;</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">action_space</span><span class="p">,</span> <span class="n">spaces</span><span class="o">.</span><span class="n">MultiDiscrete</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;multi_discrete&#39;</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">action_space</span><span class="p">,</span> <span class="n">spaces</span><span class="o">.</span><span class="n">MultiBinary</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;multi_binary&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+
+<span class="c1"># action_policy base methods</span>
+
+<div class="viewcode-block" id="get_action_pd_cls"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.policy_util.get_action_pd_cls">[docs]</a><span class="k">def</span> <span class="nf">get_action_pd_cls</span><span class="p">(</span><span class="n">action_pdtype</span><span class="p">,</span> <span class="n">action_type</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Verify and get the action prob. distribution class for construction</span>
+<span class="sd">    Called by body at init to set its own ActionPD</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">pdtypes</span> <span class="o">=</span> <span class="n">ACTION_PDS</span><span class="p">[</span><span class="n">action_type</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="n">action_pdtype</span> <span class="ow">in</span> <span class="n">pdtypes</span><span class="p">,</span> <span class="n">f</span><span class="s1">&#39;Pdtype </span><span class="si">{action_pdtype}</span><span class="s1"> is not compatible/supported with action_type </span><span class="si">{action_type}</span><span class="s1">. Options are: </span><span class="si">{pdtypes}</span><span class="s1">&#39;</span>
+    <span class="n">ActionPD</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">distributions</span><span class="p">,</span> <span class="n">action_pdtype</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ActionPD</span></div>
+
+
+<div class="viewcode-block" id="guard_tensor"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.policy_util.guard_tensor">[docs]</a><span class="k">def</span> <span class="nf">guard_tensor</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">body</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Guard-cast tensor before being input to network&#39;&#39;&#39;</span>
+    <span class="c1"># if isinstance(state, LazyFrames):</span>
+    <span class="c1">#     state = state.__array__()  # realize data</span>
+    <span class="n">state</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">))</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">body</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">is_venv</span> <span class="ow">or</span> <span class="n">util</span><span class="o">.</span><span class="n">in_eval_lab_modes</span><span class="p">():</span>
+        <span class="c1"># singleton state, unsqueeze as minibatch for net input</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">state</span></div>
+
+
+<div class="viewcode-block" id="calc_pdparam"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.policy_util.calc_pdparam">[docs]</a><span class="k">def</span> <span class="nf">calc_pdparam</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">body</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Prepare the state and run algorithm.calc_pdparam to get pdparam for action_pd</span>
+<span class="sd">    @param tensor:state For pdparam = net(state)</span>
+<span class="sd">    @param algorithm The algorithm containing self.net</span>
+<span class="sd">    @param body Body which links algorithm to the env which the action is for</span>
+<span class="sd">    @returns tensor:pdparam</span>
+<span class="sd">    @example</span>
+
+<span class="sd">    pdparam = calc_pdparam(state, algorithm, body)</span>
+<span class="sd">    action_pd = ActionPD(logits=pdparam)  # e.g. ActionPD is Categorical</span>
+<span class="sd">    action = action_pd.sample()</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">torch</span><span class="o">.</span><span class="n">is_tensor</span><span class="p">(</span><span class="n">state</span><span class="p">):</span>  <span class="c1"># dont need to cast from numpy</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="n">guard_tensor</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">body</span><span class="p">)</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">algorithm</span><span class="o">.</span><span class="n">net</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+    <span class="n">pdparam</span> <span class="o">=</span> <span class="n">algorithm</span><span class="o">.</span><span class="n">calc_pdparam</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">pdparam</span></div>
+
+
+<div class="viewcode-block" id="init_action_pd"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.policy_util.init_action_pd">[docs]</a><span class="k">def</span> <span class="nf">init_action_pd</span><span class="p">(</span><span class="n">ActionPD</span><span class="p">,</span> <span class="n">pdparam</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Initialize the action_pd for discrete or continuous actions:</span>
+<span class="sd">    - discrete: action_pd = ActionPD(logits)</span>
+<span class="sd">    - continuous: action_pd = ActionPD(loc, scale)</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="s1">&#39;logits&#39;</span> <span class="ow">in</span> <span class="n">ActionPD</span><span class="o">.</span><span class="n">arg_constraints</span><span class="p">:</span>  <span class="c1"># discrete</span>
+        <span class="n">action_pd</span> <span class="o">=</span> <span class="n">ActionPD</span><span class="p">(</span><span class="n">logits</span><span class="o">=</span><span class="n">pdparam</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>  <span class="c1"># continuous, args = loc and scale</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pdparam</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>  <span class="c1"># split output</span>
+            <span class="n">loc</span><span class="p">,</span> <span class="n">scale</span> <span class="o">=</span> <span class="n">pdparam</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">loc</span><span class="p">,</span> <span class="n">scale</span> <span class="o">=</span> <span class="n">pdparam</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="c1"># scale (stdev) must be &gt; 0, use softplus with positive</span>
+        <span class="n">scale</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">softplus</span><span class="p">(</span><span class="n">scale</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1e-8</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pdparam</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>  <span class="c1"># split output</span>
+            <span class="c1"># construct covars from a batched scale tensor</span>
+            <span class="n">covars</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">diag_embed</span><span class="p">(</span><span class="n">scale</span><span class="p">)</span>
+            <span class="n">action_pd</span> <span class="o">=</span> <span class="n">ActionPD</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="n">loc</span><span class="p">,</span> <span class="n">covariance_matrix</span><span class="o">=</span><span class="n">covars</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">action_pd</span> <span class="o">=</span> <span class="n">ActionPD</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="n">loc</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">scale</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">action_pd</span></div>
+
+
+<div class="viewcode-block" id="sample_action"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.policy_util.sample_action">[docs]</a><span class="k">def</span> <span class="nf">sample_action</span><span class="p">(</span><span class="n">ActionPD</span><span class="p">,</span> <span class="n">pdparam</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Convenience method to sample action(s) from action_pd = ActionPD(pdparam)</span>
+<span class="sd">    Works with batched pdparam too</span>
+<span class="sd">    @returns tensor:action Sampled action(s)</span>
+<span class="sd">    @example</span>
+
+<span class="sd">    # policy contains:</span>
+<span class="sd">    pdparam = calc_pdparam(state, algorithm, body)</span>
+<span class="sd">    action = sample_action(body.ActionPD, pdparam)</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">action_pd</span> <span class="o">=</span> <span class="n">init_action_pd</span><span class="p">(</span><span class="n">ActionPD</span><span class="p">,</span> <span class="n">pdparam</span><span class="p">)</span>
+    <span class="n">action</span> <span class="o">=</span> <span class="n">action_pd</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">action</span></div>
+
+
+<span class="c1"># action_policy used by agent</span>
+
+
+<div class="viewcode-block" id="default"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.policy_util.default">[docs]</a><span class="k">def</span> <span class="nf">default</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">body</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Plain policy by direct sampling from a default action probability defined by body.ActionPD&#39;&#39;&#39;</span>
+    <span class="n">pdparam</span> <span class="o">=</span> <span class="n">calc_pdparam</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">body</span><span class="p">)</span>
+    <span class="n">action</span> <span class="o">=</span> <span class="n">sample_action</span><span class="p">(</span><span class="n">body</span><span class="o">.</span><span class="n">ActionPD</span><span class="p">,</span> <span class="n">pdparam</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">action</span></div>
+
+
+<div class="viewcode-block" id="random"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.policy_util.random">[docs]</a><span class="k">def</span> <span class="nf">random</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">body</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Random action using gym.action_space.sample(), with the same format as default()&#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">body</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">is_venv</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">util</span><span class="o">.</span><span class="n">in_eval_lab_modes</span><span class="p">():</span>
+        <span class="n">_action</span> <span class="o">=</span> <span class="p">[</span><span class="n">body</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">body</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">num_envs</span><span class="p">)]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">_action</span> <span class="o">=</span> <span class="n">body</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span>
+    <span class="n">action</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="n">_action</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">action</span></div>
+
+
+<div class="viewcode-block" id="epsilon_greedy"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.policy_util.epsilon_greedy">[docs]</a><span class="k">def</span> <span class="nf">epsilon_greedy</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">body</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Epsilon-greedy policy: with probability epsilon, do random action, otherwise do default sampling.&#39;&#39;&#39;</span>
+    <span class="n">epsilon</span> <span class="o">=</span> <span class="n">body</span><span class="o">.</span><span class="n">explore_var</span>
+    <span class="k">if</span> <span class="n">epsilon</span> <span class="o">&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">random</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">body</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">default</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">body</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="boltzmann"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.policy_util.boltzmann">[docs]</a><span class="k">def</span> <span class="nf">boltzmann</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">body</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Boltzmann policy: adjust pdparam with temperature tau; the higher the more randomness/noise in action.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">tau</span> <span class="o">=</span> <span class="n">body</span><span class="o">.</span><span class="n">explore_var</span>
+    <span class="n">pdparam</span> <span class="o">=</span> <span class="n">calc_pdparam</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">body</span><span class="p">)</span>
+    <span class="n">pdparam</span> <span class="o">/=</span> <span class="n">tau</span>
+    <span class="n">action</span> <span class="o">=</span> <span class="n">sample_action</span><span class="p">(</span><span class="n">body</span><span class="o">.</span><span class="n">ActionPD</span><span class="p">,</span> <span class="n">pdparam</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">action</span></div>
+
+
+<div class="viewcode-block" id="warmup_epsilon_greedy"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.policy_util.warmup_epsilon_greedy">[docs]</a><span class="k">def</span> <span class="nf">warmup_epsilon_greedy</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">body</span><span class="p">):</span>
+    <span class="n">action</span> <span class="o">=</span> <span class="n">default</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">body</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">util</span><span class="o">.</span><span class="n">in_eval_lab_modes</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">action</span> 
+
+    <span class="n">epsilon</span> <span class="o">=</span> <span class="n">body</span><span class="o">.</span><span class="n">explore_var</span>
+    <span class="k">if</span> <span class="n">epsilon</span> <span class="o">&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">():</span>
+        <span class="n">action</span> <span class="o">=</span> <span class="n">random</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">body</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">body</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">clock</span><span class="o">.</span><span class="n">epi</span> <span class="o">&lt;</span> <span class="n">algorithm</span><span class="o">.</span><span class="n">warmup_epi</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">body</span><span class="p">,</span> <span class="s1">&#39;state&#39;</span><span class="p">):</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="n">rule_guide</span><span class="p">(</span><span class="n">body</span><span class="o">.</span><span class="n">state</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">body</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="n">rule_guide</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">body</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">action</span> </div>
+
+
+<div class="viewcode-block" id="warmup_default"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.policy_util.warmup_default">[docs]</a><span class="k">def</span> <span class="nf">warmup_default</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">body</span><span class="p">):</span>
+    <span class="n">action</span> <span class="o">=</span> <span class="n">default</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">body</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">util</span><span class="o">.</span><span class="n">in_eval_lab_modes</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">action</span> 
+
+    <span class="k">if</span> <span class="n">body</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">clock</span><span class="o">.</span><span class="n">epi</span> <span class="o">&lt;</span> <span class="n">algorithm</span><span class="o">.</span><span class="n">warmup_epi</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">body</span><span class="p">,</span> <span class="s1">&#39;state&#39;</span><span class="p">):</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="n">rule_guide</span><span class="p">(</span><span class="n">body</span><span class="o">.</span><span class="n">state</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">body</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="n">rule_guide</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">body</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">action</span> </div>
+
+
+<div class="viewcode-block" id="rule_guide"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.policy_util.rule_guide">[docs]</a><span class="k">def</span> <span class="nf">rule_guide</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">body</span><span class="p">):</span>
+    <span class="n">env</span> <span class="o">=</span> <span class="n">body</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">u_env</span>
+    <span class="n">action</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">rule_policy</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">body</span><span class="p">)</span>
+    <span class="n">probs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">body</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">high</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">algorithm</span><span class="o">.</span><span class="n">net</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+    <span class="n">probs</span><span class="p">[</span><span class="n">action</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">action</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">algorithm</span><span class="o">.</span><span class="n">net</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">action</span></div>
+
+<span class="c1"># multi-body/multi-env action_policy used by agent</span>
+<span class="c1"># TODO rework</span>
+
+<div class="viewcode-block" id="multi_default"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.policy_util.multi_default">[docs]</a><span class="k">def</span> <span class="nf">multi_default</span><span class="p">(</span><span class="n">states</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">body_list</span><span class="p">,</span> <span class="n">pdparam</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Apply default policy body-wise</span>
+<span class="sd">    Note, for efficiency, do a single forward pass to calculate pdparam, then call this policy like:</span>
+<span class="sd">    @example</span>
+
+<span class="sd">    pdparam = self.calc_pdparam(state)</span>
+<span class="sd">    action_a = self.action_policy(pdparam, self, body_list)</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="c1"># assert pdparam has been chunked</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">pdparam</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">pdparam</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">body_list</span><span class="p">),</span> <span class="n">f</span><span class="s1">&#39;pdparam shape: </span><span class="si">{pdparam.shape}</span><span class="s1">, bodies: {len(body_list)}&#39;</span>
+    <span class="n">action_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">sub_pdparam</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">pdparam</span><span class="p">):</span>
+        <span class="n">body</span> <span class="o">=</span> <span class="n">body_list</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+        <span class="n">guard_tensor</span><span class="p">(</span><span class="n">states</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">body</span><span class="p">)</span>  <span class="c1"># for consistency with singleton inner logic</span>
+        <span class="n">action</span> <span class="o">=</span> <span class="n">sample_action</span><span class="p">(</span><span class="n">body</span><span class="o">.</span><span class="n">ActionPD</span><span class="p">,</span> <span class="n">sub_pdparam</span><span class="p">)</span>
+        <span class="n">action_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+    <span class="n">action_a</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">action_list</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">algorithm</span><span class="o">.</span><span class="n">net</span><span class="o">.</span><span class="n">device</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">action_a</span></div>
+
+
+<div class="viewcode-block" id="multi_random"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.policy_util.multi_random">[docs]</a><span class="k">def</span> <span class="nf">multi_random</span><span class="p">(</span><span class="n">states</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">body_list</span><span class="p">,</span> <span class="n">pdparam</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Apply random policy body-wise.&#39;&#39;&#39;</span>
+    <span class="n">action_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">body</span> <span class="ow">in</span> <span class="n">body_list</span><span class="p">:</span>
+        <span class="n">action</span> <span class="o">=</span> <span class="n">random</span><span class="p">(</span><span class="n">states</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">body</span><span class="p">)</span>
+        <span class="n">action_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+    <span class="n">action_a</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">action_list</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">algorithm</span><span class="o">.</span><span class="n">net</span><span class="o">.</span><span class="n">device</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">action_a</span></div>
+
+
+<div class="viewcode-block" id="multi_epsilon_greedy"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.policy_util.multi_epsilon_greedy">[docs]</a><span class="k">def</span> <span class="nf">multi_epsilon_greedy</span><span class="p">(</span><span class="n">states</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">body_list</span><span class="p">,</span> <span class="n">pdparam</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Apply epsilon-greedy policy body-wise&#39;&#39;&#39;</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">pdparam</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">pdparam</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">body_list</span><span class="p">),</span> <span class="n">f</span><span class="s1">&#39;pdparam shape: </span><span class="si">{pdparam.shape}</span><span class="s1">, bodies: {len(body_list)}&#39;</span>
+    <span class="n">action_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">sub_pdparam</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">pdparam</span><span class="p">):</span>
+        <span class="n">body</span> <span class="o">=</span> <span class="n">body_list</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+        <span class="n">epsilon</span> <span class="o">=</span> <span class="n">body</span><span class="o">.</span><span class="n">explore_var</span>
+        <span class="k">if</span> <span class="n">epsilon</span> <span class="o">&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">():</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="n">random</span><span class="p">(</span><span class="n">states</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">body</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">guard_tensor</span><span class="p">(</span><span class="n">states</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">body</span><span class="p">)</span>  <span class="c1"># for consistency with singleton inner logic</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="n">sample_action</span><span class="p">(</span><span class="n">body</span><span class="o">.</span><span class="n">ActionPD</span><span class="p">,</span> <span class="n">sub_pdparam</span><span class="p">)</span>
+        <span class="n">action_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+    <span class="n">action_a</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">action_list</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">algorithm</span><span class="o">.</span><span class="n">net</span><span class="o">.</span><span class="n">device</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">action_a</span></div>
+
+
+<div class="viewcode-block" id="multi_boltzmann"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.policy_util.multi_boltzmann">[docs]</a><span class="k">def</span> <span class="nf">multi_boltzmann</span><span class="p">(</span><span class="n">states</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">body_list</span><span class="p">,</span> <span class="n">pdparam</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Apply Boltzmann policy body-wise&#39;&#39;&#39;</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">pdparam</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">pdparam</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">body_list</span><span class="p">),</span> <span class="n">f</span><span class="s1">&#39;pdparam shape: </span><span class="si">{pdparam.shape}</span><span class="s1">, bodies: {len(body_list)}&#39;</span>
+    <span class="n">action_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">sub_pdparam</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">pdparam</span><span class="p">):</span>
+        <span class="n">body</span> <span class="o">=</span> <span class="n">body_list</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+        <span class="n">guard_tensor</span><span class="p">(</span><span class="n">states</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">body</span><span class="p">)</span>  <span class="c1"># for consistency with singleton inner logic</span>
+        <span class="n">tau</span> <span class="o">=</span> <span class="n">body</span><span class="o">.</span><span class="n">explore_var</span>
+        <span class="n">sub_pdparam</span> <span class="o">/=</span> <span class="n">tau</span>
+        <span class="n">action</span> <span class="o">=</span> <span class="n">sample_action</span><span class="p">(</span><span class="n">body</span><span class="o">.</span><span class="n">ActionPD</span><span class="p">,</span> <span class="n">sub_pdparam</span><span class="p">)</span>
+        <span class="n">action_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+    <span class="n">action_a</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">action_list</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">algorithm</span><span class="o">.</span><span class="n">net</span><span class="o">.</span><span class="n">device</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">action_a</span></div>
+
+
+<span class="c1"># action policy update methods</span>
+
+<div class="viewcode-block" id="VarScheduler"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.policy_util.VarScheduler">[docs]</a><span class="k">class</span> <span class="nc">VarScheduler</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Variable scheduler for decaying variables such as explore_var (epsilon, tau) and entropy</span>
+
+<span class="sd">    e.g. spec</span>
+<span class="sd">    &quot;explore_var_spec&quot;: {</span>
+<span class="sd">        &quot;name&quot;: &quot;linear_decay&quot;,</span>
+<span class="sd">        &quot;start_val&quot;: 1.0,</span>
+<span class="sd">        &quot;end_val&quot;: 0.1,</span>
+<span class="sd">        &quot;start_step&quot;: 0,</span>
+<span class="sd">        &quot;end_step&quot;: 800,</span>
+<span class="sd">    },</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">var_decay_spec</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_updater_name</span> <span class="o">=</span> <span class="s1">&#39;no_decay&#39;</span> <span class="k">if</span> <span class="n">var_decay_spec</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">var_decay_spec</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_updater</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">math_util</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_updater_name</span><span class="p">)</span>
+        <span class="n">util</span><span class="o">.</span><span class="n">set_attr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">start_val</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+        <span class="p">))</span>
+        <span class="n">util</span><span class="o">.</span><span class="n">set_attr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">var_decay_spec</span><span class="p">,</span> <span class="p">[</span>
+            <span class="s1">&#39;start_val&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;end_val&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;start_step&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;end_step&#39;</span><span class="p">,</span>
+        <span class="p">])</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;end_val&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">end_val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_val</span>
+
+<div class="viewcode-block" id="VarScheduler.update"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.policy_util.VarScheduler.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">clock</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Get an updated value for var&#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">util</span><span class="o">.</span><span class="n">in_eval_lab_modes</span><span class="p">())</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_updater_name</span> <span class="o">==</span> <span class="s1">&#39;no_decay&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_val</span>
+        <span class="n">step</span> <span class="o">=</span> <span class="n">clock</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_updater</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_val</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_val</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_step</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_step</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">val</span></div></div>
+
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, ConvLab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

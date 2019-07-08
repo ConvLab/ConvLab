@@ -1,0 +1,626 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>convlab.modules.nlu.multiwoz.svm package &mdash; ConvLab 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> ConvLab
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">convlab.modules.nlu.multiwoz.svm package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-convlab.modules.nlu.multiwoz.svm.Classifier">convlab.modules.nlu.multiwoz.svm.Classifier module</a></li>
+<li><a class="reference internal" href="#module-convlab.modules.nlu.multiwoz.svm.Features">convlab.modules.nlu.multiwoz.svm.Features module</a></li>
+<li><a class="reference internal" href="#module-convlab.modules.nlu.multiwoz.svm.Tuples">convlab.modules.nlu.multiwoz.svm.Tuples module</a></li>
+<li><a class="reference internal" href="#module-convlab.modules.nlu.multiwoz.svm.nlu">convlab.modules.nlu.multiwoz.svm.nlu module</a></li>
+<li><a class="reference internal" href="#module-convlab.modules.nlu.multiwoz.svm.preprocess">convlab.modules.nlu.multiwoz.svm.preprocess module</a></li>
+<li><a class="reference internal" href="#module-convlab.modules.nlu.multiwoz.svm.sutils">convlab.modules.nlu.multiwoz.svm.sutils module</a></li>
+<li><a class="reference internal" href="#module-convlab.modules.nlu.multiwoz.svm.train">convlab.modules.nlu.multiwoz.svm.train module</a></li>
+<li><a class="reference internal" href="#module-convlab.modules.nlu.multiwoz.svm">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">ConvLab</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>convlab.modules.nlu.multiwoz.svm package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/convlab.modules.nlu.multiwoz.svm.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="convlab-modules-nlu-multiwoz-svm-package">
+<h1>convlab.modules.nlu.multiwoz.svm package<a class="headerlink" href="#convlab-modules-nlu-multiwoz-svm-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-convlab.modules.nlu.multiwoz.svm.Classifier">
+<span id="convlab-modules-nlu-multiwoz-svm-classifier-module"></span><h2>convlab.modules.nlu.multiwoz.svm.Classifier module<a class="headerlink" href="#module-convlab.modules.nlu.multiwoz.svm.Classifier" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="convlab.modules.nlu.multiwoz.svm.Classifier.SGD">
+<em class="property">class </em><code class="descclassname">convlab.modules.nlu.multiwoz.svm.Classifier.</code><code class="descname">SGD</code><span class="sig-paren">(</span><em>config</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Classifier.html#SGD"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Classifier.SGD" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="method">
+<dt id="convlab.modules.nlu.multiwoz.svm.Classifier.SGD.load">
+<code class="descname">load</code><span class="sig-paren">(</span><em>params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Classifier.html#SGD.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Classifier.SGD.load" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="convlab.modules.nlu.multiwoz.svm.Classifier.SGD.params">
+<code class="descname">params</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Classifier.html#SGD.params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Classifier.SGD.params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="convlab.modules.nlu.multiwoz.svm.Classifier.SGD.predict">
+<code class="descname">predict</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Classifier.html#SGD.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Classifier.SGD.predict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="convlab.modules.nlu.multiwoz.svm.Classifier.SGD.train">
+<code class="descname">train</code><span class="sig-paren">(</span><em>X</em>, <em>y</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Classifier.html#SGD.train"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Classifier.SGD.train" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="convlab.modules.nlu.multiwoz.svm.Classifier.SVM">
+<em class="property">class </em><code class="descclassname">convlab.modules.nlu.multiwoz.svm.Classifier.</code><code class="descname">SVM</code><span class="sig-paren">(</span><em>config</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Classifier.html#SVM"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Classifier.SVM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="method">
+<dt id="convlab.modules.nlu.multiwoz.svm.Classifier.SVM.load">
+<code class="descname">load</code><span class="sig-paren">(</span><em>params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Classifier.html#SVM.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Classifier.SVM.load" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="convlab.modules.nlu.multiwoz.svm.Classifier.SVM.params">
+<code class="descname">params</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Classifier.html#SVM.params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Classifier.SVM.params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="convlab.modules.nlu.multiwoz.svm.Classifier.SVM.pickC">
+<code class="descname">pickC</code><span class="sig-paren">(</span><em>X</em>, <em>y</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Classifier.html#SVM.pickC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Classifier.SVM.pickC" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="convlab.modules.nlu.multiwoz.svm.Classifier.SVM.predict">
+<code class="descname">predict</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Classifier.html#SVM.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Classifier.SVM.predict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="convlab.modules.nlu.multiwoz.svm.Classifier.SVM.train">
+<code class="descname">train</code><span class="sig-paren">(</span><em>X</em>, <em>y</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Classifier.html#SVM.train"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Classifier.SVM.train" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="convlab.modules.nlu.multiwoz.svm.Classifier.classifier">
+<em class="property">class </em><code class="descclassname">convlab.modules.nlu.multiwoz.svm.Classifier.</code><code class="descname">classifier</code><span class="sig-paren">(</span><em>config</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Classifier.html#classifier"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Classifier.classifier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="method">
+<dt id="convlab.modules.nlu.multiwoz.svm.Classifier.classifier.cacheFeature">
+<code class="descname">cacheFeature</code><span class="sig-paren">(</span><em>dw</em>, <em>config=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Classifier.html#classifier.cacheFeature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Classifier.classifier.cacheFeature" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="convlab.modules.nlu.multiwoz.svm.Classifier.classifier.createDictionary">
+<code class="descname">createDictionary</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Classifier.html#classifier.createDictionary"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Classifier.classifier.createDictionary" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="convlab.modules.nlu.multiwoz.svm.Classifier.classifier.decode">
+<code class="descname">decode</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Classifier.html#classifier.decode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Classifier.classifier.decode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="convlab.modules.nlu.multiwoz.svm.Classifier.classifier.decodeToFile">
+<code class="descname">decodeToFile</code><span class="sig-paren">(</span><em>dw</em>, <em>output_fname</em>, <em>config=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Classifier.html#classifier.decodeToFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Classifier.classifier.decodeToFile" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="convlab.modules.nlu.multiwoz.svm.Classifier.classifier.decode_sent">
+<code class="descname">decode_sent</code><span class="sig-paren">(</span><em>sentinfo</em>, <em>output_fname</em>, <em>config=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Classifier.html#classifier.decode_sent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Classifier.classifier.decode_sent" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="convlab.modules.nlu.multiwoz.svm.Classifier.classifier.export">
+<code class="descname">export</code><span class="sig-paren">(</span><em>models_fname</em>, <em>dictionary_fname</em>, <em>config_fname</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Classifier.html#classifier.export"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Classifier.classifier.export" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="convlab.modules.nlu.multiwoz.svm.Classifier.classifier.extractFeatures">
+<code class="descname">extractFeatures</code><span class="sig-paren">(</span><em>dw</em>, <em>log_input_key='batch'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Classifier.html#classifier.extractFeatures"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Classifier.classifier.extractFeatures" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="convlab.modules.nlu.multiwoz.svm.Classifier.classifier.extractFeatures2">
+<code class="descname">extractFeatures2</code><span class="sig-paren">(</span><em>sentinfo</em>, <em>log_input_key='batch'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Classifier.html#classifier.extractFeatures2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Classifier.classifier.extractFeatures2" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="convlab.modules.nlu.multiwoz.svm.Classifier.classifier.load">
+<code class="descname">load</code><span class="sig-paren">(</span><em>fname</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Classifier.html#classifier.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Classifier.classifier.load" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="convlab.modules.nlu.multiwoz.svm.Classifier.classifier.save">
+<code class="descname">save</code><span class="sig-paren">(</span><em>save_fname</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Classifier.html#classifier.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Classifier.classifier.save" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="convlab.modules.nlu.multiwoz.svm.Classifier.classifier.train">
+<code class="descname">train</code><span class="sig-paren">(</span><em>dw</em>, <em>config=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Classifier.html#classifier.train"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Classifier.classifier.train" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.modules.nlu.multiwoz.svm.Classifier.toSparse">
+<code class="descclassname">convlab.modules.nlu.multiwoz.svm.Classifier.</code><code class="descname">toSparse</code><span class="sig-paren">(</span><em>baseX</em>, <em>X</em>, <em>dictionary</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Classifier.html#toSparse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Classifier.toSparse" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="convlab.modules.nlu.multiwoz.svm.Classifier.trainSVMwrapper">
+<code class="descclassname">convlab.modules.nlu.multiwoz.svm.Classifier.</code><code class="descname">trainSVMwrapper</code><span class="sig-paren">(</span><em>X</em>, <em>y</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Classifier.html#trainSVMwrapper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Classifier.trainSVMwrapper" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-convlab.modules.nlu.multiwoz.svm.Features">
+<span id="convlab-modules-nlu-multiwoz-svm-features-module"></span><h2>convlab.modules.nlu.multiwoz.svm.Features module<a class="headerlink" href="#module-convlab.modules.nlu.multiwoz.svm.Features" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="convlab.modules.nlu.multiwoz.svm.Features.cnNgram">
+<em class="property">class </em><code class="descclassname">convlab.modules.nlu.multiwoz.svm.Features.</code><code class="descname">cnNgram</code><span class="sig-paren">(</span><em>words</em>, <em>logp</em>, <em>delta=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Features.html#cnNgram"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Features.cnNgram" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="method">
+<dt id="convlab.modules.nlu.multiwoz.svm.Features.cnNgram.logscore">
+<code class="descname">logscore</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Features.html#cnNgram.logscore"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Features.cnNgram.logscore" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="convlab.modules.nlu.multiwoz.svm.Features.cnNgram.score">
+<code class="descname">score</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Features.html#cnNgram.score"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Features.cnNgram.score" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="convlab.modules.nlu.multiwoz.svm.Features.cnNgram.string_repn">
+<code class="descname">string_repn</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Features.html#cnNgram.string_repn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Features.cnNgram.string_repn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="convlab.modules.nlu.multiwoz.svm.Features.cnNgram.word_list">
+<code class="descname">word_list</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Features.html#cnNgram.word_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Features.cnNgram.word_list" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.modules.nlu.multiwoz.svm.Features.cn_ngram_merge">
+<code class="descclassname">convlab.modules.nlu.multiwoz.svm.Features.</code><code class="descname">cn_ngram_merge</code><span class="sig-paren">(</span><em>ngrams</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Features.html#cn_ngram_merge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Features.cn_ngram_merge" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="convlab.modules.nlu.multiwoz.svm.Features.cn_ngram_prune">
+<code class="descclassname">convlab.modules.nlu.multiwoz.svm.Features.</code><code class="descname">cn_ngram_prune</code><span class="sig-paren">(</span><em>ngrams</em>, <em>n</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Features.html#cn_ngram_prune"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Features.cn_ngram_prune" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="convlab.modules.nlu.multiwoz.svm.Features.cn_ngram_replaced">
+<code class="descclassname">convlab.modules.nlu.multiwoz.svm.Features.</code><code class="descname">cn_ngram_replaced</code><span class="sig-paren">(</span><em>ngram</em>, <em>searchwords</em>, <em>replacement</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Features.html#cn_ngram_replaced"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Features.cn_ngram_replaced" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="convlab.modules.nlu.multiwoz.svm.Features.cnet">
+<em class="property">class </em><code class="descclassname">convlab.modules.nlu.multiwoz.svm.Features.</code><code class="descname">cnet</code><span class="sig-paren">(</span><em>config</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Features.html#cnet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Features.cnet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="method">
+<dt id="convlab.modules.nlu.multiwoz.svm.Features.cnet.calculate">
+<code class="descname">calculate</code><span class="sig-paren">(</span><em>log_turn</em>, <em>log_input_key='batch'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Features.html#cnet.calculate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Features.cnet.calculate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="convlab.modules.nlu.multiwoz.svm.Features.cnet.tuple_calculate">
+<code class="descname">tuple_calculate</code><span class="sig-paren">(</span><em>this_tuple</em>, <em>log_turn</em>, <em>log_input_key='batch'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Features.html#cnet.tuple_calculate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Features.cnet.tuple_calculate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.modules.nlu.multiwoz.svm.Features.get_cnngrams">
+<code class="descclassname">convlab.modules.nlu.multiwoz.svm.Features.</code><code class="descname">get_cnngrams</code><span class="sig-paren">(</span><em>cnet</em>, <em>max_ngrams</em>, <em>max_length</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Features.html#get_cnngrams"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Features.get_cnngrams" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="convlab.modules.nlu.multiwoz.svm.Features.get_ngrams">
+<code class="descclassname">convlab.modules.nlu.multiwoz.svm.Features.</code><code class="descname">get_ngrams</code><span class="sig-paren">(</span><em>sentence</em>, <em>max_length</em>, <em>skip_ngrams=False</em>, <em>add_tags=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Features.html#get_ngrams"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Features.get_ngrams" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="convlab.modules.nlu.multiwoz.svm.Features.lastSys">
+<em class="property">class </em><code class="descclassname">convlab.modules.nlu.multiwoz.svm.Features.</code><code class="descname">lastSys</code><span class="sig-paren">(</span><em>config</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Features.html#lastSys"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Features.lastSys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="method">
+<dt id="convlab.modules.nlu.multiwoz.svm.Features.lastSys.calculate">
+<code class="descname">calculate</code><span class="sig-paren">(</span><em>log_turn</em>, <em>log_input_key='batch'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Features.html#lastSys.calculate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Features.lastSys.calculate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="convlab.modules.nlu.multiwoz.svm.Features.lastSys.tuple_calculate">
+<code class="descname">tuple_calculate</code><span class="sig-paren">(</span><em>this_tuple</em>, <em>log_turn</em>, <em>log_input_key='batch'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Features.html#lastSys.tuple_calculate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Features.lastSys.tuple_calculate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="convlab.modules.nlu.multiwoz.svm.Features.nbest">
+<em class="property">class </em><code class="descclassname">convlab.modules.nlu.multiwoz.svm.Features.</code><code class="descname">nbest</code><span class="sig-paren">(</span><em>config</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Features.html#nbest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Features.nbest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="method">
+<dt id="convlab.modules.nlu.multiwoz.svm.Features.nbest.calculate">
+<code class="descname">calculate</code><span class="sig-paren">(</span><em>log_turn</em>, <em>log_input_key='batch'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Features.html#nbest.calculate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Features.nbest.calculate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="convlab.modules.nlu.multiwoz.svm.Features.nbest.calculate_sent">
+<code class="descname">calculate_sent</code><span class="sig-paren">(</span><em>log_turn</em>, <em>log_input_key='batch'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Features.html#nbest.calculate_sent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Features.nbest.calculate_sent" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="convlab.modules.nlu.multiwoz.svm.Features.nbest.tuple_calculate">
+<code class="descname">tuple_calculate</code><span class="sig-paren">(</span><em>this_tuple</em>, <em>log_turn</em>, <em>log_input_key='batch'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Features.html#nbest.tuple_calculate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Features.nbest.tuple_calculate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="convlab.modules.nlu.multiwoz.svm.Features.nbestLengths">
+<em class="property">class </em><code class="descclassname">convlab.modules.nlu.multiwoz.svm.Features.</code><code class="descname">nbestLengths</code><span class="sig-paren">(</span><em>config</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Features.html#nbestLengths"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Features.nbestLengths" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="method">
+<dt id="convlab.modules.nlu.multiwoz.svm.Features.nbestLengths.calculate">
+<code class="descname">calculate</code><span class="sig-paren">(</span><em>log_turn</em>, <em>log_input_key='batch'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Features.html#nbestLengths.calculate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Features.nbestLengths.calculate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="convlab.modules.nlu.multiwoz.svm.Features.nbestLengths.tuple_calculate">
+<code class="descname">tuple_calculate</code><span class="sig-paren">(</span><em>this_tuple</em>, <em>log_turn</em>, <em>log_input_key='batch'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Features.html#nbestLengths.tuple_calculate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Features.nbestLengths.tuple_calculate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="convlab.modules.nlu.multiwoz.svm.Features.nbestScores">
+<em class="property">class </em><code class="descclassname">convlab.modules.nlu.multiwoz.svm.Features.</code><code class="descname">nbestScores</code><span class="sig-paren">(</span><em>config</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Features.html#nbestScores"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Features.nbestScores" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="method">
+<dt id="convlab.modules.nlu.multiwoz.svm.Features.nbestScores.calculate">
+<code class="descname">calculate</code><span class="sig-paren">(</span><em>log_turn</em>, <em>log_input_key='batch'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Features.html#nbestScores.calculate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Features.nbestScores.calculate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="convlab.modules.nlu.multiwoz.svm.Features.nbestScores.tuple_calculate">
+<code class="descname">tuple_calculate</code><span class="sig-paren">(</span><em>this_tuple</em>, <em>log_turn</em>, <em>log_input_key='batch'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Features.html#nbestScores.tuple_calculate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Features.nbestScores.tuple_calculate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="convlab.modules.nlu.multiwoz.svm.Features.valueIdentifying">
+<em class="property">class </em><code class="descclassname">convlab.modules.nlu.multiwoz.svm.Features.</code><code class="descname">valueIdentifying</code><span class="sig-paren">(</span><em>config</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Features.html#valueIdentifying"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Features.valueIdentifying" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="method">
+<dt id="convlab.modules.nlu.multiwoz.svm.Features.valueIdentifying.calculate">
+<code class="descname">calculate</code><span class="sig-paren">(</span><em>log_turn</em>, <em>log_input_key='batch'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Features.html#valueIdentifying.calculate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Features.valueIdentifying.calculate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="convlab.modules.nlu.multiwoz.svm.Features.valueIdentifying.tuple_calculate">
+<code class="descname">tuple_calculate</code><span class="sig-paren">(</span><em>this_tuple</em>, <em>log_turn</em>, <em>log_input_key='batch'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Features.html#valueIdentifying.tuple_calculate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Features.valueIdentifying.tuple_calculate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-convlab.modules.nlu.multiwoz.svm.Tuples">
+<span id="convlab-modules-nlu-multiwoz-svm-tuples-module"></span><h2>convlab.modules.nlu.multiwoz.svm.Tuples module<a class="headerlink" href="#module-convlab.modules.nlu.multiwoz.svm.Tuples" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="convlab.modules.nlu.multiwoz.svm.Tuples.actual_value">
+<code class="descclassname">convlab.modules.nlu.multiwoz.svm.Tuples.</code><code class="descname">actual_value</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Tuples.html#actual_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Tuples.actual_value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="convlab.modules.nlu.multiwoz.svm.Tuples.genericValue">
+<em class="property">class </em><code class="descclassname">convlab.modules.nlu.multiwoz.svm.Tuples.</code><code class="descname">genericValue</code><span class="sig-paren">(</span><em>slot</em>, <em>value=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Tuples.html#genericValue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Tuples.genericValue" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.modules.nlu.multiwoz.svm.Tuples.generic_to_specific">
+<code class="descclassname">convlab.modules.nlu.multiwoz.svm.Tuples.</code><code class="descname">generic_to_specific</code><span class="sig-paren">(</span><em>tup</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Tuples.html#generic_to_specific"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Tuples.generic_to_specific" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="convlab.modules.nlu.multiwoz.svm.Tuples.is_generic">
+<code class="descclassname">convlab.modules.nlu.multiwoz.svm.Tuples.</code><code class="descname">is_generic</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Tuples.html#is_generic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Tuples.is_generic" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="convlab.modules.nlu.multiwoz.svm.Tuples.makes_valid_act">
+<code class="descclassname">convlab.modules.nlu.multiwoz.svm.Tuples.</code><code class="descname">makes_valid_act</code><span class="sig-paren">(</span><em>tuples</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Tuples.html#makes_valid_act"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Tuples.makes_valid_act" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="convlab.modules.nlu.multiwoz.svm.Tuples.tuple_to_act">
+<code class="descclassname">convlab.modules.nlu.multiwoz.svm.Tuples.</code><code class="descname">tuple_to_act</code><span class="sig-paren">(</span><em>t</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Tuples.html#tuple_to_act"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Tuples.tuple_to_act" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="convlab.modules.nlu.multiwoz.svm.Tuples.tuples">
+<em class="property">class </em><code class="descclassname">convlab.modules.nlu.multiwoz.svm.Tuples.</code><code class="descname">tuples</code><span class="sig-paren">(</span><em>config</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Tuples.html#tuples"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Tuples.tuples" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="method">
+<dt id="convlab.modules.nlu.multiwoz.svm.Tuples.tuples.activeTuples">
+<code class="descname">activeTuples</code><span class="sig-paren">(</span><em>log_turn</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Tuples.html#tuples.activeTuples"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Tuples.tuples.activeTuples" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="convlab.modules.nlu.multiwoz.svm.Tuples.tuples.activeTuples_sent">
+<code class="descname">activeTuples_sent</code><span class="sig-paren">(</span><em>log_turn</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Tuples.html#tuples.activeTuples_sent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Tuples.tuples.activeTuples_sent" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="convlab.modules.nlu.multiwoz.svm.Tuples.tuples.distributionToNbest">
+<code class="descname">distributionToNbest</code><span class="sig-paren">(</span><em>tuple_distribution</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Tuples.html#tuples.distributionToNbest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Tuples.tuples.distributionToNbest" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="convlab.modules.nlu.multiwoz.svm.Tuples.tuples.uactsToTuples">
+<code class="descname">uactsToTuples</code><span class="sig-paren">(</span><em>uacts</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/Tuples.html#tuples.uactsToTuples"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.Tuples.tuples.uactsToTuples" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-convlab.modules.nlu.multiwoz.svm.nlu">
+<span id="convlab-modules-nlu-multiwoz-svm-nlu-module"></span><h2>convlab.modules.nlu.multiwoz.svm.nlu module<a class="headerlink" href="#module-convlab.modules.nlu.multiwoz.svm.nlu" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="convlab.modules.nlu.multiwoz.svm.nlu.SVMNLU">
+<em class="property">class </em><code class="descclassname">convlab.modules.nlu.multiwoz.svm.nlu.</code><code class="descname">SVMNLU</code><span class="sig-paren">(</span><em>config_file='C:\Users\jincli\Desktop\ConvLab\convlab\modules\nlu\multiwoz\svm\config/multiwoz.cfg'</em>, <em>model_file=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/nlu.html#SVMNLU"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.nlu.SVMNLU" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="convlab.modules.nlu.html#convlab.modules.nlu.nlu.NLU" title="convlab.modules.nlu.nlu.NLU"><code class="xref py py-class docutils literal notranslate"><span class="pre">convlab.modules.nlu.nlu.NLU</span></code></a></p>
+<dl class="method">
+<dt id="convlab.modules.nlu.multiwoz.svm.nlu.SVMNLU.parse">
+<code class="descname">parse</code><span class="sig-paren">(</span><em>utterance</em>, <em>context=None</em>, <em>not_empty=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/nlu.html#SVMNLU.parse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.nlu.SVMNLU.parse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predict the dialog act of a natural language utterance and apply error model.
+:param utterance: The user input, a natural language utterance.
+:type utterance: str</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The parsed dialog act of the input NL utterance.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">output (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a>)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-convlab.modules.nlu.multiwoz.svm.preprocess">
+<span id="convlab-modules-nlu-multiwoz-svm-preprocess-module"></span><h2>convlab.modules.nlu.multiwoz.svm.preprocess module<a class="headerlink" href="#module-convlab.modules.nlu.multiwoz.svm.preprocess" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="convlab.modules.nlu.multiwoz.svm.preprocess.read_zipped_json">
+<code class="descclassname">convlab.modules.nlu.multiwoz.svm.preprocess.</code><code class="descname">read_zipped_json</code><span class="sig-paren">(</span><em>filepath</em>, <em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/preprocess.html#read_zipped_json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.preprocess.read_zipped_json" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-convlab.modules.nlu.multiwoz.svm.sutils">
+<span id="convlab-modules-nlu-multiwoz-svm-sutils-module"></span><h2>convlab.modules.nlu.multiwoz.svm.sutils module<a class="headerlink" href="#module-convlab.modules.nlu.multiwoz.svm.sutils" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="convlab.modules.nlu.multiwoz.svm.sutils.dataset_walker">
+<code class="descclassname">convlab.modules.nlu.multiwoz.svm.sutils.</code><code class="descname">dataset_walker</code><span class="sig-paren">(</span><em>dataset=None</em>, <em>dataroot=None</em>, <em>labels=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/sutils.html#dataset_walker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.sutils.dataset_walker" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="convlab.modules.nlu.multiwoz.svm.sutils.import_class">
+<code class="descclassname">convlab.modules.nlu.multiwoz.svm.sutils.</code><code class="descname">import_class</code><span class="sig-paren">(</span><em>cl</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/sutils.html#import_class"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.sutils.import_class" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="convlab.modules.nlu.multiwoz.svm.sutils.powerset">
+<code class="descclassname">convlab.modules.nlu.multiwoz.svm.sutils.</code><code class="descname">powerset</code><span class="sig-paren">(</span><em>[1,2,3]) --&gt; () (1,) (2,) (3,) (1,2) (1,3) (2,3) (1,2,3</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/sutils.html#powerset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.sutils.powerset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="convlab.modules.nlu.multiwoz.svm.sutils.svm_to_libsvm">
+<code class="descclassname">convlab.modules.nlu.multiwoz.svm.sutils.</code><code class="descname">svm_to_libsvm</code><span class="sig-paren">(</span><em>model</em>, <em>labels=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/sutils.html#svm_to_libsvm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.sutils.svm_to_libsvm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-convlab.modules.nlu.multiwoz.svm.train">
+<span id="convlab-modules-nlu-multiwoz-svm-train-module"></span><h2>convlab.modules.nlu.multiwoz.svm.train module<a class="headerlink" href="#module-convlab.modules.nlu.multiwoz.svm.train" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="convlab.modules.nlu.multiwoz.svm.train.train">
+<code class="descclassname">convlab.modules.nlu.multiwoz.svm.train.</code><code class="descname">train</code><span class="sig-paren">(</span><em>config</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/train.html#train"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.train.train" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="convlab.modules.nlu.multiwoz.svm.train.usage">
+<code class="descclassname">convlab.modules.nlu.multiwoz.svm.train.</code><code class="descname">usage</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/modules/nlu/multiwoz/svm/train.html#usage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.modules.nlu.multiwoz.svm.train.usage" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-convlab.modules.nlu.multiwoz.svm">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-convlab.modules.nlu.multiwoz.svm" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, ConvLab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

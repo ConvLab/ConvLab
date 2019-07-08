@@ -1,0 +1,346 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>convlab.lib.math_util &mdash; ConvLab 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> ConvLab
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">ConvLab</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>convlab.lib.math_util</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for convlab.lib.math_util</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Modified by Microsoft Corporation.</span>
+<span class="c1"># Licensed under the MIT license.</span>
+
+<span class="c1"># Various math calculations used by algorithms</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+
+
+<span class="c1"># general math methods</span>
+
+<div class="viewcode-block" id="normalize"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.math_util.normalize">[docs]</a><span class="k">def</span> <span class="nf">normalize</span><span class="p">(</span><span class="n">v</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Method to normalize a rank-1 np array&#39;&#39;&#39;</span>
+    <span class="n">v_min</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+    <span class="n">v_max</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+    <span class="n">v_range</span> <span class="o">=</span> <span class="n">v_max</span> <span class="o">-</span> <span class="n">v_min</span>
+    <span class="n">v_range</span> <span class="o">+=</span> <span class="mf">1e-08</span>  <span class="c1"># division guard</span>
+    <span class="n">v_norm</span> <span class="o">=</span> <span class="p">(</span><span class="n">v</span> <span class="o">-</span> <span class="n">v_min</span><span class="p">)</span> <span class="o">/</span> <span class="n">v_range</span>
+    <span class="k">return</span> <span class="n">v_norm</span></div>
+
+
+<div class="viewcode-block" id="standardize"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.math_util.standardize">[docs]</a><span class="k">def</span> <span class="nf">standardize</span><span class="p">(</span><span class="n">v</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Method to standardize a rank-1 np array&#39;&#39;&#39;</span>
+    <span class="c1"># assert len(v) &gt; 1, &#39;Cannot standardize vector of size 1&#39;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">v</span>
+
+    <span class="n">v_std</span> <span class="o">=</span> <span class="p">(</span><span class="n">v</span> <span class="o">-</span> <span class="n">v</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span> <span class="o">/</span> <span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">std</span><span class="p">()</span> <span class="o">+</span> <span class="mf">1e-08</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">v_std</span></div>
+
+
+<div class="viewcode-block" id="to_one_hot"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.math_util.to_one_hot">[docs]</a><span class="k">def</span> <span class="nf">to_one_hot</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">max_val</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Convert an int list of data into one-hot vectors&#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">max_val</span><span class="p">)[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">)]</span></div>
+
+
+<div class="viewcode-block" id="venv_pack"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.math_util.venv_pack">[docs]</a><span class="k">def</span> <span class="nf">venv_pack</span><span class="p">(</span><span class="n">batch_tensor</span><span class="p">,</span> <span class="n">num_envs</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Apply the reverse of venv_unpack to pack a batch tensor from (b*num_envs, *shape) to (b, num_envs, *shape)&#39;&#39;&#39;</span>
+    <span class="n">shape</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">batch_tensor</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>  <span class="c1"># scalar data (b, num_envs,)</span>
+        <span class="k">return</span> <span class="n">batch_tensor</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_envs</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>  <span class="c1"># non-scalar data (b, num_envs, *shape)</span>
+        <span class="n">pack_shape</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_envs</span><span class="p">]</span> <span class="o">+</span> <span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="k">return</span> <span class="n">batch_tensor</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">pack_shape</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="venv_unpack"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.math_util.venv_unpack">[docs]</a><span class="k">def</span> <span class="nf">venv_unpack</span><span class="p">(</span><span class="n">batch_tensor</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Unpack a sampled vec env batch tensor</span>
+<span class="sd">    e.g. for a state with original shape (4, ), vec env should return vec state with shape (num_envs, 4) to store in memory</span>
+<span class="sd">    When sampled with batch_size b, we should get shape (b, num_envs, 4). But we need to unpack the num_envs dimension to get (b * num_envs, 4) for passing to a network. This method does that.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">shape</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">batch_tensor</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>  <span class="c1"># scalar data (b, num_envs,)</span>
+        <span class="k">return</span> <span class="n">batch_tensor</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>  <span class="c1"># non-scalar data (b, num_envs, *shape)</span>
+        <span class="n">unpack_shape</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>
+        <span class="k">return</span> <span class="n">batch_tensor</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">unpack_shape</span><span class="p">)</span></div>
+
+
+<span class="c1"># Policy Gradient calc</span>
+<span class="c1"># advantage functions</span>
+
+<div class="viewcode-block" id="calc_returns"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.math_util.calc_returns">[docs]</a><span class="k">def</span> <span class="nf">calc_returns</span><span class="p">(</span><span class="n">rewards</span><span class="p">,</span> <span class="n">dones</span><span class="p">,</span> <span class="n">gamma</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Calculate the simple returns (full rollout) i.e. sum discounted rewards up till termination</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">T</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">rewards</span><span class="p">)</span>
+    <span class="n">rets</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">rewards</span><span class="p">)</span>
+    <span class="n">future_ret</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">rewards</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="n">not_dones</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">dones</span>
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">T</span><span class="p">)):</span>
+        <span class="n">rets</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">=</span> <span class="n">future_ret</span> <span class="o">=</span> <span class="n">rewards</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">+</span> <span class="n">gamma</span> <span class="o">*</span> <span class="n">future_ret</span> <span class="o">*</span> <span class="n">not_dones</span><span class="p">[</span><span class="n">t</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">rets</span></div>
+
+
+<div class="viewcode-block" id="calc_nstep_returns"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.math_util.calc_nstep_returns">[docs]</a><span class="k">def</span> <span class="nf">calc_nstep_returns</span><span class="p">(</span><span class="n">rewards</span><span class="p">,</span> <span class="n">dones</span><span class="p">,</span> <span class="n">next_v_pred</span><span class="p">,</span> <span class="n">gamma</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Calculate the n-step returns for advantage. Ref: http://www-anw.cs.umass.edu/~barto/courses/cs687/Chapter%207.pdf</span>
+<span class="sd">    Also see Algorithm S3 from A3C paper https://arxiv.org/pdf/1602.01783.pdf for the calculation used below</span>
+<span class="sd">    R^(n)_t = r_{t} + gamma r_{t+1} + ... + gamma^(n-1) r_{t+n-1} + gamma^(n) V(s_{t+n})</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">rets</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">rewards</span><span class="p">)</span>
+    <span class="n">future_ret</span> <span class="o">=</span> <span class="n">next_v_pred</span>
+    <span class="n">not_dones</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">dones</span>
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)):</span>
+        <span class="n">rets</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">=</span> <span class="n">future_ret</span> <span class="o">=</span> <span class="n">rewards</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">+</span> <span class="n">gamma</span> <span class="o">*</span> <span class="n">future_ret</span> <span class="o">*</span> <span class="n">not_dones</span><span class="p">[</span><span class="n">t</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">rets</span></div>
+
+
+<div class="viewcode-block" id="calc_gaes"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.math_util.calc_gaes">[docs]</a><span class="k">def</span> <span class="nf">calc_gaes</span><span class="p">(</span><span class="n">rewards</span><span class="p">,</span> <span class="n">dones</span><span class="p">,</span> <span class="n">v_preds</span><span class="p">,</span> <span class="n">gamma</span><span class="p">,</span> <span class="n">lam</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Calculate GAE from Schulman et al. https://arxiv.org/pdf/1506.02438.pdf</span>
+<span class="sd">    v_preds are values predicted for current states, with one last element as the final next_state</span>
+<span class="sd">    delta is defined as r + gamma * V(s&#39;) - V(s) in eqn 10</span>
+<span class="sd">    GAE is defined in eqn 16</span>
+<span class="sd">    This method computes in torch tensor to prevent unnecessary moves between devices (e.g. GPU tensor to CPU numpy)</span>
+<span class="sd">    NOTE any standardization is done outside of this method</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">T</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">rewards</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">T</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">v_preds</span><span class="p">)</span>  <span class="c1"># v_preds includes states and 1 last next_state</span>
+    <span class="n">gaes</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">rewards</span><span class="p">)</span>
+    <span class="n">future_gae</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">rewards</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="c1"># to multiply with not_dones to handle episode boundary (last state has no V(s&#39;))</span>
+    <span class="n">not_dones</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">dones</span>
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">T</span><span class="p">)):</span>
+        <span class="n">delta</span> <span class="o">=</span> <span class="n">rewards</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">+</span> <span class="n">gamma</span> <span class="o">*</span> <span class="n">v_preds</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">not_dones</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">-</span> <span class="n">v_preds</span><span class="p">[</span><span class="n">t</span><span class="p">]</span>
+        <span class="n">gaes</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">=</span> <span class="n">future_gae</span> <span class="o">=</span> <span class="n">delta</span> <span class="o">+</span> <span class="n">gamma</span> <span class="o">*</span> <span class="n">lam</span> <span class="o">*</span> <span class="n">not_dones</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">*</span> <span class="n">future_gae</span>
+    <span class="k">return</span> <span class="n">gaes</span></div>
+
+
+<div class="viewcode-block" id="calc_q_value_logits"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.math_util.calc_q_value_logits">[docs]</a><span class="k">def</span> <span class="nf">calc_q_value_logits</span><span class="p">(</span><span class="n">state_value</span><span class="p">,</span> <span class="n">raw_advantages</span><span class="p">):</span>
+    <span class="n">mean_adv</span> <span class="o">=</span> <span class="n">raw_advantages</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">state_value</span> <span class="o">+</span> <span class="n">raw_advantages</span> <span class="o">-</span> <span class="n">mean_adv</span></div>
+
+
+<span class="c1"># generic variable decay methods</span>
+
+<div class="viewcode-block" id="no_decay"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.math_util.no_decay">[docs]</a><span class="k">def</span> <span class="nf">no_decay</span><span class="p">(</span><span class="n">start_val</span><span class="p">,</span> <span class="n">end_val</span><span class="p">,</span> <span class="n">start_step</span><span class="p">,</span> <span class="n">end_step</span><span class="p">,</span> <span class="n">step</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;dummy method for API consistency&#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">start_val</span></div>
+
+
+<div class="viewcode-block" id="linear_decay"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.math_util.linear_decay">[docs]</a><span class="k">def</span> <span class="nf">linear_decay</span><span class="p">(</span><span class="n">start_val</span><span class="p">,</span> <span class="n">end_val</span><span class="p">,</span> <span class="n">start_step</span><span class="p">,</span> <span class="n">end_step</span><span class="p">,</span> <span class="n">step</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Simple linear decay with annealing&#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">step</span> <span class="o">&lt;</span> <span class="n">start_step</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">start_val</span>
+    <span class="n">slope</span> <span class="o">=</span> <span class="p">(</span><span class="n">end_val</span> <span class="o">-</span> <span class="n">start_val</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">end_step</span> <span class="o">-</span> <span class="n">start_step</span><span class="p">)</span>
+    <span class="n">val</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">slope</span> <span class="o">*</span> <span class="p">(</span><span class="n">step</span> <span class="o">-</span> <span class="n">start_step</span><span class="p">)</span> <span class="o">+</span> <span class="n">start_val</span><span class="p">,</span> <span class="n">end_val</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">val</span></div>
+
+
+<div class="viewcode-block" id="rate_decay"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.math_util.rate_decay">[docs]</a><span class="k">def</span> <span class="nf">rate_decay</span><span class="p">(</span><span class="n">start_val</span><span class="p">,</span> <span class="n">end_val</span><span class="p">,</span> <span class="n">start_step</span><span class="p">,</span> <span class="n">end_step</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">decay_rate</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span> <span class="n">frequency</span><span class="o">=</span><span class="mf">20.</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Compounding rate decay that anneals in 20 decay iterations until end_step&#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">step</span> <span class="o">&lt;</span> <span class="n">start_step</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">start_val</span>
+    <span class="k">if</span> <span class="n">step</span> <span class="o">&gt;=</span> <span class="n">end_step</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">end_val</span>
+    <span class="n">step_per_decay</span> <span class="o">=</span> <span class="p">(</span><span class="n">end_step</span> <span class="o">-</span> <span class="n">start_step</span><span class="p">)</span> <span class="o">/</span> <span class="n">frequency</span>
+    <span class="n">decay_step</span> <span class="o">=</span> <span class="p">(</span><span class="n">step</span> <span class="o">-</span> <span class="n">start_step</span><span class="p">)</span> <span class="o">/</span> <span class="n">step_per_decay</span>
+    <span class="n">val</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">decay_rate</span><span class="p">,</span> <span class="n">decay_step</span><span class="p">)</span> <span class="o">*</span> <span class="n">start_val</span><span class="p">,</span> <span class="n">end_val</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">val</span></div>
+
+
+<div class="viewcode-block" id="periodic_decay"><a class="viewcode-back" href="../../../convlab.lib.html#convlab.lib.math_util.periodic_decay">[docs]</a><span class="k">def</span> <span class="nf">periodic_decay</span><span class="p">(</span><span class="n">start_val</span><span class="p">,</span> <span class="n">end_val</span><span class="p">,</span> <span class="n">start_step</span><span class="p">,</span> <span class="n">end_step</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">frequency</span><span class="o">=</span><span class="mf">60.</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Linearly decaying sinusoid that decays in roughly 10 iterations until explore_anneal_epi</span>
+<span class="sd">    Plot the equation below to see the pattern</span>
+<span class="sd">    suppose sinusoidal decay, start_val = 1, end_val = 0.2, stop after 60 unscaled x steps</span>
+<span class="sd">    then we get 0.2+0.5*(1-0.2)(1 + cos x)*(1-x/60)</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">step</span> <span class="o">&lt;</span> <span class="n">start_step</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">start_val</span>
+    <span class="k">if</span> <span class="n">step</span> <span class="o">&gt;=</span> <span class="n">end_step</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">end_val</span>
+    <span class="n">x_freq</span> <span class="o">=</span> <span class="n">frequency</span>
+    <span class="n">step_per_decay</span> <span class="o">=</span> <span class="p">(</span><span class="n">end_step</span> <span class="o">-</span> <span class="n">start_step</span><span class="p">)</span> <span class="o">/</span> <span class="n">x_freq</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="p">(</span><span class="n">step</span> <span class="o">-</span> <span class="n">start_step</span><span class="p">)</span> <span class="o">/</span> <span class="n">step_per_decay</span>
+    <span class="n">unit</span> <span class="o">=</span> <span class="n">start_val</span> <span class="o">-</span> <span class="n">end_val</span>
+    <span class="n">val</span> <span class="o">=</span> <span class="n">end_val</span> <span class="o">*</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">unit</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">x</span> <span class="o">/</span> <span class="n">x_freq</span><span class="p">))</span>
+    <span class="n">val</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">end_val</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">val</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, ConvLab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

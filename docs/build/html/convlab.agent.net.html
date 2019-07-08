@@ -1,0 +1,747 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>convlab.agent.net package &mdash; ConvLab 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> ConvLab
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">convlab.agent.net package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-convlab.agent.net.base">convlab.agent.net.base module</a></li>
+<li><a class="reference internal" href="#module-convlab.agent.net.conv">convlab.agent.net.conv module</a></li>
+<li><a class="reference internal" href="#module-convlab.agent.net.mlp">convlab.agent.net.mlp module</a></li>
+<li><a class="reference internal" href="#module-convlab.agent.net.net_util">convlab.agent.net.net_util module</a></li>
+<li><a class="reference internal" href="#module-convlab.agent.net.recurrent">convlab.agent.net.recurrent module</a></li>
+<li><a class="reference internal" href="#module-convlab.agent.net">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">ConvLab</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>convlab.agent.net package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/convlab.agent.net.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="convlab-agent-net-package">
+<h1>convlab.agent.net package<a class="headerlink" href="#convlab-agent-net-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-convlab.agent.net.base">
+<span id="convlab-agent-net-base-module"></span><h2>convlab.agent.net.base module<a class="headerlink" href="#module-convlab.agent.net.base" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="convlab.agent.net.base.Net">
+<em class="property">class </em><code class="descclassname">convlab.agent.net.base.</code><code class="descname">Net</code><span class="sig-paren">(</span><em>net_spec</em>, <em>in_dim</em>, <em>out_dim</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/net/base.html#Net"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.net.base.Net" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></a></p>
+<p>Abstract Net class to define the API methods</p>
+<dl class="method">
+<dt id="convlab.agent.net.base.Net.store_grad_norms">
+<code class="descname">store_grad_norms</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/net/base.html#Net.store_grad_norms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.net.base.Net.store_grad_norms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stores the gradient norms for debugging.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.net.base.Net.train_step">
+<code class="descname">train_step</code><span class="sig-paren">(</span><em>loss</em>, <em>optim</em>, <em>lr_scheduler</em>, <em>clock=None</em>, <em>global_net=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/net/base.html#Net.train_step"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.net.base.Net.train_step" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-convlab.agent.net.conv">
+<span id="convlab-agent-net-conv-module"></span><h2>convlab.agent.net.conv module<a class="headerlink" href="#module-convlab.agent.net.conv" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="convlab.agent.net.conv.ConvNet">
+<em class="property">class </em><code class="descclassname">convlab.agent.net.conv.</code><code class="descname">ConvNet</code><span class="sig-paren">(</span><em>net_spec</em>, <em>in_dim</em>, <em>out_dim</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/net/conv.html#ConvNet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.net.conv.ConvNet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#convlab.agent.net.base.Net" title="convlab.agent.net.base.Net"><code class="xref py py-class docutils literal notranslate"><span class="pre">convlab.agent.net.base.Net</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>Class for generating arbitrary sized convolutional neural network,
+with optional batch normalization</p>
+<p>Assumes that a single input example is organized into a 3D tensor.
+The entire model consists of three parts:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>self.conv_model</li>
+<li>self.fc_model</li>
+<li>self.model_tails</li>
+</ol>
+</div></blockquote>
+<p>e.g. net_spec
+“net”: {</p>
+<blockquote>
+<div><p>“type”: “ConvNet”,
+“shared”: true,
+“conv_hid_layers”: [</p>
+<blockquote>
+<div>[32, 8, 4, 0, 1],
+[64, 4, 2, 0, 1],
+[64, 3, 1, 0, 1]</div></blockquote>
+<p>],
+“fc_hid_layers”: [512],
+“hid_layers_activation”: “relu”,
+“out_layer_activation”: “tanh”,
+“init_fn”: null,
+“normalize”: false,
+“batch_norm”: false,
+“clip_grad_val”: 1.0,
+“loss_spec”: {</p>
+<blockquote>
+<div>“name”: “SmoothL1Loss”</div></blockquote>
+<p>},
+“optim_spec”: {</p>
+<blockquote>
+<div>“name”: “Adam”,
+“lr”: 0.02</div></blockquote>
+<p>},
+“lr_scheduler_spec”: {</p>
+<blockquote>
+<div>“name”: “StepLR”,
+“step_size”: 30,
+“gamma”: 0.1</div></blockquote>
+<p>},
+“update_type”: “replace”,
+“update_frequency”: 10000,
+“polyak_coef”: 0.9,
+“gpu”: true</p>
+</div></blockquote>
+<p>}</p>
+<dl class="method">
+<dt id="convlab.agent.net.conv.ConvNet.build_conv_layers">
+<code class="descname">build_conv_layers</code><span class="sig-paren">(</span><em>conv_hid_layers</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/net/conv.html#ConvNet.build_conv_layers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.net.conv.ConvNet.build_conv_layers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Builds all of the convolutional layers in the network and store in a Sequential model</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.net.conv.ConvNet.forward">
+<code class="descname">forward</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/net/conv.html#ConvNet.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.net.conv.ConvNet.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>The feedforward step
+Note that PyTorch takes (c,h,w) but gym provides (h,w,c), so preprocessing must be done before passing to network</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.net.conv.ConvNet.get_conv_output_size">
+<code class="descname">get_conv_output_size</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/net/conv.html#ConvNet.get_conv_output_size"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.net.conv.ConvNet.get_conv_output_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function to calculate the size of the flattened features after the final convolutional layer</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="convlab.agent.net.conv.DuelingConvNet">
+<em class="property">class </em><code class="descclassname">convlab.agent.net.conv.</code><code class="descname">DuelingConvNet</code><span class="sig-paren">(</span><em>net_spec</em>, <em>in_dim</em>, <em>out_dim</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/net/conv.html#DuelingConvNet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.net.conv.DuelingConvNet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#convlab.agent.net.conv.ConvNet" title="convlab.agent.net.conv.ConvNet"><code class="xref py py-class docutils literal notranslate"><span class="pre">convlab.agent.net.conv.ConvNet</span></code></a></p>
+<p>Class for generating arbitrary sized convolutional neural network,
+with optional batch normalization, and with dueling heads. Intended for Q-Learning algorithms only.
+Implementation based on “Dueling Network Architectures for Deep Reinforcement Learning” <a class="reference external" href="http://proceedings.mlr.press/v48/wangf16.pdf">http://proceedings.mlr.press/v48/wangf16.pdf</a></p>
+<p>Assumes that a single input example is organized into a 3D tensor.
+The entire model consists of three parts:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>self.conv_model</li>
+<li>self.fc_model</li>
+<li>self.model_tails</li>
+</ol>
+</div></blockquote>
+<p>e.g. net_spec
+“net”: {</p>
+<blockquote>
+<div><p>“type”: “DuelingConvNet”,
+“shared”: true,
+“conv_hid_layers”: [</p>
+<blockquote>
+<div>[32, 8, 4, 0, 1],
+[64, 4, 2, 0, 1],
+[64, 3, 1, 0, 1]</div></blockquote>
+<p>],
+“fc_hid_layers”: [512],
+“hid_layers_activation”: “relu”,
+“init_fn”: “<a href="#id1"><span class="problematic" id="id2">xavier_uniform_</span></a>”,
+“normalize”: false,
+“batch_norm”: false,
+“clip_grad_val”: 1.0,
+“loss_spec”: {</p>
+<blockquote>
+<div>“name”: “SmoothL1Loss”</div></blockquote>
+<p>},
+“optim_spec”: {</p>
+<blockquote>
+<div>“name”: “Adam”,
+“lr”: 0.02</div></blockquote>
+<p>},
+“lr_scheduler_spec”: {</p>
+<blockquote>
+<div>“name”: “StepLR”,
+“step_size”: 30,
+“gamma”: 0.1</div></blockquote>
+<p>},
+“update_type”: “replace”,
+“update_frequency”: 10000,
+“polyak_coef”: 0.9,
+“gpu”: true</p>
+</div></blockquote>
+<p>}</p>
+<dl class="method">
+<dt id="convlab.agent.net.conv.DuelingConvNet.forward">
+<code class="descname">forward</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/net/conv.html#DuelingConvNet.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.net.conv.DuelingConvNet.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>The feedforward step</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-convlab.agent.net.mlp">
+<span id="convlab-agent-net-mlp-module"></span><h2>convlab.agent.net.mlp module<a class="headerlink" href="#module-convlab.agent.net.mlp" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="convlab.agent.net.mlp.DuelingMLPNet">
+<em class="property">class </em><code class="descclassname">convlab.agent.net.mlp.</code><code class="descname">DuelingMLPNet</code><span class="sig-paren">(</span><em>net_spec</em>, <em>in_dim</em>, <em>out_dim</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/net/mlp.html#DuelingMLPNet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.net.mlp.DuelingMLPNet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#convlab.agent.net.mlp.MLPNet" title="convlab.agent.net.mlp.MLPNet"><code class="xref py py-class docutils literal notranslate"><span class="pre">convlab.agent.net.mlp.MLPNet</span></code></a></p>
+<p>Class for generating arbitrary sized feedforward neural network, with dueling heads. Intended for Q-Learning algorithms only.
+Implementation based on “Dueling Network Architectures for Deep Reinforcement Learning” <a class="reference external" href="http://proceedings.mlr.press/v48/wangf16.pdf">http://proceedings.mlr.press/v48/wangf16.pdf</a></p>
+<p>e.g. net_spec
+“net”: {</p>
+<blockquote>
+<div><p>“type”: “DuelingMLPNet”,
+“shared”: true,
+“hid_layers”: [32],
+“hid_layers_activation”: “relu”,
+“init_fn”: “<a href="#id3"><span class="problematic" id="id4">xavier_uniform_</span></a>”,
+“clip_grad_val”: 1.0,
+“loss_spec”: {</p>
+<blockquote>
+<div>“name”: “MSELoss”</div></blockquote>
+<p>},
+“optim_spec”: {</p>
+<blockquote>
+<div>“name”: “Adam”,
+“lr”: 0.02</div></blockquote>
+<p>},
+“lr_scheduler_spec”: {</p>
+<blockquote>
+<div>“name”: “StepLR”,
+“step_size”: 30,
+“gamma”: 0.1</div></blockquote>
+<p>},
+“update_type”: “replace”,
+“update_frequency”: 1,
+“polyak_coef”: 0.9,
+“gpu”: true</p>
+</div></blockquote>
+<p>}</p>
+<dl class="method">
+<dt id="convlab.agent.net.mlp.DuelingMLPNet.forward">
+<code class="descname">forward</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/net/mlp.html#DuelingMLPNet.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.net.mlp.DuelingMLPNet.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>The feedforward step</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="convlab.agent.net.mlp.HydraMLPNet">
+<em class="property">class </em><code class="descclassname">convlab.agent.net.mlp.</code><code class="descname">HydraMLPNet</code><span class="sig-paren">(</span><em>net_spec</em>, <em>in_dim</em>, <em>out_dim</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/net/mlp.html#HydraMLPNet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.net.mlp.HydraMLPNet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#convlab.agent.net.base.Net" title="convlab.agent.net.base.Net"><code class="xref py py-class docutils literal notranslate"><span class="pre">convlab.agent.net.base.Net</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>Class for generating arbitrary sized feedforward neural network with multiple state and action heads, and a single shared body.</p>
+<p>e.g. net_spec
+“net”: {</p>
+<blockquote>
+<div><p>“type”: “HydraMLPNet”,
+“shared”: true,
+“hid_layers”: [</p>
+<blockquote>
+<div>[[32],[32]], # 2 heads with hidden layers
+[64], # body
+[] # tail, no hidden layers</div></blockquote>
+<p>],
+“hid_layers_activation”: “relu”,
+“out_layer_activation”: null,
+“init_fn”: “<a href="#id5"><span class="problematic" id="id6">xavier_uniform_</span></a>”,
+“clip_grad_val”: 1.0,
+“loss_spec”: {</p>
+<blockquote>
+<div>“name”: “MSELoss”</div></blockquote>
+<p>},
+“optim_spec”: {</p>
+<blockquote>
+<div>“name”: “Adam”,
+“lr”: 0.02</div></blockquote>
+<p>},
+“lr_scheduler_spec”: {</p>
+<blockquote>
+<div>“name”: “StepLR”,
+“step_size”: 30,
+“gamma”: 0.1</div></blockquote>
+<p>},
+“update_type”: “replace”,
+“update_frequency”: 1,
+“polyak_coef”: 0.9,
+“gpu”: true</p>
+</div></blockquote>
+<p>}</p>
+<dl class="method">
+<dt id="convlab.agent.net.mlp.HydraMLPNet.build_model_heads">
+<code class="descname">build_model_heads</code><span class="sig-paren">(</span><em>in_dim</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/net/mlp.html#HydraMLPNet.build_model_heads"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.net.mlp.HydraMLPNet.build_model_heads" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build each model_head. These are stored as Sequential models in model_heads</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.net.mlp.HydraMLPNet.build_model_tails">
+<code class="descname">build_model_tails</code><span class="sig-paren">(</span><em>out_dim</em>, <em>out_layer_activation</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/net/mlp.html#HydraMLPNet.build_model_tails"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.net.mlp.HydraMLPNet.build_model_tails" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build each model_tail. These are stored as Sequential models in model_tails</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.net.mlp.HydraMLPNet.forward">
+<code class="descname">forward</code><span class="sig-paren">(</span><em>xs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/net/mlp.html#HydraMLPNet.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.net.mlp.HydraMLPNet.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>The feedforward step</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="convlab.agent.net.mlp.MLPNet">
+<em class="property">class </em><code class="descclassname">convlab.agent.net.mlp.</code><code class="descname">MLPNet</code><span class="sig-paren">(</span><em>net_spec</em>, <em>in_dim</em>, <em>out_dim</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/net/mlp.html#MLPNet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.net.mlp.MLPNet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#convlab.agent.net.base.Net" title="convlab.agent.net.base.Net"><code class="xref py py-class docutils literal notranslate"><span class="pre">convlab.agent.net.base.Net</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>Class for generating arbitrary sized feedforward neural network
+If more than 1 output tensors, will create a self.model_tails instead of making last layer part of self.model</p>
+<p>e.g. net_spec
+“net”: {</p>
+<blockquote>
+<div><p>“type”: “MLPNet”,
+“shared”: true,
+“hid_layers”: [32],
+“hid_layers_activation”: “relu”,
+“out_layer_activation”: null,
+“init_fn”: “<a href="#id7"><span class="problematic" id="id8">xavier_uniform_</span></a>”,
+“clip_grad_val”: 1.0,
+“loss_spec”: {</p>
+<blockquote>
+<div>“name”: “MSELoss”</div></blockquote>
+<p>},
+“optim_spec”: {</p>
+<blockquote>
+<div>“name”: “Adam”,
+“lr”: 0.02</div></blockquote>
+<p>},
+“lr_scheduler_spec”: {</p>
+<blockquote>
+<div>“name”: “StepLR”,
+“step_size”: 30,
+“gamma”: 0.1</div></blockquote>
+<p>},
+“update_type”: “replace”,
+“update_frequency”: 1,
+“polyak_coef”: 0.9,
+“gpu”: true</p>
+</div></blockquote>
+<p>}</p>
+<dl class="method">
+<dt id="convlab.agent.net.mlp.MLPNet.forward">
+<code class="descname">forward</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/net/mlp.html#MLPNet.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.net.mlp.MLPNet.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>The feedforward step</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-convlab.agent.net.net_util">
+<span id="convlab-agent-net-net-util-module"></span><h2>convlab.agent.net.net_util module<a class="headerlink" href="#module-convlab.agent.net.net_util" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="convlab.agent.net.net_util.NoOpLRScheduler">
+<em class="property">class </em><code class="descclassname">convlab.agent.net.net_util.</code><code class="descname">NoOpLRScheduler</code><span class="sig-paren">(</span><em>optim</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/net/net_util.html#NoOpLRScheduler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.net.net_util.NoOpLRScheduler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Symbolic LRScheduler class for API consistency</p>
+<dl class="method">
+<dt id="convlab.agent.net.net_util.NoOpLRScheduler.get_lr">
+<code class="descname">get_lr</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/net/net_util.html#NoOpLRScheduler.get_lr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.net.net_util.NoOpLRScheduler.get_lr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="convlab.agent.net.net_util.NoOpLRScheduler.step">
+<code class="descname">step</code><span class="sig-paren">(</span><em>epoch=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/net/net_util.html#NoOpLRScheduler.step"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.net.net_util.NoOpLRScheduler.step" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.agent.net.net_util.build_fc_model">
+<code class="descclassname">convlab.agent.net.net_util.</code><code class="descname">build_fc_model</code><span class="sig-paren">(</span><em>dims</em>, <em>activation=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/net/net_util.html#build_fc_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.net.net_util.build_fc_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build a full-connected model by interleaving nn.Linear and activation_fn</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.agent.net.net_util.copy">
+<code class="descclassname">convlab.agent.net.net_util.</code><code class="descname">copy</code><span class="sig-paren">(</span><em>src_net</em>, <em>tar_net</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/net/net_util.html#copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.net.net_util.copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Copy model weights from src to target</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.agent.net.net_util.dev_check_train_step">
+<code class="descclassname">convlab.agent.net.net_util.</code><code class="descname">dev_check_train_step</code><span class="sig-paren">(</span><em>fn</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/net/net_util.html#dev_check_train_step"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.net.net_util.dev_check_train_step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decorator to check if net.train_step actually updates the network weights properly
+Triggers only if to_check_train_step is True (dev/test mode)
+&#64;example</p>
+<p>&#64;net_util.dev_check_train_step
+def train_step(self, …):</p>
+<blockquote>
+<div>…</div></blockquote>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.agent.net.net_util.get_activation_fn">
+<code class="descclassname">convlab.agent.net.net_util.</code><code class="descname">get_activation_fn</code><span class="sig-paren">(</span><em>activation</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/net/net_util.html#get_activation_fn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.net.net_util.get_activation_fn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper to generate activation function layers for net</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.agent.net.net_util.get_grad_norms">
+<code class="descclassname">convlab.agent.net.net_util.</code><code class="descname">get_grad_norms</code><span class="sig-paren">(</span><em>algorithm</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/net/net_util.html#get_grad_norms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.net.net_util.get_grad_norms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gather all the net’s grad norms of an algorithm for debugging</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.agent.net.net_util.get_loss_fn">
+<code class="descclassname">convlab.agent.net.net_util.</code><code class="descname">get_loss_fn</code><span class="sig-paren">(</span><em>cls</em>, <em>loss_spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/net/net_util.html#get_loss_fn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.net.net_util.get_loss_fn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper to parse loss param and construct loss_fn for net</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.agent.net.net_util.get_lr_scheduler">
+<code class="descclassname">convlab.agent.net.net_util.</code><code class="descname">get_lr_scheduler</code><span class="sig-paren">(</span><em>optim</em>, <em>lr_scheduler_spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/net/net_util.html#get_lr_scheduler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.net.net_util.get_lr_scheduler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper to parse lr_scheduler param and construct Pytorch optim.lr_scheduler</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.agent.net.net_util.get_nn_name">
+<code class="descclassname">convlab.agent.net.net_util.</code><code class="descname">get_nn_name</code><span class="sig-paren">(</span><em>uncased_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/net/net_util.html#get_nn_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.net.net_util.get_nn_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper to get the proper name in PyTorch nn given a case-insensitive name</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.agent.net.net_util.get_optim">
+<code class="descclassname">convlab.agent.net.net_util.</code><code class="descname">get_optim</code><span class="sig-paren">(</span><em>net</em>, <em>optim_spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/net/net_util.html#get_optim"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.net.net_util.get_optim" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper to parse optim param and construct optim for net</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.agent.net.net_util.get_out_dim">
+<code class="descclassname">convlab.agent.net.net_util.</code><code class="descname">get_out_dim</code><span class="sig-paren">(</span><em>body</em>, <em>add_critic=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/net/net_util.html#get_out_dim"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.net.net_util.get_out_dim" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct the NetClass out_dim for a body according to is_discrete, action_type, and whether to add a critic unit</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.agent.net.net_util.get_policy_out_dim">
+<code class="descclassname">convlab.agent.net.net_util.</code><code class="descname">get_policy_out_dim</code><span class="sig-paren">(</span><em>body</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/net/net_util.html#get_policy_out_dim"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.net.net_util.get_policy_out_dim" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper method to construct the policy network out_dim for a body according to is_discrete, action_type</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.agent.net.net_util.init_global_nets">
+<code class="descclassname">convlab.agent.net.net_util.</code><code class="descname">init_global_nets</code><span class="sig-paren">(</span><em>algorithm</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/net/net_util.html#init_global_nets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.net.net_util.init_global_nets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize global_nets for Hogwild using an identical instance of an algorithm from an isolated Session
+in spec.meta.distributed, specify either:
+- ‘shared’: global network parameter is shared all the time. In this mode, algorithm local network will be replaced directly by global_net via overriding by identify attribute name
+- ‘synced’: global network parameter is periodically synced to local network after each gradient push. In this mode, algorithm will keep a separate reference to <cite>global_{net}</cite> for each of its network</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.agent.net.net_util.init_layers">
+<code class="descclassname">convlab.agent.net.net_util.</code><code class="descname">init_layers</code><span class="sig-paren">(</span><em>net</em>, <em>init_fn_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/net/net_util.html#init_layers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.net.net_util.init_layers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Primary method to initialize the weights of the layers of a network</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.agent.net.net_util.init_params">
+<code class="descclassname">convlab.agent.net.net_util.</code><code class="descname">init_params</code><span class="sig-paren">(</span><em>module</em>, <em>init_fn</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/net/net_util.html#init_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.net.net_util.init_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize module’s weights using init_fn, and biases to 0.0</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.agent.net.net_util.load">
+<code class="descclassname">convlab.agent.net.net_util.</code><code class="descname">load</code><span class="sig-paren">(</span><em>net</em>, <em>model_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/net/net_util.html#load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.net.net_util.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save model weights from a path into a net module</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.agent.net.net_util.load_algorithm">
+<code class="descclassname">convlab.agent.net.net_util.</code><code class="descname">load_algorithm</code><span class="sig-paren">(</span><em>algorithm</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/net/net_util.html#load_algorithm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.net.net_util.load_algorithm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save all the nets for an algorithm</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.agent.net.net_util.polyak_update">
+<code class="descclassname">convlab.agent.net.net_util.</code><code class="descname">polyak_update</code><span class="sig-paren">(</span><em>src_net</em>, <em>tar_net</em>, <em>old_ratio=0.5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/net/net_util.html#polyak_update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.net.net_util.polyak_update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Polyak weight update to update a target tar_net, retain old weights by its ratio, i.e.
+target &lt;- old_ratio * source + (1 - old_ratio) * target</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.agent.net.net_util.push_global_grads">
+<code class="descclassname">convlab.agent.net.net_util.</code><code class="descname">push_global_grads</code><span class="sig-paren">(</span><em>net</em>, <em>global_net</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/net/net_util.html#push_global_grads"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.net.net_util.push_global_grads" title="Permalink to this definition">¶</a></dt>
+<dd><p>Push gradients to global_net, call inside train_step between loss.backward() and optim.step()</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.agent.net.net_util.save">
+<code class="descclassname">convlab.agent.net.net_util.</code><code class="descname">save</code><span class="sig-paren">(</span><em>net</em>, <em>model_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/net/net_util.html#save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.net.net_util.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save model weights to path</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.agent.net.net_util.save_algorithm">
+<code class="descclassname">convlab.agent.net.net_util.</code><code class="descname">save_algorithm</code><span class="sig-paren">(</span><em>algorithm</em>, <em>ckpt=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/net/net_util.html#save_algorithm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.net.net_util.save_algorithm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save all the nets for an algorithm</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.agent.net.net_util.set_global_nets">
+<code class="descclassname">convlab.agent.net.net_util.</code><code class="descname">set_global_nets</code><span class="sig-paren">(</span><em>algorithm</em>, <em>global_nets</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/net/net_util.html#set_global_nets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.net.net_util.set_global_nets" title="Permalink to this definition">¶</a></dt>
+<dd><p>For Hogwild, set attr built in init_global_nets above. Use in algorithm init.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.agent.net.net_util.to_check_train_step">
+<code class="descclassname">convlab.agent.net.net_util.</code><code class="descname">to_check_train_step</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/net/net_util.html#to_check_train_step"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.net.net_util.to_check_train_step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Condition for running assert_trained</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-convlab.agent.net.recurrent">
+<span id="convlab-agent-net-recurrent-module"></span><h2>convlab.agent.net.recurrent module<a class="headerlink" href="#module-convlab.agent.net.recurrent" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="convlab.agent.net.recurrent.RecurrentNet">
+<em class="property">class </em><code class="descclassname">convlab.agent.net.recurrent.</code><code class="descname">RecurrentNet</code><span class="sig-paren">(</span><em>net_spec</em>, <em>in_dim</em>, <em>out_dim</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/net/recurrent.html#RecurrentNet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.net.recurrent.RecurrentNet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#convlab.agent.net.base.Net" title="convlab.agent.net.base.Net"><code class="xref py py-class docutils literal notranslate"><span class="pre">convlab.agent.net.base.Net</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>Class for generating arbitrary sized recurrent neural networks which take a sequence of states as input.</p>
+<p>Assumes that a single input example is organized into a 3D tensor
+batch_size x seq_len x state_dim
+The entire model consists of three parts:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>self.fc_model (state processing)</li>
+<li>self.rnn_model</li>
+<li>self.model_tails</li>
+</ol>
+</div></blockquote>
+<p>e.g. net_spec
+“net”: {</p>
+<blockquote>
+<div><p>“type”: “RecurrentNet”,
+“shared”: true,
+“cell_type”: “GRU”,
+“fc_hid_layers”: [],
+“hid_layers_activation”: “relu”,
+“out_layer_activation”: null,
+“rnn_hidden_size”: 32,
+“rnn_num_layers”: 1,
+“bidirectional”: False,
+“seq_len”: 4,
+“init_fn”: “<a href="#id9"><span class="problematic" id="id10">xavier_uniform_</span></a>”,
+“clip_grad_val”: 1.0,
+“loss_spec”: {</p>
+<blockquote>
+<div>“name”: “MSELoss”</div></blockquote>
+<p>},
+“optim_spec”: {</p>
+<blockquote>
+<div>“name”: “Adam”,
+“lr”: 0.01</div></blockquote>
+<p>},
+“lr_scheduler_spec”: {</p>
+<blockquote>
+<div>“name”: “StepLR”,
+“step_size”: 30,
+“gamma”: 0.1</div></blockquote>
+<p>},
+“update_type”: “replace”,
+“update_frequency”: 1,
+“polyak_coef”: 0.9,
+“gpu”: true</p>
+</div></blockquote>
+<p>}</p>
+<dl class="method">
+<dt id="convlab.agent.net.recurrent.RecurrentNet.forward">
+<code class="descname">forward</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/agent/net/recurrent.html#RecurrentNet.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.agent.net.recurrent.RecurrentNet.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>The feedforward step. Input is batch_size x seq_len x state_dim</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-convlab.agent.net">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-convlab.agent.net" title="Permalink to this headline">¶</a></h2>
+<p>The nets module
+Contains classes of neural network architectures</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, ConvLab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

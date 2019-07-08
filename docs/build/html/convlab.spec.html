@@ -1,0 +1,306 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>convlab.spec package &mdash; ConvLab 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> ConvLab
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">convlab.spec package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-convlab.spec.spec_util">convlab.spec.spec_util module</a></li>
+<li><a class="reference internal" href="#module-convlab.spec">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">ConvLab</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>convlab.spec package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/convlab.spec.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="convlab-spec-package">
+<h1>convlab.spec package<a class="headerlink" href="#convlab-spec-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-convlab.spec.spec_util">
+<span id="convlab-spec-spec-util-module"></span><h2>convlab.spec.spec_util module<a class="headerlink" href="#module-convlab.spec.spec_util" title="Permalink to this headline">¶</a></h2>
+<dl class="data">
+<dt id="convlab.spec.spec_util.SPEC_DIR">
+<code class="descclassname">convlab.spec.spec_util.</code><code class="descname">SPEC_DIR</code><em class="property"> = 'convlab/spec'</em><a class="headerlink" href="#convlab.spec.spec_util.SPEC_DIR" title="Permalink to this definition">¶</a></dt>
+<dd><p>All spec values are already param, inferred automatically.
+To change from a value into param range, e.g.
+- single: “explore_anneal_epi”: 50
+- continuous param: “explore_anneal_epi”: {“min”: 50, “max”: 100, “dist”: “uniform”}
+- discrete range: “explore_anneal_epi”: {“values”: [50, 75, 100]}</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.spec.spec_util.check">
+<code class="descclassname">convlab.spec.spec_util.</code><code class="descname">check</code><span class="sig-paren">(</span><em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/spec/spec_util.html#check"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.spec.spec_util.check" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check a single spec for validity</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.spec.spec_util.check_all">
+<code class="descclassname">convlab.spec.spec_util.</code><code class="descname">check_all</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/spec/spec_util.html#check_all"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.spec.spec_util.check_all" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check all spec files, all specs.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.spec.spec_util.check_body_spec">
+<code class="descclassname">convlab.spec.spec_util.</code><code class="descname">check_body_spec</code><span class="sig-paren">(</span><em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/spec/spec_util.html#check_body_spec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.spec.spec_util.check_body_spec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base method to check body spec for multi-agent multi-env</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.spec.spec_util.check_comp_spec">
+<code class="descclassname">convlab.spec.spec_util.</code><code class="descname">check_comp_spec</code><span class="sig-paren">(</span><em>comp_spec</em>, <em>comp_spec_format</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/spec/spec_util.html#check_comp_spec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.spec.spec_util.check_comp_spec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base method to check component spec</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.spec.spec_util.check_compatibility">
+<code class="descclassname">convlab.spec.spec_util.</code><code class="descname">check_compatibility</code><span class="sig-paren">(</span><em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/spec/spec_util.html#check_compatibility"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.spec.spec_util.check_compatibility" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check compatibility among spec setups</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.spec.spec_util.extend_meta_spec">
+<code class="descclassname">convlab.spec.spec_util.</code><code class="descname">extend_meta_spec</code><span class="sig-paren">(</span><em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/spec/spec_util.html#extend_meta_spec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.spec.spec_util.extend_meta_spec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extend meta spec with information for lab functions</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.spec.spec_util.get">
+<code class="descclassname">convlab.spec.spec_util.</code><code class="descname">get</code><span class="sig-paren">(</span><em>spec_file</em>, <em>spec_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/spec/spec_util.html#get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.spec.spec_util.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get an experiment spec from spec_file, spec_name.
+Auto-check spec.
+&#64;example</p>
+<p>spec = spec_util.get(‘base.json’, ‘base_case_openai’)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.spec.spec_util.get_eval_spec">
+<code class="descclassname">convlab.spec.spec_util.</code><code class="descname">get_eval_spec</code><span class="sig-paren">(</span><em>spec_file</em>, <em>spec_name</em>, <em>prename=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/spec/spec_util.html#get_eval_spec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.spec.spec_util.get_eval_spec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get spec for eval mode</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.spec.spec_util.get_param_specs">
+<code class="descclassname">convlab.spec.spec_util.</code><code class="descname">get_param_specs</code><span class="sig-paren">(</span><em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/spec/spec_util.html#get_param_specs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.spec.spec_util.get_param_specs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list of specs with substituted spec_params</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.spec.spec_util.override_dev_spec">
+<code class="descclassname">convlab.spec.spec_util.</code><code class="descname">override_dev_spec</code><span class="sig-paren">(</span><em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/spec/spec_util.html#override_dev_spec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.spec.spec_util.override_dev_spec" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="convlab.spec.spec_util.override_eval_spec">
+<code class="descclassname">convlab.spec.spec_util.</code><code class="descname">override_eval_spec</code><span class="sig-paren">(</span><em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/spec/spec_util.html#override_eval_spec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.spec.spec_util.override_eval_spec" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="convlab.spec.spec_util.override_test_spec">
+<code class="descclassname">convlab.spec.spec_util.</code><code class="descname">override_test_spec</code><span class="sig-paren">(</span><em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/spec/spec_util.html#override_test_spec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.spec.spec_util.override_test_spec" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="convlab.spec.spec_util.save">
+<code class="descclassname">convlab.spec.spec_util.</code><code class="descname">save</code><span class="sig-paren">(</span><em>spec</em>, <em>unit='experiment'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/spec/spec_util.html#save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.spec.spec_util.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save spec to proper path. Called at Experiment or Trial init.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.spec.spec_util.tick">
+<code class="descclassname">convlab.spec.spec_util.</code><code class="descname">tick</code><span class="sig-paren">(</span><em>spec</em>, <em>unit</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/spec/spec_util.html#tick"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.spec.spec_util.tick" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to tick lab unit (experiment, trial, session) in meta spec to advance their indices
+Reset lower lab indices to -1 so that they tick to 0
+spec_util.tick(spec, ‘session’)
+session = Session(spec)</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-convlab.spec">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-convlab.spec" title="Permalink to this headline">¶</a></h2>
+<p>The spec module
+Handles the Lab experiment spec: reading, writing(evolution), validation and default setting
+Expands the spec and params into consumable inputs in info space for lab units.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, ConvLab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

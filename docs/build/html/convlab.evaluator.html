@@ -1,0 +1,312 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>convlab.evaluator package &mdash; ConvLab 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> ConvLab
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">convlab.evaluator package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-convlab.evaluator.evaluator">convlab.evaluator.evaluator module</a></li>
+<li><a class="reference internal" href="#module-convlab.evaluator.multiwoz">convlab.evaluator.multiwoz module</a></li>
+<li><a class="reference internal" href="#module-convlab.evaluator">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">ConvLab</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>convlab.evaluator package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/convlab.evaluator.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="convlab-evaluator-package">
+<h1>convlab.evaluator package<a class="headerlink" href="#convlab-evaluator-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-convlab.evaluator.evaluator">
+<span id="convlab-evaluator-evaluator-module"></span><h2>convlab.evaluator.evaluator module<a class="headerlink" href="#module-convlab.evaluator.evaluator" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="convlab.evaluator.evaluator.Evaluator">
+<em class="property">class </em><code class="descclassname">convlab.evaluator.evaluator.</code><code class="descname">Evaluator</code><a class="reference internal" href="_modules/convlab/evaluator/evaluator.html#Evaluator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.evaluator.evaluator.Evaluator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="method">
+<dt id="convlab.evaluator.evaluator.Evaluator.add_goal">
+<code class="descname">add_goal</code><span class="sig-paren">(</span><em>goal</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/evaluator/evaluator.html#Evaluator.add_goal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.evaluator.evaluator.Evaluator.add_goal" title="Permalink to this definition">¶</a></dt>
+<dd><p>init goal and array
+:param goal: dict[domain] dict[‘info’/’book’/’reqt’] dict/dict/list[slot]</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.evaluator.evaluator.Evaluator.add_sys_da">
+<code class="descname">add_sys_da</code><span class="sig-paren">(</span><em>da_turn</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/evaluator/evaluator.html#Evaluator.add_sys_da"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.evaluator.evaluator.Evaluator.add_sys_da" title="Permalink to this definition">¶</a></dt>
+<dd><p>add sys_da into array
+:param da_turn: dict[domain-intent] list[slot, value]</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.evaluator.evaluator.Evaluator.add_usr_da">
+<code class="descname">add_usr_da</code><span class="sig-paren">(</span><em>da_turn</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/evaluator/evaluator.html#Evaluator.add_usr_da"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.evaluator.evaluator.Evaluator.add_usr_da" title="Permalink to this definition">¶</a></dt>
+<dd><p>add usr_da into array
+:param da_turn: dict[domain-intent] list[slot, value]</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.evaluator.evaluator.Evaluator.book_rate">
+<code class="descname">book_rate</code><span class="sig-paren">(</span><em>ref2goal=True</em>, <em>aggregate=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/evaluator/evaluator.html#Evaluator.book_rate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.evaluator.evaluator.Evaluator.book_rate" title="Permalink to this definition">¶</a></dt>
+<dd><p>judge if the selected entity meets the constraint</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.evaluator.evaluator.Evaluator.domain_success">
+<code class="descname">domain_success</code><span class="sig-paren">(</span><em>domain</em>, <em>ref2goal=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/evaluator/evaluator.html#Evaluator.domain_success"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.evaluator.evaluator.Evaluator.domain_success" title="Permalink to this definition">¶</a></dt>
+<dd><p>judge if the domain (subtask) is successfully completed</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.evaluator.evaluator.Evaluator.inform_F1">
+<code class="descname">inform_F1</code><span class="sig-paren">(</span><em>ref2goal=True</em>, <em>aggregate=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/evaluator/evaluator.html#Evaluator.inform_F1"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.evaluator.evaluator.Evaluator.inform_F1" title="Permalink to this definition">¶</a></dt>
+<dd><p>judge if all the requested information is answered</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.evaluator.evaluator.Evaluator.task_success">
+<code class="descname">task_success</code><span class="sig-paren">(</span><em>ref2goal=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/evaluator/evaluator.html#Evaluator.task_success"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.evaluator.evaluator.Evaluator.task_success" title="Permalink to this definition">¶</a></dt>
+<dd><p>judge if all the domains are successfully completed</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-convlab.evaluator.multiwoz">
+<span id="convlab-evaluator-multiwoz-module"></span><h2>convlab.evaluator.multiwoz module<a class="headerlink" href="#module-convlab.evaluator.multiwoz" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="convlab.evaluator.multiwoz.MultiWozEvaluator">
+<em class="property">class </em><code class="descclassname">convlab.evaluator.multiwoz.</code><code class="descname">MultiWozEvaluator</code><a class="reference internal" href="_modules/convlab/evaluator/multiwoz.html#MultiWozEvaluator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.evaluator.multiwoz.MultiWozEvaluator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#convlab.evaluator.evaluator.Evaluator" title="convlab.evaluator.evaluator.Evaluator"><code class="xref py py-class docutils literal notranslate"><span class="pre">convlab.evaluator.evaluator.Evaluator</span></code></a></p>
+<dl class="method">
+<dt id="convlab.evaluator.multiwoz.MultiWozEvaluator.add_goal">
+<code class="descname">add_goal</code><span class="sig-paren">(</span><em>goal</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/evaluator/multiwoz.html#MultiWozEvaluator.add_goal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.evaluator.multiwoz.MultiWozEvaluator.add_goal" title="Permalink to this definition">¶</a></dt>
+<dd><p>init goal and array
+:param goal: dict[domain] dict[‘info’/’book’/’reqt’] dict/dict/list[slot]</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.evaluator.multiwoz.MultiWozEvaluator.add_sys_da">
+<code class="descname">add_sys_da</code><span class="sig-paren">(</span><em>da_turn</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/evaluator/multiwoz.html#MultiWozEvaluator.add_sys_da"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.evaluator.multiwoz.MultiWozEvaluator.add_sys_da" title="Permalink to this definition">¶</a></dt>
+<dd><p>add sys_da into array
+:param da_turn: dict[domain-intent] list[slot, value]</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.evaluator.multiwoz.MultiWozEvaluator.add_usr_da">
+<code class="descname">add_usr_da</code><span class="sig-paren">(</span><em>da_turn</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/evaluator/multiwoz.html#MultiWozEvaluator.add_usr_da"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.evaluator.multiwoz.MultiWozEvaluator.add_usr_da" title="Permalink to this definition">¶</a></dt>
+<dd><p>add usr_da into array
+:param da_turn: dict[domain-intent] list[slot, value]</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.evaluator.multiwoz.MultiWozEvaluator.book_rate">
+<code class="descname">book_rate</code><span class="sig-paren">(</span><em>ref2goal=True</em>, <em>aggregate=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/evaluator/multiwoz.html#MultiWozEvaluator.book_rate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.evaluator.multiwoz.MultiWozEvaluator.book_rate" title="Permalink to this definition">¶</a></dt>
+<dd><p>judge if the selected entity meets the constraint</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.evaluator.multiwoz.MultiWozEvaluator.domain_success">
+<code class="descname">domain_success</code><span class="sig-paren">(</span><em>domain</em>, <em>ref2goal=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/evaluator/multiwoz.html#MultiWozEvaluator.domain_success"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.evaluator.multiwoz.MultiWozEvaluator.domain_success" title="Permalink to this definition">¶</a></dt>
+<dd><p>judge if the domain (subtask) is successfully completed</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.evaluator.multiwoz.MultiWozEvaluator.inform_F1">
+<code class="descname">inform_F1</code><span class="sig-paren">(</span><em>ref2goal=True</em>, <em>aggregate=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/evaluator/multiwoz.html#MultiWozEvaluator.inform_F1"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.evaluator.multiwoz.MultiWozEvaluator.inform_F1" title="Permalink to this definition">¶</a></dt>
+<dd><p>judge if all the requested information is answered</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.evaluator.multiwoz.MultiWozEvaluator.task_success">
+<code class="descname">task_success</code><span class="sig-paren">(</span><em>ref2goal=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/evaluator/multiwoz.html#MultiWozEvaluator.task_success"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.evaluator.multiwoz.MultiWozEvaluator.task_success" title="Permalink to this definition">¶</a></dt>
+<dd><p>judge if all the domains are successfully completed</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-convlab.evaluator">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-convlab.evaluator" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, ConvLab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

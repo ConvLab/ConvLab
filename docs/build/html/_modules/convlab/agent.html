@@ -1,0 +1,581 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>convlab.agent &mdash; ConvLab 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> ConvLab
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">ConvLab</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>convlab.agent</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for convlab.agent</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Modified by Microsoft Corporation.</span>
+<span class="c1"># Licensed under the MIT license.</span>
+
+<span class="kn">from</span> <span class="nn">copy</span> <span class="k">import</span> <span class="n">deepcopy</span>
+
+<span class="c1"># The agent module</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">pydash</span> <span class="k">as</span> <span class="nn">ps</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+
+<span class="kn">from</span> <span class="nn">convlab.agent</span> <span class="k">import</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">memory</span>
+<span class="kn">from</span> <span class="nn">convlab.agent.algorithm</span> <span class="k">import</span> <span class="n">policy_util</span>
+<span class="kn">from</span> <span class="nn">convlab.agent.net</span> <span class="k">import</span> <span class="n">net_util</span>
+<span class="kn">from</span> <span class="nn">convlab.lib</span> <span class="k">import</span> <span class="n">logger</span><span class="p">,</span> <span class="n">util</span>
+<span class="kn">from</span> <span class="nn">convlab.lib.decorator</span> <span class="k">import</span> <span class="n">lab_api</span>
+<span class="kn">from</span> <span class="nn">convlab.modules</span> <span class="k">import</span> <span class="n">nlu</span><span class="p">,</span> <span class="n">dst</span><span class="p">,</span> <span class="n">word_dst</span><span class="p">,</span> <span class="n">nlg</span><span class="p">,</span> <span class="n">state_encoder</span><span class="p">,</span> <span class="n">action_decoder</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Agent"><a class="viewcode-back" href="../../convlab.agent.html#convlab.agent.Agent">[docs]</a><span class="k">class</span> <span class="nc">Agent</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Agent abstraction; implements the API to interface with Env in SLM Lab</span>
+<span class="sd">    Contains algorithm, memory, body</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spec</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">global_nets</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spec</span> <span class="o">=</span> <span class="n">spec</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">a</span> <span class="o">=</span> <span class="n">a</span> <span class="ow">or</span> <span class="mi">0</span>  <span class="c1"># for multi-agent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">agent_spec</span> <span class="o">=</span> <span class="n">spec</span><span class="p">[</span><span class="s1">&#39;agent&#39;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent_spec</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="n">ps</span><span class="o">.</span><span class="n">is_list</span><span class="p">(</span><span class="n">global_nets</span><span class="p">),</span> <span class="n">f</span><span class="s1">&#39;single agent global_nets must be a dict, got </span><span class="si">{global_nets}</span><span class="s1">&#39;</span>
+        <span class="c1"># set components</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">body</span> <span class="o">=</span> <span class="n">body</span>
+        <span class="n">body</span><span class="o">.</span><span class="n">agent</span> <span class="o">=</span> <span class="bp">self</span>
+        <span class="n">MemoryClass</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">memory</span><span class="p">,</span> <span class="n">ps</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">agent_spec</span><span class="p">,</span> <span class="s1">&#39;memory.name&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">memory</span> <span class="o">=</span> <span class="n">MemoryClass</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">agent_spec</span><span class="p">[</span><span class="s1">&#39;memory&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="p">)</span>
+        <span class="n">AlgorithmClass</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">algorithm</span><span class="p">,</span> <span class="n">ps</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">agent_spec</span><span class="p">,</span> <span class="s1">&#39;algorithm.name&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">algorithm</span> <span class="o">=</span> <span class="n">AlgorithmClass</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">global_nets</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">util</span><span class="o">.</span><span class="n">self_desc</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+
+<div class="viewcode-block" id="Agent.act"><a class="viewcode-back" href="../../convlab.agent.html#convlab.agent.Agent.act">[docs]</a>    <span class="nd">@lab_api</span>
+    <span class="k">def</span> <span class="nf">act</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Standard act method from algorithm.&#39;&#39;&#39;</span>
+        <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>  <span class="c1"># for efficiency, only calc grad in algorithm.train</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">act</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">action</span></div>
+
+<div class="viewcode-block" id="Agent.update"><a class="viewcode-back" href="../../convlab.agent.html#convlab.agent.Agent.update">[docs]</a>    <span class="nd">@lab_api</span>
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">next_state</span><span class="p">,</span> <span class="n">done</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Update per timestep after env transitions, e.g. memory, algorithm, update agent params, train net&#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">next_state</span><span class="p">,</span> <span class="n">done</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">util</span><span class="o">.</span><span class="n">in_eval_lab_modes</span><span class="p">():</span>  <span class="c1"># eval does not update agent for training</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">next_state</span><span class="p">,</span> <span class="n">done</span><span class="p">)</span>
+        <span class="n">loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">loss</span><span class="p">):</span>  <span class="c1"># set for log_summary()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">loss</span> <span class="o">=</span> <span class="n">loss</span>
+        <span class="n">explore_var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">loss</span><span class="p">,</span> <span class="n">explore_var</span></div>
+
+<div class="viewcode-block" id="Agent.save"><a class="viewcode-back" href="../../convlab.agent.html#convlab.agent.Agent.save">[docs]</a>    <span class="nd">@lab_api</span>
+    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ckpt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Save agent&#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">util</span><span class="o">.</span><span class="n">in_eval_lab_modes</span><span class="p">():</span>  <span class="c1"># eval does not save new models</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">ckpt</span><span class="o">=</span><span class="n">ckpt</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Agent.close"><a class="viewcode-back" href="../../convlab.agent.html#convlab.agent.Agent.close">[docs]</a>    <span class="nd">@lab_api</span>
+    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Close and cleanup agent at the end of a session, e.g. save model&#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">()</span></div></div>
+
+
+<div class="viewcode-block" id="DialogAgent"><a class="viewcode-back" href="../../convlab.agent.html#convlab.agent.DialogAgent">[docs]</a><span class="k">class</span> <span class="nc">DialogAgent</span><span class="p">(</span><span class="n">Agent</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Class for all Agents.</span>
+<span class="sd">    Standardizes the Agent design to work in Lab.</span>
+<span class="sd">    Access Envs properties by: Agents - AgentSpace - AEBSpace - EnvSpace - Envs</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spec</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">global_nets</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spec</span> <span class="o">=</span> <span class="n">spec</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">a</span> <span class="o">=</span> <span class="n">a</span> <span class="ow">or</span> <span class="mi">0</span>  <span class="c1"># for compatibility with agent_space</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">agent_spec</span> <span class="o">=</span> <span class="n">spec</span><span class="p">[</span><span class="s1">&#39;agent&#39;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent_spec</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="n">ps</span><span class="o">.</span><span class="n">is_list</span><span class="p">(</span><span class="n">global_nets</span><span class="p">),</span> <span class="n">f</span><span class="s1">&#39;single agent global_nets must be a dict, got </span><span class="si">{global_nets}</span><span class="s1">&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nlu</span> <span class="o">=</span> <span class="kc">None</span> 
+        <span class="k">if</span> <span class="s1">&#39;nlu&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent_spec</span><span class="p">:</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">ps</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">agent_spec</span><span class="p">,</span> <span class="s1">&#39;nlu&#39;</span><span class="p">))</span>
+            <span class="n">NluClass</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">nlu</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">nlu</span> <span class="o">=</span> <span class="n">NluClass</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">)</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">dst</span> <span class="o">=</span> <span class="kc">None</span> 
+        <span class="k">if</span> <span class="s1">&#39;dst&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent_spec</span><span class="p">:</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">ps</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">agent_spec</span><span class="p">,</span> <span class="s1">&#39;dst&#39;</span><span class="p">))</span>
+            <span class="n">DstClass</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">dst</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dst</span> <span class="o">=</span> <span class="n">DstClass</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">)</span> 
+        <span class="k">if</span> <span class="s1">&#39;word_dst&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent_spec</span><span class="p">:</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">ps</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">agent_spec</span><span class="p">,</span> <span class="s1">&#39;word_dst&#39;</span><span class="p">))</span>
+            <span class="n">DstClass</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">word_dst</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dst</span> <span class="o">=</span> <span class="n">DstClass</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">)</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">state_encoder</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="s1">&#39;state_encoder&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent_spec</span><span class="p">:</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">ps</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">agent_spec</span><span class="p">,</span> <span class="s1">&#39;state_encoder&#39;</span><span class="p">))</span>
+            <span class="n">StateEncoderClass</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">state_encoder</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state_encoder</span> <span class="o">=</span> <span class="n">StateEncoderClass</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">)</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">action_decoder</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="s1">&#39;action_decoder&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent_spec</span><span class="p">:</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">ps</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">agent_spec</span><span class="p">,</span> <span class="s1">&#39;action_decoder&#39;</span><span class="p">))</span>
+            <span class="n">ActionDecoderClass</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">action_decoder</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">action_decoder</span> <span class="o">=</span> <span class="n">ActionDecoderClass</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">)</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">nlg</span> <span class="o">=</span> <span class="kc">None</span> 
+        <span class="k">if</span> <span class="s1">&#39;nlg&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent_spec</span><span class="p">:</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">ps</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">agent_spec</span><span class="p">,</span> <span class="s1">&#39;nlg&#39;</span><span class="p">))</span>
+            <span class="n">NlgClass</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">nlg</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">nlg</span> <span class="o">=</span> <span class="n">NlgClass</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">)</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">body</span> <span class="o">=</span> <span class="n">body</span>
+        <span class="n">body</span><span class="o">.</span><span class="n">agent</span> <span class="o">=</span> <span class="bp">self</span>
+        <span class="n">AlgorithmClass</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">algorithm</span><span class="p">,</span> <span class="n">ps</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">agent_spec</span><span class="p">,</span> <span class="s1">&#39;algorithm.name&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">algorithm</span> <span class="o">=</span> <span class="n">AlgorithmClass</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">global_nets</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ps</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">agent_spec</span><span class="p">,</span> <span class="s1">&#39;memory&#39;</span><span class="p">):</span>
+            <span class="n">MemoryClass</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">memory</span><span class="p">,</span> <span class="n">ps</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">agent_spec</span><span class="p">,</span> <span class="s1">&#39;memory.name&#39;</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">memory</span> <span class="o">=</span> <span class="n">MemoryClass</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">agent_spec</span><span class="p">[</span><span class="s1">&#39;memory&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">warmup_epi</span> <span class="o">=</span> <span class="n">ps</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">agent_spec</span><span class="p">,</span> <span class="s1">&#39;algorithm.warmup_epi&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="o">-</span><span class="mi">1</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">state</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">encoded_state</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">action</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">util</span><span class="o">.</span><span class="n">self_desc</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+
+<div class="viewcode-block" id="DialogAgent.reset"><a class="viewcode-back" href="../../convlab.agent.html#convlab.agent.DialogAgent.reset">[docs]</a>    <span class="nd">@lab_api</span>
+    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Do agent reset per session, such as memory pointer&#39;&#39;&#39;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;Agent </span><span class="si">{self.a}</span><span class="s1"> reset&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">init_session</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">algorithm</span><span class="p">,</span> <span class="s2">&quot;reset&quot;</span><span class="p">):</span>  <span class="c1"># This is mainly for external policies that may need to reset its state.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+
+        <span class="n">input_act</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">encoded_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">state_update</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="s2">&quot;null&quot;</span><span class="p">)</span>  <span class="c1"># &quot;null&quot; action to be compatible with MDBT</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">state</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">encoded_state</span> <span class="o">=</span> <span class="n">state</span><span class="p">,</span> <span class="n">encoded_state</span></div>
+
+<div class="viewcode-block" id="DialogAgent.act"><a class="viewcode-back" href="../../convlab.agent.html#convlab.agent.DialogAgent.act">[docs]</a>    <span class="nd">@lab_api</span>
+    <span class="k">def</span> <span class="nf">act</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Standard act method from algorithm.&#39;&#39;&#39;</span>
+        <span class="n">action</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">act</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">encoded_state</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">action</span> <span class="o">=</span> <span class="n">action</span>
+
+        <span class="n">output_act</span><span class="p">,</span> <span class="n">decoded_action</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_decode</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">state</span><span class="p">)</span> 
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">act</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;System action: </span><span class="si">{action}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">nl</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;System utterance: </span><span class="si">{decoded_action}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">decoded_action</span></div>
+
+<div class="viewcode-block" id="DialogAgent.state_update"><a class="viewcode-back" href="../../convlab.agent.html#convlab.agent.DialogAgent.state_update">[docs]</a>    <span class="k">def</span> <span class="nf">state_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
+        <span class="c1"># update history </span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="s1">&#39;history&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">action</span><span class="p">)])</span>
+
+        <span class="c1"># NLU parsing</span>
+        <span class="n">input_act</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nlu</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="s1">&#39;history&#39;</span><span class="p">],</span> <span class="p">[])</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dst</span> <span class="k">else</span> <span class="p">[])</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nlu</span> <span class="k">else</span> <span class="n">obs</span>
+
+        <span class="c1"># state tracking </span>
+        <span class="n">state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">input_act</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dst</span> <span class="k">else</span> <span class="n">input_act</span> 
+
+        <span class="c1"># update history </span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="s1">&#39;history&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">obs</span><span class="p">))</span>
+
+        <span class="c1"># encode state </span>
+        <span class="n">encoded_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">state_encoder</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">state</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">state_encoder</span> <span class="k">else</span> <span class="n">state</span> 
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nlu</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="p">:</span>  
+            <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="s1">&#39;user_action&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">input_act</span> 
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">dst</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="p">,</span> <span class="n">word_dst</span><span class="o">.</span><span class="n">MDBTTracker</span><span class="p">):</span>  <span class="c1"># for act-in act-out agent</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="s1">&#39;user_action&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">obs</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">nl</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;User utterance: </span><span class="si">{obs}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">act</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;Inferred user action: </span><span class="si">{input_act}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">state</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;Dialog state: </span><span class="si">{state}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">input_act</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">encoded_state</span> </div>
+
+<div class="viewcode-block" id="DialogAgent.action_decode"><a class="viewcode-back" href="../../convlab.agent.html#convlab.agent.DialogAgent.action_decode">[docs]</a>    <span class="k">def</span> <span class="nf">action_decode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="n">output_act</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_decoder</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_decoder</span> <span class="k">else</span> <span class="n">action</span>
+        <span class="n">decoded_action</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nlg</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">output_act</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nlg</span> <span class="k">else</span> <span class="n">output_act</span> 
+        <span class="k">return</span> <span class="n">output_act</span><span class="p">,</span> <span class="n">decoded_action</span> </div>
+    
+<div class="viewcode-block" id="DialogAgent.get_env"><a class="viewcode-back" href="../../convlab.agent.html#convlab.agent.DialogAgent.get_env">[docs]</a>    <span class="k">def</span> <span class="nf">get_env</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">eval_env</span> <span class="k">if</span> <span class="n">util</span><span class="o">.</span><span class="n">in_eval_lab_modes</span><span class="p">()</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">env</span></div>
+
+<div class="viewcode-block" id="DialogAgent.update"><a class="viewcode-back" href="../../convlab.agent.html#convlab.agent.DialogAgent.update">[docs]</a>    <span class="nd">@lab_api</span>
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">next_obs</span><span class="p">,</span> <span class="n">done</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Update per timestep after env transitions, e.g. memory, algorithm, update agent params, train net&#39;&#39;&#39;</span>
+        <span class="c1"># update state</span>
+        <span class="n">input_act</span><span class="p">,</span> <span class="n">next_state</span><span class="p">,</span> <span class="n">encoded_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">state_update</span><span class="p">(</span><span class="n">next_obs</span><span class="p">,</span> <span class="n">action</span><span class="p">)</span>
+
+        <span class="c1"># update body  </span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">state</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">next_state</span><span class="p">,</span> <span class="n">done</span><span class="p">)</span>
+
+        <span class="c1"># update memory </span>
+        <span class="k">if</span> <span class="n">util</span><span class="o">.</span><span class="n">in_eval_lab_modes</span><span class="p">()</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;ExternalPolicy&#39;</span><span class="p">:</span>  <span class="c1"># eval does not update agent for training</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">state</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">encoded_state</span> <span class="o">=</span> <span class="n">next_state</span><span class="p">,</span> <span class="n">encoded_state</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="s1">&#39;warmup_memory&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">clock</span><span class="o">.</span><span class="n">epi</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">warmup_epi</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">encoded_state</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">action</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">encoded_state</span><span class="p">,</span> <span class="n">done</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">warmup_memory</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">encoded_state</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">action</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">encoded_state</span><span class="p">,</span> <span class="n">done</span><span class="p">)</span>
+
+        <span class="c1"># update body  </span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">state</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">encoded_state</span> <span class="o">=</span> <span class="n">next_state</span><span class="p">,</span> <span class="n">encoded_state</span>
+
+        <span class="c1"># train algorithm </span>
+        <span class="n">loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">loss</span><span class="p">):</span>  <span class="c1"># set for log_summary()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">loss</span> <span class="o">=</span> <span class="n">loss</span>
+        <span class="n">explore_var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">loss</span><span class="p">,</span> <span class="n">explore_var</span></div>
+
+<div class="viewcode-block" id="DialogAgent.save"><a class="viewcode-back" href="../../convlab.agent.html#convlab.agent.DialogAgent.save">[docs]</a>    <span class="nd">@lab_api</span>
+    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ckpt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Save agent&#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;ExternalPolicy&#39;</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="n">util</span><span class="o">.</span><span class="n">in_eval_lab_modes</span><span class="p">():</span>
+            <span class="c1"># eval does not save new models</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">ckpt</span><span class="o">=</span><span class="n">ckpt</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DialogAgent.close"><a class="viewcode-back" href="../../convlab.agent.html#convlab.agent.DialogAgent.close">[docs]</a>    <span class="nd">@lab_api</span>
+    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Close and cleanup agent at the end of a session, e.g. save model&#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">()</span></div></div>
+
+
+<div class="viewcode-block" id="Body"><a class="viewcode-back" href="../../convlab.agent.html#convlab.agent.Body">[docs]</a><span class="k">class</span> <span class="nc">Body</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Body of an agent inside an environment, it:</span>
+<span class="sd">    - enables the automatic dimension inference for constructing network input/output</span>
+<span class="sd">    - acts as reference bridge between agent and environment (useful for multi-agent, multi-env)</span>
+<span class="sd">    - acts as non-gradient variable storage for monitoring and analysis</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">,</span> <span class="n">agent_spec</span><span class="p">,</span> <span class="n">aeb</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)):</span>
+        <span class="c1"># essential reference variables</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">agent</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># set later</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">env</span> <span class="o">=</span> <span class="n">env</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">aeb</span> <span class="o">=</span> <span class="n">aeb</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">e</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">b</span> <span class="o">=</span> <span class="n">aeb</span>
+
+        <span class="c1"># variables set during init_algorithm_params</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">explore_var</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>  <span class="c1"># action exploration: epsilon or tau</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">entropy_coef</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>  <span class="c1"># entropy for exploration</span>
+
+        <span class="c1"># debugging/logging variables, set in train or loss function</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loss</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mean_entropy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mean_grad_norm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ckpt_total_reward</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">total_reward</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># init to 0, but dont ckpt before end of an epi</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">total_reward_ma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ma_window</span> <span class="o">=</span> <span class="mi">100</span>
+        <span class="c1"># store current and best reward_ma for model checkpointing and early termination if all the environments are solved</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">best_reward_ma</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eval_reward_ma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+        <span class="c1"># dataframes to track data for analysis.analyze_session</span>
+        <span class="c1"># track training data per episode</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">train_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span>
+            <span class="s1">&#39;epi&#39;</span><span class="p">,</span> <span class="s1">&#39;t&#39;</span><span class="p">,</span> <span class="s1">&#39;wall_t&#39;</span><span class="p">,</span> <span class="s1">&#39;opt_step&#39;</span><span class="p">,</span> <span class="s1">&#39;frame&#39;</span><span class="p">,</span> <span class="s1">&#39;fps&#39;</span><span class="p">,</span> <span class="s1">&#39;total_reward&#39;</span><span class="p">,</span> <span class="s1">&#39;avg_return&#39;</span><span class="p">,</span> <span class="s1">&#39;avg_len&#39;</span><span class="p">,</span> <span class="s1">&#39;avg_success&#39;</span><span class="p">,</span> <span class="s1">&#39;loss&#39;</span><span class="p">,</span> <span class="s1">&#39;lr&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;explore_var&#39;</span><span class="p">,</span> <span class="s1">&#39;entropy_coef&#39;</span><span class="p">,</span> <span class="s1">&#39;entropy&#39;</span><span class="p">,</span> <span class="s1">&#39;grad_norm&#39;</span><span class="p">])</span>
+        <span class="c1"># track eval data within run_eval. the same as train_df except for reward</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eval_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">train_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="c1"># the specific agent-env interface variables for a body</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">observation_space</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">observation_space</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">action_space</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">action_space</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">observable_dim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">observable_dim</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state_dim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">observable_dim</span><span class="p">[</span><span class="s1">&#39;state&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">action_dim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">action_dim</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_discrete</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">is_discrete</span>
+        <span class="c1"># set the ActionPD class for sampling action</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">action_type</span> <span class="o">=</span> <span class="n">policy_util</span><span class="o">.</span><span class="n">get_action_type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">action_space</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">action_pdtype</span> <span class="o">=</span> <span class="n">agent_spec</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">][</span><span class="s1">&#39;algorithm&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;action_pdtype&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_pdtype</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">action_pdtype</span> <span class="o">=</span> <span class="n">policy_util</span><span class="o">.</span><span class="n">ACTION_PDS</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">action_type</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ActionPD</span> <span class="o">=</span> <span class="n">policy_util</span><span class="o">.</span><span class="n">get_action_pd_cls</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">action_pdtype</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_type</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Body.update"><a class="viewcode-back" href="../../convlab.agent.html#convlab.agent.Body.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">next_state</span><span class="p">,</span> <span class="n">done</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Interface update method for body at agent.update()&#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">u_env</span><span class="p">,</span> <span class="s1">&#39;raw_reward&#39;</span><span class="p">):</span>  <span class="c1"># use raw_reward if reward is preprocessed</span>
+            <span class="n">reward</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">u_env</span><span class="o">.</span><span class="n">raw_reward</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ckpt_total_reward</span> <span class="ow">is</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">:</span>  <span class="c1"># init</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ckpt_total_reward</span> <span class="o">=</span> <span class="n">reward</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># reset on epi_start, else keep adding. generalized for vec env</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ckpt_total_reward</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ckpt_total_reward</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">epi_start</span><span class="p">)</span> <span class="o">+</span> <span class="n">reward</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">total_reward</span> <span class="o">=</span> <span class="n">done</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ckpt_total_reward</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">done</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_reward</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">epi_start</span> <span class="o">=</span> <span class="n">done</span></div>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">f</span><span class="s1">&#39;body: {util.to_json(util.get_class_attr(self))}&#39;</span>
+
+<div class="viewcode-block" id="Body.calc_df_row"><a class="viewcode-back" href="../../convlab.agent.html#convlab.agent.Body.calc_df_row">[docs]</a>    <span class="k">def</span> <span class="nf">calc_df_row</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Calculate a row for updating train_df or eval_df.&#39;&#39;&#39;</span>
+        <span class="n">frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">clock</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;frame&#39;</span><span class="p">)</span>
+        <span class="n">wall_t</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">clock</span><span class="o">.</span><span class="n">get_elapsed_wall_t</span><span class="p">()</span>
+        <span class="n">fps</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">wall_t</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">frame</span> <span class="o">/</span> <span class="n">wall_t</span>
+
+        <span class="c1"># update debugging variables</span>
+        <span class="k">if</span> <span class="n">net_util</span><span class="o">.</span><span class="n">to_check_train_step</span><span class="p">():</span>
+            <span class="n">grad_norms</span> <span class="o">=</span> <span class="n">net_util</span><span class="o">.</span><span class="n">get_grad_norms</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">algorithm</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mean_grad_norm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span> <span class="k">if</span> <span class="n">ps</span><span class="o">.</span><span class="n">is_empty</span><span class="p">(</span><span class="n">grad_norms</span><span class="p">)</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">grad_norms</span><span class="p">)</span>
+
+        <span class="n">row</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">({</span>
+            <span class="c1"># epi and frame are always measured from training env</span>
+            <span class="s1">&#39;epi&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">clock</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;epi&#39;</span><span class="p">),</span>
+            <span class="c1"># t and reward are measured from a given env or eval_env</span>
+            <span class="s1">&#39;t&#39;</span><span class="p">:</span> <span class="n">env</span><span class="o">.</span><span class="n">clock</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;t&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;wall_t&#39;</span><span class="p">:</span> <span class="n">wall_t</span><span class="p">,</span>
+            <span class="s1">&#39;opt_step&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">clock</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;opt_step&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;frame&#39;</span><span class="p">:</span> <span class="n">frame</span><span class="p">,</span>
+            <span class="s1">&#39;fps&#39;</span><span class="p">:</span> <span class="n">fps</span><span class="p">,</span>
+            <span class="s1">&#39;total_reward&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">total_reward</span><span class="p">),</span>  <span class="c1"># guard for vec env</span>
+            <span class="s1">&#39;avg_return&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>  <span class="c1"># update outside</span>
+            <span class="s1">&#39;avg_len&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>  <span class="c1"># update outside</span>
+            <span class="s1">&#39;avg_success&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>  <span class="c1"># update outside</span>
+            <span class="s1">&#39;loss&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">loss</span><span class="p">,</span>
+            <span class="s1">&#39;lr&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_mean_lr</span><span class="p">(),</span>
+            <span class="s1">&#39;explore_var&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">explore_var</span><span class="p">,</span>
+            <span class="s1">&#39;entropy_coef&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">entropy_coef</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;entropy_coef&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+            <span class="s1">&#39;entropy&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">mean_entropy</span><span class="p">,</span>
+            <span class="s1">&#39;grad_norm&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">mean_grad_norm</span><span class="p">,</span>
+        <span class="p">},</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="n">col</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">train_df</span><span class="o">.</span><span class="n">columns</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">row</span><span class="o">.</span><span class="n">index</span><span class="p">),</span> <span class="n">f</span><span class="s1">&#39;Mismatched row keys: </span><span class="si">{row.index}</span><span class="s1"> vs df columns </span><span class="si">{self.train_df.columns}</span><span class="s1">&#39;</span>
+        <span class="k">return</span> <span class="n">row</span></div>
+
+<div class="viewcode-block" id="Body.train_ckpt"><a class="viewcode-back" href="../../convlab.agent.html#convlab.agent.Body.train_ckpt">[docs]</a>    <span class="k">def</span> <span class="nf">train_ckpt</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Checkpoint to update body.train_df data&#39;&#39;&#39;</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_df_row</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="p">)</span>
+        <span class="c1"># append efficiently to df</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">train_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">train_df</span><span class="p">)]</span> <span class="o">=</span> <span class="n">row</span>
+        <span class="c1"># update current reward_ma</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">total_reward_ma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">train_df</span><span class="p">[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">ma_window</span><span class="p">:][</span><span class="s1">&#39;total_reward&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">train_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;avg_return&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_reward_ma</span></div>
+
+<div class="viewcode-block" id="Body.eval_ckpt"><a class="viewcode-back" href="../../convlab.agent.html#convlab.agent.Body.eval_ckpt">[docs]</a>    <span class="k">def</span> <span class="nf">eval_ckpt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eval_env</span><span class="p">,</span> <span class="n">avg_return</span><span class="p">,</span> <span class="n">avg_len</span><span class="p">,</span> <span class="n">avg_success</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Checkpoint to update body.eval_df data&#39;&#39;&#39;</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_df_row</span><span class="p">(</span><span class="n">eval_env</span><span class="p">)</span>
+        <span class="c1"># append efficiently to df</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eval_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eval_df</span><span class="p">)]</span> <span class="o">=</span> <span class="n">row</span>
+        <span class="c1"># update current reward_ma</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eval_reward_ma</span> <span class="o">=</span> <span class="n">avg_return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eval_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;avg_return&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">avg_return</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">eval_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;avg_len&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">avg_len</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eval_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;avg_success&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">avg_success</span></div>
+
+<div class="viewcode-block" id="Body.get_mean_lr"><a class="viewcode-back" href="../../convlab.agent.html#convlab.agent.Body.get_mean_lr">[docs]</a>    <span class="k">def</span> <span class="nf">get_mean_lr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Gets the average current learning rate of the algorithm&#39;s nets.&#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">algorithm</span><span class="p">,</span> <span class="s1">&#39;net_names&#39;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="n">lrs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">attr</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">attr</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;lr_scheduler&#39;</span><span class="p">):</span>
+                <span class="n">lrs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">get_lr</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">lrs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Body.get_log_prefix"><a class="viewcode-back" href="../../convlab.agent.html#convlab.agent.Body.get_log_prefix">[docs]</a>    <span class="k">def</span> <span class="nf">get_log_prefix</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Get the prefix for logging&#39;&#39;&#39;</span>
+        <span class="n">spec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">spec</span>
+        <span class="n">spec_name</span> <span class="o">=</span> <span class="n">spec</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+        <span class="n">trial_index</span> <span class="o">=</span> <span class="n">spec</span><span class="p">[</span><span class="s1">&#39;meta&#39;</span><span class="p">][</span><span class="s1">&#39;trial&#39;</span><span class="p">]</span>
+        <span class="n">session_index</span> <span class="o">=</span> <span class="n">spec</span><span class="p">[</span><span class="s1">&#39;meta&#39;</span><span class="p">][</span><span class="s1">&#39;session&#39;</span><span class="p">]</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;Trial </span><span class="si">{trial_index}</span><span class="s1"> session </span><span class="si">{session_index}</span><span class="s1"> </span><span class="si">{spec_name}</span><span class="s1">_t</span><span class="si">{trial_index}</span><span class="s1">_s</span><span class="si">{session_index}</span><span class="s1">&#39;</span>
+        <span class="k">return</span> <span class="n">prefix</span></div>
+
+<div class="viewcode-block" id="Body.log_metrics"><a class="viewcode-back" href="../../convlab.agent.html#convlab.agent.Body.log_metrics">[docs]</a>    <span class="k">def</span> <span class="nf">log_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">df_mode</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Log session metrics&#39;&#39;&#39;</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_log_prefix</span><span class="p">()</span>
+        <span class="n">row_str</span> <span class="o">=</span> <span class="s1">&#39;  &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">f</span><span class="s1">&#39;</span><span class="si">{k}</span><span class="s1">: </span><span class="si">{v:g}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">metrics</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;</span><span class="si">{prefix}</span><span class="s1"> [</span><span class="si">{df_mode}</span><span class="s1">_df metrics] </span><span class="si">{row_str}</span><span class="s1">&#39;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Body.log_summary"><a class="viewcode-back" href="../../convlab.agent.html#convlab.agent.Body.log_summary">[docs]</a>    <span class="k">def</span> <span class="nf">log_summary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df_mode</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Log the summary for this body when its environment is done</span>
+<span class="sd">        @param str:df_mode &#39;train&#39; or &#39;eval&#39;</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_log_prefix</span><span class="p">()</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="s1">&#39;</span><span class="si">{df_mode}</span><span class="s1">_df&#39;</span><span class="p">)</span>
+        <span class="n">last_row</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">row_str</span> <span class="o">=</span> <span class="s1">&#39;  &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">f</span><span class="s1">&#39;</span><span class="si">{k}</span><span class="s1">: </span><span class="si">{v:g}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">last_row</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;</span><span class="si">{prefix}</span><span class="s1"> [</span><span class="si">{df_mode}</span><span class="s1">_df] </span><span class="si">{row_str}</span><span class="s1">&#39;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, ConvLab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

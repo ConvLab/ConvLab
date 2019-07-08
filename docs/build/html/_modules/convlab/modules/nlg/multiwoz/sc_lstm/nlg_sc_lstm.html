@@ -1,0 +1,383 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>convlab.modules.nlg.multiwoz.sc_lstm.nlg_sc_lstm &mdash; ConvLab 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../../../" src="../../../../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../../../index.html" class="icon icon-home"> ConvLab
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../../index.html">ConvLab</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../../../../index.html">Module code</a> &raquo;</li>
+        
+      <li>convlab.modules.nlg.multiwoz.sc_lstm.nlg_sc_lstm</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for convlab.modules.nlg.multiwoz.sc_lstm.nlg_sc_lstm</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="c1"># Modified by Microsoft Corporation.</span>
+<span class="c1"># Licensed under the MIT license.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">configparser</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">zipfile</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="k">import</span> <span class="n">deepcopy</span>
+
+<span class="kn">import</span> <span class="nn">torch</span>
+
+<span class="kn">from</span> <span class="nn">convlab.lib.file_util</span> <span class="k">import</span> <span class="n">cached_path</span>
+<span class="kn">from</span> <span class="nn">convlab.modules.nlg.multiwoz.sc_lstm.loader.dataset_woz</span> <span class="k">import</span> <span class="n">SimpleDatasetWoz</span>
+<span class="kn">from</span> <span class="nn">convlab.modules.nlg.multiwoz.sc_lstm.model.lm_deep</span> <span class="k">import</span> <span class="n">LMDeep</span>
+<span class="kn">from</span> <span class="nn">convlab.modules.nlg.nlg</span> <span class="k">import</span> <span class="n">NLG</span>
+
+<span class="n">DEFAULT_DIRECTORY</span> <span class="o">=</span> <span class="s2">&quot;models&quot;</span>
+<span class="n">DEFAULT_ARCHIVE_FILE</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DEFAULT_DIRECTORY</span><span class="p">,</span> <span class="s2">&quot;nlg-sclstm-multiwoz.zip&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="parse"><a class="viewcode-back" href="../../../../../../convlab.modules.nlg.multiwoz.sc_lstm.html#convlab.modules.nlg.multiwoz.sc_lstm.nlg_sc_lstm.parse">[docs]</a><span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">is_user</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">is_user</span><span class="p">:</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;model_path&#39;</span><span class="p">:</span> <span class="s1">&#39;sclstm_usr.pt&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;n_layer&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s1">&#39;beam_size&#39;</span><span class="p">:</span> <span class="mi">10</span>
+        <span class="p">}</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;model_path&#39;</span><span class="p">:</span> <span class="s1">&#39;sclstm.pt&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;n_layer&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s1">&#39;beam_size&#39;</span><span class="p">:</span> <span class="mi">10</span>
+        <span class="p">}</span>
+
+    <span class="n">config</span> <span class="o">=</span> <span class="n">configparser</span><span class="o">.</span><span class="n">ConfigParser</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">is_user</span><span class="p">:</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)),</span> <span class="s1">&#39;config/config_usr.cfg&#39;</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)),</span> <span class="s1">&#39;config/config.cfg&#39;</span><span class="p">))</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;DATA&#39;</span><span class="p">,</span> <span class="s1">&#39;dir&#39;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)))</span>
+
+    <span class="k">return</span> <span class="n">args</span><span class="p">,</span> <span class="n">config</span></div>
+
+
+<div class="viewcode-block" id="SCLSTM"><a class="viewcode-back" href="../../../../../../convlab.modules.nlg.multiwoz.sc_lstm.html#convlab.modules.nlg.multiwoz.sc_lstm.nlg_sc_lstm.SCLSTM">[docs]</a><span class="k">class</span> <span class="nc">SCLSTM</span><span class="p">(</span><span class="n">NLG</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
+                 <span class="n">archive_file</span><span class="o">=</span><span class="n">DEFAULT_ARCHIVE_FILE</span><span class="p">,</span> 
+                 <span class="n">use_cuda</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">is_user</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">model_file</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">archive_file</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">model_file</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;No model for SC-LSTM is specified!&quot;</span><span class="p">)</span>
+            <span class="n">archive_file</span> <span class="o">=</span> <span class="n">cached_path</span><span class="p">(</span><span class="n">model_file</span><span class="p">)</span>
+        <span class="n">model_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">model_dir</span><span class="p">,</span> <span class="s1">&#39;resource&#39;</span><span class="p">)):</span>
+            <span class="n">archive</span> <span class="o">=</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">archive_file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+            <span class="n">archive</span><span class="o">.</span><span class="n">extractall</span><span class="p">(</span><span class="n">model_dir</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">USE_CUDA</span> <span class="o">=</span> <span class="n">use_cuda</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="n">is_user</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span> <span class="o">=</span> <span class="n">SimpleDatasetWoz</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+
+        <span class="c1"># get model hyper-parameters</span>
+        <span class="n">hidden_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s1">&#39;MODEL&#39;</span><span class="p">,</span> <span class="s1">&#39;hidden_size&#39;</span><span class="p">)</span>
+
+        <span class="c1"># get feat size</span>
+        <span class="n">d_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">do_size</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">da_size</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">sv_size</span>  <span class="c1"># len of 1-hot feat</span>
+        <span class="n">vocab_size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">word2index</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">LMDeep</span><span class="p">(</span><span class="s1">&#39;sclstm&#39;</span><span class="p">,</span> <span class="n">vocab_size</span><span class="p">,</span> <span class="n">vocab_size</span><span class="p">,</span> <span class="n">hidden_size</span><span class="p">,</span> <span class="n">d_size</span><span class="p">,</span> <span class="n">n_layer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="s1">&#39;n_layer&#39;</span><span class="p">],</span> <span class="n">use_cuda</span><span class="o">=</span><span class="n">use_cuda</span><span class="p">)</span>
+        <span class="n">model_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)),</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="s1">&#39;model_path&#39;</span><span class="p">])</span>
+        <span class="c1"># print(model_path)</span>
+        <span class="k">assert</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">model_path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">model_path</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">use_cuda</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+
+<div class="viewcode-block" id="SCLSTM.generate_delex"><a class="viewcode-back" href="../../../../../../convlab.modules.nlg.multiwoz.sc_lstm.html#convlab.modules.nlg.multiwoz.sc_lstm.nlg_sc_lstm.SCLSTM.generate_delex">[docs]</a>    <span class="k">def</span> <span class="nf">generate_delex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">meta</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        meta = {&quot;Attraction-Inform&quot;: [[&quot;Choice&quot;,&quot;many&quot;],[&quot;Area&quot;,&quot;centre of town&quot;]],</span>
+<span class="sd">                &quot;Attraction-Select&quot;: [[&quot;Type&quot;,&quot;church&quot;],[&quot;Type&quot;,&quot; swimming&quot;],[&quot;Type&quot;,&quot; park&quot;]]}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># add placeholder value</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">meta</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">domain</span><span class="p">,</span> <span class="n">intent</span> <span class="o">=</span> <span class="n">k</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">intent</span> <span class="o">==</span> <span class="s2">&quot;Request&quot;</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">pair</span> <span class="ow">in</span> <span class="n">v</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pair</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
+                        <span class="n">pair</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">pair</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                    <span class="n">pair</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;?&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">counter</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="k">for</span> <span class="n">pair</span> <span class="ow">in</span> <span class="n">v</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pair</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
+                        <span class="n">pair</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">pair</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                    <span class="k">if</span> <span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Internet&#39;</span> <span class="ow">or</span> <span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Parking&#39;</span><span class="p">:</span>
+                        <span class="n">pair</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;yes&#39;</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;none&#39;</span><span class="p">:</span>
+                        <span class="n">pair</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;none&#39;</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">counter</span><span class="p">:</span>
+                            <span class="n">counter</span><span class="p">[</span><span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">+=</span> <span class="mi">1</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">counter</span><span class="p">[</span><span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">1</span>
+                        <span class="n">pair</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">counter</span><span class="p">[</span><span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]]))</span>
+
+        <span class="c1"># remove invalid dialog act</span>
+        <span class="n">meta_</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">meta</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">meta</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">triple</span> <span class="ow">in</span> <span class="n">v</span><span class="p">:</span>
+                <span class="n">voc</span> <span class="o">=</span> <span class="s1">&#39;d-a-s-v:&#39;</span> <span class="o">+</span> <span class="n">k</span> <span class="o">+</span> <span class="s1">&#39;-&#39;</span> <span class="o">+</span> <span class="n">triple</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;-&#39;</span> <span class="o">+</span> <span class="n">triple</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">voc</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">cardinality</span><span class="p">:</span>
+                    <span class="n">meta_</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">triple</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">meta_</span><span class="p">[</span><span class="n">k</span><span class="p">]:</span>
+                <span class="k">del</span> <span class="p">(</span><span class="n">meta_</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
+        <span class="n">meta</span> <span class="o">=</span> <span class="n">meta_</span>
+
+        <span class="c1"># mapping the inputs</span>
+        <span class="n">do_idx</span><span class="p">,</span> <span class="n">da_idx</span><span class="p">,</span> <span class="n">sv_idx</span><span class="p">,</span> <span class="n">featStr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">getFeatIdx</span><span class="p">(</span><span class="n">meta</span><span class="p">)</span>
+        <span class="n">do_cond</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">do_idx</span> <span class="k">else</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">do_size</span><span class="p">)]</span>  <span class="c1"># domain condition</span>
+        <span class="n">da_cond</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">da_idx</span> <span class="k">else</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">da_size</span><span class="p">)]</span>  <span class="c1"># dial act condition</span>
+        <span class="n">sv_cond</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">sv_idx</span> <span class="k">else</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">sv_size</span><span class="p">)]</span>  <span class="c1"># slot/value condition</span>
+        <span class="n">feats</span> <span class="o">=</span> <span class="p">[</span><span class="n">do_cond</span> <span class="o">+</span> <span class="n">da_cond</span> <span class="o">+</span> <span class="n">sv_cond</span><span class="p">]</span>
+
+        <span class="n">feats_var</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">FloatTensor</span><span class="p">(</span><span class="n">feats</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">USE_CUDA</span><span class="p">:</span>
+            <span class="n">feats_var</span> <span class="o">=</span> <span class="n">feats_var</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+
+        <span class="n">decoded_words</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">,</span> <span class="n">feats_var</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="s1">&#39;beam_size&#39;</span><span class="p">])</span>
+        <span class="n">delex</span> <span class="o">=</span> <span class="n">decoded_words</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># (beam_size)</span>
+        
+        <span class="k">return</span> <span class="n">delex</span></div>
+
+<div class="viewcode-block" id="SCLSTM.generate_slots"><a class="viewcode-back" href="../../../../../../convlab.modules.nlg.multiwoz.sc_lstm.html#convlab.modules.nlg.multiwoz.sc_lstm.nlg_sc_lstm.SCLSTM.generate_slots">[docs]</a>    <span class="k">def</span> <span class="nf">generate_slots</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">meta</span><span class="p">):</span>
+        <span class="n">meta</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">meta</span><span class="p">)</span>
+        
+        <span class="n">delex</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_delex</span><span class="p">(</span><span class="n">meta</span><span class="p">)</span>
+        <span class="c1"># get all informable or requestable slots</span>
+        <span class="n">slots</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">sen</span> <span class="ow">in</span> <span class="n">delex</span><span class="p">:</span>
+            <span class="n">slot</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">counter</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">words</span> <span class="o">=</span> <span class="n">sen</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">words</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">word</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;slot-&#39;</span><span class="p">):</span>
+                    <span class="n">placeholder</span> <span class="o">=</span> <span class="n">word</span><span class="p">[</span><span class="mi">5</span><span class="p">:]</span>
+                    <span class="k">if</span> <span class="n">placeholder</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">counter</span><span class="p">:</span>
+                        <span class="n">counter</span><span class="p">[</span><span class="n">placeholder</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">counter</span><span class="p">[</span><span class="n">placeholder</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">slot</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">placeholder</span><span class="o">+</span><span class="s1">&#39;-&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">counter</span><span class="p">[</span><span class="n">placeholder</span><span class="p">]))</span>
+            <span class="n">slots</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">slot</span><span class="p">)</span>
+            
+        <span class="c1"># for i in range(self.args.beam_size):</span>
+        <span class="c1">#     print(i, slots[i])</span>
+            
+        <span class="k">return</span> <span class="n">slots</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+    
+<div class="viewcode-block" id="SCLSTM.generate"><a class="viewcode-back" href="../../../../../../convlab.modules.nlg.multiwoz.sc_lstm.html#convlab.modules.nlg.multiwoz.sc_lstm.nlg_sc_lstm.SCLSTM.generate">[docs]</a>    <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">meta</span><span class="p">):</span>
+        <span class="n">meta</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">meta</span><span class="p">)</span>
+        
+        <span class="n">delex</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_delex</span><span class="p">(</span><span class="n">meta</span><span class="p">)</span>
+        
+        <span class="c1"># replace the placeholder with entities</span>
+        <span class="n">recover</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">sen</span> <span class="ow">in</span> <span class="n">delex</span><span class="p">:</span>
+            <span class="n">counter</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">words</span> <span class="o">=</span> <span class="n">sen</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">words</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">word</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;slot-&#39;</span><span class="p">):</span>
+                    <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">_</span><span class="p">,</span> <span class="n">domain</span><span class="p">,</span> <span class="n">intent</span><span class="p">,</span> <span class="n">slot_type</span> <span class="o">=</span> <span class="n">word</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)</span>
+                    <span class="n">da</span> <span class="o">=</span> <span class="n">domain</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span> <span class="o">+</span> <span class="s1">&#39;-&#39;</span> <span class="o">+</span> <span class="n">intent</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">da</span> <span class="ow">in</span> <span class="n">meta</span><span class="p">:</span>
+                        <span class="n">key</span> <span class="o">=</span> <span class="n">da</span> <span class="o">+</span> <span class="s1">&#39;-&#39;</span> <span class="o">+</span> <span class="n">slot_type</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span>
+                        <span class="k">for</span> <span class="n">pair</span> <span class="ow">in</span> <span class="n">meta</span><span class="p">[</span><span class="n">da</span><span class="p">]:</span>
+                            <span class="k">if</span> <span class="p">(</span><span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="n">slot_type</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span>
+                                    <span class="p">(</span><span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">counter</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">counter</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="n">pair</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)):</span>
+                                <span class="n">sen</span> <span class="o">=</span> <span class="n">sen</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">word</span><span class="p">,</span> <span class="n">pair</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>
+                                <span class="n">counter</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">pair</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                                <span class="n">flag</span> <span class="o">=</span> <span class="kc">False</span>
+                                <span class="k">break</span>
+                    <span class="k">if</span> <span class="n">flag</span><span class="p">:</span>
+                        <span class="n">sen</span> <span class="o">=</span> <span class="n">sen</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">word</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">recover</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sen</span><span class="p">)</span>
+
+        <span class="c1"># print(&#39;meta&#39;, meta)</span>
+        <span class="c1"># for i in range(self.args.beam_size):</span>
+        <span class="c1">#     print(i, delex[i])</span>
+        <span class="c1">#     print(i, recover[i])</span>
+
+        <span class="k">return</span> <span class="n">recover</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div></div>
+
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, ConvLab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

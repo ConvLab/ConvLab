@@ -1,0 +1,472 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>convlab.evaluator.multiwoz &mdash; ConvLab 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> ConvLab
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">ConvLab</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>convlab.evaluator.multiwoz</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for convlab.evaluator.multiwoz</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="k">import</span> <span class="n">deepcopy</span>
+
+<span class="kn">from</span> <span class="nn">convlab.evaluator.evaluator</span> <span class="k">import</span> <span class="n">Evaluator</span>
+<span class="kn">from</span> <span class="nn">convlab.modules.util.multiwoz.dbquery</span> <span class="k">import</span> <span class="n">dbs</span>
+
+<span class="n">requestable</span> <span class="o">=</span> \
+<span class="p">{</span><span class="s1">&#39;attraction&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;post&#39;</span><span class="p">,</span> <span class="s1">&#39;phone&#39;</span><span class="p">,</span> <span class="s1">&#39;addr&#39;</span><span class="p">,</span> <span class="s1">&#39;fee&#39;</span><span class="p">,</span> <span class="s1">&#39;area&#39;</span><span class="p">,</span> <span class="s1">&#39;type&#39;</span><span class="p">],</span>
+ <span class="s1">&#39;restaurant&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;addr&#39;</span><span class="p">,</span> <span class="s1">&#39;phone&#39;</span><span class="p">,</span> <span class="s1">&#39;post&#39;</span><span class="p">,</span> <span class="s1">&#39;ref&#39;</span><span class="p">,</span> <span class="s1">&#39;price&#39;</span><span class="p">,</span> <span class="s1">&#39;area&#39;</span><span class="p">,</span> <span class="s1">&#39;food&#39;</span><span class="p">],</span>
+ <span class="s1">&#39;train&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;ticket&#39;</span><span class="p">,</span> <span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;ref&#39;</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;arrive&#39;</span><span class="p">,</span> <span class="s1">&#39;leave&#39;</span><span class="p">],</span>
+ <span class="s1">&#39;hotel&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;addr&#39;</span><span class="p">,</span> <span class="s1">&#39;post&#39;</span><span class="p">,</span> <span class="s1">&#39;phone&#39;</span><span class="p">,</span> <span class="s1">&#39;ref&#39;</span><span class="p">,</span> <span class="s1">&#39;price&#39;</span><span class="p">,</span> <span class="s1">&#39;internet&#39;</span><span class="p">,</span> <span class="s1">&#39;parking&#39;</span><span class="p">,</span> <span class="s1">&#39;area&#39;</span><span class="p">,</span> <span class="s1">&#39;type&#39;</span><span class="p">,</span> <span class="s1">&#39;stars&#39;</span><span class="p">],</span>
+ <span class="s1">&#39;taxi&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;car&#39;</span><span class="p">,</span> <span class="s1">&#39;phone&#39;</span><span class="p">],</span>
+ <span class="s1">&#39;hospital&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;post&#39;</span><span class="p">,</span> <span class="s1">&#39;phone&#39;</span><span class="p">,</span> <span class="s1">&#39;addr&#39;</span><span class="p">],</span>
+ <span class="s1">&#39;police&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;addr&#39;</span><span class="p">,</span> <span class="s1">&#39;post&#39;</span><span class="p">,</span> <span class="s1">&#39;phone&#39;</span><span class="p">]}</span>
+
+<span class="n">belief_domains</span> <span class="o">=</span> <span class="n">requestable</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+
+<span class="n">mapping</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;restaurant&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;addr&#39;</span><span class="p">:</span> <span class="s1">&#39;address&#39;</span><span class="p">,</span> <span class="s1">&#39;area&#39;</span><span class="p">:</span> <span class="s1">&#39;area&#39;</span><span class="p">,</span> <span class="s1">&#39;food&#39;</span><span class="p">:</span> <span class="s1">&#39;food&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;phone&#39;</span><span class="p">:</span> <span class="s1">&#39;phone&#39;</span><span class="p">,</span> <span class="s1">&#39;post&#39;</span><span class="p">:</span> <span class="s1">&#39;postcode&#39;</span><span class="p">,</span> <span class="s1">&#39;price&#39;</span><span class="p">:</span> <span class="s1">&#39;pricerange&#39;</span><span class="p">},</span>
+        <span class="s1">&#39;hotel&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;addr&#39;</span><span class="p">:</span> <span class="s1">&#39;address&#39;</span><span class="p">,</span> <span class="s1">&#39;area&#39;</span><span class="p">:</span> <span class="s1">&#39;area&#39;</span><span class="p">,</span> <span class="s1">&#39;internet&#39;</span><span class="p">:</span> <span class="s1">&#39;internet&#39;</span><span class="p">,</span> <span class="s1">&#39;parking&#39;</span><span class="p">:</span> <span class="s1">&#39;parking&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;phone&#39;</span><span class="p">:</span> <span class="s1">&#39;phone&#39;</span><span class="p">,</span> <span class="s1">&#39;post&#39;</span><span class="p">:</span> <span class="s1">&#39;postcode&#39;</span><span class="p">,</span> <span class="s1">&#39;price&#39;</span><span class="p">:</span> <span class="s1">&#39;pricerange&#39;</span><span class="p">,</span> <span class="s1">&#39;stars&#39;</span><span class="p">:</span> <span class="s1">&#39;stars&#39;</span><span class="p">,</span> <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;type&#39;</span><span class="p">},</span>
+        <span class="s1">&#39;attraction&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;addr&#39;</span><span class="p">:</span> <span class="s1">&#39;address&#39;</span><span class="p">,</span> <span class="s1">&#39;area&#39;</span><span class="p">:</span> <span class="s1">&#39;area&#39;</span><span class="p">,</span> <span class="s1">&#39;fee&#39;</span><span class="p">:</span> <span class="s1">&#39;entrance fee&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;phone&#39;</span><span class="p">:</span> <span class="s1">&#39;phone&#39;</span><span class="p">,</span> <span class="s1">&#39;post&#39;</span><span class="p">:</span> <span class="s1">&#39;postcode&#39;</span><span class="p">,</span> <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;type&#39;</span><span class="p">},</span>
+        <span class="s1">&#39;train&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;trainID&#39;</span><span class="p">,</span> <span class="s1">&#39;arrive&#39;</span><span class="p">:</span> <span class="s1">&#39;arriveBy&#39;</span><span class="p">,</span> <span class="s1">&#39;day&#39;</span><span class="p">:</span> <span class="s1">&#39;day&#39;</span><span class="p">,</span> <span class="s1">&#39;depart&#39;</span><span class="p">:</span> <span class="s1">&#39;departure&#39;</span><span class="p">,</span> <span class="s1">&#39;dest&#39;</span><span class="p">:</span> <span class="s1">&#39;destination&#39;</span><span class="p">,</span> <span class="s1">&#39;time&#39;</span><span class="p">:</span> <span class="s1">&#39;duration&#39;</span><span class="p">,</span> <span class="s1">&#39;leave&#39;</span><span class="p">:</span> <span class="s1">&#39;leaveAt&#39;</span><span class="p">,</span> <span class="s1">&#39;ticket&#39;</span><span class="p">:</span> <span class="s1">&#39;price&#39;</span><span class="p">},</span>
+        <span class="s1">&#39;taxi&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;car&#39;</span><span class="p">:</span> <span class="s1">&#39;car type&#39;</span><span class="p">,</span> <span class="s1">&#39;phone&#39;</span><span class="p">:</span> <span class="s1">&#39;phone&#39;</span><span class="p">},</span>
+        <span class="s1">&#39;hospital&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;post&#39;</span><span class="p">:</span> <span class="s1">&#39;postcode&#39;</span><span class="p">,</span> <span class="s1">&#39;phone&#39;</span><span class="p">:</span> <span class="s1">&#39;phone&#39;</span><span class="p">,</span> <span class="s1">&#39;addr&#39;</span><span class="p">:</span> <span class="s1">&#39;address&#39;</span><span class="p">,</span> <span class="s1">&#39;department&#39;</span><span class="p">:</span> <span class="s1">&#39;department&#39;</span><span class="p">},</span>
+        <span class="s1">&#39;police&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;post&#39;</span><span class="p">:</span> <span class="s1">&#39;postcode&#39;</span><span class="p">,</span> <span class="s1">&#39;phone&#39;</span><span class="p">:</span> <span class="s1">&#39;phone&#39;</span><span class="p">,</span> <span class="s1">&#39;addr&#39;</span><span class="p">:</span> <span class="s1">&#39;address&#39;</span><span class="p">}}</span>
+
+<div class="viewcode-block" id="MultiWozEvaluator"><a class="viewcode-back" href="../../../convlab.evaluator.html#convlab.evaluator.multiwoz.MultiWozEvaluator">[docs]</a><span class="k">class</span> <span class="nc">MultiWozEvaluator</span><span class="p">(</span><span class="n">Evaluator</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sys_da_array</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">usr_da_array</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">goal</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cur_domain</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">booked</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span> <span class="nf">_init_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">dic</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">domain</span> <span class="ow">in</span> <span class="n">belief_domains</span><span class="p">:</span>
+            <span class="n">dic</span><span class="p">[</span><span class="n">domain</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;info&#39;</span><span class="p">:{},</span> <span class="s1">&#39;book&#39;</span><span class="p">:{},</span> <span class="s1">&#39;reqt&#39;</span><span class="p">:[]}</span>
+        <span class="k">return</span> <span class="n">dic</span>
+    
+    <span class="k">def</span> <span class="nf">_init_dict_booked</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">dic</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">domain</span> <span class="ow">in</span> <span class="n">belief_domains</span><span class="p">:</span>
+            <span class="n">dic</span><span class="p">[</span><span class="n">domain</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">dic</span>
+    
+    <span class="k">def</span> <span class="nf">_expand</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_goal</span><span class="p">):</span>
+        <span class="n">goal</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">_goal</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">domain</span> <span class="ow">in</span> <span class="n">belief_domains</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">domain</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">goal</span><span class="p">:</span>
+                <span class="n">goal</span><span class="p">[</span><span class="n">domain</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;info&#39;</span><span class="p">:{},</span> <span class="s1">&#39;book&#39;</span><span class="p">:{},</span> <span class="s1">&#39;reqt&#39;</span><span class="p">:[]}</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="s1">&#39;info&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">goal</span><span class="p">[</span><span class="n">domain</span><span class="p">]:</span>
+                <span class="n">goal</span><span class="p">[</span><span class="n">domain</span><span class="p">][</span><span class="s1">&#39;info&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">if</span> <span class="s1">&#39;book&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">goal</span><span class="p">[</span><span class="n">domain</span><span class="p">]:</span>
+                <span class="n">goal</span><span class="p">[</span><span class="n">domain</span><span class="p">][</span><span class="s1">&#39;book&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">if</span> <span class="s1">&#39;reqt&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">goal</span><span class="p">[</span><span class="n">domain</span><span class="p">]:</span>
+                <span class="n">goal</span><span class="p">[</span><span class="n">domain</span><span class="p">][</span><span class="s1">&#39;reqt&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">return</span> <span class="n">goal</span>
+    
+<div class="viewcode-block" id="MultiWozEvaluator.add_goal"><a class="viewcode-back" href="../../../convlab.evaluator.html#convlab.evaluator.multiwoz.MultiWozEvaluator.add_goal">[docs]</a>    <span class="k">def</span> <span class="nf">add_goal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">goal</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        init goal and array</span>
+<span class="sd">        args:</span>
+<span class="sd">            goal: dict[domain] dict[&#39;info&#39;/&#39;book&#39;/&#39;reqt&#39;] dict/dict/list[slot]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sys_da_array</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">usr_da_array</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">goal</span> <span class="o">=</span> <span class="n">goal</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cur_domain</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">booked</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_init_dict_booked</span><span class="p">()</span></div>
+    
+<div class="viewcode-block" id="MultiWozEvaluator.add_sys_da"><a class="viewcode-back" href="../../../convlab.evaluator.html#convlab.evaluator.multiwoz.MultiWozEvaluator.add_sys_da">[docs]</a>    <span class="k">def</span> <span class="nf">add_sys_da</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">da_turn</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        add sys_da into array</span>
+<span class="sd">        args:</span>
+<span class="sd">            da_turn: dict[domain-intent] list[slot, value]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">dom_int</span> <span class="ow">in</span> <span class="n">da_turn</span><span class="p">:</span>
+            <span class="n">domain</span> <span class="o">=</span> <span class="n">dom_int</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">domain</span> <span class="ow">in</span> <span class="n">belief_domains</span> <span class="ow">and</span> <span class="n">domain</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cur_domain</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cur_domain</span> <span class="o">=</span> <span class="n">domain</span>                
+            <span class="n">slot_pair</span> <span class="o">=</span> <span class="n">da_turn</span><span class="p">[</span><span class="n">dom_int</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">slot</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">slot_pair</span><span class="p">:</span>
+                <span class="n">da</span> <span class="o">=</span> <span class="p">(</span><span class="n">dom_int</span> <span class="o">+</span><span class="s1">&#39;-&#39;</span><span class="o">+</span><span class="n">slot</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">sys_da_array</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">da</span><span class="o">+</span><span class="s1">&#39;-&#39;</span><span class="o">+</span><span class="n">value</span><span class="p">)</span>
+                
+                <span class="k">if</span> <span class="n">da</span> <span class="o">==</span> <span class="s1">&#39;booking-book-ref&#39;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">cur_domain</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;hotel&#39;</span><span class="p">,</span> <span class="s1">&#39;restaurant&#39;</span><span class="p">,</span> <span class="s1">&#39;train&#39;</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">booked</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">cur_domain</span><span class="p">]</span> <span class="ow">and</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^\d</span><span class="si">{8}</span><span class="s1">$&#39;</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">booked</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">cur_domain</span><span class="p">]</span> <span class="o">=</span> <span class="n">dbs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">cur_domain</span><span class="p">][</span><span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)]</span>
+                <span class="k">elif</span> <span class="n">da</span> <span class="o">==</span> <span class="s1">&#39;train-offerbook-ref&#39;</span> <span class="ow">or</span> <span class="n">da</span> <span class="o">==</span> <span class="s1">&#39;train-inform-ref&#39;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">booked</span><span class="p">[</span><span class="s1">&#39;train&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^\d</span><span class="si">{8}</span><span class="s1">$&#39;</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">booked</span><span class="p">[</span><span class="s1">&#39;train&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dbs</span><span class="p">[</span><span class="s1">&#39;train&#39;</span><span class="p">][</span><span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)]</span>
+                <span class="k">elif</span> <span class="n">da</span> <span class="o">==</span> <span class="s1">&#39;taxi-inform-car&#39;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">booked</span><span class="p">[</span><span class="s1">&#39;taxi&#39;</span><span class="p">]:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">booked</span><span class="p">[</span><span class="s1">&#39;taxi&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;booked&#39;</span></div>
+                
+<div class="viewcode-block" id="MultiWozEvaluator.add_usr_da"><a class="viewcode-back" href="../../../convlab.evaluator.html#convlab.evaluator.multiwoz.MultiWozEvaluator.add_usr_da">[docs]</a>    <span class="k">def</span> <span class="nf">add_usr_da</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">da_turn</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        add usr_da into array</span>
+<span class="sd">        args:</span>
+<span class="sd">            da_turn: dict[domain-intent] list[slot, value]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">dom_int</span> <span class="ow">in</span> <span class="n">da_turn</span><span class="p">:</span>
+            <span class="n">domain</span> <span class="o">=</span> <span class="n">dom_int</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">domain</span> <span class="ow">in</span> <span class="n">belief_domains</span> <span class="ow">and</span> <span class="n">domain</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cur_domain</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cur_domain</span> <span class="o">=</span> <span class="n">domain</span>
+            <span class="n">slot_pair</span> <span class="o">=</span> <span class="n">da_turn</span><span class="p">[</span><span class="n">dom_int</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">slot</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">slot_pair</span><span class="p">:</span>
+                <span class="n">da</span> <span class="o">=</span> <span class="p">(</span><span class="n">dom_int</span> <span class="o">+</span><span class="s1">&#39;-&#39;</span><span class="o">+</span><span class="n">slot</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">usr_da_array</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">da</span><span class="o">+</span><span class="s1">&#39;-&#39;</span><span class="o">+</span><span class="n">value</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_book_rate_goal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">goal</span><span class="p">,</span> <span class="n">booked_entity</span><span class="p">,</span> <span class="n">domains</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        judge if the selected entity meets the constraint</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">domains</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">domains</span> <span class="o">=</span> <span class="n">belief_domains</span>
+        <span class="n">score</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">domain</span> <span class="ow">in</span> <span class="n">domains</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">goal</span><span class="p">[</span><span class="n">domain</span><span class="p">][</span><span class="s1">&#39;book&#39;</span><span class="p">]:</span>
+                <span class="n">tot</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">goal</span><span class="p">[</span><span class="n">domain</span><span class="p">][</span><span class="s1">&#39;info&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+                <span class="k">if</span> <span class="n">tot</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="n">entity</span> <span class="o">=</span> <span class="n">booked_entity</span><span class="p">[</span><span class="n">domain</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">entity</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">score</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                    <span class="k">continue</span>
+                <span class="k">if</span> <span class="n">domain</span> <span class="o">==</span> <span class="s1">&#39;taxi&#39;</span><span class="p">:</span>
+                    <span class="n">score</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                    <span class="k">continue</span>
+                <span class="n">match</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">goal</span><span class="p">[</span><span class="n">domain</span><span class="p">][</span><span class="s1">&#39;info&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;destination&#39;</span><span class="p">,</span> <span class="s1">&#39;departure&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">]:</span>
+                        <span class="n">tot</span> <span class="o">-=</span> <span class="mi">1</span>
+                    <span class="k">elif</span> <span class="n">k</span> <span class="o">==</span> <span class="s1">&#39;leaveAt&#39;</span><span class="p">:</span>
+                        <span class="k">try</span><span class="p">:</span>
+                            <span class="n">v_constraint</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="mi">100</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span>
+                            <span class="n">v_select</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">entity</span><span class="p">[</span><span class="s1">&#39;leaveAt&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="mi">100</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">entity</span><span class="p">[</span><span class="s1">&#39;leaveAt&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span>
+                            <span class="k">if</span> <span class="n">v_constraint</span> <span class="o">&lt;=</span> <span class="n">v_select</span><span class="p">:</span>
+                                <span class="n">match</span> <span class="o">+=</span> <span class="mi">1</span>
+                        <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">IndexError</span><span class="p">):</span>
+                            <span class="n">match</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="k">elif</span> <span class="n">k</span> <span class="o">==</span> <span class="s1">&#39;arriveBy&#39;</span><span class="p">:</span>
+                        <span class="k">try</span><span class="p">:</span>
+                            <span class="n">v_constraint</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="mi">100</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span>
+                            <span class="n">v_select</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">entity</span><span class="p">[</span><span class="s1">&#39;arriveBy&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="mi">100</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">entity</span><span class="p">[</span><span class="s1">&#39;arriveBy&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span>
+                            <span class="k">if</span> <span class="n">v_constraint</span> <span class="o">&gt;=</span> <span class="n">v_select</span><span class="p">:</span>
+                                <span class="n">match</span> <span class="o">+=</span> <span class="mi">1</span>
+                        <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">IndexError</span><span class="p">):</span>
+                            <span class="n">match</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="n">entity</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+                            <span class="n">match</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">tot</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">score</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">match</span> <span class="o">/</span> <span class="n">tot</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">score</span>
+    
+    <span class="k">def</span> <span class="nf">_inform_F1_goal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">goal</span><span class="p">,</span> <span class="n">sys_history</span><span class="p">,</span> <span class="n">domains</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        judge if all the requested information is answered</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">domains</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">domains</span> <span class="o">=</span> <span class="n">belief_domains</span>
+        <span class="n">inform_slot</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">domain</span> <span class="ow">in</span> <span class="n">domains</span><span class="p">:</span>
+            <span class="n">inform_slot</span><span class="p">[</span><span class="n">domain</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">da</span> <span class="ow">in</span> <span class="n">sys_history</span><span class="p">:</span>
+            <span class="n">domain</span><span class="p">,</span> <span class="n">intent</span><span class="p">,</span> <span class="n">slot</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">intent</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;inform&#39;</span><span class="p">,</span> <span class="s1">&#39;recommend&#39;</span><span class="p">,</span> <span class="s1">&#39;offerbook&#39;</span><span class="p">,</span> <span class="s1">&#39;offerbooked&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">domain</span> <span class="ow">in</span> <span class="n">domains</span> <span class="ow">and</span> <span class="n">slot</span> <span class="ow">in</span> <span class="n">mapping</span><span class="p">[</span><span class="n">domain</span><span class="p">]:</span>
+                <span class="n">inform_slot</span><span class="p">[</span><span class="n">domain</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">mapping</span><span class="p">[</span><span class="n">domain</span><span class="p">][</span><span class="n">slot</span><span class="p">])</span>
+        <span class="n">TP</span><span class="p">,</span> <span class="n">FP</span><span class="p">,</span> <span class="n">FN</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">domain</span> <span class="ow">in</span> <span class="n">domains</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">goal</span><span class="p">[</span><span class="n">domain</span><span class="p">][</span><span class="s1">&#39;reqt&#39;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">inform_slot</span><span class="p">[</span><span class="n">domain</span><span class="p">]:</span>
+                    <span class="n">TP</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">FN</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">inform_slot</span><span class="p">[</span><span class="n">domain</span><span class="p">]:</span>
+                <span class="c1"># exclude slots that are informed by users</span>
+                <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">goal</span><span class="p">[</span><span class="n">domain</span><span class="p">][</span><span class="s1">&#39;reqt&#39;</span><span class="p">]</span> \
+                <span class="ow">and</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">goal</span><span class="p">[</span><span class="n">domain</span><span class="p">][</span><span class="s1">&#39;info&#39;</span><span class="p">]</span> \
+                <span class="ow">and</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">requestable</span><span class="p">[</span><span class="n">domain</span><span class="p">]:</span>
+                    <span class="n">FP</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">TP</span><span class="p">,</span> <span class="n">FP</span><span class="p">,</span> <span class="n">FN</span>
+    
+<div class="viewcode-block" id="MultiWozEvaluator.book_rate"><a class="viewcode-back" href="../../../convlab.evaluator.html#convlab.evaluator.multiwoz.MultiWozEvaluator.book_rate">[docs]</a>    <span class="k">def</span> <span class="nf">book_rate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref2goal</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">aggregate</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">ref2goal</span><span class="p">:</span>
+            <span class="n">goal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_expand</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">goal</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">goal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_init_dict</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">domain</span> <span class="ow">in</span> <span class="n">belief_domains</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">domain</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">goal</span> <span class="ow">and</span> <span class="s1">&#39;book&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">goal</span><span class="p">[</span><span class="n">domain</span><span class="p">]:</span>
+                    <span class="n">goal</span><span class="p">[</span><span class="n">domain</span><span class="p">][</span><span class="s1">&#39;book&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">goal</span><span class="p">[</span><span class="n">domain</span><span class="p">][</span><span class="s1">&#39;book&#39;</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">da</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">usr_da_array</span><span class="p">:</span>
+                <span class="n">d</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="s1">&#39;inform&#39;</span> <span class="ow">and</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">mapping</span><span class="p">[</span><span class="n">d</span><span class="p">]:</span>
+                    <span class="n">goal</span><span class="p">[</span><span class="n">d</span><span class="p">][</span><span class="s1">&#39;info&#39;</span><span class="p">][</span><span class="n">mapping</span><span class="p">[</span><span class="n">d</span><span class="p">][</span><span class="n">s</span><span class="p">]]</span> <span class="o">=</span> <span class="n">v</span>
+        <span class="n">score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_book_rate_goal</span><span class="p">(</span><span class="n">goal</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">booked</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">aggregate</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">score</span><span class="p">)</span> <span class="k">if</span> <span class="n">score</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">score</span></div>
+
+<div class="viewcode-block" id="MultiWozEvaluator.inform_F1"><a class="viewcode-back" href="../../../convlab.evaluator.html#convlab.evaluator.multiwoz.MultiWozEvaluator.inform_F1">[docs]</a>    <span class="k">def</span> <span class="nf">inform_F1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref2goal</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">aggregate</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">ref2goal</span><span class="p">:</span>
+            <span class="n">goal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_expand</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">goal</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">goal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_init_dict</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">da</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">usr_da_array</span><span class="p">:</span>
+                <span class="n">d</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="s1">&#39;inform&#39;</span> <span class="ow">and</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">mapping</span><span class="p">[</span><span class="n">d</span><span class="p">]:</span>
+                    <span class="n">goal</span><span class="p">[</span><span class="n">d</span><span class="p">][</span><span class="s1">&#39;info&#39;</span><span class="p">][</span><span class="n">mapping</span><span class="p">[</span><span class="n">d</span><span class="p">][</span><span class="n">s</span><span class="p">]]</span> <span class="o">=</span> <span class="n">v</span>
+                <span class="k">elif</span> <span class="n">i</span> <span class="o">==</span> <span class="s1">&#39;request&#39;</span><span class="p">:</span>
+                    <span class="n">goal</span><span class="p">[</span><span class="n">d</span><span class="p">][</span><span class="s1">&#39;reqt&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+        <span class="n">TP</span><span class="p">,</span> <span class="n">FP</span><span class="p">,</span> <span class="n">FN</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inform_F1_goal</span><span class="p">(</span><span class="n">goal</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sys_da_array</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">aggregate</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">rec</span> <span class="o">=</span> <span class="n">TP</span> <span class="o">/</span> <span class="p">(</span><span class="n">TP</span> <span class="o">+</span> <span class="n">FN</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ZeroDivisionError</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">prec</span> <span class="o">=</span> <span class="n">TP</span> <span class="o">/</span> <span class="p">(</span><span class="n">TP</span> <span class="o">+</span> <span class="n">FP</span><span class="p">)</span>
+                <span class="n">F1</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">prec</span> <span class="o">*</span> <span class="n">rec</span> <span class="o">/</span> <span class="p">(</span><span class="n">prec</span> <span class="o">+</span> <span class="n">rec</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ZeroDivisionError</span><span class="p">:</span>
+                <span class="k">return</span> <span class="mi">0</span><span class="p">,</span> <span class="n">rec</span><span class="p">,</span> <span class="mi">0</span>
+            <span class="k">return</span> <span class="n">prec</span><span class="p">,</span> <span class="n">rec</span><span class="p">,</span> <span class="n">F1</span>
+        <span class="k">else</span><span class="p">:</span>    
+            <span class="k">return</span> <span class="p">[</span><span class="n">TP</span><span class="p">,</span> <span class="n">FP</span><span class="p">,</span> <span class="n">FN</span><span class="p">]</span></div>
+        
+<div class="viewcode-block" id="MultiWozEvaluator.task_success"><a class="viewcode-back" href="../../../convlab.evaluator.html#convlab.evaluator.multiwoz.MultiWozEvaluator.task_success">[docs]</a>    <span class="k">def</span> <span class="nf">task_success</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref2goal</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        judge if all the domains are successfully completed</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">book_sess</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">book_rate</span><span class="p">(</span><span class="n">ref2goal</span><span class="p">)</span>
+        <span class="n">inform_sess</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">inform_F1</span><span class="p">(</span><span class="n">ref2goal</span><span class="p">)</span>
+        <span class="c1"># book rate == 1 &amp; inform recall == 1</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">book_sess</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">inform_sess</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> \
+        <span class="ow">or</span> <span class="p">(</span><span class="n">book_sess</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">inform_sess</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> \
+        <span class="ow">or</span> <span class="p">(</span><span class="n">book_sess</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">inform_sess</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">return</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="MultiWozEvaluator.domain_success"><a class="viewcode-back" href="../../../convlab.evaluator.html#convlab.evaluator.multiwoz.MultiWozEvaluator.domain_success">[docs]</a>    <span class="k">def</span> <span class="nf">domain_success</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">domain</span><span class="p">,</span> <span class="n">ref2goal</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        judge if the domain (subtask) is successfully completed</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">domain</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">goal</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        
+        <span class="k">if</span> <span class="n">ref2goal</span><span class="p">:</span>
+            <span class="n">goal</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">goal</span><span class="p">[</span><span class="n">domain</span><span class="p">]</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">goal</span><span class="p">[</span><span class="n">domain</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">goal</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">goal</span><span class="p">[</span><span class="n">domain</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;info&#39;</span><span class="p">:{},</span> <span class="s1">&#39;book&#39;</span><span class="p">:{},</span> <span class="s1">&#39;reqt&#39;</span><span class="p">:[]}</span>
+            <span class="k">if</span> <span class="s1">&#39;book&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">goal</span><span class="p">[</span><span class="n">domain</span><span class="p">]:</span>
+                <span class="n">goal</span><span class="p">[</span><span class="n">domain</span><span class="p">][</span><span class="s1">&#39;book&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">goal</span><span class="p">[</span><span class="n">domain</span><span class="p">][</span><span class="s1">&#39;book&#39;</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">da</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">usr_da_array</span><span class="p">:</span>
+                <span class="n">d</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">d</span> <span class="o">!=</span> <span class="n">domain</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="s1">&#39;inform&#39;</span> <span class="ow">and</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">mapping</span><span class="p">[</span><span class="n">d</span><span class="p">]:</span>
+                    <span class="n">goal</span><span class="p">[</span><span class="n">d</span><span class="p">][</span><span class="s1">&#39;info&#39;</span><span class="p">][</span><span class="n">mapping</span><span class="p">[</span><span class="n">d</span><span class="p">][</span><span class="n">s</span><span class="p">]]</span> <span class="o">=</span> <span class="n">v</span>
+                <span class="k">elif</span> <span class="n">i</span> <span class="o">==</span> <span class="s1">&#39;request&#39;</span><span class="p">:</span>
+                    <span class="n">goal</span><span class="p">[</span><span class="n">d</span><span class="p">][</span><span class="s1">&#39;reqt&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+        
+        <span class="n">book_rate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_book_rate_goal</span><span class="p">(</span><span class="n">goal</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">booked</span><span class="p">,</span> <span class="p">[</span><span class="n">domain</span><span class="p">])</span>
+        <span class="n">book_rate</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">book_rate</span><span class="p">)</span> <span class="k">if</span> <span class="n">book_rate</span> <span class="k">else</span> <span class="kc">None</span>
+        
+        <span class="n">inform</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inform_F1_goal</span><span class="p">(</span><span class="n">goal</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sys_da_array</span><span class="p">,</span> <span class="p">[</span><span class="n">domain</span><span class="p">])</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">inform_rec</span> <span class="o">=</span> <span class="n">inform</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="n">inform</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">inform</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+        <span class="k">except</span> <span class="ne">ZeroDivisionError</span><span class="p">:</span>
+            <span class="n">inform_rec</span> <span class="o">=</span> <span class="kc">None</span>
+        
+        <span class="k">if</span> <span class="p">(</span><span class="n">book_rate</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">inform_rec</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> \
+        <span class="ow">or</span> <span class="p">(</span><span class="n">book_rate</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">inform_rec</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> \
+        <span class="ow">or</span> <span class="p">(</span><span class="n">book_rate</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">inform_rec</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">return</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">0</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, ConvLab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

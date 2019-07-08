@@ -1,0 +1,447 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>convlab.spec.spec_util &mdash; ConvLab 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> ConvLab
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">ConvLab</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>convlab.spec.spec_util</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for convlab.spec.spec_util</h1><div class="highlight"><pre>
+<span></span><span class="c1"># The spec module</span>
+<span class="c1"># Manages specification to run things in lab</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">string</span> <span class="k">import</span> <span class="n">Template</span>
+
+<span class="kn">import</span> <span class="nn">pydash</span> <span class="k">as</span> <span class="nn">ps</span>
+
+<span class="kn">from</span> <span class="nn">convlab.lib</span> <span class="k">import</span> <span class="n">logger</span><span class="p">,</span> <span class="n">util</span>
+
+<span class="n">SPEC_DIR</span> <span class="o">=</span> <span class="s1">&#39;convlab/spec&#39;</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">All spec values are already param, inferred automatically.</span>
+<span class="sd">To change from a value into param range, e.g.</span>
+<span class="sd">- single: &quot;explore_anneal_epi&quot;: 50</span>
+<span class="sd">- continuous param: &quot;explore_anneal_epi&quot;: {&quot;min&quot;: 50, &quot;max&quot;: 100, &quot;dist&quot;: &quot;uniform&quot;}</span>
+<span class="sd">- discrete range: &quot;explore_anneal_epi&quot;: {&quot;values&quot;: [50, 75, 100]}</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="n">SPEC_FORMAT</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;agent&quot;</span><span class="p">:</span> <span class="p">[{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="s2">&quot;algorithm&quot;</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+        <span class="c1"># &quot;memory&quot;: dict,</span>
+        <span class="c1"># &quot;net&quot;: dict,</span>
+    <span class="p">}],</span>
+    <span class="s2">&quot;env&quot;</span><span class="p">:</span> <span class="p">[{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="s2">&quot;max_t&quot;</span><span class="p">:</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+        <span class="c1"># &quot;max_frame&quot;: (int, float),</span>
+    <span class="p">}],</span>
+    <span class="c1"># &quot;body&quot;: {</span>
+    <span class="c1">#     &quot;product&quot;: [&quot;outer&quot;, &quot;inner&quot;, &quot;custom&quot;],</span>
+    <span class="c1">#     &quot;num&quot;: (int, list),</span>
+    <span class="c1"># },</span>
+    <span class="s2">&quot;meta&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;eval_frequency&quot;</span><span class="p">:</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+        <span class="s2">&quot;max_session&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="s2">&quot;max_trial&quot;</span><span class="p">:</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span> <span class="nb">int</span><span class="p">),</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">}</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="check_comp_spec"><a class="viewcode-back" href="../../../convlab.spec.html#convlab.spec.spec_util.check_comp_spec">[docs]</a><span class="k">def</span> <span class="nf">check_comp_spec</span><span class="p">(</span><span class="n">comp_spec</span><span class="p">,</span> <span class="n">comp_spec_format</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Base method to check component spec&#39;&#39;&#39;</span>
+    <span class="k">for</span> <span class="n">spec_k</span><span class="p">,</span> <span class="n">spec_format_v</span> <span class="ow">in</span> <span class="n">comp_spec_format</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">comp_spec_v</span> <span class="o">=</span> <span class="n">comp_spec</span><span class="p">[</span><span class="n">spec_k</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">ps</span><span class="o">.</span><span class="n">is_list</span><span class="p">(</span><span class="n">spec_format_v</span><span class="p">):</span>
+            <span class="n">v_set</span> <span class="o">=</span> <span class="n">spec_format_v</span>
+            <span class="k">assert</span> <span class="n">comp_spec_v</span> <span class="ow">in</span> <span class="n">v_set</span><span class="p">,</span> <span class="n">f</span><span class="s1">&#39;Component spec value {ps.pick(comp_spec, spec_k)} needs to be one of {util.to_json(v_set)}&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">v_type</span> <span class="o">=</span> <span class="n">spec_format_v</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">comp_spec_v</span><span class="p">,</span> <span class="n">v_type</span><span class="p">),</span> <span class="n">f</span><span class="s1">&#39;Component spec {ps.pick(comp_spec, spec_k)} needs to be of type: </span><span class="si">{v_type}</span><span class="s1">&#39;</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v_type</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">int</span> <span class="ow">in</span> <span class="n">v_type</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">comp_spec_v</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+                <span class="c1"># cast if it can be int</span>
+                <span class="n">comp_spec</span><span class="p">[</span><span class="n">spec_k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">comp_spec_v</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="check_body_spec"><a class="viewcode-back" href="../../../convlab.spec.html#convlab.spec.spec_util.check_body_spec">[docs]</a><span class="k">def</span> <span class="nf">check_body_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Base method to check body spec for multi-agent multi-env&#39;&#39;&#39;</span>
+    <span class="n">ae_product</span> <span class="o">=</span> <span class="n">ps</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="s1">&#39;body.product&#39;</span><span class="p">)</span>
+    <span class="n">body_num</span> <span class="o">=</span> <span class="n">ps</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="s1">&#39;body.num&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ae_product</span> <span class="o">==</span> <span class="s1">&#39;outer&#39;</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="k">elif</span> <span class="n">ae_product</span> <span class="o">==</span> <span class="s1">&#39;inner&#39;</span><span class="p">:</span>
+        <span class="n">agent_num</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">spec</span><span class="p">[</span><span class="s1">&#39;agent&#39;</span><span class="p">])</span>
+        <span class="n">env_num</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">spec</span><span class="p">[</span><span class="s1">&#39;env&#39;</span><span class="p">])</span>
+        <span class="k">assert</span> <span class="n">agent_num</span> <span class="o">==</span> <span class="n">env_num</span><span class="p">,</span> <span class="s1">&#39;Agent and Env spec length must be equal for body `inner` product. Given </span><span class="si">{agent_num}</span><span class="s1">, </span><span class="si">{env_num}</span><span class="s1">&#39;</span>
+    <span class="k">else</span><span class="p">:</span>  <span class="c1"># custom</span>
+        <span class="k">assert</span> <span class="n">ps</span><span class="o">.</span><span class="n">is_list</span><span class="p">(</span><span class="n">body_num</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="check_compatibility"><a class="viewcode-back" href="../../../convlab.spec.html#convlab.spec.spec_util.check_compatibility">[docs]</a><span class="k">def</span> <span class="nf">check_compatibility</span><span class="p">(</span><span class="n">spec</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Check compatibility among spec setups&#39;&#39;&#39;</span>
+    <span class="c1"># TODO expand to be more comprehensive</span>
+    <span class="k">if</span> <span class="n">spec</span><span class="p">[</span><span class="s1">&#39;meta&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;distributed&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;synced&#39;</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">ps</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="s1">&#39;agent.0.net.gpu&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="kc">False</span><span class="p">,</span> <span class="n">f</span><span class="s1">&#39;Distributed mode &quot;synced&quot; works with CPU only. Set gpu: false.&#39;</span></div>
+
+
+<div class="viewcode-block" id="check"><a class="viewcode-back" href="../../../convlab.spec.html#convlab.spec.spec_util.check">[docs]</a><span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="n">spec</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Check a single spec for validity&#39;&#39;&#39;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">spec_name</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">&gt;=</span> <span class="nb">set</span><span class="p">(</span><span class="n">SPEC_FORMAT</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span> <span class="n">f</span><span class="s1">&#39;Spec needs to follow spec.SPEC_FORMAT. Given </span><span class="se">\n</span><span class="s1"> </span><span class="si">{spec_name}</span><span class="s1">: {util.to_json(spec)}&#39;</span>
+        <span class="k">for</span> <span class="n">agent_spec</span> <span class="ow">in</span> <span class="n">spec</span><span class="p">[</span><span class="s1">&#39;agent&#39;</span><span class="p">]:</span>
+            <span class="n">check_comp_spec</span><span class="p">(</span><span class="n">agent_spec</span><span class="p">,</span> <span class="n">SPEC_FORMAT</span><span class="p">[</span><span class="s1">&#39;agent&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">env_spec</span> <span class="ow">in</span> <span class="n">spec</span><span class="p">[</span><span class="s1">&#39;env&#39;</span><span class="p">]:</span>
+            <span class="n">check_comp_spec</span><span class="p">(</span><span class="n">env_spec</span><span class="p">,</span> <span class="n">SPEC_FORMAT</span><span class="p">[</span><span class="s1">&#39;env&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+        <span class="c1"># check_comp_spec(spec[&#39;body&#39;], SPEC_FORMAT[&#39;body&#39;])</span>
+        <span class="n">check_comp_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">[</span><span class="s1">&#39;meta&#39;</span><span class="p">],</span> <span class="n">SPEC_FORMAT</span><span class="p">[</span><span class="s1">&#39;meta&#39;</span><span class="p">])</span>
+        <span class="c1"># check_body_spec(spec)</span>
+        <span class="n">check_compatibility</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;spec </span><span class="si">{spec_name}</span><span class="s1"> fails spec check&#39;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">e</span>
+    <span class="k">return</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="check_all"><a class="viewcode-back" href="../../../convlab.spec.html#convlab.spec.spec_util.check_all">[docs]</a><span class="k">def</span> <span class="nf">check_all</span><span class="p">():</span>
+    <span class="sd">&#39;&#39;&#39;Check all spec files, all specs.&#39;&#39;&#39;</span>
+    <span class="n">spec_files</span> <span class="o">=</span> <span class="n">ps</span><span class="o">.</span><span class="n">filter_</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">SPEC_DIR</span><span class="p">),</span> <span class="k">lambda</span> <span class="n">f</span><span class="p">:</span> <span class="n">f</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.json&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">f</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">spec_file</span> <span class="ow">in</span> <span class="n">spec_files</span><span class="p">:</span>
+        <span class="n">spec_dict</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;</span><span class="si">{SPEC_DIR}</span><span class="s1">/</span><span class="si">{spec_file}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">spec_name</span><span class="p">,</span> <span class="n">spec</span> <span class="ow">in</span> <span class="n">spec_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="c1"># fill-in info at runtime</span>
+            <span class="n">spec</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spec_name</span>
+            <span class="n">spec</span> <span class="o">=</span> <span class="n">extend_meta_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">check</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;spec_file </span><span class="si">{spec_file}</span><span class="s1"> fails spec check&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">e</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;Checked all specs from: {ps.join(spec_files, &quot;,&quot;)}&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="extend_meta_spec"><a class="viewcode-back" href="../../../convlab.spec.html#convlab.spec.spec_util.extend_meta_spec">[docs]</a><span class="k">def</span> <span class="nf">extend_meta_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Extend meta spec with information for lab functions&#39;&#39;&#39;</span>
+    <span class="n">extended_meta_spec</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="c1"># reset lab indices to -1 so that they tick to 0</span>
+        <span class="s1">&#39;experiment&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+        <span class="s1">&#39;trial&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+        <span class="s1">&#39;session&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+        <span class="s1">&#39;cuda_offset&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;CUDA_OFFSET&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span>
+        <span class="s1">&#39;experiment_ts&#39;</span><span class="p">:</span> <span class="n">util</span><span class="o">.</span><span class="n">get_ts</span><span class="p">(),</span>
+        <span class="s1">&#39;prepath&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="c1"># ckpt extends prepath, e.g. ckpt_str = ckpt-epi10-totalt1000</span>
+        <span class="s1">&#39;ckpt&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s1">&#39;git_sha&#39;</span><span class="p">:</span> <span class="n">util</span><span class="o">.</span><span class="n">get_git_sha</span><span class="p">(),</span>
+        <span class="s1">&#39;random_seed&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s1">&#39;eval_model_prepath&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">spec</span><span class="p">[</span><span class="s1">&#39;meta&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">extended_meta_spec</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">spec</span></div>
+
+
+<div class="viewcode-block" id="get"><a class="viewcode-back" href="../../../convlab.spec.html#convlab.spec.spec_util.get">[docs]</a><span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="n">spec_file</span><span class="p">,</span> <span class="n">spec_name</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Get an experiment spec from spec_file, spec_name.</span>
+<span class="sd">    Auto-check spec.</span>
+<span class="sd">    @example</span>
+
+<span class="sd">    spec = spec_util.get(&#39;base.json&#39;, &#39;base_case_openai&#39;)</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">spec_file</span> <span class="o">=</span> <span class="n">spec_file</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">SPEC_DIR</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>  <span class="c1"># cleanup</span>
+    <span class="k">if</span> <span class="s1">&#39;data/&#39;</span> <span class="ow">in</span> <span class="n">spec_file</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">spec_name</span> <span class="ow">in</span> <span class="n">spec_file</span><span class="p">,</span> <span class="s1">&#39;spec_file in data/ must be lab-generated and contains spec_name&#39;</span>
+        <span class="n">spec</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">spec_file</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">spec_file</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;</span><span class="si">{SPEC_DIR}</span><span class="s1">/</span><span class="si">{spec_file}</span><span class="s1">&#39;</span>  <span class="c1"># allow direct filename</span>
+        <span class="n">spec_dict</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">spec_file</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">spec_name</span> <span class="ow">in</span> <span class="n">spec_dict</span><span class="p">,</span> <span class="n">f</span><span class="s1">&#39;spec_name </span><span class="si">{spec_name}</span><span class="s1"> is not in spec_file </span><span class="si">{spec_file}</span><span class="s1">. Choose from:</span><span class="se">\n</span><span class="s1"> {ps.join(spec_dict.keys(), &quot;,&quot;)}&#39;</span>
+        <span class="n">spec</span> <span class="o">=</span> <span class="n">spec_dict</span><span class="p">[</span><span class="n">spec_name</span><span class="p">]</span>
+        <span class="c1"># fill-in info at runtime</span>
+        <span class="n">spec</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spec_name</span>
+        <span class="n">spec</span> <span class="o">=</span> <span class="n">extend_meta_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+    <span class="n">check</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">spec</span></div>
+
+
+<div class="viewcode-block" id="get_eval_spec"><a class="viewcode-back" href="../../../convlab.spec.html#convlab.spec.spec_util.get_eval_spec">[docs]</a><span class="k">def</span> <span class="nf">get_eval_spec</span><span class="p">(</span><span class="n">spec_file</span><span class="p">,</span> <span class="n">spec_name</span><span class="p">,</span> <span class="n">prename</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Get spec for eval mode&#39;&#39;&#39;</span>
+    <span class="n">spec</span> <span class="o">=</span> <span class="n">get</span><span class="p">(</span><span class="n">spec_file</span><span class="p">,</span> <span class="n">spec_name</span><span class="p">)</span>
+    <span class="n">spec</span><span class="p">[</span><span class="s1">&#39;meta&#39;</span><span class="p">][</span><span class="s1">&#39;ckpt&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;eval&#39;</span>
+    <span class="n">spec</span><span class="p">[</span><span class="s1">&#39;meta&#39;</span><span class="p">][</span><span class="s1">&#39;eval_model_prepath&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">prename</span>
+    <span class="k">return</span> <span class="n">spec</span></div>
+
+
+<div class="viewcode-block" id="get_param_specs"><a class="viewcode-back" href="../../../convlab.spec.html#convlab.spec.spec_util.get_param_specs">[docs]</a><span class="k">def</span> <span class="nf">get_param_specs</span><span class="p">(</span><span class="n">spec</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Return a list of specs with substituted spec_params&#39;&#39;&#39;</span>
+    <span class="k">assert</span> <span class="s1">&#39;spec_params&#39;</span> <span class="ow">in</span> <span class="n">spec</span><span class="p">,</span> <span class="s1">&#39;Parametrized spec needs a spec_params key&#39;</span>
+    <span class="n">spec_params</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;spec_params&#39;</span><span class="p">)</span>
+    <span class="n">spec_template</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">spec</span><span class="p">))</span>
+    <span class="n">keys</span> <span class="o">=</span> <span class="n">spec_params</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+    <span class="n">specs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">vals</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="o">*</span><span class="n">spec_params</span><span class="o">.</span><span class="n">values</span><span class="p">())):</span>
+        <span class="n">spec_str</span> <span class="o">=</span> <span class="n">spec_template</span><span class="o">.</span><span class="n">substitute</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">keys</span><span class="p">,</span> <span class="n">vals</span><span class="p">)))</span>
+        <span class="n">spec</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">spec_str</span><span class="p">)</span>
+        <span class="n">spec</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">f</span><span class="s1">&#39;_{&quot;_&quot;.join(vals)}&#39;</span>
+        <span class="c1"># offset to prevent parallel-run GPU competition, to mod in util.set_cuda_id</span>
+        <span class="n">cuda_id_gap</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">spec</span><span class="p">[</span><span class="s1">&#39;meta&#39;</span><span class="p">][</span><span class="s1">&#39;max_session&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">spec</span><span class="p">[</span><span class="s1">&#39;meta&#39;</span><span class="p">][</span><span class="s1">&#39;param_spec_process&#39;</span><span class="p">])</span>
+        <span class="n">spec</span><span class="p">[</span><span class="s1">&#39;meta&#39;</span><span class="p">][</span><span class="s1">&#39;cuda_offset&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">idx</span> <span class="o">*</span> <span class="n">cuda_id_gap</span>
+        <span class="n">specs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">specs</span></div>
+
+
+<div class="viewcode-block" id="override_dev_spec"><a class="viewcode-back" href="../../../convlab.spec.html#convlab.spec.spec_util.override_dev_spec">[docs]</a><span class="k">def</span> <span class="nf">override_dev_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">):</span>
+    <span class="n">spec</span><span class="p">[</span><span class="s1">&#39;meta&#39;</span><span class="p">][</span><span class="s1">&#39;max_session&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">spec</span><span class="p">[</span><span class="s1">&#39;meta&#39;</span><span class="p">][</span><span class="s1">&#39;max_trial&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="k">return</span> <span class="n">spec</span></div>
+
+
+<span class="c1">#def override_enjoy_spec(spec):</span>
+<span class="c1">#    spec[&#39;meta&#39;][&#39;max_session&#39;] = 1</span>
+<span class="c1">#    return spec</span>
+
+
+<div class="viewcode-block" id="override_eval_spec"><a class="viewcode-back" href="../../../convlab.spec.html#convlab.spec.spec_util.override_eval_spec">[docs]</a><span class="k">def</span> <span class="nf">override_eval_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">):</span>
+    <span class="n">spec</span><span class="p">[</span><span class="s1">&#39;meta&#39;</span><span class="p">][</span><span class="s1">&#39;max_session&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="c1"># evaluate by episode is set in env clock init in env/base.py</span>
+    <span class="k">return</span> <span class="n">spec</span></div>
+
+
+<div class="viewcode-block" id="override_test_spec"><a class="viewcode-back" href="../../../convlab.spec.html#convlab.spec.spec_util.override_test_spec">[docs]</a><span class="k">def</span> <span class="nf">override_test_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">agent_spec</span> <span class="ow">in</span> <span class="n">spec</span><span class="p">[</span><span class="s1">&#39;agent&#39;</span><span class="p">]:</span>
+        <span class="c1"># onpolicy freq is episodic</span>
+        <span class="n">freq</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">agent_spec</span><span class="p">[</span><span class="s1">&#39;memory&#39;</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;OnPolicyReplay&#39;</span> <span class="k">else</span> <span class="mi">8</span>
+        <span class="n">agent_spec</span><span class="p">[</span><span class="s1">&#39;algorithm&#39;</span><span class="p">][</span><span class="s1">&#39;training_frequency&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">freq</span>
+        <span class="n">agent_spec</span><span class="p">[</span><span class="s1">&#39;algorithm&#39;</span><span class="p">][</span><span class="s1">&#39;training_start_step&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">agent_spec</span><span class="p">[</span><span class="s1">&#39;algorithm&#39;</span><span class="p">][</span><span class="s1">&#39;training_iter&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">agent_spec</span><span class="p">[</span><span class="s1">&#39;algorithm&#39;</span><span class="p">][</span><span class="s1">&#39;training_batch_iter&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">for</span> <span class="n">env_spec</span> <span class="ow">in</span> <span class="n">spec</span><span class="p">[</span><span class="s1">&#39;env&#39;</span><span class="p">]:</span>
+        <span class="n">env_spec</span><span class="p">[</span><span class="s1">&#39;max_frame&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">40</span>
+        <span class="n">env_spec</span><span class="p">[</span><span class="s1">&#39;max_t&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">12</span>
+    <span class="n">spec</span><span class="p">[</span><span class="s1">&#39;meta&#39;</span><span class="p">][</span><span class="s1">&#39;log_frequency&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">10</span>
+    <span class="n">spec</span><span class="p">[</span><span class="s1">&#39;meta&#39;</span><span class="p">][</span><span class="s1">&#39;eval_frequency&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">10</span>
+    <span class="n">spec</span><span class="p">[</span><span class="s1">&#39;meta&#39;</span><span class="p">][</span><span class="s1">&#39;max_session&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">spec</span><span class="p">[</span><span class="s1">&#39;meta&#39;</span><span class="p">][</span><span class="s1">&#39;max_trial&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="k">return</span> <span class="n">spec</span></div>
+
+
+<div class="viewcode-block" id="save"><a class="viewcode-back" href="../../../convlab.spec.html#convlab.spec.spec_util.save">[docs]</a><span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;experiment&#39;</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Save spec to proper path. Called at Experiment or Trial init.&#39;&#39;&#39;</span>
+    <span class="n">prepath</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">get_prepath</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">unit</span><span class="p">)</span>
+    <span class="n">util</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">f</span><span class="s1">&#39;</span><span class="si">{prepath}</span><span class="s1">_spec.json&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="tick"><a class="viewcode-back" href="../../../convlab.spec.html#convlab.spec.spec_util.tick">[docs]</a><span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">unit</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Method to tick lab unit (experiment, trial, session) in meta spec to advance their indices</span>
+<span class="sd">    Reset lower lab indices to -1 so that they tick to 0</span>
+<span class="sd">    spec_util.tick(spec, &#39;session&#39;)</span>
+<span class="sd">    session = Session(spec)</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">meta_spec</span> <span class="o">=</span> <span class="n">spec</span><span class="p">[</span><span class="s1">&#39;meta&#39;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">unit</span> <span class="o">==</span> <span class="s1">&#39;experiment&#39;</span><span class="p">:</span>
+        <span class="n">meta_spec</span><span class="p">[</span><span class="s1">&#39;experiment_ts&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">get_ts</span><span class="p">()</span>
+        <span class="n">meta_spec</span><span class="p">[</span><span class="s1">&#39;experiment&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">meta_spec</span><span class="p">[</span><span class="s1">&#39;trial&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">meta_spec</span><span class="p">[</span><span class="s1">&#39;session&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="k">elif</span> <span class="n">unit</span> <span class="o">==</span> <span class="s1">&#39;trial&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">meta_spec</span><span class="p">[</span><span class="s1">&#39;experiment&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">meta_spec</span><span class="p">[</span><span class="s1">&#39;experiment&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">meta_spec</span><span class="p">[</span><span class="s1">&#39;trial&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">meta_spec</span><span class="p">[</span><span class="s1">&#39;session&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="k">elif</span> <span class="n">unit</span> <span class="o">==</span> <span class="s1">&#39;session&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">meta_spec</span><span class="p">[</span><span class="s1">&#39;experiment&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">meta_spec</span><span class="p">[</span><span class="s1">&#39;experiment&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">meta_spec</span><span class="p">[</span><span class="s1">&#39;trial&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">meta_spec</span><span class="p">[</span><span class="s1">&#39;trial&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">meta_spec</span><span class="p">[</span><span class="s1">&#39;session&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;Unrecognized lab unit to tick: </span><span class="si">{unit}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="c1"># set prepath since it is determined at this point</span>
+    <span class="n">meta_spec</span><span class="p">[</span><span class="s1">&#39;prepath&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">prepath</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">get_prepath</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">unit</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">folder</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;graph&#39;</span><span class="p">,</span> <span class="s1">&#39;info&#39;</span><span class="p">,</span> <span class="s1">&#39;log&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">):</span>
+        <span class="n">folder_prepath</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">insert_folder</span><span class="p">(</span><span class="n">prepath</span><span class="p">,</span> <span class="n">folder</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">util</span><span class="o">.</span><span class="n">smart_path</span><span class="p">(</span><span class="n">folder_prepath</span><span class="p">)),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">meta_spec</span><span class="p">[</span><span class="n">f</span><span class="s1">&#39;</span><span class="si">{folder}</span><span class="s1">_prepath&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">folder_prepath</span>
+    <span class="k">return</span> <span class="n">spec</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, ConvLab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

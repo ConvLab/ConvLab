@@ -1,0 +1,366 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>convlab.agent.algorithm.base &mdash; ConvLab 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> ConvLab
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">ConvLab</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+          <li><a href="../../agent.html">convlab.agent</a> &raquo;</li>
+        
+      <li>convlab.agent.algorithm.base</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for convlab.agent.algorithm.base</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Modified by Microsoft Corporation.</span>
+<span class="c1"># Licensed under the MIT license.</span>
+
+<span class="kn">from</span> <span class="nn">abc</span> <span class="k">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pydash</span> <span class="k">as</span> <span class="nn">ps</span>
+
+<span class="kn">from</span> <span class="nn">convlab.agent.net</span> <span class="k">import</span> <span class="n">net_util</span>
+<span class="kn">from</span> <span class="nn">convlab.lib</span> <span class="k">import</span> <span class="n">logger</span><span class="p">,</span> <span class="n">util</span>
+<span class="kn">from</span> <span class="nn">convlab.lib.decorator</span> <span class="k">import</span> <span class="n">lab_api</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="c1"># Modified by Microsoft Corporation.</span>
+<span class="c1"># Licensed under the MIT license.</span>
+
+<div class="viewcode-block" id="Algorithm"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.base.Algorithm">[docs]</a><span class="k">class</span> <span class="nc">Algorithm</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Abstract class ancestor to all Algorithms,</span>
+<span class="sd">    specifies the necessary design blueprint for agent to work in Lab.</span>
+<span class="sd">    Mostly, implement just the abstract methods and properties.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">agent</span><span class="p">,</span> <span class="n">global_nets</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @param {*} agent is the container for algorithm and related components, and interfaces with env.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">agent</span> <span class="o">=</span> <span class="n">agent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">algorithm_spec</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">agent_spec</span><span class="p">[</span><span class="s1">&#39;algorithm&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">algorithm_spec</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">net_spec</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">agent_spec</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;net&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ps</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">agent</span><span class="o">.</span><span class="n">agent_spec</span><span class="p">,</span> <span class="s1">&#39;memory&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">memory_spec</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">agent_spec</span><span class="p">[</span><span class="s1">&#39;memory&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">body</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">body</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_algorithm_params</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_nets</span><span class="p">(</span><span class="n">global_nets</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">util</span><span class="o">.</span><span class="n">self_desc</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+
+<div class="viewcode-block" id="Algorithm.init_algorithm_params"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.base.Algorithm.init_algorithm_params">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="nd">@lab_api</span>
+    <span class="k">def</span> <span class="nf">init_algorithm_params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Initialize other algorithm parameters&#39;&#39;&#39;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="Algorithm.init_nets"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.base.Algorithm.init_nets">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="nd">@lab_api</span>
+    <span class="k">def</span> <span class="nf">init_nets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">global_nets</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Initialize the neural network from the spec&#39;&#39;&#39;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="Algorithm.post_init_nets"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.base.Algorithm.post_init_nets">[docs]</a>    <span class="nd">@lab_api</span>
+    <span class="k">def</span> <span class="nf">post_init_nets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Method to conditionally load models.</span>
+<span class="sd">        Call at the end of init_nets() after setting self.net_names</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;net_names&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">util</span><span class="o">.</span><span class="n">in_eval_lab_modes</span><span class="p">():</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;Loaded algorithm models for lab_mode: {util.get_lab_mode()}&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;Initialized algorithm models for lab_mode: {util.get_lab_mode()}&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Algorithm.calc_pdparam"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.base.Algorithm.calc_pdparam">[docs]</a>    <span class="nd">@lab_api</span>
+    <span class="k">def</span> <span class="nf">calc_pdparam</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">evaluate</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">net</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        To get the pdparam for action policy sampling, do a forward pass of the appropriate net, and pick the correct outputs.</span>
+<span class="sd">        The pdparam will be the logits for discrete prob. dist., or the mean and std for continuous prob. dist.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="Algorithm.nanflat_to_data_a"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.base.Algorithm.nanflat_to_data_a">[docs]</a>    <span class="k">def</span> <span class="nf">nanflat_to_data_a</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_name</span><span class="p">,</span> <span class="n">nanflat_data_a</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Reshape nanflat_data_a, e.g. action_a, from a single pass back into the API-conforming data_a&#39;&#39;&#39;</span>
+        <span class="n">data_names</span> <span class="o">=</span> <span class="p">(</span><span class="n">data_name</span><span class="p">,)</span>
+        <span class="n">data_a</span><span class="p">,</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">agent_space</span><span class="o">.</span><span class="n">aeb_space</span><span class="o">.</span><span class="n">init_data_s</span><span class="p">(</span><span class="n">data_names</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">a</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">body</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">nanflat_body_a</span><span class="p">,</span> <span class="n">nanflat_data_a</span><span class="p">):</span>
+            <span class="n">e</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">body</span><span class="o">.</span><span class="n">e</span><span class="p">,</span> <span class="n">body</span><span class="o">.</span><span class="n">b</span>
+            <span class="n">data_a</span><span class="p">[(</span><span class="n">e</span><span class="p">,</span> <span class="n">b</span><span class="p">)]</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="k">return</span> <span class="n">data_a</span></div>
+
+<div class="viewcode-block" id="Algorithm.act"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.base.Algorithm.act">[docs]</a>    <span class="nd">@lab_api</span>
+    <span class="k">def</span> <span class="nf">act</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Standard act method.&#39;&#39;&#39;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="Algorithm.sample"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.base.Algorithm.sample">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="nd">@lab_api</span>
+    <span class="k">def</span> <span class="nf">sample</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Samples a batch from memory&#39;&#39;&#39;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="Algorithm.train"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.base.Algorithm.train">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="nd">@lab_api</span>
+    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Implement algorithm train, or throw NotImplementedError&#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">util</span><span class="o">.</span><span class="n">in_eval_lab_modes</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="Algorithm.update"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.base.Algorithm.update">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="nd">@lab_api</span>
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Implement algorithm update, or throw NotImplementedError&#39;&#39;&#39;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="Algorithm.save"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.base.Algorithm.save">[docs]</a>    <span class="nd">@lab_api</span>
+    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ckpt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Save net models for algorithm given the required property self.net_names&#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;net_names&#39;</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;No net declared in self.net_names in init_nets(); no models to save.&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">net_util</span><span class="o">.</span><span class="n">save_algorithm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ckpt</span><span class="o">=</span><span class="n">ckpt</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Algorithm.load"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.base.Algorithm.load">[docs]</a>    <span class="nd">@lab_api</span>
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Load net models for algorithm given the required property self.net_names&#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;net_names&#39;</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;No net declared in self.net_names in init_nets(); no models to load.&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">net_util</span><span class="o">.</span><span class="n">load_algorithm</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="c1"># set decayable variables to final values</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">k</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;_scheduler&#39;</span><span class="p">):</span>
+                <span class="n">var_name</span> <span class="o">=</span> <span class="n">k</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_scheduler&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="s1">&#39;end_val&#39;</span><span class="p">):</span>
+                    <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="n">var_name</span><span class="p">,</span> <span class="n">v</span><span class="o">.</span><span class="n">end_val</span><span class="p">)</span></div>
+
+    <span class="c1"># NOTE optional extension for multi-agent-env</span>
+
+<div class="viewcode-block" id="Algorithm.space_act"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.base.Algorithm.space_act">[docs]</a>    <span class="nd">@lab_api</span>
+    <span class="k">def</span> <span class="nf">space_act</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state_a</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Interface-level agent act method for all its bodies. Resolves state to state; get action and compose into action.&#39;&#39;&#39;</span>
+        <span class="n">data_names</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;action&#39;</span><span class="p">,)</span>
+        <span class="n">action_a</span><span class="p">,</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">agent_space</span><span class="o">.</span><span class="n">aeb_space</span><span class="o">.</span><span class="n">init_data_s</span><span class="p">(</span><span class="n">data_names</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">a</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">eb</span><span class="p">,</span> <span class="n">body</span> <span class="ow">in</span> <span class="n">util</span><span class="o">.</span><span class="n">ndenumerate_nonan</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">body_a</span><span class="p">):</span>
+            <span class="n">state</span> <span class="o">=</span> <span class="n">state_a</span><span class="p">[</span><span class="n">eb</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">body</span> <span class="o">=</span> <span class="n">body</span>
+            <span class="n">action_a</span><span class="p">[</span><span class="n">eb</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">act</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+        <span class="c1"># set body reference back to default</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">body</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">nanflat_body_a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">action_a</span></div>
+
+<div class="viewcode-block" id="Algorithm.space_sample"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.base.Algorithm.space_sample">[docs]</a>    <span class="nd">@lab_api</span>
+    <span class="k">def</span> <span class="nf">space_sample</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Samples a batch from memory&#39;&#39;&#39;</span>
+        <span class="n">batches</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">body</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">nanflat_body_a</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">body</span> <span class="o">=</span> <span class="n">body</span>
+            <span class="n">batches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sample</span><span class="p">())</span>
+        <span class="c1"># set body reference back to default</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">body</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">nanflat_body_a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">batch</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">concat_batches</span><span class="p">(</span><span class="n">batches</span><span class="p">)</span>
+        <span class="n">batch</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">to_torch_batch</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">net</span><span class="o">.</span><span class="n">device</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">is_episodic</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">batch</span></div>
+
+<div class="viewcode-block" id="Algorithm.space_train"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.base.Algorithm.space_train">[docs]</a>    <span class="nd">@lab_api</span>
+    <span class="k">def</span> <span class="nf">space_train</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">util</span><span class="o">.</span><span class="n">in_eval_lab_modes</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="n">losses</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">body</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">nanflat_body_a</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">body</span> <span class="o">=</span> <span class="n">body</span>
+            <span class="n">losses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">train</span><span class="p">())</span>
+        <span class="c1"># set body reference back to default</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">body</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">nanflat_body_a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">loss_a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nanflat_to_data_a</span><span class="p">(</span><span class="s1">&#39;loss&#39;</span><span class="p">,</span> <span class="n">losses</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">loss_a</span></div>
+
+<div class="viewcode-block" id="Algorithm.space_update"><a class="viewcode-back" href="../../../../convlab.agent.algorithm.html#convlab.agent.algorithm.base.Algorithm.space_update">[docs]</a>    <span class="nd">@lab_api</span>
+    <span class="k">def</span> <span class="nf">space_update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">explore_vars</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">body</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">nanflat_body_a</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">body</span> <span class="o">=</span> <span class="n">body</span>
+            <span class="n">explore_vars</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">())</span>
+        <span class="c1"># set body reference back to default</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">body</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">nanflat_body_a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">explore_var_a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nanflat_to_data_a</span><span class="p">(</span><span class="s1">&#39;explore_var&#39;</span><span class="p">,</span> <span class="n">explore_vars</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">explore_var_a</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, ConvLab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

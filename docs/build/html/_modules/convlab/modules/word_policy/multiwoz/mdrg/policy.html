@@ -1,0 +1,862 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>convlab.modules.word_policy.multiwoz.mdrg.policy &mdash; ConvLab 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../../../" src="../../../../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../../../index.html" class="icon icon-home"> ConvLab
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../../index.html">ConvLab</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../../../../index.html">Module code</a> &raquo;</li>
+        
+      <li>convlab.modules.word_policy.multiwoz.mdrg.policy</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for convlab.modules.word_policy.multiwoz.mdrg.policy</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># coding: utf-8</span>
+
+<span class="c1"># Copyright (c) Microsoft Corporation.</span>
+<span class="c1"># Licensed under the MIT license.</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">unicode_literals</span>
+
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">zipfile</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="k">import</span> <span class="n">deepcopy</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+
+<span class="kn">from</span> <span class="nn">convlab.lib.file_util</span> <span class="k">import</span> <span class="n">cached_path</span>
+<span class="kn">from</span> <span class="nn">convlab.modules.dst.multiwoz.dst_util</span> <span class="k">import</span> <span class="n">init_state</span>
+<span class="kn">from</span> <span class="nn">convlab.modules.policy.system.policy</span> <span class="k">import</span> <span class="n">SysPolicy</span>
+<span class="kn">from</span> <span class="nn">convlab.modules.word_policy.multiwoz.mdrg.model</span> <span class="k">import</span> <span class="n">Model</span>
+<span class="kn">from</span> <span class="nn">convlab.modules.word_policy.multiwoz.mdrg.utils</span> <span class="k">import</span> <span class="n">util</span><span class="p">,</span> <span class="n">dbquery</span><span class="p">,</span> <span class="n">delexicalize</span>
+<span class="kn">from</span> <span class="nn">convlab.modules.word_policy.multiwoz.mdrg.utils.nlp</span> <span class="k">import</span> <span class="n">normalize</span>
+
+<span class="n">DATA_PATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)))))),</span> <span class="s1">&#39;data/nrg/mdrg&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Args"><a class="viewcode-back" href="../../../../../../convlab.modules.word_policy.multiwoz.mdrg.html#convlab.modules.word_policy.multiwoz.mdrg.policy.Args">[docs]</a><span class="k">class</span> <span class="nc">Args</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+<span class="n">args</span> <span class="o">=</span> <span class="n">Args</span><span class="p">()</span>
+<span class="n">args</span><span class="o">.</span><span class="n">no_cuda</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">args</span><span class="o">.</span><span class="n">seed</span> <span class="o">=</span> <span class="mi">1</span> 
+<span class="n">args</span><span class="o">.</span><span class="n">no_models</span> <span class="o">=</span> <span class="mi">20</span> 
+<span class="n">args</span><span class="o">.</span><span class="n">original</span> <span class="o">=</span> <span class="n">DATA_PATH</span> <span class="c1">#&#39;/home/sule/projects/research/multiwoz/model/model/&#39;</span>
+<span class="n">args</span><span class="o">.</span><span class="n">dropout</span> <span class="o">=</span> <span class="mf">0.</span> 
+<span class="n">args</span><span class="o">.</span><span class="n">use_emb</span> <span class="o">=</span> <span class="s1">&#39;False&#39;</span> 
+<span class="n">args</span><span class="o">.</span><span class="n">beam_width</span> <span class="o">=</span> <span class="mi">10</span> 
+<span class="n">args</span><span class="o">.</span><span class="n">write_n_best</span> <span class="o">=</span> <span class="kc">False</span> 
+<span class="n">args</span><span class="o">.</span><span class="n">model_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DATA_PATH</span><span class="p">,</span> <span class="s1">&#39;translate.ckpt&#39;</span><span class="p">)</span>
+<span class="n">args</span><span class="o">.</span><span class="n">model_dir</span> <span class="o">=</span> <span class="n">DATA_PATH</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span>  <span class="c1">#&#39;/home/sule/projects/research/multiwoz/model/model/&#39;</span>
+<span class="n">args</span><span class="o">.</span><span class="n">model_name</span> <span class="o">=</span> <span class="s1">&#39;translate.ckpt&#39;</span>
+<span class="n">args</span><span class="o">.</span><span class="n">valid_output</span> <span class="o">=</span> <span class="s1">&#39;val_dials&#39;</span> <span class="c1">#&#39;/home/sule/projects/research/multiwoz/model/data/val_dials/&#39;</span>
+<span class="n">args</span><span class="o">.</span><span class="n">test_output</span> <span class="o">=</span> <span class="s1">&#39;test_dials&#39;</span> <span class="c1">#&#39;/home/sule/projects/research/multiwoz/model/data/test_dials/&#39;</span>
+
+<span class="n">args</span><span class="o">.</span><span class="n">batch_size</span><span class="o">=</span><span class="mi">64</span>
+<span class="n">args</span><span class="o">.</span><span class="n">vocab_size</span><span class="o">=</span><span class="mi">400</span>
+
+<span class="n">args</span><span class="o">.</span><span class="n">use_attn</span><span class="o">=</span><span class="kc">False</span>
+<span class="n">args</span><span class="o">.</span><span class="n">attention_type</span><span class="o">=</span><span class="s1">&#39;bahdanau&#39;</span>
+<span class="n">args</span><span class="o">.</span><span class="n">use_emb</span><span class="o">=</span><span class="kc">False</span>
+
+<span class="n">args</span><span class="o">.</span><span class="n">emb_size</span><span class="o">=</span><span class="mi">50</span>
+<span class="n">args</span><span class="o">.</span><span class="n">hid_size_enc</span><span class="o">=</span><span class="mi">150</span>
+<span class="n">args</span><span class="o">.</span><span class="n">hid_size_dec</span><span class="o">=</span><span class="mi">150</span>
+<span class="n">args</span><span class="o">.</span><span class="n">hid_size_pol</span><span class="o">=</span><span class="mi">150</span>
+<span class="n">args</span><span class="o">.</span><span class="n">db_size</span><span class="o">=</span><span class="mi">30</span>
+<span class="n">args</span><span class="o">.</span><span class="n">bs_size</span><span class="o">=</span><span class="mi">94</span>
+
+<span class="n">args</span><span class="o">.</span><span class="n">cell_type</span><span class="o">=</span><span class="s1">&#39;lstm&#39;</span>
+<span class="n">args</span><span class="o">.</span><span class="n">depth</span><span class="o">=</span><span class="mi">1</span>
+<span class="n">args</span><span class="o">.</span><span class="n">max_len</span><span class="o">=</span><span class="mi">50</span>
+
+<span class="n">args</span><span class="o">.</span><span class="n">optim</span><span class="o">=</span><span class="s1">&#39;adam&#39;</span>
+<span class="n">args</span><span class="o">.</span><span class="n">lr_rate</span><span class="o">=</span><span class="mf">0.005</span>
+<span class="n">args</span><span class="o">.</span><span class="n">lr_decay</span><span class="o">=</span><span class="mf">0.0</span>
+<span class="n">args</span><span class="o">.</span><span class="n">l2_norm</span><span class="o">=</span><span class="mf">0.00001</span>
+<span class="n">args</span><span class="o">.</span><span class="n">clip</span><span class="o">=</span><span class="mf">5.0</span>
+
+<span class="n">args</span><span class="o">.</span><span class="n">teacher_ratio</span><span class="o">=</span><span class="mf">1.0</span>
+<span class="n">args</span><span class="o">.</span><span class="n">dropout</span><span class="o">=</span><span class="mf">0.0</span>
+
+<span class="n">args</span><span class="o">.</span><span class="n">no_cuda</span><span class="o">=</span><span class="kc">True</span>
+
+<span class="n">args</span><span class="o">.</span><span class="n">seed</span><span class="o">=</span><span class="mi">0</span>
+<span class="n">args</span><span class="o">.</span><span class="n">train_output</span><span class="o">=</span><span class="s1">&#39;train_dials&#39;</span> <span class="c1">#&#39;data/train_dials/&#39;</span>
+
+<span class="n">args</span><span class="o">.</span><span class="n">max_epochs</span><span class="o">=</span><span class="mi">15</span>
+<span class="n">args</span><span class="o">.</span><span class="n">early_stop_count</span><span class="o">=</span><span class="mi">2</span>
+
+<span class="n">args</span><span class="o">.</span><span class="n">load_param</span><span class="o">=</span><span class="kc">False</span>
+<span class="n">args</span><span class="o">.</span><span class="n">epoch_load</span><span class="o">=</span><span class="mi">0</span>
+
+<span class="n">args</span><span class="o">.</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;test&#39;</span>
+
+<span class="n">args</span><span class="o">.</span><span class="n">cuda</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">no_cuda</span> <span class="ow">and</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span>
+
+<span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span>
+
+<span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cuda&quot;</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">cuda</span> <span class="k">else</span> <span class="s2">&quot;cpu&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="load_config"><a class="viewcode-back" href="../../../../../../convlab.modules.word_policy.multiwoz.mdrg.html#convlab.modules.word_policy.multiwoz.mdrg.policy.load_config">[docs]</a><span class="k">def</span> <span class="nf">load_config</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">unicode_to_utf8</span><span class="p">(</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">.json&#39;</span> <span class="o">%</span> <span class="n">args</span><span class="o">.</span><span class="n">model_path</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)))</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">__args</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">config</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">value</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">config</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="k">return</span> <span class="n">config</span></div>
+
+
+<div class="viewcode-block" id="addBookingPointer"><a class="viewcode-back" href="../../../../../../convlab.modules.word_policy.multiwoz.mdrg.html#convlab.modules.word_policy.multiwoz.mdrg.policy.addBookingPointer">[docs]</a><span class="k">def</span> <span class="nf">addBookingPointer</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">pointer_vector</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Add information about availability of the booking option.&quot;&quot;&quot;</span>
+    <span class="c1"># Booking pointer</span>
+    <span class="n">rest_vec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+    <span class="k">if</span> <span class="s2">&quot;book&quot;</span> <span class="ow">in</span> <span class="n">state</span><span class="p">[</span><span class="s1">&#39;restaurant&#39;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="s2">&quot;booked&quot;</span> <span class="ow">in</span> <span class="n">state</span><span class="p">[</span><span class="s1">&#39;restaurant&#39;</span><span class="p">][</span><span class="s1">&#39;book&#39;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">state</span><span class="p">[</span><span class="s1">&#39;restaurant&#39;</span><span class="p">][</span><span class="s1">&#39;book&#39;</span><span class="p">][</span><span class="s2">&quot;booked&quot;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="s2">&quot;reference&quot;</span> <span class="ow">in</span> <span class="n">state</span><span class="p">[</span><span class="s1">&#39;restaurant&#39;</span><span class="p">][</span><span class="s1">&#39;book&#39;</span><span class="p">][</span><span class="s2">&quot;booked&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span>
+                    <span class="n">rest_vec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+
+    <span class="n">hotel_vec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+    <span class="k">if</span> <span class="s2">&quot;book&quot;</span> <span class="ow">in</span> <span class="n">state</span><span class="p">[</span><span class="s1">&#39;hotel&#39;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="s2">&quot;booked&quot;</span> <span class="ow">in</span> <span class="n">state</span><span class="p">[</span><span class="s1">&#39;hotel&#39;</span><span class="p">][</span><span class="s1">&#39;book&#39;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">state</span><span class="p">[</span><span class="s1">&#39;hotel&#39;</span><span class="p">][</span><span class="s1">&#39;book&#39;</span><span class="p">][</span><span class="s2">&quot;booked&quot;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="s2">&quot;reference&quot;</span> <span class="ow">in</span> <span class="n">state</span><span class="p">[</span><span class="s1">&#39;hotel&#39;</span><span class="p">][</span><span class="s1">&#39;book&#39;</span><span class="p">][</span><span class="s2">&quot;booked&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span>
+                    <span class="n">hotel_vec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+
+    <span class="n">train_vec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+    <span class="k">if</span> <span class="s2">&quot;book&quot;</span> <span class="ow">in</span> <span class="n">state</span><span class="p">[</span><span class="s1">&#39;train&#39;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="s2">&quot;booked&quot;</span> <span class="ow">in</span>  <span class="n">state</span><span class="p">[</span><span class="s1">&#39;train&#39;</span><span class="p">][</span><span class="s1">&#39;book&#39;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">state</span><span class="p">[</span><span class="s1">&#39;train&#39;</span><span class="p">][</span><span class="s1">&#39;book&#39;</span><span class="p">][</span><span class="s2">&quot;booked&quot;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="s2">&quot;reference&quot;</span> <span class="ow">in</span> <span class="n">state</span><span class="p">[</span><span class="s1">&#39;train&#39;</span><span class="p">][</span><span class="s1">&#39;book&#39;</span><span class="p">][</span><span class="s2">&quot;booked&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span>
+                    <span class="n">train_vec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+
+    <span class="n">pointer_vector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pointer_vector</span><span class="p">,</span> <span class="n">rest_vec</span><span class="p">)</span>
+    <span class="n">pointer_vector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pointer_vector</span><span class="p">,</span> <span class="n">hotel_vec</span><span class="p">)</span>
+    <span class="n">pointer_vector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pointer_vector</span><span class="p">,</span> <span class="n">train_vec</span><span class="p">)</span>
+
+    <span class="c1"># pprint(pointer_vector)</span>
+    <span class="k">return</span> <span class="n">pointer_vector</span></div>
+
+
+<div class="viewcode-block" id="addDBPointer"><a class="viewcode-back" href="../../../../../../convlab.modules.word_policy.multiwoz.mdrg.html#convlab.modules.word_policy.multiwoz.mdrg.policy.addDBPointer">[docs]</a><span class="k">def</span> <span class="nf">addDBPointer</span><span class="p">(</span><span class="n">state</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create database pointer for all related domains.&quot;&quot;&quot;</span>
+    <span class="n">domains</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;restaurant&#39;</span><span class="p">,</span> <span class="s1">&#39;hotel&#39;</span><span class="p">,</span> <span class="s1">&#39;attraction&#39;</span><span class="p">,</span> <span class="s1">&#39;train&#39;</span><span class="p">]</span>
+    <span class="n">pointer_vector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">6</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">domains</span><span class="p">))</span>
+    <span class="n">db_results</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">num_entities</span> <span class="o">=</span> <span class="p">{}</span> 
+    <span class="k">for</span> <span class="n">domain</span> <span class="ow">in</span> <span class="n">domains</span><span class="p">:</span>
+        <span class="c1"># entities = dbPointer.queryResultVenues(domain, {&#39;metadata&#39;: state})</span>
+        <span class="n">entities</span> <span class="o">=</span> <span class="n">dbquery</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="n">state</span><span class="p">[</span><span class="n">domain</span><span class="p">][</span><span class="s1">&#39;semi&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+        <span class="n">num_entities</span><span class="p">[</span><span class="n">domain</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">entities</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">entities</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span> 
+            <span class="c1"># fields = dbPointer.table_schema(domain)</span>
+            <span class="c1"># db_results[domain] = dict(zip(fields, entities[0]))</span>
+            <span class="n">db_results</span><span class="p">[</span><span class="n">domain</span><span class="p">]</span> <span class="o">=</span> <span class="n">entities</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="c1"># pointer_vector = dbPointer.oneHotVector(len(entities), domain, pointer_vector)</span>
+        <span class="n">pointer_vector</span> <span class="o">=</span> <span class="n">oneHotVector</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">entities</span><span class="p">),</span> <span class="n">domain</span><span class="p">,</span> <span class="n">pointer_vector</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">pointer_vector</span><span class="p">,</span> <span class="n">db_results</span><span class="p">,</span> <span class="n">num_entities</span> </div>
+
+<div class="viewcode-block" id="oneHotVector"><a class="viewcode-back" href="../../../../../../convlab.modules.word_policy.multiwoz.mdrg.html#convlab.modules.word_policy.multiwoz.mdrg.policy.oneHotVector">[docs]</a><span class="k">def</span> <span class="nf">oneHotVector</span><span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="n">domain</span><span class="p">,</span> <span class="n">vector</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return number of available entities for particular domain.&quot;&quot;&quot;</span>
+    <span class="n">domains</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;restaurant&#39;</span><span class="p">,</span> <span class="s1">&#39;hotel&#39;</span><span class="p">,</span> <span class="s1">&#39;attraction&#39;</span><span class="p">,</span> <span class="s1">&#39;train&#39;</span><span class="p">]</span>
+    <span class="n">number_of_options</span> <span class="o">=</span> <span class="mi">6</span>
+    <span class="k">if</span> <span class="n">domain</span> <span class="o">!=</span> <span class="s1">&#39;train&#39;</span><span class="p">:</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="n">domains</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">domain</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">num</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">vector</span><span class="p">[</span><span class="n">idx</span> <span class="o">*</span> <span class="mi">6</span><span class="p">:</span> <span class="n">idx</span> <span class="o">*</span> <span class="mi">6</span> <span class="o">+</span> <span class="mi">6</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="n">num</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">vector</span><span class="p">[</span><span class="n">idx</span> <span class="o">*</span> <span class="mi">6</span><span class="p">:</span> <span class="n">idx</span> <span class="o">*</span> <span class="mi">6</span> <span class="o">+</span> <span class="mi">6</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="n">num</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">vector</span><span class="p">[</span><span class="n">idx</span> <span class="o">*</span> <span class="mi">6</span><span class="p">:</span> <span class="n">idx</span> <span class="o">*</span> <span class="mi">6</span> <span class="o">+</span> <span class="mi">6</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="n">num</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">vector</span><span class="p">[</span><span class="n">idx</span> <span class="o">*</span> <span class="mi">6</span><span class="p">:</span> <span class="n">idx</span> <span class="o">*</span> <span class="mi">6</span> <span class="o">+</span> <span class="mi">6</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="n">num</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="n">vector</span><span class="p">[</span><span class="n">idx</span> <span class="o">*</span> <span class="mi">6</span><span class="p">:</span> <span class="n">idx</span> <span class="o">*</span> <span class="mi">6</span> <span class="o">+</span> <span class="mi">6</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="n">num</span> <span class="o">&gt;=</span> <span class="mi">5</span><span class="p">:</span>
+            <span class="n">vector</span><span class="p">[</span><span class="n">idx</span> <span class="o">*</span> <span class="mi">6</span><span class="p">:</span> <span class="n">idx</span> <span class="o">*</span> <span class="mi">6</span> <span class="o">+</span> <span class="mi">6</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="n">domains</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">domain</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">num</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">vector</span><span class="p">[</span><span class="n">idx</span> <span class="o">*</span> <span class="mi">6</span><span class="p">:</span> <span class="n">idx</span> <span class="o">*</span> <span class="mi">6</span> <span class="o">+</span> <span class="mi">6</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="n">num</span> <span class="o">&lt;=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">vector</span><span class="p">[</span><span class="n">idx</span> <span class="o">*</span> <span class="mi">6</span><span class="p">:</span> <span class="n">idx</span> <span class="o">*</span> <span class="mi">6</span> <span class="o">+</span> <span class="mi">6</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="n">num</span> <span class="o">&lt;=</span> <span class="mi">5</span><span class="p">:</span>
+            <span class="n">vector</span><span class="p">[</span><span class="n">idx</span> <span class="o">*</span> <span class="mi">6</span><span class="p">:</span> <span class="n">idx</span> <span class="o">*</span> <span class="mi">6</span> <span class="o">+</span> <span class="mi">6</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="n">num</span> <span class="o">&lt;=</span> <span class="mi">10</span><span class="p">:</span>
+            <span class="n">vector</span><span class="p">[</span><span class="n">idx</span> <span class="o">*</span> <span class="mi">6</span><span class="p">:</span> <span class="n">idx</span> <span class="o">*</span> <span class="mi">6</span> <span class="o">+</span> <span class="mi">6</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="n">num</span> <span class="o">&lt;=</span> <span class="mi">40</span><span class="p">:</span>
+            <span class="n">vector</span><span class="p">[</span><span class="n">idx</span> <span class="o">*</span> <span class="mi">6</span><span class="p">:</span> <span class="n">idx</span> <span class="o">*</span> <span class="mi">6</span> <span class="o">+</span> <span class="mi">6</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="n">num</span> <span class="o">&gt;</span> <span class="mi">40</span><span class="p">:</span>
+            <span class="n">vector</span><span class="p">[</span><span class="n">idx</span> <span class="o">*</span> <span class="mi">6</span><span class="p">:</span> <span class="n">idx</span> <span class="o">*</span> <span class="mi">6</span> <span class="o">+</span> <span class="mi">6</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">vector</span></div>
+
+
+<div class="viewcode-block" id="delexicaliseReferenceNumber"><a class="viewcode-back" href="../../../../../../convlab.modules.word_policy.multiwoz.mdrg.html#convlab.modules.word_policy.multiwoz.mdrg.policy.delexicaliseReferenceNumber">[docs]</a><span class="k">def</span> <span class="nf">delexicaliseReferenceNumber</span><span class="p">(</span><span class="n">sent</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Based on the belief state, we can find reference number that</span>
+<span class="sd">    during data gathering was created randomly.&quot;&quot;&quot;</span>
+    <span class="n">domains</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;restaurant&#39;</span><span class="p">,</span> <span class="s1">&#39;hotel&#39;</span><span class="p">,</span> <span class="s1">&#39;attraction&#39;</span><span class="p">,</span> <span class="s1">&#39;train&#39;</span><span class="p">,</span> <span class="s1">&#39;taxi&#39;</span><span class="p">,</span> <span class="s1">&#39;hospital&#39;</span><span class="p">]</span>  <span class="c1"># , &#39;police&#39;]</span>
+    <span class="k">for</span> <span class="n">domain</span> <span class="ow">in</span> <span class="n">domains</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">state</span><span class="p">[</span><span class="n">domain</span><span class="p">][</span><span class="s1">&#39;book&#39;</span><span class="p">][</span><span class="s1">&#39;booked&#39;</span><span class="p">]:</span>
+            <span class="k">for</span> <span class="n">slot</span> <span class="ow">in</span> <span class="n">state</span><span class="p">[</span><span class="n">domain</span><span class="p">][</span><span class="s1">&#39;book&#39;</span><span class="p">][</span><span class="s1">&#39;booked&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">slot</span> <span class="o">==</span> <span class="s1">&#39;reference&#39;</span><span class="p">:</span>
+                    <span class="n">val</span> <span class="o">=</span> <span class="s1">&#39;[&#39;</span> <span class="o">+</span> <span class="n">domain</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">slot</span> <span class="o">+</span> <span class="s1">&#39;]&#39;</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">val</span> <span class="o">=</span> <span class="s1">&#39;[&#39;</span> <span class="o">+</span> <span class="n">domain</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">slot</span> <span class="o">+</span> <span class="s1">&#39;]&#39;</span>
+                <span class="n">key</span> <span class="o">=</span> <span class="n">normalize</span><span class="p">(</span><span class="n">state</span><span class="p">[</span><span class="n">domain</span><span class="p">][</span><span class="s1">&#39;book&#39;</span><span class="p">][</span><span class="s1">&#39;booked&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="n">slot</span><span class="p">])</span>
+                <span class="n">sent</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="n">sent</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="n">key</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="n">val</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span><span class="p">)</span>
+
+                <span class="c1"># try reference with hashtag</span>
+                <span class="n">key</span> <span class="o">=</span> <span class="n">normalize</span><span class="p">(</span><span class="s2">&quot;#&quot;</span> <span class="o">+</span> <span class="n">state</span><span class="p">[</span><span class="n">domain</span><span class="p">][</span><span class="s1">&#39;book&#39;</span><span class="p">][</span><span class="s1">&#39;booked&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="n">slot</span><span class="p">])</span>
+                <span class="n">sent</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="n">sent</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="n">key</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="n">val</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span><span class="p">)</span>
+
+                <span class="c1"># try reference with ref#</span>
+                <span class="n">key</span> <span class="o">=</span> <span class="n">normalize</span><span class="p">(</span><span class="s2">&quot;ref#&quot;</span> <span class="o">+</span> <span class="n">state</span><span class="p">[</span><span class="n">domain</span><span class="p">][</span><span class="s1">&#39;book&#39;</span><span class="p">][</span><span class="s1">&#39;booked&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="n">slot</span><span class="p">])</span>
+                <span class="n">sent</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="n">sent</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="n">key</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="n">val</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">sent</span></div>
+
+
+<div class="viewcode-block" id="get_summary_bstate"><a class="viewcode-back" href="../../../../../../convlab.modules.word_policy.multiwoz.mdrg.html#convlab.modules.word_policy.multiwoz.mdrg.policy.get_summary_bstate">[docs]</a><span class="k">def</span> <span class="nf">get_summary_bstate</span><span class="p">(</span><span class="n">bstate</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Based on the mturk annotations we form multi-domain belief state&quot;&quot;&quot;</span>
+    <span class="n">domains</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;taxi&#39;</span><span class="p">,</span> <span class="s1">&#39;restaurant&#39;</span><span class="p">,</span> <span class="s1">&#39;hospital&#39;</span><span class="p">,</span> <span class="s1">&#39;hotel&#39;</span><span class="p">,</span> <span class="s1">&#39;attraction&#39;</span><span class="p">,</span> <span class="s1">&#39;train&#39;</span><span class="p">,</span> <span class="s1">&#39;police&#39;</span><span class="p">]</span>
+    <span class="n">summary_bstate</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">domain</span> <span class="ow">in</span> <span class="n">domains</span><span class="p">:</span>
+        <span class="n">domain_active</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="n">booking</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1">#print(domain,len(bstate[domain][&#39;book&#39;].keys()))</span>
+        <span class="k">for</span> <span class="n">slot</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">bstate</span><span class="p">[</span><span class="n">domain</span><span class="p">][</span><span class="s1">&#39;book&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+            <span class="k">if</span> <span class="n">slot</span> <span class="o">==</span> <span class="s1">&#39;booked&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">bstate</span><span class="p">[</span><span class="n">domain</span><span class="p">][</span><span class="s1">&#39;book&#39;</span><span class="p">][</span><span class="s1">&#39;booked&#39;</span><span class="p">]:</span>
+                    <span class="n">booking</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">booking</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">bstate</span><span class="p">[</span><span class="n">domain</span><span class="p">][</span><span class="s1">&#39;book&#39;</span><span class="p">][</span><span class="n">slot</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+                    <span class="n">booking</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">booking</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">domain</span> <span class="o">==</span> <span class="s1">&#39;train&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s1">&#39;people&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">bstate</span><span class="p">[</span><span class="n">domain</span><span class="p">][</span><span class="s1">&#39;book&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">booking</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">booking</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s1">&#39;ticket&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">bstate</span><span class="p">[</span><span class="n">domain</span><span class="p">][</span><span class="s1">&#39;book&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">booking</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">booking</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">summary_bstate</span> <span class="o">+=</span> <span class="n">booking</span>
+
+        <span class="k">for</span> <span class="n">slot</span> <span class="ow">in</span> <span class="n">bstate</span><span class="p">[</span><span class="n">domain</span><span class="p">][</span><span class="s1">&#39;semi&#39;</span><span class="p">]:</span>
+            <span class="n">slot_enc</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>  <span class="c1"># not mentioned, dontcare, filled</span>
+            <span class="k">if</span> <span class="n">bstate</span><span class="p">[</span><span class="n">domain</span><span class="p">][</span><span class="s1">&#39;semi&#39;</span><span class="p">][</span><span class="n">slot</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;not mentioned&#39;</span><span class="p">:</span>
+                <span class="n">slot_enc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">elif</span> <span class="n">bstate</span><span class="p">[</span><span class="n">domain</span><span class="p">][</span><span class="s1">&#39;semi&#39;</span><span class="p">][</span><span class="n">slot</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;dont care&#39;</span> <span class="ow">or</span> <span class="n">bstate</span><span class="p">[</span><span class="n">domain</span><span class="p">][</span><span class="s1">&#39;semi&#39;</span><span class="p">][</span><span class="n">slot</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;dontcare&#39;</span> <span class="ow">or</span> <span class="n">bstate</span><span class="p">[</span><span class="n">domain</span><span class="p">][</span><span class="s1">&#39;semi&#39;</span><span class="p">][</span><span class="n">slot</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;don&#39;t care&quot;</span><span class="p">:</span>
+                <span class="n">slot_enc</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">elif</span> <span class="n">bstate</span><span class="p">[</span><span class="n">domain</span><span class="p">][</span><span class="s1">&#39;semi&#39;</span><span class="p">][</span><span class="n">slot</span><span class="p">]:</span>
+                <span class="n">slot_enc</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">slot_enc</span> <span class="o">!=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]:</span>
+                <span class="n">domain_active</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">summary_bstate</span> <span class="o">+=</span> <span class="n">slot_enc</span>
+
+        <span class="c1"># quasi domain-tracker</span>
+        <span class="k">if</span> <span class="n">domain_active</span><span class="p">:</span>
+            <span class="n">summary_bstate</span> <span class="o">+=</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">summary_bstate</span> <span class="o">+=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="c1"># pprint(summary_bstate)</span>
+    <span class="c1">#print(len(summary_bstate))</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">summary_bstate</span><span class="p">)</span> <span class="o">==</span> <span class="mi">94</span>
+    <span class="k">return</span> <span class="n">summary_bstate</span></div>
+
+
+<div class="viewcode-block" id="populate_template"><a class="viewcode-back" href="../../../../../../convlab.modules.word_policy.multiwoz.mdrg.html#convlab.modules.word_policy.multiwoz.mdrg.policy.populate_template">[docs]</a><span class="k">def</span> <span class="nf">populate_template</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">top_results</span><span class="p">,</span> <span class="n">num_results</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+    <span class="n">active_domain</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">top_results</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="nb">list</span><span class="p">(</span><span class="n">top_results</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">template</span> <span class="o">=</span> <span class="n">template</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;book [value_count] of them&#39;</span><span class="p">,</span> <span class="s1">&#39;book one of them&#39;</span><span class="p">)</span>
+    <span class="n">tokens</span> <span class="o">=</span> <span class="n">template</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">tokens</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">token</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;[&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">token</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;]&#39;</span><span class="p">):</span>
+            <span class="n">domain</span> <span class="o">=</span> <span class="n">token</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">slot</span> <span class="o">=</span> <span class="n">token</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">domain</span> <span class="o">==</span> <span class="s1">&#39;train&#39;</span> <span class="ow">and</span> <span class="n">slot</span> <span class="o">==</span> <span class="s1">&#39;id&#39;</span><span class="p">:</span>
+                <span class="n">slot</span> <span class="o">=</span> <span class="s1">&#39;trainID&#39;</span>
+            <span class="k">if</span> <span class="n">domain</span> <span class="ow">in</span> <span class="n">top_results</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">top_results</span><span class="p">[</span><span class="n">domain</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">slot</span> <span class="ow">in</span> <span class="n">top_results</span><span class="p">[</span><span class="n">domain</span><span class="p">]:</span>
+                <span class="c1"># print(&#39;{} -&gt; {}&#39;.format(token, top_results[domain][slot]))</span>
+                <span class="n">response</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">top_results</span><span class="p">[</span><span class="n">domain</span><span class="p">][</span><span class="n">slot</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="n">domain</span> <span class="o">==</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">slot</span> <span class="o">==</span> <span class="s1">&#39;count&#39;</span><span class="p">:</span>
+                    <span class="n">response</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">num_results</span><span class="p">))</span>
+                <span class="k">elif</span> <span class="n">slot</span> <span class="o">==</span> <span class="s1">&#39;place&#39;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="s1">&#39;arrive&#39;</span> <span class="ow">in</span> <span class="n">response</span><span class="p">:</span>
+                        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">state</span><span class="p">:</span> 
+                            <span class="k">if</span> <span class="n">d</span> <span class="o">==</span> <span class="s1">&#39;history&#39;</span><span class="p">:</span>
+                                <span class="k">continue</span>
+                            <span class="k">if</span> <span class="s1">&#39;destination&#39;</span> <span class="ow">in</span> <span class="n">state</span><span class="p">[</span><span class="n">d</span><span class="p">][</span><span class="s1">&#39;semi&#39;</span><span class="p">]:</span>
+                                <span class="n">response</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">state</span><span class="p">[</span><span class="n">d</span><span class="p">][</span><span class="s1">&#39;semi&#39;</span><span class="p">][</span><span class="s1">&#39;destination&#39;</span><span class="p">])</span>
+                                <span class="k">break</span>
+                    <span class="k">elif</span> <span class="s1">&#39;leave&#39;</span> <span class="ow">in</span> <span class="n">response</span><span class="p">:</span>
+                        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">state</span><span class="p">:</span> 
+                            <span class="k">if</span> <span class="n">d</span> <span class="o">==</span> <span class="s1">&#39;history&#39;</span><span class="p">:</span>
+                                <span class="k">continue</span>
+                            <span class="k">if</span> <span class="s1">&#39;departure&#39;</span> <span class="ow">in</span> <span class="n">state</span><span class="p">[</span><span class="n">d</span><span class="p">][</span><span class="s1">&#39;semi&#39;</span><span class="p">]:</span>
+                                <span class="n">response</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">state</span><span class="p">[</span><span class="n">d</span><span class="p">][</span><span class="s1">&#39;semi&#39;</span><span class="p">][</span><span class="s1">&#39;departure&#39;</span><span class="p">])</span>
+                                <span class="k">break</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">try</span><span class="p">:</span>
+                            <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">state</span><span class="p">:</span> 
+                                <span class="k">if</span> <span class="n">d</span> <span class="o">==</span> <span class="s1">&#39;history&#39;</span><span class="p">:</span>
+                                    <span class="k">continue</span>
+                                <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;destination&#39;</span><span class="p">,</span> <span class="s1">&#39;departure&#39;</span><span class="p">]:</span>
+                                    <span class="k">if</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">state</span><span class="p">[</span><span class="n">d</span><span class="p">][</span><span class="s1">&#39;semi&#39;</span><span class="p">]:</span>
+                                        <span class="n">response</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">state</span><span class="p">[</span><span class="n">d</span><span class="p">][</span><span class="s1">&#39;semi&#39;</span><span class="p">][</span><span class="n">s</span><span class="p">])</span>
+                                        <span class="k">raise</span>
+                        <span class="k">except</span><span class="p">:</span>
+                            <span class="k">pass</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">response</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">slot</span> <span class="o">==</span> <span class="s1">&#39;time&#39;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="s1">&#39;arrive&#39;</span> <span class="ow">in</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">response</span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">:]):</span>
+                        <span class="k">if</span> <span class="n">active_domain</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;arriveBy&#39;</span> <span class="ow">in</span> <span class="n">top_results</span><span class="p">[</span><span class="n">active_domain</span><span class="p">]:</span>
+                            <span class="c1"># print(&#39;{} -&gt; {}&#39;.format(token, top_results[active_domain][&#39;arriveBy&#39;]))</span>
+                            <span class="n">response</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">top_results</span><span class="p">[</span><span class="n">active_domain</span><span class="p">][</span><span class="s1">&#39;arriveBy&#39;</span><span class="p">])</span>
+                            <span class="k">continue</span> 
+                        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">state</span><span class="p">:</span> 
+                            <span class="k">if</span> <span class="n">d</span> <span class="o">==</span> <span class="s1">&#39;history&#39;</span><span class="p">:</span>
+                                <span class="k">continue</span>
+                            <span class="k">if</span> <span class="s1">&#39;arriveBy&#39;</span> <span class="ow">in</span> <span class="n">state</span><span class="p">[</span><span class="n">d</span><span class="p">][</span><span class="s1">&#39;semi&#39;</span><span class="p">]:</span>
+                                <span class="n">response</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">state</span><span class="p">[</span><span class="n">d</span><span class="p">][</span><span class="s1">&#39;semi&#39;</span><span class="p">][</span><span class="s1">&#39;arriveBy&#39;</span><span class="p">])</span>
+                                <span class="k">break</span>
+                    <span class="k">elif</span> <span class="s1">&#39;leave&#39;</span> <span class="ow">in</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">response</span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">:]):</span>
+                        <span class="k">if</span> <span class="n">active_domain</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;leaveAt&#39;</span> <span class="ow">in</span> <span class="n">top_results</span><span class="p">[</span><span class="n">active_domain</span><span class="p">]:</span>
+                            <span class="c1"># print(&#39;{} -&gt; {}&#39;.format(token, top_results[active_domain][&#39;leaveAt&#39;]))</span>
+                            <span class="n">response</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">top_results</span><span class="p">[</span><span class="n">active_domain</span><span class="p">][</span><span class="s1">&#39;leaveAt&#39;</span><span class="p">])</span>
+                            <span class="k">continue</span> 
+                        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">state</span><span class="p">:</span> 
+                            <span class="k">if</span> <span class="n">d</span> <span class="o">==</span> <span class="s1">&#39;history&#39;</span><span class="p">:</span>
+                                <span class="k">continue</span>
+                            <span class="k">if</span> <span class="s1">&#39;leaveAt&#39;</span> <span class="ow">in</span> <span class="n">state</span><span class="p">[</span><span class="n">d</span><span class="p">][</span><span class="s1">&#39;semi&#39;</span><span class="p">]:</span>
+                                <span class="n">response</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">state</span><span class="p">[</span><span class="n">d</span><span class="p">][</span><span class="s1">&#39;semi&#39;</span><span class="p">][</span><span class="s1">&#39;leaveAt&#39;</span><span class="p">])</span>
+                                <span class="k">break</span>
+                    <span class="k">elif</span> <span class="s1">&#39;book&#39;</span> <span class="ow">in</span> <span class="n">response</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">state</span><span class="p">[</span><span class="s1">&#39;restaurant&#39;</span><span class="p">][</span><span class="s1">&#39;book&#39;</span><span class="p">][</span><span class="s1">&#39;time&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+                            <span class="n">response</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">state</span><span class="p">[</span><span class="s1">&#39;restaurant&#39;</span><span class="p">][</span><span class="s1">&#39;book&#39;</span><span class="p">][</span><span class="s1">&#39;time&#39;</span><span class="p">])</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">try</span><span class="p">:</span>
+                            <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">state</span><span class="p">:</span> 
+                                <span class="k">if</span> <span class="n">d</span> <span class="o">==</span> <span class="s1">&#39;history&#39;</span><span class="p">:</span>
+                                    <span class="k">continue</span>
+                                <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;arriveBy&#39;</span><span class="p">,</span> <span class="s1">&#39;leaveAt&#39;</span><span class="p">]:</span>
+                                    <span class="k">if</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">state</span><span class="p">[</span><span class="n">d</span><span class="p">][</span><span class="s1">&#39;semi&#39;</span><span class="p">]:</span>
+                                        <span class="n">response</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">state</span><span class="p">[</span><span class="n">d</span><span class="p">][</span><span class="s1">&#39;semi&#39;</span><span class="p">][</span><span class="n">s</span><span class="p">])</span>
+                                        <span class="k">raise</span>
+                        <span class="k">except</span><span class="p">:</span>
+                            <span class="k">pass</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">response</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># slot-filling based on query results </span>
+                    <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">top_results</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">slot</span> <span class="ow">in</span> <span class="n">top_results</span><span class="p">[</span><span class="n">d</span><span class="p">]:</span>
+                            <span class="n">response</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">top_results</span><span class="p">[</span><span class="n">d</span><span class="p">][</span><span class="n">slot</span><span class="p">])</span>
+                            <span class="k">break</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="c1"># slot-filling based on belief state</span>
+                        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">state</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="n">d</span> <span class="o">==</span> <span class="s1">&#39;history&#39;</span><span class="p">:</span>
+                                <span class="k">continue</span>
+                            <span class="k">if</span> <span class="n">slot</span> <span class="ow">in</span> <span class="n">state</span><span class="p">[</span><span class="n">d</span><span class="p">][</span><span class="s1">&#39;semi&#39;</span><span class="p">]:</span>
+                                <span class="n">response</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">state</span><span class="p">[</span><span class="n">d</span><span class="p">][</span><span class="s1">&#39;semi&#39;</span><span class="p">][</span><span class="n">slot</span><span class="p">])</span>
+                                <span class="k">break</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">response</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">domain</span> <span class="o">==</span> <span class="s1">&#39;hospital&#39;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">slot</span> <span class="o">==</span> <span class="s1">&#39;phone&#39;</span><span class="p">:</span>
+                        <span class="n">response</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;01223216297&#39;</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">slot</span> <span class="o">==</span> <span class="s1">&#39;department&#39;</span><span class="p">:</span>
+                        <span class="n">response</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;neurosciences critical care unit&#39;</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">domain</span> <span class="o">==</span> <span class="s1">&#39;police&#39;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">slot</span> <span class="o">==</span> <span class="s1">&#39;phone&#39;</span><span class="p">:</span>
+                        <span class="n">response</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;01223358966&#39;</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">slot</span> <span class="o">==</span> <span class="s1">&#39;name&#39;</span><span class="p">:</span>
+                        <span class="n">response</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Parkside Police Station&#39;</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">slot</span> <span class="o">==</span> <span class="s1">&#39;address&#39;</span><span class="p">:</span>
+                        <span class="n">response</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Parkside, Cambridge&#39;</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">domain</span> <span class="o">==</span> <span class="s1">&#39;taxi&#39;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">slot</span> <span class="o">==</span> <span class="s1">&#39;phone&#39;</span><span class="p">:</span>
+                        <span class="n">response</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;01223358966&#39;</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">slot</span> <span class="o">==</span> <span class="s1">&#39;color&#39;</span><span class="p">:</span>
+                        <span class="n">response</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;white&#39;</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">slot</span> <span class="o">==</span> <span class="s1">&#39;type&#39;</span><span class="p">:</span>
+                        <span class="n">response</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;toyota&#39;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># print(token)</span>
+                    <span class="n">response</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">response</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="c1"># pprint(response)</span>
+        <span class="k">raise</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39; -s&#39;</span><span class="p">,</span> <span class="s1">&#39;s&#39;</span><span class="p">)</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39; -ly&#39;</span><span class="p">,</span> <span class="s1">&#39;ly&#39;</span><span class="p">)</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39; .&#39;</span><span class="p">,</span> <span class="s1">&#39;.&#39;</span><span class="p">)</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39; ?&#39;</span><span class="p">,</span> <span class="s1">&#39;?&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">response</span></div>
+
+
+<div class="viewcode-block" id="mark_not_mentioned"><a class="viewcode-back" href="../../../../../../convlab.modules.word_policy.multiwoz.mdrg.html#convlab.modules.word_policy.multiwoz.mdrg.policy.mark_not_mentioned">[docs]</a><span class="k">def</span> <span class="nf">mark_not_mentioned</span><span class="p">(</span><span class="n">state</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">domain</span> <span class="ow">in</span> <span class="n">state</span><span class="p">:</span>
+        <span class="c1"># if domain == &#39;history&#39;:</span>
+        <span class="k">if</span> <span class="n">domain</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;police&#39;</span><span class="p">,</span> <span class="s1">&#39;hospital&#39;</span><span class="p">,</span> <span class="s1">&#39;taxi&#39;</span><span class="p">,</span> <span class="s1">&#39;train&#39;</span><span class="p">,</span> <span class="s1">&#39;attraction&#39;</span><span class="p">,</span> <span class="s1">&#39;restaurant&#39;</span><span class="p">,</span> <span class="s1">&#39;hotel&#39;</span><span class="p">]:</span>
+            <span class="k">continue</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># if len([s for s in state[domain][&#39;semi&#39;] if s != &#39;book&#39; and state[domain][&#39;semi&#39;][s] != &#39;&#39;]) &gt; 0:</span>
+                <span class="c1"># for s in state[domain][&#39;semi&#39;]:</span>
+                <span class="c1">#     if s != &#39;book&#39; and state[domain][&#39;semi&#39;][s] == &#39;&#39;:</span>
+                <span class="c1">#         state[domain][&#39;semi&#39;][s] = &#39;not mentioned&#39;</span>
+            <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">state</span><span class="p">[</span><span class="n">domain</span><span class="p">][</span><span class="s1">&#39;semi&#39;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">state</span><span class="p">[</span><span class="n">domain</span><span class="p">][</span><span class="s1">&#39;semi&#39;</span><span class="p">][</span><span class="n">s</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                    <span class="n">state</span><span class="p">[</span><span class="n">domain</span><span class="p">][</span><span class="s1">&#39;semi&#39;</span><span class="p">][</span><span class="n">s</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;not mentioned&#39;</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="c1"># print(str(e))</span>
+            <span class="c1"># pprint(state[domain])</span>
+            <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="predict"><a class="viewcode-back" href="../../../../../../convlab.modules.word_policy.multiwoz.mdrg.html#convlab.modules.word_policy.multiwoz.mdrg.policy.predict">[docs]</a><span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">prev_state</span><span class="p">,</span> <span class="n">prev_active_domain</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">dic</span><span class="p">):</span>
+    <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">beam_search</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">input_tensor</span> <span class="o">=</span> <span class="p">[];</span> <span class="n">bs_tensor</span> <span class="o">=</span> <span class="p">[];</span> <span class="n">db_tensor</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">usr</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="s1">&#39;history&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="n">prev_state</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">prev_state</span><span class="p">[</span><span class="s1">&#39;belief_state&#39;</span><span class="p">])</span>
+    <span class="n">state</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">state</span><span class="p">[</span><span class="s1">&#39;belief_state&#39;</span><span class="p">])</span>
+
+    <span class="n">mark_not_mentioned</span><span class="p">(</span><span class="n">prev_state</span><span class="p">)</span>
+    <span class="n">mark_not_mentioned</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+
+    <span class="n">words</span> <span class="o">=</span> <span class="n">usr</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+    <span class="n">usr</span> <span class="o">=</span> <span class="n">delexicalize</span><span class="o">.</span><span class="n">delexicalise</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">words</span><span class="p">),</span> <span class="n">dic</span><span class="p">)</span>
+
+    <span class="c1"># parsing reference number GIVEN belief state</span>
+    <span class="n">usr</span> <span class="o">=</span> <span class="n">delexicaliseReferenceNumber</span><span class="p">(</span><span class="n">usr</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
+
+    <span class="c1"># changes to numbers only here</span>
+    <span class="n">digitpat</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s1">&#39;\d+&#39;</span><span class="p">)</span>
+    <span class="n">usr</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">digitpat</span><span class="p">,</span> <span class="s1">&#39;[value_count]&#39;</span><span class="p">,</span> <span class="n">usr</span><span class="p">)</span>
+    <span class="c1"># dialogue = fixDelex(dialogue_name, dialogue, data2, idx, idx_acts)</span>
+
+    <span class="c1"># add database pointer</span>
+    <span class="n">pointer_vector</span><span class="p">,</span> <span class="n">top_results</span><span class="p">,</span> <span class="n">num_results</span> <span class="o">=</span> <span class="n">addDBPointer</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+    <span class="c1"># add booking pointer</span>
+    <span class="n">pointer_vector</span> <span class="o">=</span> <span class="n">addBookingPointer</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">pointer_vector</span><span class="p">)</span>
+    <span class="n">belief_summary</span> <span class="o">=</span> <span class="n">get_summary_bstate</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+
+    <span class="n">tensor</span> <span class="o">=</span> <span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">input_word2index</span><span class="p">(</span><span class="n">word</span><span class="p">)</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">normalize</span><span class="p">(</span><span class="n">usr</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)]</span> <span class="o">+</span> <span class="p">[</span><span class="n">util</span><span class="o">.</span><span class="n">EOS_token</span><span class="p">]</span> 
+    <span class="n">input_tensor</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">LongTensor</span><span class="p">(</span><span class="n">tensor</span><span class="p">))</span>  
+    <span class="n">bs_tensor</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">belief_summary</span><span class="p">)</span> <span class="c1">#</span>
+    <span class="n">db_tensor</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pointer_vector</span><span class="p">)</span> <span class="c1"># db results and booking</span>
+    <span class="c1"># bs_tensor.append([0.] * 94) #</span>
+    <span class="c1"># db_tensor.append([0.] * 30) # db results and booking</span>
+    <span class="c1"># create an empty matrix with padding tokens</span>
+    <span class="n">input_tensor</span><span class="p">,</span> <span class="n">input_lengths</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">padSequence</span><span class="p">(</span><span class="n">input_tensor</span><span class="p">)</span>
+    <span class="n">bs_tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">bs_tensor</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
+    <span class="n">db_tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">db_tensor</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
+
+    <span class="n">output_words</span><span class="p">,</span> <span class="n">loss_sentence</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">input_tensor</span><span class="p">,</span> <span class="n">input_lengths</span><span class="p">,</span> <span class="n">input_tensor</span><span class="p">,</span> <span class="n">input_lengths</span><span class="p">,</span>
+                                                <span class="n">db_tensor</span><span class="p">,</span> <span class="n">bs_tensor</span><span class="p">)</span>
+    <span class="n">active_domain</span> <span class="o">=</span> <span class="n">get_active_domain</span><span class="p">(</span><span class="n">prev_active_domain</span><span class="p">,</span> <span class="n">prev_state</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">active_domain</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">active_domain</span> <span class="ow">in</span> <span class="n">num_results</span><span class="p">:</span>
+        <span class="n">num_results</span> <span class="o">=</span> <span class="n">num_results</span><span class="p">[</span><span class="n">active_domain</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">num_results</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="n">active_domain</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">active_domain</span> <span class="ow">in</span> <span class="n">top_results</span><span class="p">:</span>
+        <span class="n">top_results</span> <span class="o">=</span> <span class="p">{</span><span class="n">active_domain</span><span class="p">:</span> <span class="n">top_results</span><span class="p">[</span><span class="n">active_domain</span><span class="p">]}</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">top_results</span> <span class="o">=</span> <span class="p">{}</span> 
+    <span class="n">response</span> <span class="o">=</span> <span class="n">populate_template</span><span class="p">(</span><span class="n">output_words</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">top_results</span><span class="p">,</span> <span class="n">num_results</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">response</span><span class="p">,</span> <span class="n">active_domain</span></div>
+
+
+<div class="viewcode-block" id="get_active_domain"><a class="viewcode-back" href="../../../../../../convlab.modules.word_policy.multiwoz.mdrg.html#convlab.modules.word_policy.multiwoz.mdrg.policy.get_active_domain">[docs]</a><span class="k">def</span> <span class="nf">get_active_domain</span><span class="p">(</span><span class="n">prev_active_domain</span><span class="p">,</span> <span class="n">prev_state</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+    <span class="n">domains</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;hotel&#39;</span><span class="p">,</span> <span class="s1">&#39;restaurant&#39;</span><span class="p">,</span> <span class="s1">&#39;attraction&#39;</span><span class="p">,</span> <span class="s1">&#39;train&#39;</span><span class="p">,</span> <span class="s1">&#39;taxi&#39;</span><span class="p">,</span> <span class="s1">&#39;hospital&#39;</span><span class="p">,</span> <span class="s1">&#39;police&#39;</span><span class="p">]</span>
+    <span class="n">active_domain</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="c1"># print(&#39;get_active_domain&#39;)</span>
+    <span class="k">for</span> <span class="n">domain</span> <span class="ow">in</span> <span class="n">domains</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">domain</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">prev_state</span> <span class="ow">and</span> <span class="n">domain</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">state</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">domain</span> <span class="ow">in</span> <span class="n">prev_state</span> <span class="ow">and</span> <span class="n">domain</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">state</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">domain</span>
+        <span class="k">elif</span> <span class="n">domain</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">prev_state</span> <span class="ow">and</span> <span class="n">domain</span> <span class="ow">in</span> <span class="n">state</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">domain</span>
+        <span class="k">elif</span> <span class="n">prev_state</span><span class="p">[</span><span class="n">domain</span><span class="p">]</span> <span class="o">!=</span> <span class="n">state</span><span class="p">[</span><span class="n">domain</span><span class="p">]:</span>
+            <span class="n">active_domain</span> <span class="o">=</span> <span class="n">domain</span>
+    <span class="k">if</span> <span class="n">active_domain</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">active_domain</span> <span class="o">=</span> <span class="n">prev_active_domain</span>
+    <span class="k">return</span> <span class="n">active_domain</span> </div>
+
+
+<div class="viewcode-block" id="loadModel"><a class="viewcode-back" href="../../../../../../convlab.modules.word_policy.multiwoz.mdrg.html#convlab.modules.word_policy.multiwoz.mdrg.policy.loadModel">[docs]</a><span class="k">def</span> <span class="nf">loadModel</span><span class="p">(</span><span class="n">num</span><span class="p">):</span>
+    <span class="c1"># Load dictionaries</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DATA_PATH</span><span class="p">,</span> <span class="s1">&#39;input_lang.index2word.json&#39;</span><span class="p">))</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">input_lang_index2word</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DATA_PATH</span><span class="p">,</span> <span class="s1">&#39;input_lang.word2index.json&#39;</span><span class="p">))</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">input_lang_word2index</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DATA_PATH</span><span class="p">,</span> <span class="s1">&#39;output_lang.index2word.json&#39;</span><span class="p">))</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">output_lang_index2word</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DATA_PATH</span><span class="p">,</span> <span class="s1">&#39;output_lang.word2index.json&#39;</span><span class="p">))</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">output_lang_word2index</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+    <span class="c1"># Reload existing checkpoint</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">input_lang_index2word</span><span class="p">,</span> <span class="n">output_lang_index2word</span><span class="p">,</span> <span class="n">input_lang_word2index</span><span class="p">,</span> <span class="n">output_lang_word2index</span><span class="p">)</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">loadModel</span><span class="p">(</span><span class="nb">iter</span><span class="o">=</span><span class="n">num</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">model</span></div>
+
+<span class="n">DEFAULT_CUDA_DEVICE</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+<span class="n">DEFAULT_DIRECTORY</span> <span class="o">=</span> <span class="s2">&quot;models&quot;</span>
+<span class="n">DEFAULT_ARCHIVE_FILE</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DEFAULT_DIRECTORY</span><span class="p">,</span> <span class="s2">&quot;milu.tar.gz&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="MDRGWordPolicy"><a class="viewcode-back" href="../../../../../../convlab.modules.word_policy.multiwoz.mdrg.html#convlab.modules.word_policy.multiwoz.mdrg.policy.MDRGWordPolicy">[docs]</a><span class="k">class</span> <span class="nc">MDRGWordPolicy</span><span class="p">(</span><span class="n">SysPolicy</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                <span class="n">archive_file</span><span class="o">=</span><span class="n">DEFAULT_ARCHIVE_FILE</span><span class="p">,</span>
+                <span class="n">cuda_device</span><span class="o">=</span><span class="n">DEFAULT_CUDA_DEVICE</span><span class="p">,</span>
+                <span class="n">model_file</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">archive_file</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">model_file</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;No model for MDRG is specified!&quot;</span><span class="p">)</span>
+            <span class="n">archive_file</span> <span class="o">=</span> <span class="n">cached_path</span><span class="p">(</span><span class="n">model_file</span><span class="p">)</span>
+
+        <span class="n">temp_path</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">()</span>
+        <span class="n">zip_ref</span> <span class="o">=</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">archive_file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+        <span class="n">zip_ref</span><span class="o">.</span><span class="n">extractall</span><span class="p">(</span><span class="n">temp_path</span><span class="p">)</span>
+        <span class="n">zip_ref</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">dic</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">temp_path</span><span class="p">,</span> <span class="s1">&#39;mdrg/svdic.pkl&#39;</span><span class="p">),</span> <span class="s1">&#39;rb&#39;</span><span class="p">))</span>
+        <span class="c1"># Load dictionaries</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">temp_path</span><span class="p">,</span> <span class="s1">&#39;mdrg/input_lang.index2word.json&#39;</span><span class="p">))</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">input_lang_index2word</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">temp_path</span><span class="p">,</span> <span class="s1">&#39;mdrg/input_lang.word2index.json&#39;</span><span class="p">))</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">input_lang_word2index</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">temp_path</span><span class="p">,</span> <span class="s1">&#39;mdrg/output_lang.index2word.json&#39;</span><span class="p">))</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">output_lang_index2word</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">temp_path</span><span class="p">,</span> <span class="s1">&#39;mdrg/output_lang.word2index.json&#39;</span><span class="p">))</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">output_lang_word2index</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">response_model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">input_lang_index2word</span><span class="p">,</span> <span class="n">output_lang_index2word</span><span class="p">,</span> <span class="n">input_lang_word2index</span><span class="p">,</span> <span class="n">output_lang_word2index</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">response_model</span><span class="o">.</span><span class="n">loadModel</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">temp_path</span><span class="p">,</span> <span class="s1">&#39;mdrg/mdrg&#39;</span><span class="p">))</span>
+
+        <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">temp_path</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">prev_state</span> <span class="o">=</span> <span class="n">init_state</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prev_active_domain</span> <span class="o">=</span> <span class="kc">None</span> 
+
+<div class="viewcode-block" id="MDRGWordPolicy.predict"><a class="viewcode-back" href="../../../../../../convlab.modules.word_policy.multiwoz.mdrg.html#convlab.modules.word_policy.multiwoz.mdrg.policy.MDRGWordPolicy.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">response</span><span class="p">,</span> <span class="n">active_domain</span> <span class="o">=</span> <span class="n">predict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">response_model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">prev_state</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">prev_active_domain</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dic</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Response generation error&#39;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="s1">&#39;What did you say?&#39;</span>
+            <span class="n">active_domain</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prev_state</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prev_active_domain</span> <span class="o">=</span> <span class="n">active_domain</span>
+        <span class="k">return</span> <span class="n">response</span></div></div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">dic</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DATA_PATH</span><span class="p">,</span> <span class="s1">&#39;svdic.pkl&#39;</span><span class="p">),</span> <span class="s1">&#39;rb&#39;</span><span class="p">))</span>
+    <span class="n">state</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;police&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;book&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;booked&quot;</span><span class="p">:</span> <span class="p">[]</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;semi&quot;</span><span class="p">:</span> <span class="p">{}</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;hotel&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;book&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;booked&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;people&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;day&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;stay&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;semi&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;area&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;parking&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;pricerange&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;stars&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;internet&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span>
+            <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;attraction&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;book&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;booked&quot;</span><span class="p">:</span> <span class="p">[]</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;semi&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;area&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span>
+            <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;restaurant&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;book&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;booked&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;people&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;day&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;semi&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;food&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;price range&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;area&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;hospital&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;book&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;booked&quot;</span><span class="p">:</span> <span class="p">[]</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;semi&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;department&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span>
+            <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;taxi&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;book&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;booked&quot;</span><span class="p">:</span> <span class="p">[]</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;semi&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;leaveAt&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;destination&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;departure&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;arriveBy&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span>
+            <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;train&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;book&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;booked&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;people&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;semi&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;leaveAt&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;destination&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;day&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;arriveBy&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;departure&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="n">m</span> <span class="o">=</span> <span class="n">loadModel</span><span class="p">(</span><span class="mi">15</span><span class="p">)</span>
+
+    <span class="c1"># modify state</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+    <span class="n">s</span><span class="p">[</span><span class="s1">&#39;history&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[[</span><span class="s1">&#39;null&#39;</span><span class="p">,</span> <span class="s1">&#39;I want a korean restaurant in the centre.&#39;</span><span class="p">]]</span>
+    <span class="n">s</span><span class="p">[</span><span class="s1">&#39;attraction&#39;</span><span class="p">][</span><span class="s1">&#39;semi&#39;</span><span class="p">][</span><span class="s1">&#39;area&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;centre&#39;</span>
+    <span class="n">s</span><span class="p">[</span><span class="s1">&#39;restaurant&#39;</span><span class="p">][</span><span class="s1">&#39;semi&#39;</span><span class="p">][</span><span class="s1">&#39;area&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;centre&#39;</span>
+    <span class="n">s</span><span class="p">[</span><span class="s1">&#39;restaurant&#39;</span><span class="p">][</span><span class="s1">&#39;semi&#39;</span><span class="p">][</span><span class="s1">&#39;food&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;korean&#39;</span>
+    <span class="c1"># s[&#39;history&#39;] = [[&#39;null&#39;, &#39;i need to book a hotel in the east that has 4 stars.&#39;]]</span>
+    <span class="c1"># s[&#39;hotel&#39;][&#39;semi&#39;][&#39;area&#39;] = &#39;east&#39;</span>
+    <span class="c1"># s[&#39;hotel&#39;][&#39;semi&#39;][&#39;stars&#39;] = &#39;4&#39;</span>
+    <span class="n">predict</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">dic</span><span class="p">)</span>
+
+    <span class="c1"># import requests</span>
+    <span class="c1"># resp = requests.post(&#39;http://localhost:10001&#39;, json={&#39;history&#39;: [[&#39;null&#39;, &#39;I want a korean restaurant in the centre.&#39;]]})</span>
+    <span class="c1"># if resp.status_code != 200:</span>
+    <span class="c1"># #    raise Exception(&#39;POST /tasks/ {}&#39;.format(resp.status_code))</span>
+    <span class="c1">#     response = &quot;Sorry, there is some problem&quot; </span>
+    <span class="c1"># else:</span>
+    <span class="c1">#     response = resp.json()[&quot;response&quot;]</span>
+    <span class="c1"># print(&#39;Response: {}&#39;.format(response))</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, ConvLab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

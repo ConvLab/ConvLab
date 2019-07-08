@@ -1,0 +1,382 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>convlab.modules.word_dst.multiwoz.evaluate &mdash; ConvLab 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../../" src="../../../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../../index.html" class="icon icon-home"> ConvLab
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">ConvLab</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../../../index.html">Module code</a> &raquo;</li>
+        
+      <li>convlab.modules.word_dst.multiwoz.evaluate</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for convlab.modules.word_dst.multiwoz.evaluate</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
+<span class="c1"># Licensed under the MIT license.</span>
+
+<span class="kn">import</span> <span class="nn">json</span>
+
+<span class="kn">from</span> <span class="nn">convlab.modules.dst.multiwoz.dst_util</span> <span class="k">import</span> <span class="n">minDistance</span>
+<span class="kn">from</span> <span class="nn">convlab.modules.word_dst.multiwoz.mdbt</span> <span class="k">import</span> <span class="n">MDBTTracker</span>
+
+
+<div class="viewcode-block" id="Word_DST"><a class="viewcode-back" href="../../../../../convlab.modules.word_dst.multiwoz.html#convlab.modules.word_dst.multiwoz.evaluate.Word_DST">[docs]</a><span class="k">class</span> <span class="nc">Word_DST</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;A temporary semi-finishingv agent for word_dst testing, which takes as input utterances and output dialog state.&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dst</span> <span class="o">=</span> <span class="n">MDBTTracker</span><span class="p">(</span><span class="n">data_dir</span><span class="o">=</span><span class="s1">&#39;../../../../data/mdbt&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nlu</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="Word_DST.update"><a class="viewcode-back" href="../../../../../convlab.modules.word_dst.multiwoz.html#convlab.modules.word_dst.multiwoz.evaluate.Word_DST.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">observation</span><span class="p">):</span>
+        <span class="c1"># update history</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="s1">&#39;history&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">action</span><span class="p">)])</span>
+
+        <span class="c1"># NLU parsing</span>
+        <span class="n">input_act</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nlu</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">observation</span><span class="p">,</span> <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="s1">&#39;history&#39;</span><span class="p">],</span> <span class="p">[]))</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nlu</span> <span class="k">else</span> <span class="n">observation</span>
+
+        <span class="c1"># state tracking</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">input_act</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="s1">&#39;history&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">observation</span><span class="p">)</span>
+
+        <span class="c1"># update history</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">state</span></div>
+
+<div class="viewcode-block" id="Word_DST.reset"><a class="viewcode-back" href="../../../../../convlab.modules.word_dst.multiwoz.html#convlab.modules.word_dst.multiwoz.evaluate.Word_DST.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">init_session</span><span class="p">()</span></div></div>
+
+<div class="viewcode-block" id="load_data"><a class="viewcode-back" href="../../../../../convlab.modules.word_dst.multiwoz.html#convlab.modules.word_dst.multiwoz.evaluate.load_data">[docs]</a><span class="k">def</span> <span class="nf">load_data</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="s1">&#39;../../../../data/multiwoz/test.json&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Load data (mainly for testing data).&quot;&quot;&quot;</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="nb">id</span><span class="p">,</span> <span class="n">session</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">log</span> <span class="o">=</span> <span class="n">session</span><span class="p">[</span><span class="s1">&#39;log&#39;</span><span class="p">]</span>
+        <span class="n">turn_data</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;null&#39;</span><span class="p">]</span>
+        <span class="n">goal</span> <span class="o">=</span> <span class="n">session</span><span class="p">[</span><span class="s1">&#39;goal&#39;</span><span class="p">]</span>
+        <span class="n">session_data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">turn_idx</span><span class="p">,</span> <span class="n">turn</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">log</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">turn_idx</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># user</span>
+                <span class="n">observation</span> <span class="o">=</span> <span class="n">turn</span><span class="p">[</span><span class="s1">&#39;text&#39;</span><span class="p">]</span>
+                <span class="n">turn_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">observation</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>  <span class="c1"># system</span>
+                <span class="n">action</span> <span class="o">=</span> <span class="n">turn</span><span class="p">[</span><span class="s1">&#39;text&#39;</span><span class="p">]</span>
+                <span class="n">golden_state</span> <span class="o">=</span> <span class="n">turn</span><span class="p">[</span><span class="s1">&#39;metadata&#39;</span><span class="p">]</span>
+                <span class="n">turn_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">golden_state</span><span class="p">)</span>
+                <span class="n">session_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">turn_data</span><span class="p">)</span>
+                <span class="n">turn_data</span> <span class="o">=</span> <span class="p">[</span><span class="n">action</span><span class="p">]</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">session_data</span><span class="p">,</span> <span class="n">goal</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">result</span></div>
+
+<div class="viewcode-block" id="run_test"><a class="viewcode-back" href="../../../../../convlab.modules.word_dst.multiwoz.html#convlab.modules.word_dst.multiwoz.evaluate.run_test">[docs]</a><span class="k">def</span> <span class="nf">run_test</span><span class="p">():</span>
+    <span class="n">agent</span> <span class="o">=</span> <span class="n">Word_DST</span><span class="p">()</span>
+    <span class="n">agent</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+
+    <span class="n">test_data</span> <span class="o">=</span> <span class="n">load_data</span><span class="p">()</span>
+    <span class="n">test_result</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">session_data</span><span class="p">,</span> <span class="n">goal</span> <span class="ow">in</span> <span class="n">test_data</span><span class="p">:</span>
+        <span class="n">session_result</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">action</span><span class="p">,</span> <span class="n">observation</span><span class="p">,</span> <span class="n">golden_state</span> <span class="ow">in</span> <span class="n">session_data</span><span class="p">:</span>
+            <span class="n">pred_state</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">observation</span><span class="p">)</span>
+            <span class="n">session_result</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">golden_state</span><span class="p">,</span> <span class="n">pred_state</span><span class="p">[</span><span class="s1">&#39;belief_state&#39;</span><span class="p">]])</span>
+        <span class="n">test_result</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">session_result</span><span class="p">,</span> <span class="n">goal</span><span class="p">])</span>
+        <span class="n">agent</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">test_result</span></div>
+
+<div class="viewcode-block" id="ResultStat"><a class="viewcode-back" href="../../../../../convlab.modules.word_dst.multiwoz.html#convlab.modules.word_dst.multiwoz.evaluate.ResultStat">[docs]</a><span class="k">class</span> <span class="nc">ResultStat</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;A functional class for accuracy statistic.&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stat</span> <span class="o">=</span> <span class="p">{}</span>
+
+<div class="viewcode-block" id="ResultStat.add"><a class="viewcode-back" href="../../../../../convlab.modules.word_dst.multiwoz.html#convlab.modules.word_dst.multiwoz.evaluate.ResultStat.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">domain</span><span class="p">,</span> <span class="n">slot</span><span class="p">,</span> <span class="n">score</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;score = 1 or 0&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">domain</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">stat</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">slot</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">stat</span><span class="p">[</span><span class="n">domain</span><span class="p">]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">stat</span><span class="p">[</span><span class="n">domain</span><span class="p">][</span><span class="n">slot</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="n">score</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">stat</span><span class="p">[</span><span class="n">domain</span><span class="p">][</span><span class="n">slot</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="mf">1.</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">stat</span><span class="p">[</span><span class="n">domain</span><span class="p">][</span><span class="n">slot</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">score</span><span class="p">,</span> <span class="mf">1.</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stat</span><span class="p">[</span><span class="n">domain</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">slot</span><span class="p">:</span> <span class="p">[</span><span class="n">score</span><span class="p">,</span> <span class="mf">1.</span><span class="p">]}</span></div>
+
+<div class="viewcode-block" id="ResultStat.domain_acc"><a class="viewcode-back" href="../../../../../convlab.modules.word_dst.multiwoz.html#convlab.modules.word_dst.multiwoz.evaluate.ResultStat.domain_acc">[docs]</a>    <span class="k">def</span> <span class="nf">domain_acc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">domain</span><span class="p">):</span>
+        <span class="n">domain_stat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stat</span><span class="p">[</span><span class="n">domain</span><span class="p">]</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">domain_stat</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">ret</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">ret</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">ret</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="n">ret</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mf">1e-10</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ResultStat.slot_acc"><a class="viewcode-back" href="../../../../../convlab.modules.word_dst.multiwoz.html#convlab.modules.word_dst.multiwoz.evaluate.ResultStat.slot_acc">[docs]</a>    <span class="k">def</span> <span class="nf">slot_acc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">domain</span><span class="p">,</span> <span class="n">slot</span><span class="p">):</span>
+        <span class="n">slot_stat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stat</span><span class="p">[</span><span class="n">domain</span><span class="p">][</span><span class="n">slot</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">slot_stat</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="n">slot_stat</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mf">1e-10</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ResultStat.all_acc"><a class="viewcode-back" href="../../../../../convlab.modules.word_dst.multiwoz.html#convlab.modules.word_dst.multiwoz.evaluate.ResultStat.all_acc">[docs]</a>    <span class="k">def</span> <span class="nf">all_acc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">acc_result</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">domain</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">stat</span><span class="p">:</span>
+            <span class="n">acc_result</span><span class="p">[</span><span class="n">domain</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">acc_result</span><span class="p">[</span><span class="n">domain</span><span class="p">][</span><span class="s1">&#39;acc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain_acc</span><span class="p">(</span><span class="n">domain</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">slot</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">stat</span><span class="p">[</span><span class="n">domain</span><span class="p">]:</span>
+                <span class="n">acc_result</span><span class="p">[</span><span class="n">domain</span><span class="p">][</span><span class="n">slot</span><span class="o">+</span><span class="s1">&#39;_acc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">slot_acc</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="n">slot</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">acc_result</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span></div></div>
+
+<div class="viewcode-block" id="evaluate"><a class="viewcode-back" href="../../../../../convlab.modules.word_dst.multiwoz.html#convlab.modules.word_dst.multiwoz.evaluate.evaluate">[docs]</a><span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="n">test_result</span><span class="p">):</span>
+    <span class="n">stat</span> <span class="o">=</span> <span class="n">ResultStat</span><span class="p">()</span>
+    <span class="n">session_level</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">session</span><span class="p">,</span> <span class="n">goal</span> <span class="ow">in</span> <span class="n">test_result</span><span class="p">:</span>
+        <span class="n">last_pred_state</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">golden_state</span><span class="p">,</span> <span class="n">pred_state</span> <span class="ow">in</span> <span class="n">session</span><span class="p">:</span>  <span class="c1"># session</span>
+            <span class="n">last_pred_state</span> <span class="o">=</span> <span class="n">pred_state</span>
+            <span class="n">domains</span> <span class="o">=</span> <span class="n">golden_state</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">domain</span> <span class="ow">in</span> <span class="n">domains</span><span class="p">:</span>   <span class="c1"># domain</span>
+                <span class="k">if</span> <span class="n">domain</span> <span class="o">==</span> <span class="s1">&#39;bus&#39;</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="k">assert</span> <span class="n">domain</span> <span class="ow">in</span> <span class="n">pred_state</span><span class="p">,</span> <span class="s1">&#39;domain: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">domain</span><span class="p">)</span>
+                <span class="n">golden_domain</span><span class="p">,</span> <span class="n">pred_domain</span> <span class="o">=</span> <span class="n">golden_state</span><span class="p">[</span><span class="n">domain</span><span class="p">],</span> <span class="n">pred_state</span><span class="p">[</span><span class="n">domain</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">slot</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">golden_domain</span><span class="p">[</span><span class="s1">&#39;semi&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>  <span class="c1"># slot</span>
+                    <span class="k">if</span> <span class="n">_is_empty</span><span class="p">(</span><span class="n">slot</span><span class="p">,</span> <span class="n">golden_domain</span><span class="p">[</span><span class="s1">&#39;semi&#39;</span><span class="p">]):</span>
+                        <span class="k">continue</span>
+                    <span class="n">pv</span> <span class="o">=</span> <span class="n">pred_domain</span><span class="p">[</span><span class="s1">&#39;semi&#39;</span><span class="p">][</span><span class="n">slot</span><span class="p">]</span> <span class="k">if</span> <span class="n">slot</span> <span class="ow">in</span> <span class="n">pred_domain</span><span class="p">[</span><span class="s1">&#39;semi&#39;</span><span class="p">]</span> <span class="k">else</span> <span class="s1">&#39;_None&#39;</span>
+                    <span class="n">score</span> <span class="o">=</span> <span class="mf">0.</span>
+                    <span class="k">if</span> <span class="n">_is_match</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">pv</span><span class="p">):</span>
+                        <span class="n">score</span> <span class="o">=</span> <span class="mf">1.</span>
+                    <span class="n">stat</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="n">slot</span><span class="p">,</span> <span class="n">score</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">match_goal</span><span class="p">(</span><span class="n">last_pred_state</span><span class="p">,</span> <span class="n">goal</span><span class="p">):</span>
+            <span class="n">session_level</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">session_level</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;domain and slot-level acc:&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">stat</span><span class="o">.</span><span class="n">all_acc</span><span class="p">())</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;session-level acc: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">convert2acc</span><span class="p">(</span><span class="n">session_level</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">session_level</span><span class="p">[</span><span class="mi">1</span><span class="p">])))</span></div>
+
+<div class="viewcode-block" id="convert2acc"><a class="viewcode-back" href="../../../../../convlab.modules.word_dst.multiwoz.html#convlab.modules.word_dst.multiwoz.evaluate.convert2acc">[docs]</a><span class="k">def</span> <span class="nf">convert2acc</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">b</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="k">return</span> <span class="n">a</span><span class="o">/</span><span class="n">b</span></div>
+
+<div class="viewcode-block" id="match_goal"><a class="viewcode-back" href="../../../../../convlab.modules.word_dst.multiwoz.html#convlab.modules.word_dst.multiwoz.evaluate.match_goal">[docs]</a><span class="k">def</span> <span class="nf">match_goal</span><span class="p">(</span><span class="n">pred_state</span><span class="p">,</span> <span class="n">goal</span><span class="p">):</span>
+    <span class="n">domains</span> <span class="o">=</span> <span class="n">pred_state</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">domain</span> <span class="ow">in</span> <span class="n">domains</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">domain</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">goal</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">goal_domain</span> <span class="o">=</span> <span class="n">goal</span><span class="p">[</span><span class="n">domain</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s1">&#39;info&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">goal_domain</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">goal_domain_info</span> <span class="o">=</span> <span class="n">goal_domain</span><span class="p">[</span><span class="s1">&#39;info&#39;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">slot</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">goal_domain_info</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">slot</span> <span class="ow">in</span> <span class="n">pred_state</span><span class="p">[</span><span class="n">domain</span><span class="p">][</span><span class="s1">&#39;semi&#39;</span><span class="p">]:</span>
+                <span class="n">v</span> <span class="o">=</span> <span class="n">pred_state</span><span class="p">[</span><span class="n">domain</span><span class="p">][</span><span class="s1">&#39;semi&#39;</span><span class="p">][</span><span class="n">slot</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="n">_is_match</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="k">elif</span> <span class="n">_fuzzy_match</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="kc">True</span></div>
+
+<span class="k">def</span> <span class="nf">_is_empty</span><span class="p">(</span><span class="n">slot</span><span class="p">,</span> <span class="n">domain_state</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">slot</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">domain_state</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="n">domain_state</span><span class="p">[</span><span class="n">slot</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">value</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span> <span class="ow">or</span> <span class="n">value</span> <span class="o">==</span> <span class="s1">&#39;null&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="kc">False</span>
+
+<span class="k">def</span> <span class="nf">_is_match</span><span class="p">(</span><span class="n">value1</span><span class="p">,</span> <span class="n">value2</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value1</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value2</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">value1</span> <span class="o">==</span> <span class="n">value2</span>
+    <span class="n">value1</span> <span class="o">=</span> <span class="n">value1</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="n">value2</span> <span class="o">=</span> <span class="n">value2</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="n">value1</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">value1</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
+    <span class="n">value2</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">value2</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
+    <span class="k">if</span> <span class="n">value1</span> <span class="o">==</span> <span class="n">value2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="kc">False</span>
+
+<span class="k">def</span> <span class="nf">_fuzzy_match</span><span class="p">(</span><span class="n">value1</span><span class="p">,</span> <span class="n">value2</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value1</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value2</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">value1</span> <span class="o">==</span> <span class="n">value2</span>
+    <span class="n">value1</span> <span class="o">=</span> <span class="n">value1</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="n">value2</span> <span class="o">=</span> <span class="n">value2</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="n">value1</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">value1</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
+    <span class="n">value2</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">value2</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">minDistance</span><span class="p">(</span><span class="n">value1</span><span class="p">,</span> <span class="n">value2</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">value1</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">10</span> <span class="ow">and</span> <span class="n">d</span> <span class="o">&lt;=</span> <span class="mi">2</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">value1</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">15</span> <span class="ow">and</span> <span class="n">d</span> <span class="o">&lt;=</span> <span class="mi">3</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="kc">False</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">test_result</span> <span class="o">=</span> <span class="n">run_test</span><span class="p">()</span>
+    <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">test_result</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;word_dst_test_result.json&#39;</span><span class="p">,</span> <span class="s1">&#39;w+&#39;</span><span class="p">),</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;test session num: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">test_result</span><span class="p">)))</span>
+    <span class="n">evaluate</span><span class="p">(</span><span class="n">test_result</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, ConvLab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

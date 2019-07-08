@@ -1,0 +1,818 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>convlab.modules.e2e.multiwoz.Sequicity.metric &mdash; ConvLab 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../../../" src="../../../../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../../../index.html" class="icon icon-home"> ConvLab
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../../index.html">ConvLab</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../../../../index.html">Module code</a> &raquo;</li>
+        
+      <li>convlab.modules.e2e.multiwoz.Sequicity.metric</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for convlab.modules.e2e.multiwoz.Sequicity.metric</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Modified by Microsoft Corporation.</span>
+<span class="c1"># Licensed under the MIT license.</span>
+
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">csv</span>
+<span class="kn">import</span> <span class="nn">functools</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">Counter</span>
+
+<span class="kn">from</span> <span class="nn">nltk.corpus</span> <span class="k">import</span> <span class="n">stopwords</span>
+<span class="kn">from</span> <span class="nn">nltk.stem</span> <span class="k">import</span> <span class="n">WordNetLemmatizer</span>
+<span class="kn">from</span> <span class="nn">nltk.tokenize</span> <span class="k">import</span> <span class="n">word_tokenize</span>
+<span class="kn">from</span> <span class="nn">nltk.util</span> <span class="k">import</span> <span class="n">ngrams</span>
+
+<span class="kn">from</span> <span class="nn">convlab.modules.e2e.multiwoz.Sequicity.reader</span> <span class="k">import</span> <span class="n">clean_replace</span>
+
+<span class="n">en_sws</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">stopwords</span><span class="o">.</span><span class="n">words</span><span class="p">())</span>
+<span class="n">wn</span> <span class="o">=</span> <span class="n">WordNetLemmatizer</span><span class="p">()</span>
+
+<span class="n">order_to_number</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;first&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;one&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;seco&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;two&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;third&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;three&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;four&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s1">&#39;forth&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s1">&#39;five&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s1">&#39;fifth&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+    <span class="s1">&#39;six&#39;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span> <span class="s1">&#39;seven&#39;</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span> <span class="s1">&#39;eight&#39;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="s1">&#39;nin&#39;</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span> <span class="s1">&#39;ten&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s1">&#39;eleven&#39;</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span> <span class="s1">&#39;twelve&#39;</span><span class="p">:</span> <span class="mi">12</span>
+<span class="p">}</span>
+
+<div class="viewcode-block" id="similar"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.metric.similar">[docs]</a><span class="k">def</span> <span class="nf">similar</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">a</span> <span class="o">==</span> <span class="n">b</span> <span class="ow">or</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">b</span> <span class="ow">or</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">a</span> <span class="ow">or</span> <span class="n">a</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">b</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">or</span> <span class="n">a</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">b</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span></div>
+    <span class="c1">#return a == b or b.endswith(a) or a.endswith(b)    </span>
+
+<div class="viewcode-block" id="setsub"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.metric.setsub">[docs]</a><span class="k">def</span> <span class="nf">setsub</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">):</span>
+    <span class="n">junks_a</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">useless_constraint</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;temperature&#39;</span><span class="p">,</span><span class="s1">&#39;week&#39;</span><span class="p">,</span><span class="s1">&#39;est &#39;</span><span class="p">,</span><span class="s1">&#39;quick&#39;</span><span class="p">,</span><span class="s1">&#39;reminder&#39;</span><span class="p">,</span><span class="s1">&#39;near&#39;</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">a</span><span class="p">:</span>
+        <span class="n">flg</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">b</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">similar</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">):</span>
+                <span class="n">flg</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">flg</span><span class="p">:</span>
+            <span class="n">junks_a</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">junk</span> <span class="ow">in</span> <span class="n">junks_a</span><span class="p">:</span>
+        <span class="n">flg</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">useless_constraint</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">junk</span><span class="p">:</span>
+                <span class="n">flg</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">flg</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="setsim"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.metric.setsim">[docs]</a><span class="k">def</span> <span class="nf">setsim</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">):</span>
+    <span class="n">a</span><span class="p">,</span><span class="n">b</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">a</span><span class="p">),</span><span class="nb">set</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">setsub</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span> <span class="ow">and</span> <span class="n">setsub</span><span class="p">(</span><span class="n">b</span><span class="p">,</span><span class="n">a</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BLEUScorer"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.metric.BLEUScorer">[docs]</a><span class="k">class</span> <span class="nc">BLEUScorer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="c1">## BLEU score calculator via GentScorer interface</span>
+    <span class="c1">## it calculates the BLEU-4 by taking the entire corpus in</span>
+    <span class="c1">## Calulate based multiple candidates against multiple references</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+<div class="viewcode-block" id="BLEUScorer.score"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.metric.BLEUScorer.score">[docs]</a>    <span class="k">def</span> <span class="nf">score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parallel_corpus</span><span class="p">):</span>
+
+        <span class="c1"># containers</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">clip_count</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">]</span>
+
+        <span class="c1"># accumulate ngram statistics</span>
+        <span class="k">for</span> <span class="n">hyps</span><span class="p">,</span> <span class="n">refs</span> <span class="ow">in</span> <span class="n">parallel_corpus</span><span class="p">:</span>
+            <span class="n">hyps</span> <span class="o">=</span> <span class="p">[</span><span class="n">hyp</span><span class="o">.</span><span class="n">split</span><span class="p">()</span> <span class="k">for</span> <span class="n">hyp</span> <span class="ow">in</span> <span class="n">hyps</span><span class="p">]</span>
+            <span class="n">refs</span> <span class="o">=</span> <span class="p">[</span><span class="n">ref</span><span class="o">.</span><span class="n">split</span><span class="p">()</span> <span class="k">for</span> <span class="n">ref</span> <span class="ow">in</span> <span class="n">refs</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">hyp</span> <span class="ow">in</span> <span class="n">hyps</span><span class="p">:</span>
+
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
+                    <span class="c1"># accumulate ngram counts</span>
+                    <span class="n">hypcnts</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="n">ngrams</span><span class="p">(</span><span class="n">hyp</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+                    <span class="n">cnt</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">hypcnts</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+                    <span class="n">count</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="n">cnt</span>
+
+                    <span class="c1"># compute clipped counts</span>
+                    <span class="n">max_counts</span> <span class="o">=</span> <span class="p">{}</span>
+                    <span class="k">for</span> <span class="n">ref</span> <span class="ow">in</span> <span class="n">refs</span><span class="p">:</span>
+                        <span class="n">refcnts</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="n">ngrams</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+                        <span class="k">for</span> <span class="n">ng</span> <span class="ow">in</span> <span class="n">hypcnts</span><span class="p">:</span>
+                            <span class="n">max_counts</span><span class="p">[</span><span class="n">ng</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">max_counts</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ng</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">refcnts</span><span class="p">[</span><span class="n">ng</span><span class="p">])</span>
+                    <span class="n">clipcnt</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">ng</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="n">count</span><span class="p">,</span> <span class="n">max_counts</span><span class="p">[</span><span class="n">ng</span><span class="p">]))</span> \
+                                   <span class="k">for</span> <span class="n">ng</span><span class="p">,</span> <span class="n">count</span> <span class="ow">in</span> <span class="n">hypcnts</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+                    <span class="n">clip_count</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">clipcnt</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+
+                <span class="c1"># accumulate r &amp; c</span>
+                <span class="n">bestmatch</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">1000</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">ref</span> <span class="ow">in</span> <span class="n">refs</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">bestmatch</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> <span class="k">break</span>
+                    <span class="n">diff</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">hyp</span><span class="p">))</span>
+                    <span class="k">if</span> <span class="n">diff</span> <span class="o">&lt;</span> <span class="n">bestmatch</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                        <span class="n">bestmatch</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">diff</span>
+                        <span class="n">bestmatch</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span>
+                <span class="n">r</span> <span class="o">+=</span> <span class="n">bestmatch</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">c</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">hyp</span><span class="p">)</span>
+
+        <span class="c1"># computing bleu score</span>
+        <span class="n">p0</span> <span class="o">=</span> <span class="mf">1e-7</span>
+        <span class="n">bp</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">c</span> <span class="o">&gt;</span> <span class="n">r</span> <span class="k">else</span> <span class="n">math</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="nb">float</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">c</span><span class="p">))</span>
+        <span class="n">p_ns</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">clip_count</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">count</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">p0</span><span class="p">)</span> <span class="o">+</span> <span class="n">p0</span> \
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">)]</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">fsum</span><span class="p">(</span><span class="n">w</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">p_n</span><span class="p">)</span> \
+                      <span class="k">for</span> <span class="n">w</span><span class="p">,</span> <span class="n">p_n</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">p_ns</span><span class="p">)</span> <span class="k">if</span> <span class="n">p_n</span><span class="p">)</span>
+        <span class="n">bleu</span> <span class="o">=</span> <span class="n">bp</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">bleu</span></div></div>
+
+
+<div class="viewcode-block" id="report"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.metric.report">[docs]</a><span class="k">def</span> <span class="nf">report</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+    <span class="nd">@functools</span><span class="o">.</span><span class="n">wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">metric_dict</span><span class="p">[</span><span class="n">func</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">2</span><span class="p">])]</span> <span class="o">=</span> <span class="n">res</span>
+        <span class="k">return</span> <span class="n">res</span>
+    <span class="k">return</span> <span class="n">wrapper</span></div>
+
+
+<div class="viewcode-block" id="GenericEvaluator"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.metric.GenericEvaluator">[docs]</a><span class="k">class</span> <span class="nc">GenericEvaluator</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">result_path</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">result_path</span><span class="p">,</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">meta</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metric_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">entity_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">result_path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">dump_dir</span> <span class="o">=</span> <span class="s1">&#39;./sheets/&#39;</span> <span class="o">+</span> <span class="n">filename</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.csv&#39;</span><span class="p">,</span><span class="s1">&#39;.report.txt&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dump_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">dump_dir</span><span class="p">,</span><span class="s1">&#39;w&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_print_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dic</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">dic</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">k</span><span class="o">+</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">))</span>
+
+<div class="viewcode-block" id="GenericEvaluator.bleu_metric"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.metric.GenericEvaluator.bleu_metric">[docs]</a>    <span class="nd">@report</span>
+    <span class="k">def</span> <span class="nf">bleu_metric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">data</span><span class="p">,</span><span class="nb">type</span><span class="o">=</span><span class="s1">&#39;bleu&#39;</span><span class="p">):</span>
+        <span class="n">gen</span><span class="p">,</span> <span class="n">truth</span> <span class="o">=</span> <span class="p">[],[]</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="n">gen</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;generated_response&#39;</span><span class="p">])</span>
+            <span class="n">truth</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;response&#39;</span><span class="p">])</span>
+        <span class="n">wrap_generated</span> <span class="o">=</span> <span class="p">[[</span><span class="n">_</span><span class="p">]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">gen</span><span class="p">]</span>
+        <span class="n">wrap_truth</span> <span class="o">=</span> <span class="p">[[</span><span class="n">_</span><span class="p">]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">truth</span><span class="p">]</span>
+        <span class="n">sc</span> <span class="o">=</span> <span class="n">BLEUScorer</span><span class="p">()</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">wrap_generated</span><span class="p">,</span> <span class="n">wrap_truth</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">sc</span></div>
+
+<div class="viewcode-block" id="GenericEvaluator.run_metrics"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.metric.GenericEvaluator.run_metrics">[docs]</a>    <span class="k">def</span> <span class="nf">run_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Please specify the evaluator first, bro&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GenericEvaluator.read_result_data"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.metric.GenericEvaluator.read_result_data">[docs]</a>    <span class="k">def</span> <span class="nf">read_result_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+            <span class="k">if</span> <span class="s1">&#39;START_CSV_SECTION&#39;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="n">reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictReader</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="n">_</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">reader</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">data</span></div>
+
+    <span class="k">def</span> <span class="nf">_extract_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="k">if</span> <span class="s1">&#39;EOS_Z1&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">z</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">set</span><span class="p">(</span><span class="n">z</span><span class="p">)</span><span class="o">.</span><span class="n">difference</span><span class="p">([</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;address&#39;</span><span class="p">,</span> <span class="s1">&#39;postcode&#39;</span><span class="p">,</span> <span class="s1">&#39;phone&#39;</span><span class="p">,</span> <span class="s1">&#39;area&#39;</span><span class="p">,</span> <span class="s1">&#39;pricerange&#39;</span><span class="p">,</span> <span class="s1">&#39;restaurant&#39;</span><span class="p">,</span>
+                                           <span class="s1">&#39;restaurants&#39;</span><span class="p">,</span> <span class="s1">&#39;style&#39;</span><span class="p">,</span> <span class="s1">&#39;price&#39;</span><span class="p">,</span> <span class="s1">&#39;food&#39;</span><span class="p">,</span> <span class="s1">&#39;EOS_M&#39;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;EOS_Z1&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">set</span><span class="p">(</span><span class="n">z</span><span class="p">[:</span><span class="n">idx</span><span class="p">])</span><span class="o">.</span><span class="n">difference</span><span class="p">([</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;address&#39;</span><span class="p">,</span> <span class="s1">&#39;postcode&#39;</span><span class="p">,</span> <span class="s1">&#39;phone&#39;</span><span class="p">,</span> <span class="s1">&#39;area&#39;</span><span class="p">,</span> <span class="s1">&#39;pricerange&#39;</span><span class="p">,</span> <span class="s1">&#39;restaurant&#39;</span><span class="p">,</span>
+                                           <span class="s1">&#39;restaurants&#39;</span><span class="p">,</span> <span class="s1">&#39;style&#39;</span><span class="p">,</span> <span class="s1">&#39;price&#39;</span><span class="p">,</span> <span class="s1">&#39;food&#39;</span><span class="p">,</span> <span class="s1">&#39;EOS_M&#39;</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">_extract_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="k">if</span> <span class="s1">&#39;EOS_Z1&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">z</span> <span class="ow">or</span> <span class="n">z</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;EOS_Z1&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;EOS_Z1&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">set</span><span class="p">(</span><span class="n">z</span><span class="p">[</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">:])</span>
+
+<div class="viewcode-block" id="GenericEvaluator.pack_dial"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.metric.GenericEvaluator.pack_dial">[docs]</a>    <span class="k">def</span> <span class="nf">pack_dial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">data</span><span class="p">):</span>
+        <span class="n">dials</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">turn</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="n">dial_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">turn</span><span class="p">[</span><span class="s1">&#39;dial_id&#39;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">dial_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dials</span><span class="p">:</span>
+                <span class="n">dials</span><span class="p">[</span><span class="n">dial_id</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">dials</span><span class="p">[</span><span class="n">dial_id</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">turn</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">dials</span></div>
+
+<div class="viewcode-block" id="GenericEvaluator.dump"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.metric.GenericEvaluator.dump">[docs]</a>    <span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dump_file</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">meta</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dump_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;START_REPORT_SECTION</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">metric_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dump_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="se">\t</span><span class="si">{}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="n">v</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="GenericEvaluator.clean"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.metric.GenericEvaluator.clean">[docs]</a>    <span class="k">def</span> <span class="nf">clean</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">s</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;&lt;go&gt; &#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39; SLOT&#39;</span><span class="p">,</span> <span class="s1">&#39;_SLOT&#39;</span><span class="p">)</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="s1">&#39;&lt;GO&gt; &#39;</span> <span class="o">+</span> <span class="n">s</span> <span class="o">+</span> <span class="s1">&#39; &lt;/s&gt;&#39;</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">entity_dict</span><span class="p">:</span>
+            <span class="c1"># s = s.replace(item, &#39;VALUE_{}&#39;.format(self.entity_dict[item]))</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">clean_replace</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">item</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_SLOT&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">entity_dict</span><span class="p">[</span><span class="n">item</span><span class="p">]))</span>
+        <span class="k">return</span> <span class="n">s</span></div></div>
+
+
+<div class="viewcode-block" id="CamRestEvaluator"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.metric.CamRestEvaluator">[docs]</a><span class="k">class</span> <span class="nc">CamRestEvaluator</span><span class="p">(</span><span class="n">GenericEvaluator</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">result_path</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">result_path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">entities</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">entity_dict</span> <span class="o">=</span> <span class="p">{}</span>
+
+<div class="viewcode-block" id="CamRestEvaluator.run_metrics"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.metric.CamRestEvaluator.run_metrics">[docs]</a>    <span class="k">def</span> <span class="nf">run_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">raw_json</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;./data/CamRest676/CamRest676.json&#39;</span><span class="p">)</span>
+        <span class="n">raw_entities</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;./data/CamRest676/CamRestOTGY.json&#39;</span><span class="p">)</span>
+        <span class="n">raw_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">raw_json</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+        <span class="n">raw_entities</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">raw_entities</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_entities</span><span class="p">(</span><span class="n">raw_entities</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_result_data</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+            <span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;response&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clean</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;response&#39;</span><span class="p">])</span>
+            <span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;generated_response&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clean</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;generated_response&#39;</span><span class="p">])</span>
+        <span class="n">bleu_score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bleu_metric</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="s1">&#39;bleu&#39;</span><span class="p">)</span>
+        <span class="n">success_f1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">success_f1_metric</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s1">&#39;success&#39;</span><span class="p">)</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">match_metric</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s1">&#39;match&#39;</span><span class="p">,</span> <span class="n">raw_data</span><span class="o">=</span><span class="n">raw_data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_print_dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metric_dict</span><span class="p">)</span>
+        <span class="k">return</span> <span class="o">-</span><span class="n">success_f1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="CamRestEvaluator.get_entities"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.metric.CamRestEvaluator.get_entities">[docs]</a>    <span class="k">def</span> <span class="nf">get_entities</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entity_data</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">entity_data</span><span class="p">[</span><span class="s1">&#39;informable&#39;</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">entities</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">entity_data</span><span class="p">[</span><span class="s1">&#39;informable&#39;</span><span class="p">][</span><span class="n">k</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">entity_data</span><span class="p">[</span><span class="s1">&#39;informable&#39;</span><span class="p">][</span><span class="n">k</span><span class="p">]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">entity_dict</span><span class="p">[</span><span class="n">item</span><span class="p">]</span> <span class="o">=</span> <span class="n">k</span></div>
+
+    <span class="k">def</span> <span class="nf">_extract_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="k">if</span> <span class="s1">&#39;EOS_Z1&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">z</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;EOS_Z1&#39;</span><span class="p">)</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">z</span><span class="p">[:</span><span class="n">idx</span><span class="p">])</span>
+        <span class="k">if</span> <span class="s1">&#39;moderately&#39;</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="s1">&#39;moderately&#39;</span><span class="p">)</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;moderate&#39;</span><span class="p">)</span>
+        <span class="c1">#print(self.entities) </span>
+        <span class="c1">#return s</span>
+        <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">entities</span><span class="p">)</span>
+        <span class="c1">#return set(z).difference([&#39;name&#39;, &#39;address&#39;, &#39;postcode&#39;, &#39;phone&#39;, &#39;area&#39;, &#39;pricerange&#39;])</span>
+
+    <span class="k">def</span> <span class="nf">_extract_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="k">return</span> <span class="nb">set</span><span class="p">(</span><span class="n">z</span><span class="p">)</span><span class="o">.</span><span class="n">intersection</span><span class="p">([</span><span class="s1">&#39;address&#39;</span><span class="p">,</span> <span class="s1">&#39;postcode&#39;</span><span class="p">,</span> <span class="s1">&#39;phone&#39;</span><span class="p">,</span> <span class="s1">&#39;area&#39;</span><span class="p">,</span> <span class="s1">&#39;pricerange&#39;</span><span class="p">,</span><span class="s1">&#39;food&#39;</span><span class="p">])</span>
+
+<div class="viewcode-block" id="CamRestEvaluator.match_metric"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.metric.CamRestEvaluator.match_metric">[docs]</a>    <span class="nd">@report</span>
+    <span class="k">def</span> <span class="nf">match_metric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">sub</span><span class="o">=</span><span class="s1">&#39;match&#39;</span><span class="p">,</span><span class="n">raw_data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">dials</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pack_dial</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">match</span><span class="p">,</span><span class="n">total</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span><span class="mf">1e-8</span>
+        <span class="n">success</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c1"># find out the last placeholder and see whether that is correct</span>
+        <span class="c1"># if no such placeholder, see the final turn, because it can be a yes/no question or scheduling dialogue</span>
+        <span class="k">for</span> <span class="n">dial_id</span> <span class="ow">in</span> <span class="n">dials</span><span class="p">:</span>
+            <span class="n">truth_req</span><span class="p">,</span> <span class="n">gen_req</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+            <span class="n">dial</span> <span class="o">=</span> <span class="n">dials</span><span class="p">[</span><span class="n">dial_id</span><span class="p">]</span>
+            <span class="n">gen_bspan</span><span class="p">,</span> <span class="n">truth_cons</span><span class="p">,</span> <span class="n">gen_cons</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">set</span><span class="p">()</span>
+            <span class="n">truth_turn_num</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+            <span class="n">truth_response_req</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">turn_num</span><span class="p">,</span><span class="n">turn</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dial</span><span class="p">):</span>
+                <span class="k">if</span> <span class="s1">&#39;SLOT&#39;</span> <span class="ow">in</span> <span class="n">turn</span><span class="p">[</span><span class="s1">&#39;generated_response&#39;</span><span class="p">]:</span>
+                    <span class="n">gen_bspan</span> <span class="o">=</span> <span class="n">turn</span><span class="p">[</span><span class="s1">&#39;generated_bspan&#39;</span><span class="p">]</span>
+                    <span class="n">gen_cons</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_constraint</span><span class="p">(</span><span class="n">gen_bspan</span><span class="p">)</span>
+                <span class="k">if</span> <span class="s1">&#39;SLOT&#39;</span> <span class="ow">in</span> <span class="n">turn</span><span class="p">[</span><span class="s1">&#39;response&#39;</span><span class="p">]:</span>
+                    <span class="n">truth_cons</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_constraint</span><span class="p">(</span><span class="n">turn</span><span class="p">[</span><span class="s1">&#39;bspan&#39;</span><span class="p">])</span>
+                <span class="n">gen_response_token</span> <span class="o">=</span> <span class="n">turn</span><span class="p">[</span><span class="s1">&#39;generated_response&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                <span class="n">response_token</span> <span class="o">=</span> <span class="n">turn</span><span class="p">[</span><span class="s1">&#39;response&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">w</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">gen_response_token</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">w</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;SLOT&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">w</span> <span class="o">!=</span> <span class="s1">&#39;SLOT&#39;</span><span class="p">:</span>
+                        <span class="n">gen_req</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">w</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+                    <span class="k">if</span> <span class="n">w</span> <span class="o">==</span> <span class="s1">&#39;SLOT&#39;</span> <span class="ow">and</span> <span class="n">idx</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">gen_req</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gen_response_token</span><span class="p">[</span><span class="n">idx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
+                <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">w</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">response_token</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">w</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;SLOT&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">w</span> <span class="o">!=</span> <span class="s1">&#39;SLOT&#39;</span><span class="p">:</span>
+                        <span class="n">truth_response_req</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">w</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">gen_cons</span><span class="p">:</span>
+                <span class="n">gen_bspan</span> <span class="o">=</span> <span class="n">dial</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;generated_bspan&#39;</span><span class="p">]</span>
+                <span class="n">gen_cons</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_constraint</span><span class="p">(</span><span class="n">gen_bspan</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">truth_cons</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">gen_cons</span> <span class="o">==</span> <span class="n">truth_cons</span><span class="p">:</span>
+                    <span class="n">match</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="n">gen_cons</span><span class="p">,</span> <span class="n">truth_cons</span><span class="p">)</span>
+                <span class="n">total</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">return</span> <span class="n">match</span> <span class="o">/</span> <span class="n">total</span><span class="p">,</span> <span class="n">success</span> <span class="o">/</span> <span class="n">total</span></div>
+
+<div class="viewcode-block" id="CamRestEvaluator.success_f1_metric"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.metric.CamRestEvaluator.success_f1_metric">[docs]</a>    <span class="nd">@report</span>
+    <span class="k">def</span> <span class="nf">success_f1_metric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">sub</span><span class="o">=</span><span class="s1">&#39;successf1&#39;</span><span class="p">):</span>
+        <span class="n">dials</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pack_dial</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">tp</span><span class="p">,</span><span class="n">fp</span><span class="p">,</span><span class="n">fn</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span>
+        <span class="k">for</span> <span class="n">dial_id</span> <span class="ow">in</span> <span class="n">dials</span><span class="p">:</span>
+            <span class="n">truth_req</span><span class="p">,</span> <span class="n">gen_req</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(),</span><span class="nb">set</span><span class="p">()</span>
+            <span class="n">dial</span> <span class="o">=</span> <span class="n">dials</span><span class="p">[</span><span class="n">dial_id</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">turn_num</span><span class="p">,</span> <span class="n">turn</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dial</span><span class="p">):</span>
+                <span class="n">gen_response_token</span> <span class="o">=</span> <span class="n">turn</span><span class="p">[</span><span class="s1">&#39;generated_response&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                <span class="n">response_token</span> <span class="o">=</span> <span class="n">turn</span><span class="p">[</span><span class="s1">&#39;response&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">w</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">gen_response_token</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">w</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;SLOT&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">w</span> <span class="o">!=</span> <span class="s1">&#39;SLOT&#39;</span><span class="p">:</span>
+                        <span class="n">gen_req</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">w</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">w</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">response_token</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">w</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;SLOT&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">w</span> <span class="o">!=</span> <span class="s1">&#39;SLOT&#39;</span><span class="p">:</span>
+                        <span class="n">truth_req</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">w</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+
+            <span class="n">gen_req</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">)</span>
+            <span class="n">truth_req</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">req</span> <span class="ow">in</span> <span class="n">gen_req</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">req</span> <span class="ow">in</span> <span class="n">truth_req</span><span class="p">:</span>
+                    <span class="n">tp</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">fp</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">for</span> <span class="n">req</span> <span class="ow">in</span> <span class="n">truth_req</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">req</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">gen_req</span><span class="p">:</span>
+                    <span class="n">fn</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">precision</span><span class="p">,</span> <span class="n">recall</span> <span class="o">=</span> <span class="n">tp</span> <span class="o">/</span> <span class="p">(</span><span class="n">tp</span> <span class="o">+</span> <span class="n">fp</span> <span class="o">+</span> <span class="mf">1e-8</span><span class="p">),</span> <span class="n">tp</span> <span class="o">/</span> <span class="p">(</span><span class="n">tp</span> <span class="o">+</span> <span class="n">fn</span> <span class="o">+</span> <span class="mf">1e-8</span><span class="p">)</span>
+        <span class="n">f1</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">precision</span> <span class="o">*</span> <span class="n">recall</span> <span class="o">/</span> <span class="p">(</span><span class="n">precision</span> <span class="o">+</span> <span class="n">recall</span> <span class="o">+</span> <span class="mf">1e-8</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">f1</span><span class="p">,</span> <span class="n">precision</span><span class="p">,</span> <span class="n">recall</span></div></div>
+
+<div class="viewcode-block" id="KvretEvaluator"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.metric.KvretEvaluator">[docs]</a><span class="k">class</span> <span class="nc">KvretEvaluator</span><span class="p">(</span><span class="n">GenericEvaluator</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">result_path</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">result_path</span><span class="p">)</span>
+        <span class="n">ent_json</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;./data/kvret/kvret_entities.json&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ent_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">ent_json</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+        <span class="n">ent_json</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_get_entity_dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ent_data</span><span class="p">)</span>
+        <span class="n">raw_json</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;./data/kvret/kvret_test_public.json&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">raw_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">raw_json</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+        <span class="n">raw_json</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+<div class="viewcode-block" id="KvretEvaluator.run_metrics"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.metric.KvretEvaluator.run_metrics">[docs]</a>    <span class="k">def</span> <span class="nf">run_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_result_data</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+            <span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;response&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clean_by_intent</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;response&#39;</span><span class="p">],</span><span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;dial_id&#39;</span><span class="p">]))</span>
+            <span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;generated_response&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clean_by_intent</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;generated_response&#39;</span><span class="p">],</span><span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;dial_id&#39;</span><span class="p">]))</span>
+        <span class="n">match_rate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">match_rate_metric</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s1">&#39;match&#39;</span><span class="p">)</span>
+        <span class="n">bleu_score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bleu_metric</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="s1">&#39;bleu&#39;</span><span class="p">)</span>
+        <span class="n">success_f1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">success_f1_metric</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="s1">&#39;success_f1&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_print_dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metric_dict</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="KvretEvaluator.clean_by_intent"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.metric.KvretEvaluator.clean_by_intent">[docs]</a>    <span class="k">def</span> <span class="nf">clean_by_intent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">s</span><span class="p">,</span><span class="n">i</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;&lt;go&gt; &#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39; SLOT&#39;</span><span class="p">,</span> <span class="s1">&#39;_SLOT&#39;</span><span class="p">)</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="s1">&#39;&lt;GO&gt; &#39;</span> <span class="o">+</span> <span class="n">s</span> <span class="o">+</span> <span class="s1">&#39; &lt;/s&gt;&#39;</span>
+        <span class="n">intent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw_data</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;scenario&#39;</span><span class="p">][</span><span class="s1">&#39;task&#39;</span><span class="p">][</span><span class="s1">&#39;intent&#39;</span><span class="p">]</span>
+        <span class="n">slot</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;weather&#39;</span><span class="p">:[</span><span class="s1">&#39;weather_attribute&#39;</span><span class="p">,</span><span class="s1">&#39;location&#39;</span><span class="p">,</span><span class="s1">&#39;weekly_time&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;navigate&#39;</span><span class="p">:[</span><span class="s1">&#39;poi&#39;</span><span class="p">,</span><span class="s1">&#39;poi_type&#39;</span><span class="p">,</span><span class="s1">&#39;distance&#39;</span><span class="p">,</span><span class="s1">&#39;traffic&#39;</span><span class="p">,</span><span class="s1">&#39;address&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;schedule&#39;</span><span class="p">:[</span><span class="s1">&#39;event&#39;</span><span class="p">,</span><span class="s1">&#39;date&#39;</span><span class="p">,</span><span class="s1">&#39;time&#39;</span><span class="p">,</span><span class="s1">&#39;party&#39;</span><span class="p">,</span><span class="s1">&#39;room&#39;</span><span class="p">,</span><span class="s1">&#39;agenda&#39;</span><span class="p">]</span>
+        <span class="p">}</span>
+
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">entity_dict</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">entity_dict</span><span class="p">[</span><span class="n">item</span><span class="p">]</span> <span class="ow">in</span> <span class="n">slot</span><span class="p">[</span><span class="n">intent</span><span class="p">]:</span>
+                <span class="c1"># s = s.replace(item, &#39;VALUE_{}&#39;.format(self.entity_dict[item]))</span>
+                <span class="n">s</span> <span class="o">=</span> <span class="n">clean_replace</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">item</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_SLOT&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">entity_dict</span><span class="p">[</span><span class="n">item</span><span class="p">]))</span>
+        <span class="k">return</span> <span class="n">s</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_extract_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="k">if</span> <span class="s1">&#39;EOS_Z1&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">z</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;EOS_Z1&#39;</span><span class="p">)</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">z</span><span class="p">[:</span><span class="n">idx</span><span class="p">])</span>
+        <span class="n">reqs</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;address&#39;</span><span class="p">,</span> <span class="s1">&#39;traffic&#39;</span><span class="p">,</span> <span class="s1">&#39;poi&#39;</span><span class="p">,</span> <span class="s1">&#39;poi_type&#39;</span><span class="p">,</span> <span class="s1">&#39;distance&#39;</span><span class="p">,</span> <span class="s1">&#39;weather&#39;</span><span class="p">,</span> <span class="s1">&#39;temperature&#39;</span><span class="p">,</span> <span class="s1">&#39;weather_attribute&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;date&#39;</span><span class="p">,</span> <span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;location&#39;</span><span class="p">,</span> <span class="s1">&#39;event&#39;</span><span class="p">,</span> <span class="s1">&#39;agenda&#39;</span><span class="p">,</span> <span class="s1">&#39;party&#39;</span><span class="p">,</span> <span class="s1">&#39;room&#39;</span><span class="p">,</span> <span class="s1">&#39;weekly_time&#39;</span><span class="p">,</span> <span class="s1">&#39;forecast&#39;</span><span class="p">]</span>
+        <span class="n">informable</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;weather&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">,</span><span class="s1">&#39;location&#39;</span><span class="p">,</span><span class="s1">&#39;weather_attribute&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;navigate&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;poi_type&#39;</span><span class="p">,</span><span class="s1">&#39;distance&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;schedule&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;event&#39;</span><span class="p">,</span> <span class="s1">&#39;date&#39;</span><span class="p">,</span> <span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;agenda&#39;</span><span class="p">,</span> <span class="s1">&#39;party&#39;</span><span class="p">,</span> <span class="s1">&#39;room&#39;</span><span class="p">]</span>
+        <span class="p">}</span>
+        <span class="n">infs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">informable</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">infs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+        <span class="n">junk</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;good&#39;</span><span class="p">,</span><span class="s1">&#39;great&#39;</span><span class="p">,</span><span class="s1">&#39;quickest&#39;</span><span class="p">,</span><span class="s1">&#39;shortest&#39;</span><span class="p">,</span><span class="s1">&#39;route&#39;</span><span class="p">,</span><span class="s1">&#39;week&#39;</span><span class="p">,</span><span class="s1">&#39;fastest&#39;</span><span class="p">,</span><span class="s1">&#39;nearest&#39;</span><span class="p">,</span><span class="s1">&#39;next&#39;</span><span class="p">,</span><span class="s1">&#39;closest&#39;</span><span class="p">,</span><span class="s1">&#39;way&#39;</span><span class="p">,</span><span class="s1">&#39;mile&#39;</span><span class="p">,</span>
+               <span class="s1">&#39;activity&#39;</span><span class="p">,</span><span class="s1">&#39;restaurant&#39;</span><span class="p">,</span><span class="s1">&#39;appointment&#39;</span> <span class="p">]</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">junk</span><span class="p">)</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">en_sws</span><span class="p">)</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">reqs</span><span class="p">)</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">junk</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">flg</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">for</span> <span class="n">canon_ent</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">entity_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())):</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">entity_dict</span><span class="p">[</span><span class="n">canon_ent</span><span class="p">]</span> <span class="ow">in</span> <span class="n">infs</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">similar</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">canon_ent</span><span class="p">):</span>
+                        <span class="n">flg</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="n">junk</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">canon_ent</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
+                        <span class="n">res</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">canon_ent</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">flg</span><span class="p">:</span>
+                        <span class="k">break</span>
+        <span class="k">return</span> <span class="n">res</span>
+
+<div class="viewcode-block" id="KvretEvaluator.constraint_same"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.metric.KvretEvaluator.constraint_same">[docs]</a>    <span class="k">def</span> <span class="nf">constraint_same</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">truth_cons</span><span class="p">,</span> <span class="n">gen_cons</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">truth_cons</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">gen_cons</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">truth_cons</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">gen_cons</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="n">setsim</span><span class="p">(</span><span class="n">gen_cons</span><span class="p">,</span> <span class="n">truth_cons</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_get_entity_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entity_data</span><span class="p">):</span>
+        <span class="n">entity_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">entity_data</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entity_data</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">entity</span> <span class="ow">in</span> <span class="n">entity_data</span><span class="p">[</span><span class="n">k</span><span class="p">]:</span>
+                    <span class="n">entity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lemmatize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tokenize</span><span class="p">(</span><span class="n">entity</span><span class="p">))</span>
+                    <span class="n">entity_dict</span><span class="p">[</span><span class="n">entity</span><span class="p">]</span> <span class="o">=</span> <span class="n">k</span>
+                    <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;event&#39;</span><span class="p">,</span><span class="s1">&#39;poi_type&#39;</span><span class="p">]:</span>
+                        <span class="n">entity_dict</span><span class="p">[</span><span class="n">entity</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">k</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entity_data</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">entity_entry</span> <span class="ow">in</span> <span class="n">entity_data</span><span class="p">[</span><span class="n">k</span><span class="p">]:</span>
+                    <span class="k">for</span> <span class="n">entity_type</span><span class="p">,</span> <span class="n">entity</span> <span class="ow">in</span> <span class="n">entity_entry</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                        <span class="n">entity_type</span> <span class="o">=</span> <span class="s1">&#39;poi_type&#39;</span> <span class="k">if</span> <span class="n">entity_type</span> <span class="o">==</span> <span class="s1">&#39;type&#39;</span> <span class="k">else</span> <span class="n">entity_type</span>
+                        <span class="n">entity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lemmatize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tokenize</span><span class="p">(</span><span class="n">entity</span><span class="p">))</span>
+                        <span class="n">entity_dict</span><span class="p">[</span><span class="n">entity</span><span class="p">]</span> <span class="o">=</span> <span class="n">entity_type</span>
+                        <span class="k">if</span> <span class="n">entity_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;event&#39;</span><span class="p">,</span> <span class="s1">&#39;poi_type&#39;</span><span class="p">]:</span>
+                            <span class="n">entity_dict</span><span class="p">[</span><span class="n">entity</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">entity_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">entity_dict</span> <span class="o">=</span> <span class="n">entity_dict</span>
+
+<div class="viewcode-block" id="KvretEvaluator.match_rate_metric"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.metric.KvretEvaluator.match_rate_metric">[docs]</a>    <span class="nd">@report</span>
+    <span class="k">def</span> <span class="nf">match_rate_metric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">sub</span><span class="o">=</span><span class="s1">&#39;match&#39;</span><span class="p">,</span><span class="n">bspans</span><span class="o">=</span><span class="s1">&#39;./data/kvret/test.bspan.pkl&#39;</span><span class="p">):</span>
+        <span class="n">dials</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pack_dial</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">match</span><span class="p">,</span><span class="n">total</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span><span class="mf">1e-8</span>
+        <span class="c1">#bspan_data = pickle.load(open(bspans,&#39;rb&#39;))</span>
+        <span class="c1"># find out the last placeholder and see whether that is correct</span>
+        <span class="c1"># if no such placeholder, see the final turn, because it can be a yes/no question or scheduling conversation</span>
+        <span class="k">for</span> <span class="n">dial_id</span> <span class="ow">in</span> <span class="n">dials</span><span class="p">:</span>
+            <span class="n">dial</span> <span class="o">=</span> <span class="n">dials</span><span class="p">[</span><span class="n">dial_id</span><span class="p">]</span>
+            <span class="n">gen_bspan</span><span class="p">,</span> <span class="n">truth_cons</span><span class="p">,</span> <span class="n">gen_cons</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">set</span><span class="p">()</span>
+            <span class="n">truth_turn_num</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+            <span class="k">for</span> <span class="n">turn_num</span><span class="p">,</span><span class="n">turn</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dial</span><span class="p">):</span>
+                <span class="k">if</span> <span class="s1">&#39;SLOT&#39;</span> <span class="ow">in</span> <span class="n">turn</span><span class="p">[</span><span class="s1">&#39;generated_response&#39;</span><span class="p">]:</span>
+                    <span class="n">gen_bspan</span> <span class="o">=</span> <span class="n">turn</span><span class="p">[</span><span class="s1">&#39;generated_bspan&#39;</span><span class="p">]</span>
+                    <span class="n">gen_cons</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_constraint</span><span class="p">(</span><span class="n">gen_bspan</span><span class="p">)</span>
+                <span class="k">if</span> <span class="s1">&#39;SLOT&#39;</span> <span class="ow">in</span> <span class="n">turn</span><span class="p">[</span><span class="s1">&#39;response&#39;</span><span class="p">]:</span>
+                    <span class="n">truth_cons</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_constraint</span><span class="p">(</span><span class="n">turn</span><span class="p">[</span><span class="s1">&#39;bspan&#39;</span><span class="p">])</span>
+
+            <span class="c1"># KVRET dataset includes &quot;scheduling&quot; (so often no SLOT decoded in ground truth)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">truth_cons</span><span class="p">:</span>
+                <span class="n">truth_bspan</span> <span class="o">=</span> <span class="n">dial</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;bspan&#39;</span><span class="p">]</span>
+                <span class="n">truth_cons</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_constraint</span><span class="p">(</span><span class="n">truth_bspan</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">gen_cons</span><span class="p">:</span>
+                <span class="n">gen_bspan</span> <span class="o">=</span> <span class="n">dial</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;generated_bspan&#39;</span><span class="p">]</span>
+                <span class="n">gen_cons</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_constraint</span><span class="p">(</span><span class="n">gen_bspan</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">truth_cons</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">constraint_same</span><span class="p">(</span><span class="n">gen_cons</span><span class="p">,</span> <span class="n">truth_cons</span><span class="p">):</span>
+                    <span class="n">match</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="c1">#print(gen_cons, truth_cons, &#39;+&#39;)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="n">gen_cons</span><span class="p">,</span> <span class="n">truth_cons</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">)</span>
+                <span class="n">total</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">return</span> <span class="n">match</span> <span class="o">/</span> <span class="n">total</span></div>
+
+    <span class="k">def</span> <span class="nf">_tokenize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sent</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">word_tokenize</span><span class="p">(</span><span class="n">sent</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_lemmatize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sent</span><span class="p">):</span>
+        <span class="n">words</span> <span class="o">=</span> <span class="p">[</span><span class="n">wn</span><span class="o">.</span><span class="n">lemmatize</span><span class="p">(</span><span class="n">_</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">sent</span><span class="o">.</span><span class="n">split</span><span class="p">()]</span>
+        <span class="c1">#for idx,w in enumerate(words):</span>
+        <span class="c1">#    if w !=</span>
+        <span class="k">return</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">words</span><span class="p">)</span>
+
+<div class="viewcode-block" id="KvretEvaluator.success_f1_metric"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.metric.KvretEvaluator.success_f1_metric">[docs]</a>    <span class="nd">@report</span>
+    <span class="k">def</span> <span class="nf">success_f1_metric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">sub</span><span class="o">=</span><span class="s1">&#39;successf1&#39;</span><span class="p">):</span>
+        <span class="n">dials</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pack_dial</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">tp</span><span class="p">,</span><span class="n">fp</span><span class="p">,</span><span class="n">fn</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span>
+        <span class="k">for</span> <span class="n">dial_id</span> <span class="ow">in</span> <span class="n">dials</span><span class="p">:</span>
+            <span class="n">truth_req</span><span class="p">,</span> <span class="n">gen_req</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(),</span><span class="nb">set</span><span class="p">()</span>
+            <span class="n">dial</span> <span class="o">=</span> <span class="n">dials</span><span class="p">[</span><span class="n">dial_id</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">turn_num</span><span class="p">,</span> <span class="n">turn</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dial</span><span class="p">):</span>
+                <span class="n">gen_response_token</span> <span class="o">=</span> <span class="n">turn</span><span class="p">[</span><span class="s1">&#39;generated_response&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                <span class="n">response_token</span> <span class="o">=</span> <span class="n">turn</span><span class="p">[</span><span class="s1">&#39;response&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">w</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">gen_response_token</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">w</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;SLOT&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">w</span> <span class="o">!=</span> <span class="s1">&#39;SLOT&#39;</span><span class="p">:</span>
+                        <span class="n">gen_req</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">w</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">w</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">response_token</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">w</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;SLOT&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">w</span> <span class="o">!=</span> <span class="s1">&#39;SLOT&#39;</span><span class="p">:</span>
+                        <span class="n">truth_req</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">w</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">gen_req</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">)</span>
+            <span class="n">truth_req</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">req</span> <span class="ow">in</span> <span class="n">gen_req</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">req</span> <span class="ow">in</span> <span class="n">truth_req</span><span class="p">:</span>
+                    <span class="n">tp</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">fp</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">for</span> <span class="n">req</span> <span class="ow">in</span> <span class="n">truth_req</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">req</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">gen_req</span><span class="p">:</span>
+                    <span class="n">fn</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">precision</span><span class="p">,</span> <span class="n">recall</span> <span class="o">=</span> <span class="n">tp</span> <span class="o">/</span> <span class="p">(</span><span class="n">tp</span> <span class="o">+</span> <span class="n">fp</span> <span class="o">+</span> <span class="mf">1e-8</span><span class="p">),</span> <span class="n">tp</span> <span class="o">/</span> <span class="p">(</span><span class="n">tp</span> <span class="o">+</span> <span class="n">fn</span> <span class="o">+</span> <span class="mf">1e-8</span><span class="p">)</span>
+        <span class="n">f1</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">precision</span> <span class="o">*</span> <span class="n">recall</span> <span class="o">/</span> <span class="p">(</span><span class="n">precision</span> <span class="o">+</span> <span class="n">recall</span> <span class="o">+</span> <span class="mf">1e-8</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">f1</span></div></div>
+
+<div class="viewcode-block" id="MultiWozEvaluator"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.metric.MultiWozEvaluator">[docs]</a><span class="k">class</span> <span class="nc">MultiWozEvaluator</span><span class="p">(</span><span class="n">GenericEvaluator</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">result_path</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">result_path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">entities</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">entity_dict</span> <span class="o">=</span> <span class="p">{}</span>
+
+<div class="viewcode-block" id="MultiWozEvaluator.run_metrics"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.metric.MultiWozEvaluator.run_metrics">[docs]</a>    <span class="k">def</span> <span class="nf">run_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;./data/MultiWoz/test.json&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">raw_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;./data/MultiWoz/entities.json&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">raw_entities</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_entities</span><span class="p">(</span><span class="n">raw_entities</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_result_data</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+            <span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;response&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clean</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;response&#39;</span><span class="p">])</span>
+            <span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;generated_response&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clean</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;generated_response&#39;</span><span class="p">])</span>
+        <span class="n">bleu_score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bleu_metric</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="s1">&#39;bleu&#39;</span><span class="p">)</span>
+        <span class="n">success_f1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">success_f1_metric</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s1">&#39;success&#39;</span><span class="p">)</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">match_metric</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s1">&#39;match&#39;</span><span class="p">,</span> <span class="n">raw_data</span><span class="o">=</span><span class="n">raw_data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_print_dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metric_dict</span><span class="p">)</span>
+        <span class="k">return</span> <span class="o">-</span><span class="n">success_f1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="MultiWozEvaluator.get_entities"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.metric.MultiWozEvaluator.get_entities">[docs]</a>    <span class="k">def</span> <span class="nf">get_entities</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entity_data</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">entity_data</span><span class="p">:</span>
+            <span class="n">k_attr</span> <span class="o">=</span> <span class="n">k</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">][:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">entities</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">entity_data</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">entity_data</span><span class="p">[</span><span class="n">k</span><span class="p">]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">entity_dict</span><span class="p">[</span><span class="n">item</span><span class="p">]</span> <span class="o">=</span> <span class="n">k_attr</span></div>
+
+    <span class="k">def</span> <span class="nf">_extract_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="k">if</span> <span class="s1">&#39;EOS_Z1&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">z</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;EOS_Z1&#39;</span><span class="p">)</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">z</span><span class="p">[:</span><span class="n">idx</span><span class="p">])</span>
+        <span class="k">if</span> <span class="s1">&#39;moderately&#39;</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="s1">&#39;moderately&#39;</span><span class="p">)</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;moderate&#39;</span><span class="p">)</span>
+        <span class="c1">#print(self.entities) </span>
+        <span class="c1">#return s</span>
+        <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">entities</span><span class="p">)</span>
+        <span class="c1">#return set(z).difference([&#39;name&#39;, &#39;address&#39;, &#39;postcode&#39;, &#39;phone&#39;, &#39;area&#39;, &#39;pricerange&#39;])</span>
+
+    <span class="k">def</span> <span class="nf">_extract_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="k">return</span> <span class="nb">set</span><span class="p">(</span><span class="n">z</span><span class="p">)</span><span class="o">.</span><span class="n">intersection</span><span class="p">([</span><span class="s1">&#39;address&#39;</span><span class="p">,</span> <span class="s1">&#39;postcode&#39;</span><span class="p">,</span> <span class="s1">&#39;phone&#39;</span><span class="p">,</span> <span class="s1">&#39;area&#39;</span><span class="p">,</span> <span class="s1">&#39;pricerange&#39;</span><span class="p">,</span><span class="s1">&#39;food&#39;</span><span class="p">])</span>
+
+<div class="viewcode-block" id="MultiWozEvaluator.match_metric"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.metric.MultiWozEvaluator.match_metric">[docs]</a>    <span class="nd">@report</span>
+    <span class="k">def</span> <span class="nf">match_metric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">sub</span><span class="o">=</span><span class="s1">&#39;match&#39;</span><span class="p">,</span><span class="n">raw_data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">dials</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pack_dial</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">match</span><span class="p">,</span><span class="n">total</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span><span class="mf">1e-8</span>
+        <span class="c1"># find out the last placeholder and see whether that is correct</span>
+        <span class="c1"># if no such placeholder, see the final turn, because it can be a yes/no question or scheduling dialogue</span>
+        <span class="k">for</span> <span class="n">dial_id</span> <span class="ow">in</span> <span class="n">dials</span><span class="p">:</span>
+            <span class="n">truth_req</span><span class="p">,</span> <span class="n">gen_req</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+            <span class="n">dial</span> <span class="o">=</span> <span class="n">dials</span><span class="p">[</span><span class="n">dial_id</span><span class="p">]</span>
+            <span class="n">gen_bspan</span><span class="p">,</span> <span class="n">truth_cons</span><span class="p">,</span> <span class="n">gen_cons</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">set</span><span class="p">()</span>
+            <span class="n">truth_turn_num</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+            <span class="n">truth_response_req</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">turn_num</span><span class="p">,</span><span class="n">turn</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dial</span><span class="p">):</span>
+                <span class="k">if</span> <span class="s1">&#39;SLOT&#39;</span> <span class="ow">in</span> <span class="n">turn</span><span class="p">[</span><span class="s1">&#39;generated_response&#39;</span><span class="p">]:</span>
+                    <span class="n">gen_bspan</span> <span class="o">=</span> <span class="n">turn</span><span class="p">[</span><span class="s1">&#39;generated_bspan&#39;</span><span class="p">]</span>
+                    <span class="n">gen_cons</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_constraint</span><span class="p">(</span><span class="n">gen_bspan</span><span class="p">)</span>
+                <span class="k">if</span> <span class="s1">&#39;SLOT&#39;</span> <span class="ow">in</span> <span class="n">turn</span><span class="p">[</span><span class="s1">&#39;response&#39;</span><span class="p">]:</span>
+                    <span class="n">truth_cons</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_constraint</span><span class="p">(</span><span class="n">turn</span><span class="p">[</span><span class="s1">&#39;bspan&#39;</span><span class="p">])</span>
+                <span class="n">gen_response_token</span> <span class="o">=</span> <span class="n">turn</span><span class="p">[</span><span class="s1">&#39;generated_response&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                <span class="n">response_token</span> <span class="o">=</span> <span class="n">turn</span><span class="p">[</span><span class="s1">&#39;response&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">w</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">gen_response_token</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">w</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;SLOT&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">w</span> <span class="o">!=</span> <span class="s1">&#39;SLOT&#39;</span><span class="p">:</span>
+                        <span class="n">gen_req</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">w</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+                    <span class="k">if</span> <span class="n">w</span> <span class="o">==</span> <span class="s1">&#39;SLOT&#39;</span> <span class="ow">and</span> <span class="n">idx</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">gen_req</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gen_response_token</span><span class="p">[</span><span class="n">idx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
+                <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">w</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">response_token</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">w</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;SLOT&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">w</span> <span class="o">!=</span> <span class="s1">&#39;SLOT&#39;</span><span class="p">:</span>
+                        <span class="n">truth_response_req</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">w</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">gen_cons</span><span class="p">:</span>
+                <span class="n">gen_bspan</span> <span class="o">=</span> <span class="n">dial</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;generated_bspan&#39;</span><span class="p">]</span>
+                <span class="n">gen_cons</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_constraint</span><span class="p">(</span><span class="n">gen_bspan</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">truth_cons</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">gen_cons</span> <span class="o">==</span> <span class="n">truth_cons</span><span class="p">:</span>
+                    <span class="n">match</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">pass</span>
+<span class="c1">#                    print(gen_cons, truth_cons)</span>
+                <span class="n">total</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">return</span> <span class="n">match</span> <span class="o">/</span> <span class="n">total</span></div>
+
+<div class="viewcode-block" id="MultiWozEvaluator.success_f1_metric"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.metric.MultiWozEvaluator.success_f1_metric">[docs]</a>    <span class="nd">@report</span>
+    <span class="k">def</span> <span class="nf">success_f1_metric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">sub</span><span class="o">=</span><span class="s1">&#39;successf1&#39;</span><span class="p">):</span>
+        <span class="n">dials</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pack_dial</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">tp</span><span class="p">,</span><span class="n">fp</span><span class="p">,</span><span class="n">fn</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span>
+        <span class="k">for</span> <span class="n">dial_id</span> <span class="ow">in</span> <span class="n">dials</span><span class="p">:</span>
+            <span class="n">truth_req</span><span class="p">,</span> <span class="n">gen_req</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(),</span><span class="nb">set</span><span class="p">()</span>
+            <span class="n">dial</span> <span class="o">=</span> <span class="n">dials</span><span class="p">[</span><span class="n">dial_id</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">turn_num</span><span class="p">,</span> <span class="n">turn</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dial</span><span class="p">):</span>
+                <span class="n">gen_response_token</span> <span class="o">=</span> <span class="n">turn</span><span class="p">[</span><span class="s1">&#39;generated_response&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                <span class="n">response_token</span> <span class="o">=</span> <span class="n">turn</span><span class="p">[</span><span class="s1">&#39;response&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">w</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">gen_response_token</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">w</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;SLOT&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">w</span> <span class="o">!=</span> <span class="s1">&#39;SLOT&#39;</span><span class="p">:</span>
+                        <span class="n">gen_req</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">w</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">w</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">response_token</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">w</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;SLOT&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">w</span> <span class="o">!=</span> <span class="s1">&#39;SLOT&#39;</span><span class="p">:</span>
+                        <span class="n">truth_req</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">w</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+
+            <span class="n">gen_req</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">)</span>
+            <span class="n">truth_req</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">req</span> <span class="ow">in</span> <span class="n">gen_req</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">req</span> <span class="ow">in</span> <span class="n">truth_req</span><span class="p">:</span>
+                    <span class="n">tp</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">fp</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">for</span> <span class="n">req</span> <span class="ow">in</span> <span class="n">truth_req</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">req</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">gen_req</span><span class="p">:</span>
+                    <span class="n">fn</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">precision</span><span class="p">,</span> <span class="n">recall</span> <span class="o">=</span> <span class="n">tp</span> <span class="o">/</span> <span class="p">(</span><span class="n">tp</span> <span class="o">+</span> <span class="n">fp</span> <span class="o">+</span> <span class="mf">1e-8</span><span class="p">),</span> <span class="n">tp</span> <span class="o">/</span> <span class="p">(</span><span class="n">tp</span> <span class="o">+</span> <span class="n">fn</span> <span class="o">+</span> <span class="mf">1e-8</span><span class="p">)</span>
+        <span class="n">f1</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">precision</span> <span class="o">*</span> <span class="n">recall</span> <span class="o">/</span> <span class="p">(</span><span class="n">precision</span> <span class="o">+</span> <span class="n">recall</span> <span class="o">+</span> <span class="mf">1e-8</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">f1</span><span class="p">,</span> <span class="n">precision</span><span class="p">,</span> <span class="n">recall</span></div></div>
+
+<div class="viewcode-block" id="metric_handler"><a class="viewcode-back" href="../../../../../../convlab.modules.e2e.multiwoz.Sequicity.html#convlab.modules.e2e.multiwoz.Sequicity.metric.metric_handler">[docs]</a><span class="k">def</span> <span class="nf">metric_handler</span><span class="p">():</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-file&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-type&#39;</span><span class="p">)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+    <span class="n">ev_class</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s1">&#39;camrest&#39;</span><span class="p">:</span>
+        <span class="n">ev_class</span> <span class="o">=</span> <span class="n">CamRestEvaluator</span>
+    <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s1">&#39;kvret&#39;</span><span class="p">:</span>
+        <span class="n">ev_class</span> <span class="o">=</span> <span class="n">KvretEvaluator</span>
+    <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s1">&#39;multiwoz&#39;</span><span class="p">:</span>
+        <span class="n">ev_class</span> <span class="o">=</span> <span class="n">MultiWozEvaluator</span>
+    <span class="n">ev</span> <span class="o">=</span> <span class="n">ev_class</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">file</span><span class="p">)</span>
+    <span class="n">ev</span><span class="o">.</span><span class="n">run_metrics</span><span class="p">()</span>
+    <span class="n">ev</span><span class="o">.</span><span class="n">dump</span><span class="p">()</span></div>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">metric_handler</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, ConvLab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

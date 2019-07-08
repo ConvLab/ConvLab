@@ -1,0 +1,270 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>convlab.modules.nlu.multiwoz.onenet.nlu &mdash; ConvLab 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../../../" src="../../../../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../../../index.html" class="icon icon-home"> ConvLab
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../../index.html">ConvLab</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../../../../index.html">Module code</a> &raquo;</li>
+        
+      <li>convlab.modules.nlu.multiwoz.onenet.nlu</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for convlab.modules.nlu.multiwoz.onenet.nlu</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
+<span class="c1"># Licensed under the MIT license.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">pprint</span> <span class="k">import</span> <span class="n">pprint</span>
+
+<span class="kn">from</span> <span class="nn">allennlp.common.checks</span> <span class="k">import</span> <span class="n">check_for_gpu</span>
+<span class="kn">from</span> <span class="nn">allennlp.data</span> <span class="k">import</span> <span class="n">DatasetReader</span>
+<span class="kn">from</span> <span class="nn">allennlp.data.tokenizers.word_splitter</span> <span class="k">import</span> <span class="n">SpacyWordSplitter</span>
+<span class="kn">from</span> <span class="nn">allennlp.models.archival</span> <span class="k">import</span> <span class="n">load_archive</span>
+
+<span class="kn">from</span> <span class="nn">convlab.lib.file_util</span> <span class="k">import</span> <span class="n">cached_path</span>
+<span class="kn">from</span> <span class="nn">convlab.modules.nlu.nlu</span> <span class="k">import</span> <span class="n">NLU</span>
+<span class="kn">from</span> <span class="nn">convlab.modules.nlu.multiwoz.onenet</span> <span class="k">import</span> <span class="n">dataset_reader</span><span class="p">,</span> <span class="n">model</span> 
+
+<span class="n">DEFAULT_CUDA_DEVICE</span><span class="o">=-</span><span class="mi">1</span>
+<span class="n">DEFAULT_DIRECTORY</span> <span class="o">=</span> <span class="s2">&quot;models&quot;</span>
+<span class="n">DEFAULT_ARCHIVE_FILE</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DEFAULT_DIRECTORY</span><span class="p">,</span> <span class="s2">&quot;onenet.tar.gz&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="OneNetLU"><a class="viewcode-back" href="../../../../../../convlab.modules.nlu.multiwoz.onenet.html#convlab.modules.nlu.multiwoz.onenet.nlu.OneNetLU">[docs]</a><span class="k">class</span> <span class="nc">OneNetLU</span><span class="p">(</span><span class="n">NLU</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Multilabel sequence tagging model.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                <span class="n">archive_file</span><span class="o">=</span><span class="n">DEFAULT_ARCHIVE_FILE</span><span class="p">,</span>
+                <span class="n">cuda_device</span><span class="o">=</span><span class="n">DEFAULT_CUDA_DEVICE</span><span class="p">,</span>
+                <span class="n">model_file</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Constructor for NLU class. &quot;&quot;&quot;</span>
+        <span class="n">check_for_gpu</span><span class="p">(</span><span class="n">cuda_device</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">archive_file</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">model_file</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;No model for JointNLU is specified!&quot;</span><span class="p">)</span>
+            <span class="n">archive_file</span> <span class="o">=</span> <span class="n">cached_path</span><span class="p">(</span><span class="n">model_file</span><span class="p">)</span>
+
+
+        <span class="n">archive</span> <span class="o">=</span> <span class="n">load_archive</span><span class="p">(</span><span class="n">archive_file</span><span class="p">,</span>
+                            <span class="n">cuda_device</span><span class="o">=</span><span class="n">cuda_device</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span> <span class="o">=</span> <span class="n">SpacyWordSplitter</span><span class="p">(</span><span class="n">language</span><span class="o">=</span><span class="s2">&quot;en_core_web_sm&quot;</span><span class="p">)</span>
+        <span class="n">dataset_reader_params</span> <span class="o">=</span> <span class="n">archive</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;dataset_reader&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataset_reader</span> <span class="o">=</span> <span class="n">DatasetReader</span><span class="o">.</span><span class="n">from_params</span><span class="p">(</span><span class="n">dataset_reader_params</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">archive</span><span class="o">.</span><span class="n">model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+
+<div class="viewcode-block" id="OneNetLU.parse"><a class="viewcode-back" href="../../../../../../convlab.modules.nlu.multiwoz.onenet.html#convlab.modules.nlu.multiwoz.onenet.nlu.OneNetLU.parse">[docs]</a>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">utterance</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="p">[]):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Predict the dialog act of a natural language utterance and apply error model.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            utterance (str): A natural language utterance.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            output (dict): The dialog act of utterance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># print(&quot;nlu input:&quot;)</span>
+        <span class="c1"># pprint(utterance)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">utterance</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{}</span>
+
+        <span class="n">tokens</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span><span class="o">.</span><span class="n">split_words</span><span class="p">(</span><span class="n">utterance</span><span class="p">)</span>
+        <span class="n">instance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset_reader</span><span class="o">.</span><span class="n">text_to_instance</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
+        <span class="n">outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">forward_on_instance</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">outputs</span><span class="p">[</span><span class="s2">&quot;dialog_act&quot;</span><span class="p">]</span></div></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">nlu</span> <span class="o">=</span> <span class="n">OneNetLU</span><span class="p">()</span>
+    <span class="n">test_utterances</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;What type of accommodations are they. No , i just need their address . Can you tell me if the hotel has internet available ?&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;What type of accommodations are they.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;No , i just need their address .&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Can you tell me if the hotel has internet available ?&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;you&#39;re welcome! enjoy your visit! goodbye.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;yes. it should be moderately priced.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;i want to book a table for 6 at 18:45 on thursday&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;i will be departing out of stevenage.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;What is the Name of attraction ?&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Can I get the name of restaurant?&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;do you have a specific area you want to stay in?&quot;</span>
+    <span class="p">]</span>
+    <span class="k">for</span> <span class="n">utt</span> <span class="ow">in</span> <span class="n">test_utterances</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">utt</span><span class="p">)</span>
+        <span class="n">pprint</span><span class="p">(</span><span class="n">nlu</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">utt</span><span class="p">))</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, ConvLab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

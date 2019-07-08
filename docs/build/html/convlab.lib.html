@@ -1,0 +1,1117 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>convlab.lib package &mdash; ConvLab 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> ConvLab
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">convlab.lib package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-convlab.lib.decorator">convlab.lib.decorator module</a></li>
+<li><a class="reference internal" href="#module-convlab.lib.distribution">convlab.lib.distribution module</a></li>
+<li><a class="reference internal" href="#module-convlab.lib.file_util">convlab.lib.file_util module</a></li>
+<li><a class="reference internal" href="#module-convlab.lib.logger">convlab.lib.logger module</a></li>
+<li><a class="reference internal" href="#module-convlab.lib.math_util">convlab.lib.math_util module</a></li>
+<li><a class="reference internal" href="#module-convlab.lib.optimizer">convlab.lib.optimizer module</a></li>
+<li><a class="reference internal" href="#module-convlab.lib.util">convlab.lib.util module</a></li>
+<li><a class="reference internal" href="#module-convlab.lib.viz">convlab.lib.viz module</a></li>
+<li><a class="reference internal" href="#module-convlab.lib">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">ConvLab</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>convlab.lib package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/convlab.lib.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="convlab-lib-package">
+<h1>convlab.lib package<a class="headerlink" href="#convlab-lib-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-convlab.lib.decorator">
+<span id="convlab-lib-decorator-module"></span><h2>convlab.lib.decorator module<a class="headerlink" href="#module-convlab.lib.decorator" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="convlab.lib.decorator.lab_api">
+<code class="descclassname">convlab.lib.decorator.</code><code class="descname">lab_api</code><span class="sig-paren">(</span><em>fn</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/decorator.html#lab_api"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.decorator.lab_api" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function decorator to label and check Lab API methods
+&#64;example</p>
+<p>from convlab.lib.decorator import lab_api
+&#64;lab_api
+def foo():</p>
+<blockquote>
+<div>print(‘foo’)</div></blockquote>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.decorator.timeit">
+<code class="descclassname">convlab.lib.decorator.</code><code class="descname">timeit</code><span class="sig-paren">(</span><em>fn</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/decorator.html#timeit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.decorator.timeit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function decorator to measure execution time
+&#64;example</p>
+<p>from convlab.lib.decorator import timeit
+&#64;timeit
+def foo(sec):</p>
+<blockquote>
+<div>time.sleep(sec)
+print(‘foo’)</div></blockquote>
+<p>foo(1)
+# =&gt; foo
+# =&gt; Timed: foo 1000.9971ms</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-convlab.lib.distribution">
+<span id="convlab-lib-distribution-module"></span><h2>convlab.lib.distribution module<a class="headerlink" href="#module-convlab.lib.distribution" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="convlab.lib.distribution.Argmax">
+<em class="property">class </em><code class="descclassname">convlab.lib.distribution.</code><code class="descname">Argmax</code><span class="sig-paren">(</span><em>probs=None</em>, <em>logits=None</em>, <em>validate_args=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/distribution.html#Argmax"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.distribution.Argmax" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.distributions.categorical.Categorical</span></code></p>
+<p>Special distribution class for argmax sampling, where probability is always 1 for the argmax.
+NOTE although argmax is not a sampling distribution, this implementation is for API consistency.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="convlab.lib.distribution.GumbelCategorical">
+<em class="property">class </em><code class="descclassname">convlab.lib.distribution.</code><code class="descname">GumbelCategorical</code><span class="sig-paren">(</span><em>probs=None</em>, <em>logits=None</em>, <em>validate_args=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/distribution.html#GumbelCategorical"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.distribution.GumbelCategorical" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.distributions.categorical.Categorical</span></code></p>
+<p>Special Categorical using Gumbel distribution to simulate softmax categorical for discrete action.
+Similar to OpenAI’s <a class="reference external" href="https://github.com/openai/baselines/blob/98257ef8c9bd23a24a330731ae54ed086d9ce4a7/baselines/a2c/utils.py#L8-L10">https://github.com/openai/baselines/blob/98257ef8c9bd23a24a330731ae54ed086d9ce4a7/baselines/a2c/utils.py#L8-L10</a>
+Explanation <a class="reference external" href="http://amid.fish/assets/gumbel.html">http://amid.fish/assets/gumbel.html</a></p>
+<dl class="method">
+<dt id="convlab.lib.distribution.GumbelCategorical.sample">
+<code class="descname">sample</code><span class="sig-paren">(</span><em>sample_shape=torch.Size([])</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/distribution.html#GumbelCategorical.sample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.distribution.GumbelCategorical.sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gumbel softmax sampling</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="convlab.lib.distribution.MultiCategorical">
+<em class="property">class </em><code class="descclassname">convlab.lib.distribution.</code><code class="descname">MultiCategorical</code><span class="sig-paren">(</span><em>probs=None</em>, <em>logits=None</em>, <em>validate_args=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/distribution.html#MultiCategorical"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.distribution.MultiCategorical" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.distributions.categorical.Categorical</span></code></p>
+<p>MultiCategorical as collection of Categoricals</p>
+<dl class="method">
+<dt id="convlab.lib.distribution.MultiCategorical.entropy">
+<code class="descname">entropy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/distribution.html#MultiCategorical.entropy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.distribution.MultiCategorical.entropy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns entropy of distribution, batched over batch_shape.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Tensor of shape batch_shape.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.lib.distribution.MultiCategorical.enumerate_support">
+<code class="descname">enumerate_support</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/distribution.html#MultiCategorical.enumerate_support"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.distribution.MultiCategorical.enumerate_support" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns tensor containing all values supported by a discrete
+distribution. The result will enumerate over dimension 0, so the shape
+of the result will be <cite>(cardinality,) + batch_shape + event_shape</cite>
+(where <cite>event_shape = ()</cite> for univariate distributions).</p>
+<p>Note that this enumerates over all batched tensors in lock-step
+<cite>[[0, 0], [1, 1], …]</cite>. With <cite>expand=False</cite>, enumeration happens
+along dim 0, but with the remaining batch dimensions being
+singleton dimensions, <cite>[[0], [1], ..</cite>.</p>
+<p>To iterate over the full Cartesian product use
+<cite>itertools.product(m.enumerate_support())</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>expand</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – whether to expand the support over the
+batch dims to match the distribution’s <cite>batch_shape</cite>.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Tensor iterating over dimension 0.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="convlab.lib.distribution.MultiCategorical.log_prob">
+<code class="descname">log_prob</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/distribution.html#MultiCategorical.log_prob"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.distribution.MultiCategorical.log_prob" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the log of the probability density/mass function evaluated at
+<cite>value</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>value</strong> (<em>Tensor</em>) – </td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="convlab.lib.distribution.MultiCategorical.logits">
+<code class="descname">logits</code><a class="headerlink" href="#convlab.lib.distribution.MultiCategorical.logits" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="convlab.lib.distribution.MultiCategorical.mean">
+<code class="descname">mean</code><a class="headerlink" href="#convlab.lib.distribution.MultiCategorical.mean" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the mean of the distribution.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="convlab.lib.distribution.MultiCategorical.param_shape">
+<code class="descname">param_shape</code><a class="headerlink" href="#convlab.lib.distribution.MultiCategorical.param_shape" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="convlab.lib.distribution.MultiCategorical.probs">
+<code class="descname">probs</code><a class="headerlink" href="#convlab.lib.distribution.MultiCategorical.probs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="convlab.lib.distribution.MultiCategorical.sample">
+<code class="descname">sample</code><span class="sig-paren">(</span><em>sample_shape=torch.Size([])</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/distribution.html#MultiCategorical.sample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.distribution.MultiCategorical.sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a sample_shape shaped sample or sample_shape shaped batch of
+samples if the distribution parameters are batched.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="convlab.lib.distribution.MultiCategorical.variance">
+<code class="descname">variance</code><a class="headerlink" href="#convlab.lib.distribution.MultiCategorical.variance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the variance of the distribution.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-convlab.lib.file_util">
+<span id="convlab-lib-file-util-module"></span><h2>convlab.lib.file_util module<a class="headerlink" href="#module-convlab.lib.file_util" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="convlab.lib.file_util.cached_path">
+<code class="descclassname">convlab.lib.file_util.</code><code class="descname">cached_path</code><span class="sig-paren">(</span><em>file_path</em>, <em>cached_dir=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/file_util.html#cached_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.file_util.cached_path" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-convlab.lib.logger">
+<span id="convlab-lib-logger-module"></span><h2>convlab.lib.logger module<a class="headerlink" href="#module-convlab.lib.logger" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="convlab.lib.logger.FixedList">
+<em class="property">class </em><code class="descclassname">convlab.lib.logger.</code><code class="descname">FixedList</code><a class="reference internal" href="_modules/convlab/lib/logger.html#FixedList"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.logger.FixedList" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a></p>
+<p>fixed-list to restrict addition to root logger handler</p>
+<dl class="method">
+<dt id="convlab.lib.logger.FixedList.append">
+<code class="descname">append</code><span class="sig-paren">(</span><em>object</em><span class="sig-paren">)</span> &#x2192; None -- append object to end<a class="reference internal" href="_modules/convlab/lib/logger.html#FixedList.append"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.logger.FixedList.append" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.logger.act">
+<code class="descclassname">convlab.lib.logger.</code><code class="descname">act</code><span class="sig-paren">(</span><em>msg</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/logger.html#act"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.logger.act" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.logger.critical">
+<code class="descclassname">convlab.lib.logger.</code><code class="descname">critical</code><span class="sig-paren">(</span><em>msg</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/logger.html#critical"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.logger.critical" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.logger.debug">
+<code class="descclassname">convlab.lib.logger.</code><code class="descname">debug</code><span class="sig-paren">(</span><em>msg</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/logger.html#debug"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.logger.debug" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.logger.error">
+<code class="descclassname">convlab.lib.logger.</code><code class="descname">error</code><span class="sig-paren">(</span><em>msg</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/logger.html#error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.logger.error" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.logger.exception">
+<code class="descclassname">convlab.lib.logger.</code><code class="descname">exception</code><span class="sig-paren">(</span><em>msg</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/logger.html#exception"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.logger.exception" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.logger.get_logger">
+<code class="descclassname">convlab.lib.logger.</code><code class="descname">get_logger</code><span class="sig-paren">(</span><em>__name__</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/logger.html#get_logger"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.logger.get_logger" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a child logger specific to a module</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.logger.info">
+<code class="descclassname">convlab.lib.logger.</code><code class="descname">info</code><span class="sig-paren">(</span><em>msg</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/logger.html#info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.logger.info" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.logger.nl">
+<code class="descclassname">convlab.lib.logger.</code><code class="descname">nl</code><span class="sig-paren">(</span><em>msg</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/logger.html#nl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.logger.nl" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.logger.set_level">
+<code class="descclassname">convlab.lib.logger.</code><code class="descname">set_level</code><span class="sig-paren">(</span><em>lvl</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/logger.html#set_level"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.logger.set_level" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.logger.state">
+<code class="descclassname">convlab.lib.logger.</code><code class="descname">state</code><span class="sig-paren">(</span><em>msg</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/logger.html#state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.logger.state" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.logger.toggle_debug">
+<code class="descclassname">convlab.lib.logger.</code><code class="descname">toggle_debug</code><span class="sig-paren">(</span><em>modules</em>, <em>level='DEBUG'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/logger.html#toggle_debug"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.logger.toggle_debug" title="Permalink to this definition">¶</a></dt>
+<dd><p>Turn on module-specific debugging using their names, e.g. algorithm, actor_critic, at the desired debug level.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.logger.warning">
+<code class="descclassname">convlab.lib.logger.</code><code class="descname">warning</code><span class="sig-paren">(</span><em>msg</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/logger.html#warning"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.logger.warning" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-convlab.lib.math_util">
+<span id="convlab-lib-math-util-module"></span><h2>convlab.lib.math_util module<a class="headerlink" href="#module-convlab.lib.math_util" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="convlab.lib.math_util.calc_gaes">
+<code class="descclassname">convlab.lib.math_util.</code><code class="descname">calc_gaes</code><span class="sig-paren">(</span><em>rewards</em>, <em>dones</em>, <em>v_preds</em>, <em>gamma</em>, <em>lam</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/math_util.html#calc_gaes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.math_util.calc_gaes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate GAE from Schulman et al. <a class="reference external" href="https://arxiv.org/pdf/1506.02438.pdf">https://arxiv.org/pdf/1506.02438.pdf</a>
+v_preds are values predicted for current states, with one last element as the final next_state
+delta is defined as r + gamma * V(s’) - V(s) in eqn 10
+GAE is defined in eqn 16
+This method computes in torch tensor to prevent unnecessary moves between devices (e.g. GPU tensor to CPU numpy)
+NOTE any standardization is done outside of this method</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.math_util.calc_nstep_returns">
+<code class="descclassname">convlab.lib.math_util.</code><code class="descname">calc_nstep_returns</code><span class="sig-paren">(</span><em>rewards</em>, <em>dones</em>, <em>next_v_pred</em>, <em>gamma</em>, <em>n</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/math_util.html#calc_nstep_returns"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.math_util.calc_nstep_returns" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the n-step returns for advantage. Ref: <a class="reference external" href="http://www-anw.cs.umass.edu/~barto/courses/cs687/Chapter%207.pdf">http://www-anw.cs.umass.edu/~barto/courses/cs687/Chapter%207.pdf</a>
+Also see Algorithm S3 from A3C paper <a class="reference external" href="https://arxiv.org/pdf/1602.01783.pdf">https://arxiv.org/pdf/1602.01783.pdf</a> for the calculation used below
+R^(n)_t = r_{t} + gamma r_{t+1} + … + gamma^(n-1) r_{t+n-1} + gamma^(n) V(s_{t+n})</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.math_util.calc_q_value_logits">
+<code class="descclassname">convlab.lib.math_util.</code><code class="descname">calc_q_value_logits</code><span class="sig-paren">(</span><em>state_value</em>, <em>raw_advantages</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/math_util.html#calc_q_value_logits"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.math_util.calc_q_value_logits" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.math_util.calc_returns">
+<code class="descclassname">convlab.lib.math_util.</code><code class="descname">calc_returns</code><span class="sig-paren">(</span><em>rewards</em>, <em>dones</em>, <em>gamma</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/math_util.html#calc_returns"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.math_util.calc_returns" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the simple returns (full rollout) i.e. sum discounted rewards up till termination</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.math_util.linear_decay">
+<code class="descclassname">convlab.lib.math_util.</code><code class="descname">linear_decay</code><span class="sig-paren">(</span><em>start_val</em>, <em>end_val</em>, <em>start_step</em>, <em>end_step</em>, <em>step</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/math_util.html#linear_decay"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.math_util.linear_decay" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simple linear decay with annealing</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.math_util.no_decay">
+<code class="descclassname">convlab.lib.math_util.</code><code class="descname">no_decay</code><span class="sig-paren">(</span><em>start_val</em>, <em>end_val</em>, <em>start_step</em>, <em>end_step</em>, <em>step</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/math_util.html#no_decay"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.math_util.no_decay" title="Permalink to this definition">¶</a></dt>
+<dd><p>dummy method for API consistency</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.math_util.normalize">
+<code class="descclassname">convlab.lib.math_util.</code><code class="descname">normalize</code><span class="sig-paren">(</span><em>v</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/math_util.html#normalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.math_util.normalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to normalize a rank-1 np array</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.math_util.periodic_decay">
+<code class="descclassname">convlab.lib.math_util.</code><code class="descname">periodic_decay</code><span class="sig-paren">(</span><em>start_val</em>, <em>end_val</em>, <em>start_step</em>, <em>end_step</em>, <em>step</em>, <em>frequency=60.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/math_util.html#periodic_decay"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.math_util.periodic_decay" title="Permalink to this definition">¶</a></dt>
+<dd><p>Linearly decaying sinusoid that decays in roughly 10 iterations until explore_anneal_epi
+Plot the equation below to see the pattern
+suppose sinusoidal decay, start_val = 1, end_val = 0.2, stop after 60 unscaled x steps
+then we get 0.2+0.5*(1-0.2)(1 + cos x)*(1-x/60)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.math_util.rate_decay">
+<code class="descclassname">convlab.lib.math_util.</code><code class="descname">rate_decay</code><span class="sig-paren">(</span><em>start_val</em>, <em>end_val</em>, <em>start_step</em>, <em>end_step</em>, <em>step</em>, <em>decay_rate=0.9</em>, <em>frequency=20.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/math_util.html#rate_decay"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.math_util.rate_decay" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compounding rate decay that anneals in 20 decay iterations until end_step</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.math_util.standardize">
+<code class="descclassname">convlab.lib.math_util.</code><code class="descname">standardize</code><span class="sig-paren">(</span><em>v</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/math_util.html#standardize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.math_util.standardize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to standardize a rank-1 np array</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.math_util.to_one_hot">
+<code class="descclassname">convlab.lib.math_util.</code><code class="descname">to_one_hot</code><span class="sig-paren">(</span><em>data</em>, <em>max_val</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/math_util.html#to_one_hot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.math_util.to_one_hot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert an int list of data into one-hot vectors</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.math_util.venv_pack">
+<code class="descclassname">convlab.lib.math_util.</code><code class="descname">venv_pack</code><span class="sig-paren">(</span><em>batch_tensor</em>, <em>num_envs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/math_util.html#venv_pack"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.math_util.venv_pack" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply the reverse of venv_unpack to pack a batch tensor from (b*num_envs, <a href="#id1"><span class="problematic" id="id2">*</span></a>shape) to (b, num_envs, <a href="#id3"><span class="problematic" id="id4">*</span></a>shape)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.math_util.venv_unpack">
+<code class="descclassname">convlab.lib.math_util.</code><code class="descname">venv_unpack</code><span class="sig-paren">(</span><em>batch_tensor</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/math_util.html#venv_unpack"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.math_util.venv_unpack" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unpack a sampled vec env batch tensor
+e.g. for a state with original shape (4, ), vec env should return vec state with shape (num_envs, 4) to store in memory
+When sampled with batch_size b, we should get shape (b, num_envs, 4). But we need to unpack the num_envs dimension to get (b * num_envs, 4) for passing to a network. This method does that.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-convlab.lib.optimizer">
+<span id="convlab-lib-optimizer-module"></span><h2>convlab.lib.optimizer module<a class="headerlink" href="#module-convlab.lib.optimizer" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="convlab.lib.optimizer.GlobalAdam">
+<em class="property">class </em><code class="descclassname">convlab.lib.optimizer.</code><code class="descname">GlobalAdam</code><span class="sig-paren">(</span><em>params</em>, <em>lr=0.001</em>, <em>betas=(0.9</em>, <em>0.999)</em>, <em>eps=1e-08</em>, <em>weight_decay=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/optimizer.html#GlobalAdam"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.optimizer.GlobalAdam" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.optim.adam.Adam</span></code></p>
+<p>Global Adam algorithm with shared states for Hogwild.
+Adapted from <a class="reference external" href="https://github.com/ikostrikov/pytorch-a3c/blob/master/my_optim.py">https://github.com/ikostrikov/pytorch-a3c/blob/master/my_optim.py</a> (MIT)</p>
+<dl class="method">
+<dt id="convlab.lib.optimizer.GlobalAdam.share_memory">
+<code class="descname">share_memory</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/optimizer.html#GlobalAdam.share_memory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.optimizer.GlobalAdam.share_memory" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="convlab.lib.optimizer.GlobalAdam.step">
+<code class="descname">step</code><span class="sig-paren">(</span><em>closure=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/optimizer.html#GlobalAdam.step"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.optimizer.GlobalAdam.step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs a single optimization step.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>closure</strong> (<em>callable</em><em>, </em><em>optional</em>) – A closure that reevaluates the model
+and returns the loss.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="convlab.lib.optimizer.GlobalRMSprop">
+<em class="property">class </em><code class="descclassname">convlab.lib.optimizer.</code><code class="descname">GlobalRMSprop</code><span class="sig-paren">(</span><em>params</em>, <em>lr=0.01</em>, <em>alpha=0.99</em>, <em>eps=1e-08</em>, <em>weight_decay=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/optimizer.html#GlobalRMSprop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.optimizer.GlobalRMSprop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.optim.rmsprop.RMSprop</span></code></p>
+<p>Global RMSprop algorithm with shared states for Hogwild.
+Adapted from <a class="reference external" href="https://github.com/jingweiz/pytorch-rl/blob/master/optims/sharedRMSprop.py">https://github.com/jingweiz/pytorch-rl/blob/master/optims/sharedRMSprop.py</a> (MIT)</p>
+<dl class="method">
+<dt id="convlab.lib.optimizer.GlobalRMSprop.share_memory">
+<code class="descname">share_memory</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/optimizer.html#GlobalRMSprop.share_memory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.optimizer.GlobalRMSprop.share_memory" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="convlab.lib.optimizer.GlobalRMSprop.step">
+<code class="descname">step</code><span class="sig-paren">(</span><em>closure=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/optimizer.html#GlobalRMSprop.step"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.optimizer.GlobalRMSprop.step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs a single optimization step.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>closure</strong> (<em>callable</em><em>, </em><em>optional</em>) – A closure that reevaluates the model
+and returns the loss.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-convlab.lib.util">
+<span id="convlab-lib-util-module"></span><h2>convlab.lib.util module<a class="headerlink" href="#module-convlab.lib.util" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="convlab.lib.util.LabJsonEncoder">
+<em class="property">class </em><code class="descclassname">convlab.lib.util.</code><code class="descname">LabJsonEncoder</code><span class="sig-paren">(</span><em>*</em>, <em>skipkeys=False</em>, <em>ensure_ascii=True</em>, <em>check_circular=True</em>, <em>allow_nan=True</em>, <em>sort_keys=False</em>, <em>indent=None</em>, <em>separators=None</em>, <em>default=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/util.html#LabJsonEncoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.util.LabJsonEncoder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">json.encoder.JSONEncoder</span></code></p>
+<dl class="method">
+<dt id="convlab.lib.util.LabJsonEncoder.default">
+<code class="descname">default</code><span class="sig-paren">(</span><em>obj</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/util.html#LabJsonEncoder.default"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.util.LabJsonEncoder.default" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implement this method in a subclass such that it returns
+a serializable object for <code class="docutils literal notranslate"><span class="pre">o</span></code>, or calls the base implementation
+(to raise a <code class="docutils literal notranslate"><span class="pre">TypeError</span></code>).</p>
+<p>For example, to support arbitrary iterators, you could
+implement default like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">o</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">iterable</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">iterable</span><span class="p">)</span>
+    <span class="c1"># Let the base class default method raise the TypeError</span>
+    <span class="k">return</span> <span class="n">JSONEncoder</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">o</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.util.batch_get">
+<code class="descclassname">convlab.lib.util.</code><code class="descname">batch_get</code><span class="sig-paren">(</span><em>arr</em>, <em>idxs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/util.html#batch_get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.util.batch_get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get multi-idxs from an array depending if it’s a python list or np.array</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.util.calc_srs_mean_std">
+<code class="descclassname">convlab.lib.util.</code><code class="descname">calc_srs_mean_std</code><span class="sig-paren">(</span><em>sr_list</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/util.html#calc_srs_mean_std"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.util.calc_srs_mean_std" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a list of series, calculate their mean and std</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.util.calc_ts_diff">
+<code class="descclassname">convlab.lib.util.</code><code class="descname">calc_ts_diff</code><span class="sig-paren">(</span><em>ts2</em>, <em>ts1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/util.html#calc_ts_diff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.util.calc_ts_diff" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the time from tss ts1 to ts2
+&#64;param {str} ts2 Later ts in the FILE_TS_FORMAT
+&#64;param {str} ts1 Earlier ts in the FILE_TS_FORMAT
+&#64;returns {str} delta_t in %H:%M:%S format
+&#64;example</p>
+<p>ts1 = ‘2017_10_17_084739’
+ts2 = ‘2017_10_17_084740’
+ts_diff = util.calc_ts_diff(ts2, ts1)
+# =&gt; ‘0:00:01’</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.util.cast_df">
+<code class="descclassname">convlab.lib.util.</code><code class="descname">cast_df</code><span class="sig-paren">(</span><em>val</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/util.html#cast_df"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.util.cast_df" title="Permalink to this definition">¶</a></dt>
+<dd><p>missing pydash method to cast value as DataFrame</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.util.cast_list">
+<code class="descclassname">convlab.lib.util.</code><code class="descname">cast_list</code><span class="sig-paren">(</span><em>val</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/util.html#cast_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.util.cast_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>missing pydash method to cast value as list</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.util.clear_periodic_ckpt">
+<code class="descclassname">convlab.lib.util.</code><code class="descname">clear_periodic_ckpt</code><span class="sig-paren">(</span><em>prepath</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/util.html#clear_periodic_ckpt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.util.clear_periodic_ckpt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear periodic (with -epi) ckpt files in prepath</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.util.concat_batches">
+<code class="descclassname">convlab.lib.util.</code><code class="descname">concat_batches</code><span class="sig-paren">(</span><em>batches</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/util.html#concat_batches"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.util.concat_batches" title="Permalink to this definition">¶</a></dt>
+<dd><p>Concat batch objects from body.memory.sample() into one batch, when all bodies experience similar envs
+Also concat any nested epi sub-batches into flat batch
+{k: arr1} + {k: arr2} = {k: arr1 + arr2}</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.util.ctx_lab_mode">
+<code class="descclassname">convlab.lib.util.</code><code class="descname">ctx_lab_mode</code><span class="sig-paren">(</span><em>lab_mode</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/util.html#ctx_lab_mode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.util.ctx_lab_mode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates context to run method with a specific lab_mode
+&#64;example
+with util.ctx_lab_mode(‘eval’):</p>
+<blockquote>
+<div>foo()</div></blockquote>
+<p>&#64;util.ctx_lab_mode(‘eval’)
+def foo():</p>
+<blockquote>
+<div>…</div></blockquote>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.util.debug_image">
+<code class="descclassname">convlab.lib.util.</code><code class="descname">debug_image</code><span class="sig-paren">(</span><em>im</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/util.html#debug_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.util.debug_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Renders an image for debugging; pauses process until key press
+Handles tensor/numpy and conventions among libraries</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.util.downcast_float32">
+<code class="descclassname">convlab.lib.util.</code><code class="descname">downcast_float32</code><span class="sig-paren">(</span><em>df</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/util.html#downcast_float32"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.util.downcast_float32" title="Permalink to this definition">¶</a></dt>
+<dd><p>Downcast any float64 col to float32 to allow safer pandas comparison</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.util.epi_done">
+<code class="descclassname">convlab.lib.util.</code><code class="descname">epi_done</code><span class="sig-paren">(</span><em>done</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/util.html#epi_done"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.util.epi_done" title="Permalink to this definition">¶</a></dt>
+<dd><p>General method to check if episode is done for both single and vectorized env
+Only return True for singleton done since vectorized env does not have a natural episode boundary</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.util.find_ckpt">
+<code class="descclassname">convlab.lib.util.</code><code class="descname">find_ckpt</code><span class="sig-paren">(</span><em>prepath</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/util.html#find_ckpt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.util.find_ckpt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the ckpt-lorem-ipsum in a string and return lorem-ipsum</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.util.flatten_dict">
+<code class="descclassname">convlab.lib.util.</code><code class="descname">flatten_dict</code><span class="sig-paren">(</span><em>obj</em>, <em>delim='.'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/util.html#flatten_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.util.flatten_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Missing pydash method to flatten dict</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.util.frame_mod">
+<code class="descclassname">convlab.lib.util.</code><code class="descname">frame_mod</code><span class="sig-paren">(</span><em>frame</em>, <em>frequency</em>, <em>num_envs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/util.html#frame_mod"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.util.frame_mod" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generic mod for (frame % frequency == 0) for when num_envs is 1 or more,
+since frame will increase multiple ticks for vector env, use the remainder</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.util.get_class_attr">
+<code class="descclassname">convlab.lib.util.</code><code class="descname">get_class_attr</code><span class="sig-paren">(</span><em>obj</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/util.html#get_class_attr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.util.get_class_attr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the class attr of an object as dict</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.util.get_class_name">
+<code class="descclassname">convlab.lib.util.</code><code class="descname">get_class_name</code><span class="sig-paren">(</span><em>obj</em>, <em>lower=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/util.html#get_class_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.util.get_class_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the class name of an object</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.util.get_file_ext">
+<code class="descclassname">convlab.lib.util.</code><code class="descname">get_file_ext</code><span class="sig-paren">(</span><em>data_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/util.html#get_file_ext"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.util.get_file_ext" title="Permalink to this definition">¶</a></dt>
+<dd><p>get the <cite>.ext</cite> of file.ext</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.util.get_fn_list">
+<code class="descclassname">convlab.lib.util.</code><code class="descname">get_fn_list</code><span class="sig-paren">(</span><em>a_cls</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/util.html#get_fn_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.util.get_fn_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the callable, non-private functions of a class
+&#64;returns {[<a href="#id5"><span class="problematic" id="id6">*</span></a>str]} A list of strings of fn names</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.util.get_git_sha">
+<code class="descclassname">convlab.lib.util.</code><code class="descname">get_git_sha</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/util.html#get_git_sha"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.util.get_git_sha" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.util.get_lab_mode">
+<code class="descclassname">convlab.lib.util.</code><code class="descname">get_lab_mode</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/util.html#get_lab_mode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.util.get_lab_mode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.util.get_prepath">
+<code class="descclassname">convlab.lib.util.</code><code class="descname">get_prepath</code><span class="sig-paren">(</span><em>spec</em>, <em>unit='experiment'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/util.html#get_prepath"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.util.get_prepath" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.util.get_ts">
+<code class="descclassname">convlab.lib.util.</code><code class="descname">get_ts</code><span class="sig-paren">(</span><em>pattern='%Y_%m_%d_%H%M%S'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/util.html#get_ts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.util.get_ts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get current ts, defaults to format used for filename
+&#64;param {str} pattern To format the ts
+&#64;returns {str} ts
+&#64;example</p>
+<p>util.get_ts()
+# =&gt; ‘2017_10_17_084739’</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.util.grayscale_image">
+<code class="descclassname">convlab.lib.util.</code><code class="descname">grayscale_image</code><span class="sig-paren">(</span><em>im</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/util.html#grayscale_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.util.grayscale_image" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.util.in_eval_lab_modes">
+<code class="descclassname">convlab.lib.util.</code><code class="descname">in_eval_lab_modes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/util.html#in_eval_lab_modes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.util.in_eval_lab_modes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if lab_mode is one of EVAL_MODES</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.util.insert_folder">
+<code class="descclassname">convlab.lib.util.</code><code class="descname">insert_folder</code><span class="sig-paren">(</span><em>prepath</em>, <em>folder</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/util.html#insert_folder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.util.insert_folder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Insert a folder into prepath</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.util.is_jupyter">
+<code class="descclassname">convlab.lib.util.</code><code class="descname">is_jupyter</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/util.html#is_jupyter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.util.is_jupyter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if process is in Jupyter kernel</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.util.monkey_patch">
+<code class="descclassname">convlab.lib.util.</code><code class="descname">monkey_patch</code><span class="sig-paren">(</span><em>base_cls</em>, <em>extend_cls</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/util.html#monkey_patch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.util.monkey_patch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Monkey patch a base class with methods from extend_cls</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.util.mpl_debug_image">
+<code class="descclassname">convlab.lib.util.</code><code class="descname">mpl_debug_image</code><span class="sig-paren">(</span><em>im</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/util.html#mpl_debug_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.util.mpl_debug_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uses matplotlib to plot image with bigger size, axes, and false color on greyscaled images</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.util.normalize_image">
+<code class="descclassname">convlab.lib.util.</code><code class="descname">normalize_image</code><span class="sig-paren">(</span><em>im</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/util.html#normalize_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.util.normalize_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalizing image by dividing max value 255</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.util.parallelize">
+<code class="descclassname">convlab.lib.util.</code><code class="descname">parallelize</code><span class="sig-paren">(</span><em>fn</em>, <em>args</em>, <em>num_cpus=24</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/util.html#parallelize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.util.parallelize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parallelize a method fn, args and return results with order preserved per args.
+args should be a list of tuples.
+&#64;returns {list} results Order preserved output from fn.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.util.prepath_split">
+<code class="descclassname">convlab.lib.util.</code><code class="descname">prepath_split</code><span class="sig-paren">(</span><em>prepath</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/util.html#prepath_split"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.util.prepath_split" title="Permalink to this definition">¶</a></dt>
+<dd><p>Split prepath into useful names. Works with predir (prename will be None)
+prepath: output/dqn_pong_2018_12_02_082510/dqn_pong_t0_s0
+predir: output/dqn_pong_2018_12_02_082510
+prefolder: dqn_pong_2018_12_02_082510
+prename: dqn_pong_t0_s0
+spec_name: dqn_pong
+experiment_ts: 2018_12_02_082510
+ckpt: ckpt-best of dqn_pong_t0_s0_ckpt-best if available</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.util.prepath_to_idxs">
+<code class="descclassname">convlab.lib.util.</code><code class="descname">prepath_to_idxs</code><span class="sig-paren">(</span><em>prepath</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/util.html#prepath_to_idxs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.util.prepath_to_idxs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract trial index and session index from prepath if available</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.util.prepath_to_spec">
+<code class="descclassname">convlab.lib.util.</code><code class="descname">prepath_to_spec</code><span class="sig-paren">(</span><em>prepath</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/util.html#prepath_to_spec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.util.prepath_to_spec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a prepath, read the correct spec recover the meta_spec that will return the same prepath for eval lab modes
+example: output/a2c_cartpole_2018_06_13_220436/a2c_cartpole_t0_s0</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.util.preprocess_image">
+<code class="descclassname">convlab.lib.util.</code><code class="descname">preprocess_image</code><span class="sig-paren">(</span><em>im</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/util.html#preprocess_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.util.preprocess_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Image preprocessing using OpenAI Baselines method: grayscale, resize
+This resize uses stretching instead of cropping</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.util.read">
+<code class="descclassname">convlab.lib.util.</code><code class="descname">read</code><span class="sig-paren">(</span><em>data_path</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/util.html#read"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.util.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Universal data reading method with smart data parsing
+- {.csv} to DataFrame
+- {.json} to dict, list
+- {.yml} to dict
+- {*} to str
+&#64;param {str} data_path The data path to read from
+&#64;returns {data} The read data in sensible format
+&#64;example</p>
+<p>data_df = util.read(‘test/fixture/lib/util/test_df.csv’)
+# =&gt; &lt;DataFrame&gt;</p>
+<p>data_dict = util.read(‘test/fixture/lib/util/test_dict.json’)
+data_dict = util.read(‘test/fixture/lib/util/test_dict.yml’)
+# =&gt; &lt;dict&gt;</p>
+<p>data_list = util.read(‘test/fixture/lib/util/test_list.json’)
+# =&gt; &lt;list&gt;</p>
+<p>data_str = util.read(‘test/fixture/lib/util/test_str.txt’)
+# =&gt; &lt;str&gt;</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.util.read_as_df">
+<code class="descclassname">convlab.lib.util.</code><code class="descname">read_as_df</code><span class="sig-paren">(</span><em>data_path</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/util.html#read_as_df"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.util.read_as_df" title="Permalink to this definition">¶</a></dt>
+<dd><p>Submethod to read data as DataFrame</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.util.read_as_pickle">
+<code class="descclassname">convlab.lib.util.</code><code class="descname">read_as_pickle</code><span class="sig-paren">(</span><em>data_path</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/util.html#read_as_pickle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.util.read_as_pickle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Submethod to read data as pickle</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.util.read_as_plain">
+<code class="descclassname">convlab.lib.util.</code><code class="descname">read_as_plain</code><span class="sig-paren">(</span><em>data_path</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/util.html#read_as_plain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.util.read_as_plain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Submethod to read data as plain type</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.util.resize_image">
+<code class="descclassname">convlab.lib.util.</code><code class="descname">resize_image</code><span class="sig-paren">(</span><em>im</em>, <em>w_h</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/util.html#resize_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.util.resize_image" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.util.run_cmd">
+<code class="descclassname">convlab.lib.util.</code><code class="descname">run_cmd</code><span class="sig-paren">(</span><em>cmd</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/util.html#run_cmd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.util.run_cmd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run shell command</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.util.run_cmd_wait">
+<code class="descclassname">convlab.lib.util.</code><code class="descname">run_cmd_wait</code><span class="sig-paren">(</span><em>proc</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/util.html#run_cmd_wait"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.util.run_cmd_wait" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wait on a running process created by util.run_cmd and print its stdout</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.util.self_desc">
+<code class="descclassname">convlab.lib.util.</code><code class="descname">self_desc</code><span class="sig-paren">(</span><em>cls</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/util.html#self_desc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.util.self_desc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to get self description, used at init.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.util.set_attr">
+<code class="descclassname">convlab.lib.util.</code><code class="descname">set_attr</code><span class="sig-paren">(</span><em>obj</em>, <em>attr_dict</em>, <em>keys=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/util.html#set_attr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.util.set_attr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set attribute of an object from a dict</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.util.set_cuda_id">
+<code class="descclassname">convlab.lib.util.</code><code class="descname">set_cuda_id</code><span class="sig-paren">(</span><em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/util.html#set_cuda_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.util.set_cuda_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use trial and session id to hash and modulo cuda device count for a cuda_id to maximize device usage. Sets the net_spec for the base Net class to pick up.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.util.set_logger">
+<code class="descclassname">convlab.lib.util.</code><code class="descname">set_logger</code><span class="sig-paren">(</span><em>spec</em>, <em>logger</em>, <em>unit=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/util.html#set_logger"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.util.set_logger" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the logger for a lab unit give its spec</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.util.set_random_seed">
+<code class="descclassname">convlab.lib.util.</code><code class="descname">set_random_seed</code><span class="sig-paren">(</span><em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/util.html#set_random_seed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.util.set_random_seed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate and set random seed for relevant modules, and record it in spec.meta.random_seed</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.util.sizeof">
+<code class="descclassname">convlab.lib.util.</code><code class="descname">sizeof</code><span class="sig-paren">(</span><em>obj</em>, <em>divisor=1000000.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/util.html#sizeof"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.util.sizeof" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the size of object, in MB by default</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.util.smart_path">
+<code class="descclassname">convlab.lib.util.</code><code class="descname">smart_path</code><span class="sig-paren">(</span><em>data_path</em>, <em>as_dir=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/util.html#smart_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.util.smart_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resolve data_path into abspath with fallback to join from ROOT_DIR
+&#64;param {str} data_path The input data path to resolve
+&#64;param {bool} as_dir Whether to return as dirname
+&#64;returns {str} The normalized absolute data_path
+&#64;example</p>
+<p>util.smart_path(‘convlab/lib’)
+# =&gt; ‘/Users/ANON/Documents/convlab/convlab/lib’</p>
+<p>util.smart_path(‘/tmp’)
+# =&gt; ‘/tmp’</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.util.split_minibatch">
+<code class="descclassname">convlab.lib.util.</code><code class="descname">split_minibatch</code><span class="sig-paren">(</span><em>batch</em>, <em>mb_size</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/util.html#split_minibatch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.util.split_minibatch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Split a batch into minibatches of mb_size or smaller, without replacement</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.util.to_json">
+<code class="descclassname">convlab.lib.util.</code><code class="descname">to_json</code><span class="sig-paren">(</span><em>d</em>, <em>indent=2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/util.html#to_json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.util.to_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Shorthand method for stringify JSON with indent</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.util.to_opencv_image">
+<code class="descclassname">convlab.lib.util.</code><code class="descname">to_opencv_image</code><span class="sig-paren">(</span><em>im</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/util.html#to_opencv_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.util.to_opencv_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert to OpenCV image shape h,w,c</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.util.to_pytorch_image">
+<code class="descclassname">convlab.lib.util.</code><code class="descname">to_pytorch_image</code><span class="sig-paren">(</span><em>im</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/util.html#to_pytorch_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.util.to_pytorch_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert to PyTorch image shape c,h,w</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.util.to_render">
+<code class="descclassname">convlab.lib.util.</code><code class="descname">to_render</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/util.html#to_render"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.util.to_render" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.util.to_torch_batch">
+<code class="descclassname">convlab.lib.util.</code><code class="descname">to_torch_batch</code><span class="sig-paren">(</span><em>batch</em>, <em>device</em>, <em>is_episodic</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/util.html#to_torch_batch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.util.to_torch_batch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mutate a batch (dict) to make its values from numpy into PyTorch tensor</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.util.write">
+<code class="descclassname">convlab.lib.util.</code><code class="descname">write</code><span class="sig-paren">(</span><em>data</em>, <em>data_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/util.html#write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.util.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Universal data writing method with smart data parsing
+- {.csv} from DataFrame
+- {.json} from dict, list
+- {.yml} from dict
+- {*} from str(*)
+&#64;param {*} data The data to write
+&#64;param {str} data_path The data path to write to
+&#64;returns {data_path} The data path written to
+&#64;example</p>
+<p>data_path = util.write(data_df, ‘test/fixture/lib/util/test_df.csv’)</p>
+<p>data_path = util.write(data_dict, ‘test/fixture/lib/util/test_dict.json’)
+data_path = util.write(data_dict, ‘test/fixture/lib/util/test_dict.yml’)</p>
+<p>data_path = util.write(data_list, ‘test/fixture/lib/util/test_list.json’)</p>
+<p>data_path = util.write(data_str, ‘test/fixture/lib/util/test_str.txt’)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.util.write_as_df">
+<code class="descclassname">convlab.lib.util.</code><code class="descname">write_as_df</code><span class="sig-paren">(</span><em>data</em>, <em>data_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/util.html#write_as_df"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.util.write_as_df" title="Permalink to this definition">¶</a></dt>
+<dd><p>Submethod to write data as DataFrame</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.util.write_as_pickle">
+<code class="descclassname">convlab.lib.util.</code><code class="descname">write_as_pickle</code><span class="sig-paren">(</span><em>data</em>, <em>data_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/util.html#write_as_pickle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.util.write_as_pickle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Submethod to write data as pickle</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.util.write_as_plain">
+<code class="descclassname">convlab.lib.util.</code><code class="descname">write_as_plain</code><span class="sig-paren">(</span><em>data</em>, <em>data_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/util.html#write_as_plain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.util.write_as_plain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Submethod to write data as plain type</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-convlab.lib.viz">
+<span id="convlab-lib-viz-module"></span><h2>convlab.lib.viz module<a class="headerlink" href="#module-convlab.lib.viz" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="convlab.lib.viz.create_label">
+<code class="descclassname">convlab.lib.viz.</code><code class="descname">create_label</code><span class="sig-paren">(</span><em>y_col</em>, <em>x_col</em>, <em>title=None</em>, <em>y_title=None</em>, <em>x_title=None</em>, <em>legend_name=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/viz.html#create_label"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.viz.create_label" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create label dict for go.Layout with smart resolution</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.viz.create_layout">
+<code class="descclassname">convlab.lib.viz.</code><code class="descname">create_layout</code><span class="sig-paren">(</span><em>title</em>, <em>y_title</em>, <em>x_title</em>, <em>x_type=None</em>, <em>width=500</em>, <em>height=500</em>, <em>layout_kwargs=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/viz.html#create_layout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.viz.create_layout" title="Permalink to this definition">¶</a></dt>
+<dd><p>simplified method to generate Layout</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.viz.get_palette">
+<code class="descclassname">convlab.lib.viz.</code><code class="descname">get_palette</code><span class="sig-paren">(</span><em>size</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/viz.html#get_palette"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.viz.get_palette" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the suitable palette of a certain size</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.viz.lower_opacity">
+<code class="descclassname">convlab.lib.viz.</code><code class="descname">lower_opacity</code><span class="sig-paren">(</span><em>rgb</em>, <em>opacity</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/viz.html#lower_opacity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.viz.lower_opacity" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.viz.plot">
+<code class="descclassname">convlab.lib.viz.</code><code class="descname">plot</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/viz.html#plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.viz.plot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.viz.plot_experiment">
+<code class="descclassname">convlab.lib.viz.</code><code class="descname">plot_experiment</code><span class="sig-paren">(</span><em>experiment_spec</em>, <em>experiment_df</em>, <em>metrics_cols</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/viz.html#plot_experiment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.viz.plot_experiment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the metrics vs. specs parameters of an experiment, where each point is a trial.
+ref colors: <a class="reference external" href="https://plot.ly/python/heatmaps-contours-and-2dhistograms-tutorial/#plotlys-predefined-color-scales">https://plot.ly/python/heatmaps-contours-and-2dhistograms-tutorial/#plotlys-predefined-color-scales</a></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.viz.plot_mean_sr">
+<code class="descclassname">convlab.lib.viz.</code><code class="descname">plot_mean_sr</code><span class="sig-paren">(</span><em>sr_list</em>, <em>time_sr</em>, <em>title</em>, <em>y_title</em>, <em>x_title</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/viz.html#plot_mean_sr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.viz.plot_mean_sr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot a list of series using its mean, with error bar using std</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.viz.plot_session">
+<code class="descclassname">convlab.lib.viz.</code><code class="descname">plot_session</code><span class="sig-paren">(</span><em>session_spec</em>, <em>session_metrics</em>, <em>session_df</em>, <em>df_mode='eval'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/viz.html#plot_session"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.viz.plot_session" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the session graphs:
+- mean_returns, strengths, sample_efficiencies, training_efficiencies, stabilities (with error bar)
+- additional plots from session_df: losses, exploration variable, entropy</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.viz.plot_sr">
+<code class="descclassname">convlab.lib.viz.</code><code class="descname">plot_sr</code><span class="sig-paren">(</span><em>sr</em>, <em>time_sr</em>, <em>title</em>, <em>y_title</em>, <em>x_title</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/viz.html#plot_sr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.viz.plot_sr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot a series</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.viz.plot_trial">
+<code class="descclassname">convlab.lib.viz.</code><code class="descname">plot_trial</code><span class="sig-paren">(</span><em>trial_spec</em>, <em>trial_metrics</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/viz.html#plot_trial"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.viz.plot_trial" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the trial graphs:
+- mean_returns, strengths, sample_efficiencies, training_efficiencies, stabilities (with error bar)
+- consistencies (no error bar)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="convlab.lib.viz.save_image">
+<code class="descclassname">convlab.lib.viz.</code><code class="descname">save_image</code><span class="sig-paren">(</span><em>figure</em>, <em>filepath</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/convlab/lib/viz.html#save_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#convlab.lib.viz.save_image" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-convlab.lib">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-convlab.lib" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, ConvLab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
