@@ -23,10 +23,10 @@ In order to make the new policy algorithm visible to the ConvLab environment, on
 
 For example, to make the class ```SVMNLU``` class inside ```convlab/modules/nlu/multiwoz/svm/nlu.py``` visible, we added
 
-- ```from convlab.modules.nlu.multiwoz.svm.nlu import SVMNLU``` importting line in
+- ```from convlab.modules.nlu.multiwoz.svm.nlu import SVMNLU``` in
   - ```convlab/modules/nlu/multiwoz/__init__.py```.
 
-* ```from convlab.modules.nlu.multiwoz import SVMNLU``` importting line in
+* ```from convlab.modules.nlu.multiwoz import SVMNLU``` in
   * ```convlab/modules/nlu/__init__.py ```
 
 
