@@ -1,6 +1,6 @@
 # Adding NLU model to the pipeline
 
-This is a tutorial for adding NLU model to the ConvLab environment. To demonstrate, we will walk through an example of incorporating "SVMNLU" on the "multiwoz" domain.
+This is a tutorial for adding an NLU model to the ConvLab environment. To demonstrate, we will walk through an example of incorporating "SVMNLU" on the "multiwoz" domain.
 
 
 
@@ -10,7 +10,7 @@ Add all of your NLU model factors under your model folder: ```convlab/modules/nl
 
 
 In order to incorporate your NLU model into the ConvLab environment, first create your NLU model class in ```$model_folder/nlu.py``` , inheriting the provided interface: ```convlab/modules/nlu/nlu.py```. 
-The ```nlu.py``` should have following functionalities:
+The ```nlu.py``` should have the following functionalities:
 
 1. Load the model in ```__init__```. You can 1) load from local path or 2) load from url using `cached_path` from `convlab.lib.file_util`
 2. Provide custom ```parse()``` function to obtain an output dialog act from your model using current user utterance.
@@ -33,7 +33,7 @@ For example, to make the class ```SVMNLU``` class inside ```convlab/modules/nlu/
 
 ## Config set up
 
-Then just config the class name and parameters of your model in configuration file, you can use your NLU for end2end evaluation. An example configuration is `svmnlu_rule_rule_template` in ```convlab/spec/demo.json```. The `name` must be your model class name in ```$model_folder/nlu.py```.
+Then just config the class name and parameters of your model in the configuration file, you can use your NLU for end2end evaluation. An example configuration is `svmnlu_rule_rule_template` in ```convlab/spec/demo.json```. The `name` must be your model class name in ```$model_folder/nlu.py```.
 
 If you want to evaluate the model in multiwoz dataset, you can refer to ```convlab/modules/nlu/multiwoz/evaluate.py```.
 
