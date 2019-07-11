@@ -48,7 +48,7 @@ ConvLab requires Python 3.6.5 or later. Windows is currently not offically suppo
 
 #### Setting up a virtual environment
 
-[Conda](https://conda.io/) can be used set up a virtual environment with the
+[Conda](https://conda.io/) can be used to set up a virtual environment with the
 version of Python required for ConvLab.  If you already have a Python 3.6 or 3.7
 environment you want to use, you can skip to the 'installing via pip' section.
 
@@ -73,7 +73,7 @@ Installing the library and dependencies is simple using `pip`.
    ```bash
    pip install -r requirements.txt
    ```
-If your linux system does not have essential building tools installed, you might need to install it by running
+If your Linux system does not have essential building tools installed, you might need to install it by running
  ```bash
  sudo apt-get install build-essential
  ```
@@ -86,7 +86,7 @@ python -m nltk.downloader stopwords
 
 Docker provides more isolation and consistency, and also makes it easy to distribute your environment to a compute cluster.
 
-Once you have [installed Docker](https://docs.docker.com/engine/installation/) just run the following commands to get an environment that will run on either the cpu or gpu.
+Once you have [installed Docker](https://docs.docker.com/engine/installation/) just run the following commands to get an environment that will run on either the CPU or GPU.
 
 1. Pull docker </br>
 ```docker pull convlab/convlab:0.2```
@@ -125,7 +125,7 @@ $ python run.py demo.json onenet_rule_dqn_template eval@output/onenet_rule_dqn_t
 ```
 
 Note that currently ConvLab can only train the policy component by interacting with a user simulator. 
-For other components, ConvLab supports offline supervise learning. For example, you can train a NLU model using the local training script as in [OneNet](https://github.com/ConvLab/ConvLab/tree/dev/convlab/modules/nlu/multiwoz/onenet).
+For other components, ConvLab supports offline supervise learning. For example, you can train an NLU model using the local training script as in [OneNet](https://github.com/ConvLab/ConvLab/tree/dev/convlab/modules/nlu/multiwoz/onenet).
 
 ## Creating a new spec file
 A spec file is used to fully specify experiments including a dialog agent and a user simulator. It is a JSON of multiple experiment specs, each containing the keys agent, env, body, meta, search.
