@@ -89,10 +89,10 @@ Docker provides more isolation and consistency, and also makes it easy to distri
 Once you have [installed Docker](https://docs.docker.com/engine/installation/) just run the following commands to get an environment that will run on either the CPU or GPU.
 
 1. Pull docker </br>
-```docker pull convlab/convlab:0.2```
+```docker pull convlab/convlab:0.2.1```
 
 2. Run docker </br>
-```docker run -it --rm convlab/convlab:0.2```
+```docker run -it --rm convlab/convlab:0.2.1```
 
 ## Running ConvLab
 Once you've downloaded ConvLab and installed required packages, you can run the command-line interface with the `python run.py` command.
