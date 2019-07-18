@@ -26,6 +26,9 @@ mapping = {'restaurant': {'addr': 'address', 'area': 'area', 'food': 'food', 'na
         'hospital': {'post': 'postcode', 'phone': 'phone', 'addr': 'address', 'department': 'department'},
         'police': {'post': 'postcode', 'phone': 'phone', 'addr': 'address'}}
 
+time_re = re.compile(r'^(([01]\d|2[0-3]):([0-5]\d)|24:00)$')
+NUL_VALUE = ["", "dont care", 'not mentioned', "don't care", "dontcare", "do n't care"]
+
 class MultiWozEvaluator(Evaluator):
     def __init__(self):
         self.sys_da_array = []
@@ -169,11 +172,16 @@ class MultiWozEvaluator(Evaluator):
         inform_slot = {}
         for domain in domains:
             inform_slot[domain] = set()
+        TP, FP, FN = 0, 0, 0
         for da in sys_history:
             domain, intent, slot, value = da.split('-', 3)
-            if intent in ['inform', 'recommend', 'offerbook', 'offerbooked'] and domain in domains and slot in mapping[domain]:
-                inform_slot[domain].add(mapping[domain][slot])
-        TP, FP, FN = 0, 0, 0
+            if intent in ['inform', 'recommend', 'offerbook', 'offerbooked'] and \
+                domain in domains and slot in mapping[domain] and value.strip() not in NUL_VALUE:
+                key = mapping[domain][slot]
+                if self._check_value(key, value):
+                    inform_slot[domain].add(key)
+                else:
+                    FP += 1
         for domain in domains:
             for k in goal[domain]['reqt']:
                 if k in inform_slot[domain]:
@@ -188,6 +196,33 @@ class MultiWozEvaluator(Evaluator):
                     FP += 1
         return TP, FP, FN
     
+    def _check_value(self, key, value):
+        if key == "area":
+            return value.lower() in ["centre", "east", "south", "west", "north"]
+        elif key == "arriveBy" or key == "leaveAt":
+            return time_re.match(value)
+        elif key == "day":
+            return value.lower() in ["monday", "tuesday", "wednesday", "thursday", "friday",
+                              "saturday", "sunday"]
+        elif key == "duration":
+            return 'minute' in value
+        elif key == "internet" or key == "parking":
+            return value in ["yes", "no"]
+        elif key == "phone":
+            return re.match(r'^\d{11}$', value)
+        elif key == "price" or key == "entrance fee":
+            return 'pound' in value or value == "free"
+        elif key == "pricerange":
+            return value in ["cheap", "expensive", "moderate", "free"]
+        elif key == "postcode":
+            return re.match(r'^cb\d{2,3}[a-z]{2}$', value)
+        elif key == "stars":
+            return re.match(r'^\d$', value)
+        elif key == "trainID":
+            return re.match(r'^tr\d{4}$', value.lower())
+        else:
+            return True
+    
     def book_rate(self, ref2goal=True, aggregate=True):
         if ref2goal:
             goal = self._expand(self.goal)
@@ -198,7 +233,7 @@ class MultiWozEvaluator(Evaluator):
                     goal[domain]['book'] = self.goal[domain]['book']
             for da in self.usr_da_array:
                 d, i, s, v = da.split('-', 3)
-                if i == 'inform' and s in mapping[d]:
+                if i in ['inform', 'recommend', 'offerbook', 'offerbooked'] and s in mapping[d]:
                     goal[d]['info'][mapping[d][s]] = v
         score = self._book_rate_goal(goal, self.booked)
         if aggregate:
@@ -213,7 +248,7 @@ class MultiWozEvaluator(Evaluator):
             goal = self._init_dict()
             for da in self.usr_da_array:
                 d, i, s, v = da.split('-', 3)
-                if i == 'inform' and s in mapping[d]:
+                if i in ['inform', 'recommend', 'offerbook', 'offerbooked'] and s in mapping[d]:
                     goal[d]['info'][mapping[d][s]] = v
                 elif i == 'request':
                     goal[d]['reqt'].append(s)
@@ -265,7 +300,7 @@ class MultiWozEvaluator(Evaluator):
                 d, i, s, v = da.split('-', 3)
                 if d != domain:
                     continue
-                if i == 'inform' and s in mapping[d]:
+                if i in ['inform', 'recommend', 'offerbook', 'offerbooked'] and s in mapping[d]:
                     goal[d]['info'][mapping[d][s]] = v
                 elif i == 'request':
                     goal[d]['reqt'].append(s)
