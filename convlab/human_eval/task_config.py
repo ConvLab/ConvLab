@@ -27,33 +27,10 @@ task_config['task_description'] = \
     """
     (You can keep accepting new HITs after you finish your current one, so keep working on it if you like the task!)
     <br>
-    <b>In this task you will chat with an information desk clerk bot to plan your tour according to a given goal.</b>
-    <br>
-    For example, your given goal and expected conversation could be: <br><br> 
-    <table border="1" cellpadding="10">
-    <tr><th>Your goal</th><th>Expected conversation</th></tr>
-    <tr><td>
-    <ul>
-    <li>You are looking for a <b>place to stay</b>. The hotel should be in the <b>cheap</b> price range and should be in the type of <b>hotel</b></li>
-    <li>The hotel should include <b>free parking</b> and should include <b>free wifi</b></li>
-    <li>Once you find the hotel, you want to book it for <b>6</b> people and <b>3</b> nights</b> starting from <b>tuesday</b></li>
-    <li>If the booking fails how about <b>2</b> nights</li>
-    <li>Make sure you get the <b>reference number</b></li>
-    </ul>
-    </td>
-    <td>
-    <b>You: </b>I am looking for a place to to stay that has cheap price range it should be in a type of hotel<br>
-    <b>Info desk: </b>Okay, do you have a specific area you want to stay in?<br>
-    <b>You: </b>no, i just need to make sure it's cheap. oh, and i need parking<br>
-    <b>Info desk: </b>I found 1 cheap hotel for you that includes parking. Do you like me to book it?<br>
-    <b>You: </b>Yes, please. 6 people 3 nights starting on tuesday.<br>
-    <b>Info desk: </b>I am sorry but I wasn't able to book that for you for Tuesday. Is there another day you would like to stay or perhaps a shorter stay?<br>
-    <b>You: </b>how about only 2 nights.<br>
-    <b>Info desk: </b>Booking was successful.\nReference number is : 7GAWK763. Anything else I can do for you?<br>
-    <b>You: </b>No, that will be all. Good bye.<br>
-    <b>Info desk: </b>Thank you for using our services.<br>
-    </td>
-    </table>
+    
+    <span id="user-goal" style="font-size: 16px;"> 
+    </span>
+    
     <br><br>
     Chat with the bot naturally and stick to your own goal but <b>do not trivially copy the goal descriptions into the message.</b>
     <br>
@@ -67,4 +44,39 @@ task_config['task_description'] = \
     <b><span style="color:red">- No racism, sexism or otherwise offensive comments, or the submission will be rejected and we will report to Amazon.</b></span>
     <br>
     <br>
+    
+    <script type="text/javascript">
+    
+    function handle_new_message(new_message_id, message) {
+      var agent_id = message.id;
+      var message_text = message.text
+      if (displayed_messages.indexOf(new_message_id) !== -1) {
+        // This message has already been seen and put up into the chat
+        log(new_message_id + ' was a repeat message', 1);
+        return;
+      }
+      log('New message, ' + new_message_id + ' from agent ' + agent_id, 1);
+      displayed_messages.push(new_message_id);
+      if (agent_id !== cur_agent_id) {
+        add_message_to_conversation(agent_id, message_text, false);
+      } else {
+        add_message_to_conversation(agent_id, message_text, true);
+      }
+      if ("goal_text" in message) {
+        var goal_text = message.goal_text
+          $("#user-goal").html('<br>You are looking for information in Cambridge.<br><br><b> Your assigned goal is:</b><br><br>' + goal_text);
+          log(message.goal_text, 1);
+      }
+      if("exceed_min_turns" in message && message.exceed_min_turns){
+        exceed_min_turns = true;
+        $("button#id_done_button").css("disabled", false);
+        $("button#id_done_button").css("display", "");
+        $("input#id_text_input").css("width", "40%");
+        $(window).resize(window_resize);
+      }
+      if ("evaluation" in message && message.evaluation){
+        $("button#id_done_button").hide()
+      }
+    }
+    </script>
     """
