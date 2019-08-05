@@ -16,6 +16,8 @@ from convlab.lib.file_util import cached_path
 from convlab.modules.nlu.nlu import NLU
 from convlab.modules.nlu.multiwoz.milu import dataset_reader, model 
 
+from spacy.symbols import ORTH, LEMMA
+
 DEFAULT_CUDA_DEVICE = -1
 DEFAULT_DIRECTORY = "models"
 DEFAULT_ARCHIVE_FILE = os.path.join(DEFAULT_DIRECTORY, "milu.tar.gz")
@@ -43,6 +45,9 @@ class MILU(NLU):
         archive = load_archive(archive_file,
                             cuda_device=cuda_device)
         self.tokenizer = SpacyWordSplitter(language="en_core_web_sm")
+        _special_case = [{ORTH: u"id", LEMMA: u"id"}]
+        self.tokenizer.spacy.tokenizer.add_special_case(u"id", _special_case)
+
         dataset_reader_params = archive.config["dataset_reader"]
         self.dataset_reader = DatasetReader.from_params(dataset_reader_params)
         self.model = archive.model
