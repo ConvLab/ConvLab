@@ -12,9 +12,6 @@ from convlab.lib.decorator import lab_api
 
 logger = logger.get_logger(__name__)
 
-# Modified by Microsoft Corporation.
-# Licensed under the MIT license.
-
 class Algorithm(ABC):
     '''
     Abstract class ancestor to all Algorithms,
