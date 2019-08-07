@@ -7,6 +7,7 @@ import random
 
 import numpy as np
 import torch.nn as nn
+from tqdm import tqdm
 from torch import optim
 from torch.optim import lr_scheduler
 
