@@ -142,7 +142,7 @@ Instead of writing one from scratch, you are welcome to modify the `convlab/spec
     - Add install.sh under the convlab directory. install.sh should include all required extra packages.
     - Create your own Dockerfile with the name dev.dockerfile
 4. Zip the system and submit.
-### Evaluation after System Submission
+### Evaluation
 1. Automatic end2end Evaluation: The submitted system will be evaluated using the user-simulator in the repository, with metrics including success rate, average reward, number of turms, precision, recall, and F1 score.
 2. Human Evaluation: The submitted system will be evaluated in Amazon Mechanic Turk. Crowd-workers will communicate with your summited system, and provide a rating based on the whole experience (language understanding, appropriateness, etc.)
 ## Contributions
