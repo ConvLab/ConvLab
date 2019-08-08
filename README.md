@@ -82,6 +82,9 @@ ConvLab uses 'stopwords' in nltk, and you need to download it by running
 python -m nltk.downloader stopwords
 ```
 
+#### Installation tips on CentOS
+Please refer to the instructions here: https://github.com/daveta/convlab-notes/wiki/Installing-Convlab-on-Centos7 
+
 ### Installing using Docker
 
 Docker provides more isolation and consistency, and also makes it easy to distribute your environment to a compute cluster.
