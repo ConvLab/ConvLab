@@ -108,7 +108,7 @@ class MultiWozEnvironment(object):
     def step(self, action):
         user_response, user_act, session_over, reward = self.simulator.response(action, self.history)
         self.last_act = user_act
-        self.history.extend([f'sys_response', f'user_response'])
+        self.history.extend([f'{sys_response}', f'{user_response}'])
         logger.act(f'Inferred system action: {self.get_sys_act()}')
         # update evaluator
         if self.evaluator:
