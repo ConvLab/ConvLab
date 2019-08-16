@@ -239,12 +239,8 @@ def get_summary_bstate(bstate):
         if domain == 'train':
             if 'people' not in bstate[domain]['book'].keys():
                 booking.append(0)
-            else:
-                booking.append(1)
             if 'ticket' not in bstate[domain]['book'].keys():
                 booking.append(0)
-            else:
-                booking.append(1)
         summary_bstate += booking
 
         for slot in bstate[domain]['semi']:
