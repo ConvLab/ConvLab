@@ -1,4 +1,4 @@
-FROM python:3.7
+FROM pytorch/pytorch:1.1.0-cuda10.0-cudnn7.5-devel 
 
 # Install base packages.
 RUN apt-get clean && apt-get update && apt-get install -y locales
@@ -22,6 +22,7 @@ RUN apt-get update --fix-missing && apt-get install -y \
 rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
+RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 RUN [ "python", "-c", "import nltk; nltk.download('stopwords')" ]
 

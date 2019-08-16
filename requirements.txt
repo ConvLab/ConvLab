@@ -50,7 +50,7 @@ idna==2.8
 imagesize==1.1.0
 ipython-genutils==0.2.0
 itsdangerous==1.1.0
-Jinja2==2.10
+Jinja2==2.10.1
 jmespath==0.9.4
 jsondiff==1.1.1
 jsonnet==0.10.0
@@ -71,7 +71,7 @@ msgpack-numpy==0.4.3.2
 murmurhash==1.0.2
 nbformat==4.4.0
 nltk==3.4
-numpy==1.16.2
+numpy==1.16.3
 numpydoc==0.8.0
 overrides==1.9
 packaging==19.0
@@ -97,8 +97,8 @@ pytest==4.3.1
 python-dateutil==2.8.0
 python-jose==2.0.2
 pytorch-pretrained-bert==0.6.1
-pytz==2017.3
-PyYAML==3.13
+pytz==2019.1
+PyYAML==5.1
 ray==0.6.5
 redis==3.2.1
 regex
@@ -123,13 +123,13 @@ tensorflow-estimator==1.13.0
 termcolor==1.1.0
 thinc==6.12.1
 toolz==0.9.0
-torch==1.0.1.post2
+torch==1.1.0
 tqdm==4.31.1
 traitlets==4.3.2
 typing==3.6.6
 ujson==1.35
 Unidecode==1.0.23
-urllib3==1.24.1
+urllib3==1.24.2
 wcwidth==0.1.7
 websocket-client==0.56.0
 Werkzeug==0.15.1
