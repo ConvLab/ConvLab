@@ -1,5 +1,5 @@
 # MILU
-MILU is a joint neural model that allows you to simultaneously predict multiple dialog act items (a dialog act item takes a form of domain-intent(slot, value). Since it is common that, in a multi-domain setting, an utterance has multiple dialog act items, MILU is likely to yield higher performance than conventional sigle-intent models.
+MILU is a joint neural model that allows you to simultaneously predict multiple dialog act items (a dialog act item takes a form of domain-intent(slot, value). Since it is common that, in a multi-domain setting, an utterance has multiple dialog act items, MILU is likely to yield higher performance than conventional single-intent models.
 
 
 ## Example usage
