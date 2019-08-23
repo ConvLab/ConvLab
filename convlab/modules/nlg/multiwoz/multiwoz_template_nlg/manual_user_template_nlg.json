@@ -156,7 +156,7 @@
             "What is the postcode ?",
             "I need the postcode , thanks .",
             "Could you also give me the postcode ?",
-            "can you also give me their postcode ?",
+            "can you also give me their postcode ?"
         ],
         "Addr": [
             "Can I also get the address ? Thanks !",
@@ -616,7 +616,7 @@
             "I need to arrive by #TAXI-INFORM-ARRIVE# .",
             "I would like to arrive by #TAXI-INFORM-ARRIVE# .",
             "My arrival time will be #TAXI-INFORM-ARRIVE# .",
-            "I 'd like to arrive by #TAXI-INFORM-ARRIVE# .",
+            "I 'd like to arrive by #TAXI-INFORM-ARRIVE# ."
         ],
         "Dest": [
             "I need a taxi to take me in time for my reservation to #TAXI-INFORM-DEST# today",
@@ -716,7 +716,7 @@
             "please book the train for me . That will be all .",
             "I am also looking for information about a train . Can you help me with that ?",
             "I would just like to find a train first , and get the info . I think I have the info I needed .",
-            "I also need a train",
+            "I also need a train"
         ],
         "Dest": [
             "Howdy , I need a train heading into #TRAIN-INFORM-DEST# .",
