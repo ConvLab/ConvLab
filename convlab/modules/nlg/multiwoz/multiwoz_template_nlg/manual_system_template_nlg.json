@@ -424,7 +424,6 @@
             "It is rated #HOTEL-INFORM-STARS# stars , is that okay ?",
             "It has #HOTEL-INFORM-STARS# stars .",
             "It has a rating of #HOTEL-INFORM-STARS# stars .",
-            "No it has #HOTEL-INFORM-STARS# star rating .",
             "They have a #HOTEL-INFORM-STARS# Star rating",
             "The hotel is #HOTEL-INFORM-STARS# stars .",
             "It is a #HOTEL-INFORM-STARS#-star rating .",
@@ -505,7 +504,6 @@
     },
     "Hotel-NoOffer": {
         "Type": [
-            "I apologize , I do n't have a #HOTEL-NOOFFER-TYPE# listing . We could try a guest house or a more expensive hotel ?",
             "Sorry there is no #HOTEL-NOOFFER-TYPE# fitting the description you asked for",
             "I was not able to find any #HOTEL-NOOFFER-TYPE# that met those requirements .",
             "There are no #HOTEL-NOOFFER-TYPE# that meet that criteria , would you like information about the hotel options ?",
@@ -531,8 +529,6 @@
             "I am sorry I have no listings for any with #HOTEL-NOOFFER-STARS# stars .",
             "I am sorry , there are not #HOTEL-NOOFFER-STARS# stars available .",
             "I have not found anything with a star of #HOTEL-NOOFFER-STARS# .",
-            "unfortunately , i do n't have anything in that area that has a #HOTEL-NOOFFER-STARS# star rating .",
-            "There are no #HOTEL-NOOFFER-STARS# stars in that area ."
         ],
         "Parking": [
             "I ' m not showing anything in that area of town with no parking ."
@@ -581,7 +577,6 @@
             "It is a #HOTEL-RECOMMEND-PRICE# place .",
             "It is #HOTEL-RECOMMEND-PRICE# .",
             "This is an #HOTEL-RECOMMEND-PRICE# hotel .",
-            "It is #HOTEL-RECOMMEND-PRICE# priced . I do n't have an exact price .",
             "The price range is #HOTEL-RECOMMEND-PRICE# ."
         ],
         "Area": [
@@ -757,7 +752,7 @@
             "i have #RESTAURANT-INFORM-CHOICE# options for you",
             "We have #RESTAURANT-INFORM-CHOICE# such places .",
             "I have #RESTAURANT-INFORM-CHOICE# options for you !",
-            "Yes , there are #RESTAURANT-INFORM-CHOICE# available restaurants ."
+            "there are #RESTAURANT-INFORM-CHOICE# available restaurants ."
         ],
         "Post": [
             "The postcode is #RESTAURANT-INFORM-POST# .",
@@ -785,7 +780,6 @@
             "Great I have a reference number for you . It is #RESTAURANT-INFORM-REF# .",
             "Yes , the reference number is #RESTAURANT-INFORM-REF#.",
             "The reference number is #RESTAURANT-INFORM-REF#",
-            "The reference number is #RESTAURANT-INFORM-REF# . Is there anything else ?",
             "Reference number is : #RESTAURANT-INFORM-REF#.",
             "Your reference number is #RESTAURANT-INFORM-REF# . You will likely need it .",
             "Your reference code is #RESTAURANT-INFORM-REF# .",
@@ -833,7 +827,6 @@
         "Price": [
             "I do n't have anything in the #RESTAURANT-NOOFFER-PRICE# range that fits that criteria .",
             "There are none in #RESTAURANT-NOOFFER-PRICE# , perhaps something else ?",
-            "no #RESTAURANT-NOOFFER-PRICE# with those specifications",
             "There are no #RESTAURANT-NOOFFER-PRICE# ones .",
             "No #RESTAURANT-NOOFFER-PRICE# restaurant"
         ],
