@@ -7,7 +7,6 @@
             "Something fun . It needs to be an attraction . Can you make a suggestion ?",
             "I ca n't wait to get there and see some of the local attractions . I am looking for a place to stay . Can you help me ?",
             "I am looking for tourist attractions .",
-            "No but I need an attraction in the center part of town .",
             "I am looking for a particular attraction .",
             "Can you help me plan a trip to see a particular attraction ?",
             "I am coming to Cambridge soon to see the many local attractions ."
@@ -31,7 +30,6 @@
             "Okay , are there any #ATTRACTION-INFORM-TYPE#s in the centre ?",
             "How about a #ATTRACTION-INFORM-TYPE# ?",
             "I was also wondering if you would be able to help me find a place to go to see some great #ATTRACTION-INFORM-TYPE# .",
-            "I ' m also looking for some #ATTRACTION-INFORM-TYPE# close to the restaurant . Any suggestions ?",
             "I prefer something related to #ATTRACTION-INFORM-TYPE#",
             "I am looking for a #ATTRACTION-INFORM-TYPE# to visit ."
         ],
@@ -159,7 +157,6 @@
             "I need the postcode , thanks .",
             "Could you also give me the postcode ?",
             "can you also give me their postcode ?",
-            "it does may I please have the postcode and phone number ?"
         ],
         "Addr": [
             "Can I also get the address ? Thanks !",
@@ -388,11 +385,9 @@
             "Hello , I have been robbed . Can you please help me get in touch with the police ?",
             "Can you tell me the address to the police station in Cambridge ?",
             "Hi , I would like to find Parkside Police Station please .",
-            "You should go to the local police department ?",
             "Help , I need to find the nearest police station .",
             "There 's a Parkside Police Station in town , right ?",
             "I am looking for a police station in Parkside",
-            "I appreciate your help . Do you know how quickly the police will respond ? I may need some medical help as well .",
             "Help I was just robbed ! Could you please help me contact the police ?"
         ]
     },
@@ -448,7 +443,6 @@
         ],
         "Area": [
             "I ' m so hungry - can you find me a place to eat in the city #RESTAURANT-INFORM-AREA# ?",
-            "Hi , I am currently planning to come to Cambridge , and I was looking for a relatively inexpensive place to eat in the #RESTAURANT-INFORM-AREA# .            What would you suggest ?",
             "Can you help me find a restaurant ? I want to find a place in the #RESTAURANT-INFORM-AREA# .",
             "I would prefer it in the #RESTAURANT-INFORM-AREA# area .",
             "I am also in the market for a new restaurant . Is there something in the #RESTAURANT-INFORM-AREA# of town ?",
@@ -461,18 +455,18 @@
             "it just needs to be #RESTAURANT-INFORM-PRICE# .",
             "I 'd like a #RESTAURANT-INFORM-PRICE# priced one .",
             "I want to find a #RESTAURANT-INFORM-PRICE# priced restaurant .",
-            "I ' m looking for an #RESTAURANT-INFORM-PRICE# restaurant in the center of town .",
-            "I am looking for a #RESTAURANT-INFORM-PRICE# restaurant in the center of the city .",
+            "I ' m looking for an #RESTAURANT-INFORM-PRICE# restaurant .",
+            "I am looking for a #RESTAURANT-INFORM-PRICE# restaurant .",
             "Actually I need a #RESTAURANT-INFORM-PRICE#ly priced restaurant . Are there any fitting that description ?",
             "Oh , I really need something #RESTAURANT-INFORM-PRICE# .",
             "I also need a place to dine that is #RESTAURANT-INFORM-PRICE# priced ."
         ],
         "Food": [
             "How about #RESTAURANT-INFORM-FOOD# .",
-            "are there any #RESTAURANT-INFORM-FOOD# restaurants in the center of town ?",
+            "are there any #RESTAURANT-INFORM-FOOD# restaurants ?",
             "Hmm , I 'll try #RESTAURANT-INFORM-FOOD# .",
             "I 'd like to find a #RESTAURANT-INFORM-FOOD# restaurant , if possible .",
-            "Do you have #RESTAURANT-INFORM-FOOD# food ? That sounds really good .",
+            "Do you have #RESTAURANT-INFORM-FOOD# food ?",
             "Yes . This restaurant should serve #RESTAURANT-INFORM-FOOD# food too .",
             "I ' m visiting Cambridge and would like some suggestions for an restaurant which serves #RESTAURANT-INFORM-FOOD# .",
             "how about a #RESTAURANT-INFORM-FOOD# restaurant ?",
@@ -482,7 +476,6 @@
             "I need a restaurant .",
             "I need a restaurant to dine at in Cambridge on my upcoming trip .",
             "Hello , can you help me find a restaurant for my upcoming trip to Cambridge ?",
-            "i want to reserve a table",
             "I need to find information about a certain restaurant , can you help with that ?"
         ],
         "Time": [
@@ -624,7 +617,6 @@
             "I would like to arrive by #TAXI-INFORM-ARRIVE# .",
             "My arrival time will be #TAXI-INFORM-ARRIVE# .",
             "I 'd like to arrive by #TAXI-INFORM-ARRIVE# .",
-            "I just need it to arrive by #TAXI-INFORM-ARRIVE# for the reservation ."
         ],
         "Dest": [
             "I need a taxi to take me in time for my reservation to #TAXI-INFORM-DEST# today",
@@ -719,14 +711,12 @@
         ],
         "none": [
             "Please book that train for me now .",
-            "Thank you . I would also like to book a train , please .",
+            "I would also like to book a train , please .",
             "yeah i need a train too",
-            "I am looking for a train departing from london liverpool please .",
             "please book the train for me . That will be all .",
             "I am also looking for information about a train . Can you help me with that ?",
             "I would just like to find a train first , and get the info . I think I have the info I needed .",
             "I also need a train",
-            "Yes please book that train for me ."
         ],
         "Dest": [
             "Howdy , I need a train heading into #TRAIN-INFORM-DEST# .",
@@ -813,16 +803,14 @@
     },
     "general-bye": {
         "none": [
-            "No , that will be all . Good bye .",
             "You were great . Goodbye .",
             "Thank you very much , goodbye .",
             "Thank you , goodbye",
-            "No , I am all set . Have a nice day . Bye .",
+            "I am all set . Have a nice day . Bye .",
             "Ok , have a good day . Goodbye .",
-            "No , I do n't need anything else right now . Thank you for your assistance . Good Bye .",
             "That 's all I need today . Thanks ! Bye !",
             "Actually , I ' m all set . Thank you ! Bye !",
-            "No thanks . That 's all the help I need . Take care . Bye ."
+            "That 's all the help I need . Take care . Bye ."
         ]
     },
     "general-greet": {
