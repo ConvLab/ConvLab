@@ -146,7 +146,7 @@ Instead of writing one from scratch, you are welcome to modify the `convlab/spec
     - Create your own Dockerfile with the name dev.dockerfile
 4. Zip the system and submit.
 ### Evaluation
-1. Automatic end2end Evaluation: The submitted system will be evaluated using the current user-simulator in the repository with milu_rule_rule_template setting in demo.json. We will report metrics including success rate, average reward, number of turms, precision, recall, and F1 score.
+1. Automatic end2end Evaluation: The submitted system will be evaluated using the user-simulator setting in spec `milu_rule_rule_template` in `convlab/spec/baseline.json`. We will use the evaluator MultiWozEvaluator in `convlab/evaluator/multiwoz` to report metrics including success rate, average reward, number of turms, precision, recall, and F1 score.
 2. Human Evaluation: The submitted system will be evaluated in Amazon Mechanic Turk. Crowd-workers will communicate with your summited system, and provide a rating based on the whole experience (language understanding, appropriateness, etc.)
 ## Contributions
 The ConvLab team welcomes contributions from the community. Pull requests must have one approving review and no requested changes before they are merged. The ConvLab team reserves the right to reject or revert contributions that we don't think are good additions.
