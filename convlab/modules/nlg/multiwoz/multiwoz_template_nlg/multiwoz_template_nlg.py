@@ -111,8 +111,8 @@ class MultiwozTemplateNLG(NLG):
             raise e
 
     def _postprocess(self,sen):
-        sen = sen.strip()
-        sen = sen[0].capitalize() + sen[1:]
+        sen_strip = sen.strip()
+        sen = ''.join([val.capitalize() if i == 0 else val for i, val in enumerate(sen_strip)])
         if len(sen) > 0 and sen[-1] != '?' and sen[-1] != '.':
             sen += '.'
         sen += ' '
