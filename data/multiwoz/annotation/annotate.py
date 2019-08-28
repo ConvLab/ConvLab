@@ -430,6 +430,10 @@ def annotate_user_da(data):
                                 if s in map(lambda x: x[0], next_da[each + '-Recommend']):
                                     # system Recommend the value of slot:
                                     system_ack.append(each)
+                            elif each + '-OfferBooked' in next_da:
+                                if s in map(lambda x: x[0], next_da[each + '-OfferBooked']):
+                                    # system Recommend the value of slot:
+                                    system_ack.append(each)
 
                         if len(system_ack) == 0:
                             # not informed or recommended by system, abort. 227 samples
