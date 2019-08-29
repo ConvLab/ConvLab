@@ -251,6 +251,21 @@ def check_if_time(value):
         return False
     return True
 
+def check_constraint(slot, val_usr, val_sys):
+    if slot == 'arriveBy':
+        val1 = int(val_usr.split(':')[0]) * 100 + int(val_usr.split(':')[1])
+        val2 = int(val_sys.split(':')[0]) * 100 + int(val_sys.split(':')[1])
+        if val1 < val2:
+            return True
+    elif slot == 'leaveAt':
+        val1 = int(val_usr.split(':')[0]) * 100 + int(val_usr.split(':')[1])
+        val2 = int(val_sys.split(':')[0]) * 100 + int(val_sys.split(':')[1])
+        if val1 > val2:
+            return True
+    else:
+        if val_usr != val_sys:
+            return True
+    return False
 
 class Goal(object):
     """ User Goal Model Class. """
@@ -434,7 +449,7 @@ class Agenda(object):
                 elif slot in g_fail_info and value != g_fail_info[slot]:
                     self._push_item(domain + '-inform', slot, g_fail_info[slot])
                     info_right = False
-                elif len(g_fail_info) <= 0 and slot in g_info and value != g_info[slot]:
+                elif len(g_fail_info) <= 0 and slot in g_info and check_constraint(slot, g_info[slot], value):
                     self._push_item(domain + '-inform', slot, g_info[slot])
                     info_right = False
 
@@ -543,7 +558,7 @@ class Agenda(object):
                 elif slot in g_fail_info and value != g_fail_info[slot]:
                     self._push_item(domain + '-inform', slot, g_fail_info[slot])
                     info_right = False
-                elif len(g_fail_info) <= 0 and slot in g_info and value != g_info[slot]:
+                elif len(g_fail_info) <= 0 and slot in g_info and check_constraint(slot, g_info[slot], value):
                     self._push_item(domain + '-inform', slot, g_info[slot])
                     info_right = False
 
