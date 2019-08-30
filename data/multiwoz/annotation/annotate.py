@@ -210,7 +210,6 @@ def phrase_idx_utt(phrase, utt):
             return get_idx(phrase_low, utt_low)
         else:
             return None
-
     for w in phrases:
         if utt_low.startswith(w) or utt_low.endswith(w):
             return get_idx(w, utt_low)
