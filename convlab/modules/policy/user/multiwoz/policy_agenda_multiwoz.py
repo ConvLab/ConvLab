@@ -252,20 +252,23 @@ def check_if_time(value):
     return True
 
 def check_constraint(slot, val_usr, val_sys):
-    if slot == 'arriveBy':
-        val1 = int(val_usr.split(':')[0]) * 100 + int(val_usr.split(':')[1])
-        val2 = int(val_sys.split(':')[0]) * 100 + int(val_sys.split(':')[1])
-        if val1 < val2:
-            return True
-    elif slot == 'leaveAt':
-        val1 = int(val_usr.split(':')[0]) * 100 + int(val_usr.split(':')[1])
-        val2 = int(val_sys.split(':')[0]) * 100 + int(val_sys.split(':')[1])
-        if val1 > val2:
-            return True
-    else:
-        if val_usr != val_sys:
-            return True
-    return False
+    try:
+        if slot == 'arriveBy':
+            val1 = int(val_usr.split(':')[0]) * 100 + int(val_usr.split(':')[1])
+            val2 = int(val_sys.split(':')[0]) * 100 + int(val_sys.split(':')[1])
+            if val1 < val2:
+                return True
+        elif slot == 'leaveAt':
+            val1 = int(val_usr.split(':')[0]) * 100 + int(val_usr.split(':')[1])
+            val2 = int(val_sys.split(':')[0]) * 100 + int(val_sys.split(':')[1])
+            if val1 > val2:
+                return True
+        else:
+            if val_usr != val_sys:
+                return True
+        return False
+    except:
+        return False
 
 class Goal(object):
     """ User Goal Model Class. """
