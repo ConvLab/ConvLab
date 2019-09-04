@@ -160,7 +160,7 @@ class DialogAgent(Agent):
         # NLU parsing
         input_act = self.nlu.parse(obs, sum(self.dst.state['history'], []) if self.dst else []) if self.nlu else obs
 
-        # state tracking 
+        # state tracking
         state = self.dst.update(input_act) if self.dst else input_act 
 
         # update history 
@@ -172,7 +172,7 @@ class DialogAgent(Agent):
 
         if self.nlu and self.dst:  
             self.dst.state['user_action'] = input_act 
-        elif self.dst and not isinstance(self.dst, word_dst.MDBTTracker):  # for act-in act-out agent
+        elif self.dst and not isinstance(self.dst, (word_dst.MDBTTracker, word_dst.TRADETracker)):  # for act-in act-out agent
             self.dst.state['user_action'] = obs
 
         logger.nl(f'User utterance: {obs}')

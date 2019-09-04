@@ -25,6 +25,9 @@ test_result/
 # nltk
 nltk_data/
 
+# trade
+data/trade/
+
 # mdbt data
 data/mdbt/
 data/mdbt.tar.gz

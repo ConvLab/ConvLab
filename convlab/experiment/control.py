@@ -94,7 +94,7 @@ class Session:
     def run_eval(self):
         avg_return, avg_len, avg_success, avg_p, avg_r, avg_f1, avg_book_rate = analysis.gen_avg_result(self.agent, self.eval_env, self.num_eval) 
         result = f'{self.num_eval} episodes, {avg_return:.2f} return'
-        if avg_success:
+        if not avg_success is None:
             result += f', {avg_success*100:.2f}% success rate'
         if avg_len:
             result += f', {avg_len:.2f} turns'
