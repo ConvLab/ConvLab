@@ -70,6 +70,7 @@ class ActionVocab(object):
 class MultiWozVocabActionDecoder(object):
     def __init__(self, vocab_path=None):
         self.action_vocab = ActionVocab(num_actions=300)
+        self.current_domain = 'Restaurant'
 
     def decode(self, action_index, state):
         domains = ['Attraction', 'Hospital', 'Hotel', 'Restaurant', 'Taxi', 'Train', 'Police']
@@ -78,12 +79,22 @@ class MultiWozVocabActionDecoder(object):
 
         for act in delex_action:
             domain, act_type = act.split('-')
+            if domain in domains:
+                self.current_domain = domain
             if act_type == 'Request':
                 action[act] = []
                 for slot in delex_action[act]:
                     action[act].append([slot, '?'])
             elif act == 'Booking-Book':
-                action['Booking-Book'] = [["Ref", generate_ref_num(8)]]
+                constraints = []
+                for slot in state['belief_state'][self.current_domain.lower()]['semi']:
+                    if state['belief_state'][self.current_domain.lower()]['semi'][slot] != "":
+                        constraints.append([slot, state['belief_state'][self.current_domain.lower()]['semi'][slot]])
+                kb_result = query(self.current_domain.lower(), constraints)
+                if len(kb_result) == 0:
+                    action[act] = [['none', 'none']]
+                else:
+                    action[act] = [["Ref", kb_result[0]["Ref"]]]
             elif domain not in domains:
                 action[act] = [['none', 'none']]
             else:
@@ -141,7 +152,7 @@ class MultiWozVocabActionDecoder(object):
                     if slot == 'Choice':
                         action[act].append([slot, len(kb_result)])
                     elif slot == 'Ref':
-                        action[act].append(["Ref", generate_ref_num(8)])
+                        action[act].append(["Ref", kb_result[0]["Ref"]])
                     else:
                         try:
                             action[act].append([slot, kb_result[0][REF_SYS_DA[domain].get(slot, slot)]])
