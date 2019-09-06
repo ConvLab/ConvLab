@@ -1,21 +1,17 @@
 # Modified by Microsoft Corporation.
 # Licensed under the MIT license.
 
-from convlab.modules.word_dst.multiwoz.trade_utils import *
+from convlab.modules.word_dst.multiwoz.trade.trade_utils import *
 from convlab.modules.util.multiwoz.multiwoz_slot_trans import REF_SYS_DA, REF_USR_DA
 from convlab.modules.dst.state_tracker import Tracker
-from convlab.modules.dst.multiwoz.dst_util import init_state, init_belief_state, normalize_value
+from convlab.modules.dst.multiwoz.dst_util import init_state, normalize_value
 import copy
 import json
-import math
 import os
-import sys
 import torch
-import time
 import pickle
 import urllib
 import tarfile
-from random import shuffle
 from pprint import pprint
 
 import numpy as np
@@ -37,7 +33,7 @@ class RenameUnpickler(pickle.Unpickler):
     def find_class(self, module, name):
         # renamed_module = module
         if module == "utils.utils_multiWOZ_DST":
-            renamed_module = "convlab.modules.word_dst.multiwoz.trade_utils"
+            renamed_module = "convlab.modules.word_dst.multiwoz.trade.trade_utils"
 
         return super(RenameUnpickler, self).find_class(renamed_module, name)
 

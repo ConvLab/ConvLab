@@ -11,12 +11,10 @@ import numpy as np
 # import matplotlib.pyplot as plt
 # import seaborn  as sns
 # import nltk
-import os
 import json
 # import pandas as pd
-import copy
 
-from convlab.modules.word_dst.multiwoz.trade_config import *
+from convlab.modules.word_dst.multiwoz.trade.trade_config import *
 
 PAD_token = 1
 SOS_token = 3
