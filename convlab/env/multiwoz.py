@@ -21,6 +21,7 @@ from convlab.lib import logger, util
 from convlab.lib.decorator import lab_api
 from convlab.modules.action_decoder.multiwoz.multiwoz_vocab_action_decoder import ActionVocab
 from convlab.modules.policy.system.multiwoz.rule_based_multiwoz_bot import RuleBasedMultiwozBot
+from convlab.modules.util.multiwoz.da_normalize import da_normalize
 
 logger = logger.get_logger(__name__)
 
@@ -106,6 +107,7 @@ class MultiWozEnvironment(object):
         return deepcopy(self.simulator.sys_act)
 
     def step(self, action):
+        action = da_normalize(action, role='sys')
         user_response, user_act, session_over, reward = self.simulator.response(action, self.history)
         self.last_act = user_act
         self.history.extend([f'{action}', f'{user_response}'])
