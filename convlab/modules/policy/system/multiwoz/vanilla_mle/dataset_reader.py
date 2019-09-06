@@ -13,7 +13,7 @@ from overrides import overrides
 
 from convlab.lib.file_util import cached_path
 from convlab.modules.dst.multiwoz.rule_dst import RuleDST
-from convlab.modules.policy.system.multiwoz.util import ActionVocab
+from convlab.modules.action_decoder.multiwoz.multiwoz_vocab_action_decoder import ActionVocab
 from convlab.modules.state_encoder.multiwoz.multiwoz_state_encoder import MultiWozStateEncoder
 
 logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
