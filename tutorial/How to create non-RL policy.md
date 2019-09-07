@@ -28,9 +28,9 @@ from allennlp.data import DatasetReader
 In order to make the new policy algorithm visible to the ConvLab environment, one has to include new class name ```__init__.py``` on each level accordingly.
 
 For example, to make the class ```VanilaMLEPolicy``` class inside ```convlab/modules/policy/system/multiwoz/vanila_mle/policy.py``` visible, we added
-* ```from convlab.modules.policy.system.multiwoz import VanilaMLEPolicy``` importting line in
+* ```from convlab.modules.policy.system.multiwoz import VanilaMLEPolicy``` importing line in
   * ```convlab/modules/policy/__init__.py``` 
-* ```from convlab.modules.policy.system.multiwoz.vanilla_mle.policy import VanillaMLEPolicy``` importting line in
+* ```from convlab.modules.policy.system.multiwoz.vanilla_mle.policy import VanillaMLEPolicy``` importing line in
   * ```convlab/modules/policy/system/__init__.py``` 
   * ```convlab/modules/policy/system/multiwoz/__init__.py```.
 
