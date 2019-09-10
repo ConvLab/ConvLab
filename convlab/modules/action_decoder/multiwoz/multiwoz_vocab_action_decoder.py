@@ -94,7 +94,10 @@ class MultiWozVocabActionDecoder(object):
                 if len(kb_result) == 0:
                     action[act] = [['none', 'none']]
                 else:
-                    action[act] = [["Ref", kb_result[0]["Ref"]]]
+                    if "Ref" in kb_result[0]:
+                        action[act] = [["Ref", kb_result[0]["Ref"]]]
+                    else:
+                        action[act] = [["Ref", "N/A"]]
             elif domain not in domains:
                 action[act] = [['none', 'none']]
             else:
@@ -152,7 +155,10 @@ class MultiWozVocabActionDecoder(object):
                     if slot == 'Choice':
                         action[act].append([slot, len(kb_result)])
                     elif slot == 'Ref':
-                        action[act].append(["Ref", kb_result[0]["Ref"]])
+                        if "Ref" in kb_result[0]:
+                            action[act].append(["Ref", kb_result[0]["Ref"]])
+                        else:
+                            action[act].append(["Ref", "N/A"])
                     else:
                         try:
                             action[act].append([slot, kb_result[0][REF_SYS_DA[domain].get(slot, slot)]])

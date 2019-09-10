@@ -419,7 +419,10 @@ class RuleBasedMultiwozBot(SysPolicy):
             if domain in booking_info and slot[0] in booking_info[domain]:
                 if 'Booking-Book' not in DA:
                     if domain in self.kb_result and len(self.kb_result[domain]) > 0:
-                        DA['Booking-Book'] = [["Ref", self.kb_result[domain][0]['Ref']]]
+                        if 'Ref' in self.kb_result[domain][0]:
+                            DA['Booking-Book'] = [["Ref", self.kb_result[domain][0]['Ref']]]
+                        else:
+                            DA['Booking-Book'] = [["Ref", "N/A"]]
         # TODO handle booking between multi turn
 
 def check_diff(last_state, state):
