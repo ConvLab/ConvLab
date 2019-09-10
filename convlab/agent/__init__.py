@@ -15,6 +15,7 @@ from convlab.agent.net import net_util
 from convlab.lib import logger, util
 from convlab.lib.decorator import lab_api
 from convlab.modules import nlu, dst, word_dst, nlg, state_encoder, action_decoder
+from convlab.modules.util.multiwoz.da_normalize import da_normalize
 
 logger = logger.get_logger(__name__)
 
@@ -159,6 +160,7 @@ class DialogAgent(Agent):
 
         # NLU parsing
         input_act = self.nlu.parse(obs, sum(self.dst.state['history'], []) if self.dst else []) if self.nlu else obs
+        input_act = da_normalize(input_act, role='usr')
 
         # state tracking 
         state = self.dst.update(input_act) if self.dst else input_act 

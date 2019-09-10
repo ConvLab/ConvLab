@@ -70,6 +70,7 @@ class ActionVocab(object):
 class MultiWozVocabActionDecoder(object):
     def __init__(self, vocab_path=None):
         self.action_vocab = ActionVocab(num_actions=300)
+        self.current_domain = 'Restaurant'
 
     def decode(self, action_index, state):
         domains = ['Attraction', 'Hospital', 'Hotel', 'Restaurant', 'Taxi', 'Train', 'Police']
@@ -78,6 +79,8 @@ class MultiWozVocabActionDecoder(object):
 
         for act in delex_action:
             domain, act_type = act.split('-')
+            if domain in domains:
+                self.current_domain = domain
             if act_type == 'Request':
                 action[act] = []
                 for slot in delex_action[act]:

@@ -14,7 +14,6 @@ from datetime import datetime
 from importlib import reload
 from pprint import pformat
 
-import cv2
 import numpy as np
 import pandas as pd
 import pydash as ps
@@ -677,74 +676,3 @@ def write_as_plain(data, data_path):
         open_file.write(str(data))
     open_file.close()
     return data_path
-
-
-# Atari image preprocessing
-
-
-def to_opencv_image(im):
-    '''Convert to OpenCV image shape h,w,c'''
-    shape = im.shape
-    if len(shape) == 3 and shape[0] < shape[-1]:
-        return im.transpose(1, 2, 0)
-    else:
-        return im
-
-
-def to_pytorch_image(im):
-    '''Convert to PyTorch image shape c,h,w'''
-    shape = im.shape
-    if len(shape) == 3 and shape[-1] < shape[0]:
-        return im.transpose(2, 0, 1)
-    else:
-        return im
-
-
-def grayscale_image(im):
-    return cv2.cvtColor(im, cv2.COLOR_RGB2GRAY)
-
-
-def resize_image(im, w_h):
-    return cv2.resize(im, w_h, interpolation=cv2.INTER_AREA)
-
-
-def normalize_image(im):
-    '''Normalizing image by dividing max value 255'''
-    # NOTE: beware in its application, may cause loss to be 255 times lower due to smaller input values
-    return np.divide(im, 255.0)
-
-
-def preprocess_image(im):
-    '''
-    Image preprocessing using OpenAI Baselines method: grayscale, resize
-    This resize uses stretching instead of cropping
-    '''
-    im = to_opencv_image(im)
-    im = grayscale_image(im)
-    im = resize_image(im, (84, 84))
-    im = np.expand_dims(im, 0)
-    return im
-
-
-def debug_image(im):
-    '''
-    Renders an image for debugging; pauses process until key press
-    Handles tensor/numpy and conventions among libraries
-    '''
-    if torch.is_tensor(im):  # if PyTorch tensor, get numpy
-        im = im.cpu().numpy()
-    im = to_opencv_image(im)
-    im = im.astype(np.uint8)  # typecast guard
-    if im.shape[0] == 3:  # RGB image
-        # accommodate from RGB (numpy) to BGR (cv2)
-        im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
-    cv2.imshow('debug image', im)
-    cv2.waitKey(0)
-
-
-def mpl_debug_image(im):
-    '''Uses matplotlib to plot image with bigger size, axes, and false color on greyscaled images'''
-    import matplotlib.pyplot as plt
-    plt.figure()
-    plt.imshow(im)
-    plt.show()
