@@ -83,7 +83,18 @@ class MultiWozVocabActionDecoder(object):
                 for slot in delex_action[act]:
                     action[act].append([slot, '?'])
             elif act == 'Booking-Book':
-                action['Booking-Book'] = [["Ref", generate_ref_num(8)]]
+                constraints = []
+                for slot in state['belief_state'][self.current_domain.lower()]['semi']:
+                    if state['belief_state'][self.current_domain.lower()]['semi'][slot] != "":
+                        constraints.append([slot, state['belief_state'][self.current_domain.lower()]['semi'][slot]])
+                kb_result = query(self.current_domain.lower(), constraints)
+                if len(kb_result) == 0:
+                    action[act] = [['none', 'none']]
+                else:
+                    if "Ref" in kb_result[0]:
+                        action[act] = [["Ref", kb_result[0]["Ref"]]]
+                    else:
+                        action[act] = [["Ref", "N/A"]]
             elif domain not in domains:
                 action[act] = [['none', 'none']]
             else:
@@ -141,7 +152,10 @@ class MultiWozVocabActionDecoder(object):
                     if slot == 'Choice':
                         action[act].append([slot, len(kb_result)])
                     elif slot == 'Ref':
-                        action[act].append(["Ref", generate_ref_num(8)])
+                        if "Ref" in kb_result[0]:
+                            action[act].append(["Ref", kb_result[0]["Ref"]])
+                        else:
+                            action[act].append(["Ref", "N/A"])
                     else:
                         try:
                             action[act].append([slot, kb_result[0][REF_SYS_DA[domain].get(slot, slot)]])
