@@ -67,6 +67,8 @@ def da_normalize(das, role):
     :param role: 'usr' or 'sys'
     :return:
     """
+    if isinstance(das, str):
+        return das
     new_das = deepcopy(das)
     for act, svs in das.items():
         if act not in valid_intent2slot[role]:
