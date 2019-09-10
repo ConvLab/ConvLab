@@ -1,5 +1,6 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
+from convlab.modules.util.multiwoz.da_normalize import da_normalize
 
 """
 """
@@ -38,6 +39,7 @@ class UserSimulator:
 
         if self.nlu_model is not None:
             sys_act = self.nlu_model.parse(input, context)
+            sys_act = da_normalize(sys_act, role='sys')
         else:
             sys_act = input
         self.sys_act = sys_act
