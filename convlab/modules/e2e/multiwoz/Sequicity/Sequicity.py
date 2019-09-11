@@ -21,7 +21,7 @@ from convlab.modules.policy.system.policy import SysPolicy
 
 DEFAULT_CUDA_DEVICE=-1
 DEFAULT_DIRECTORY = "models"
-DEFAULT_ARCHIVE_FILE = os.path.join(DEFAULT_DIRECTORY, "Sequicity.rar")
+DEFAULT_ARCHIVE_FILE = os.path.join(DEFAULT_DIRECTORY, "Sequicity.zip")
 
 def denormalize(uttr):
     uttr = uttr.replace(' -s', 's')

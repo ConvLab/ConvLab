@@ -73,6 +73,10 @@ data/nrg
 convlab/modules/word_policy/multiwoz/mdrg/data
 convlab/modules/word_policy/multiwoz/mdrg/model/model
 
+# hdsa
+convlab/modules/word_policy/multiwoz/hdsa/data
+convlab/modules/word_policy/multiwoz/hdsa/checkpoints
+
 # sequicity
 convlab/modules/e2e/multiwoz/Sequicity/data
 convlab/modules/e2e/multiwoz/Sequicity/log
