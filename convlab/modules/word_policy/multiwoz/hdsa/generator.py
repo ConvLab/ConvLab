@@ -10,8 +10,8 @@ import torch
 import os
 import zipfile
 import pickle
-from convlab.module.word_policy.multiwoz.hdsa.transformer.Transformer import TableSemanticDecoder
-import convlab.module.word_policy.multiwoz.hdsa.transformer.Constants as Constants
+from convlab.modules.word_policy.multiwoz.hdsa.transformer.Transformer import TableSemanticDecoder
+from convlab.modules.word_policy.multiwoz.hdsa.transformer import Constants
 from convlab.lib.file_util import cached_path
 
 timepat = re.compile("\d{1,2}[:]\d{1,2}")

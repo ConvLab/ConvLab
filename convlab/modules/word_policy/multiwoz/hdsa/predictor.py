@@ -29,7 +29,7 @@ from pytorch_pretrained_bert.file_utils import PYTORCH_PRETRAINED_BERT_CACHE
 from pytorch_pretrained_bert.modeling import BertForSequenceClassification
 from pytorch_pretrained_bert.tokenization import BertTokenizer
 
-import convlab.module.word_policy.multiwoz.hdsa.transformer.Constants as Constants
+from convlab.modules.word_policy.multiwoz.hdsa.transformer import Constants
 from convlab.lib.file_util import cached_path
 from convlab.modules.util.multiwoz.dbquery import query
 

@@ -6,7 +6,7 @@
 """
 
 import torch
-import convlab.module.word_policy.multiwoz.hdsa.transformer.Constants as Constants
+from convlab.modules.word_policy.multiwoz.hdsa.transformer import Constants
 
 class Beam(object):
     ''' Beam search '''

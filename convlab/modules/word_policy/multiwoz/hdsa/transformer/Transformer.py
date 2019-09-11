@@ -3,8 +3,8 @@ import torch.nn as nn
 import numpy as np
 import torch.nn.functional as F
 import math
-from convlab.module.word_policy.multiwoz.hdsa.transformer.Beam import Beam
-import convlab.module.word_policy.multiwoz.hdsa.transformer.Constants as Constants
+from convlab.modules.word_policy.multiwoz.hdsa.transformer.Beam import Beam
+from convlab.modules.word_policy.multiwoz.hdsa.transformer import Constants
 from torch.autograd import Variable
 
 class Sclstm(nn.Module):
