@@ -137,7 +137,11 @@ class HDSA_predictor():
             archive = zipfile.ZipFile(archive_file, 'r')
             archive.extractall(model_dir)
         
-        load_dir = "checkpoints/predictor/save_step_15120"
+        load_dir = os.path.join(model_dir, "checkpoints/predictor/save_step_15120")
+        if not os.path.exists(load_dir):
+            archive = zipfile.ZipFile(f'{load_dir}.zip', 'r')
+            archive.extractall(os.path.dirname(load_dir))
+        
         self.tokenizer = BertTokenizer.from_pretrained("bert-base-uncased", do_lower_case=False)
         self.max_seq_length = 256
         self.domain = 'restaurant'

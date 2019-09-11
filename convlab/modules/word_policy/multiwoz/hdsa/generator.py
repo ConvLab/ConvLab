@@ -6,6 +6,7 @@ Created on Tue Sep 10 18:56:40 2019
 """
 import re
 import json
+import torch
 import os
 import zipfile
 import pickle
@@ -225,6 +226,8 @@ class HDSA_generator():
                               d_model=128, n_head=4, dropout=0.2)
         self.device = 'cuda' if use_cuda else 'cpu'
         self.decoder.to(self.device)
+        checkpoint_file = os.path.join(model_dir, "checkpoints/generator/BERT_dim128_w_domain")
+        self.decoder.load_state_dict(torch.load(checkpoint_file))
         
         with open(os.path.join(model_dir, 'data/svdic.pkl'), 'rb') as f:
             self.dic = pickle.load(f)
