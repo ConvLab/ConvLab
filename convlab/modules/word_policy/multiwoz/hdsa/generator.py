@@ -118,24 +118,24 @@ def normalize(text, sub=True):
 def delexicaliseReferenceNumber(sent, turn):
     """Based on the belief state, we can find reference number that
     during data gathering was created randomly."""
-    if turn['metadata']:
-        for domain in turn['metadata']:
-            if turn['metadata'][domain]['book']['booked']:
-                for slot in turn['metadata'][domain]['book']['booked'][0]:
-                    if slot == 'reference':
-                        val = '[' + domain + '_' + slot + ']'
-                    else:
-                        val = '[' + domain + '_' + slot + ']'
-                    key = normalize(turn['metadata'][domain]['book']['booked'][0][slot])
-                    sent = (' ' + sent + ' ').replace(' ' + key + ' ', ' ' + val + ' ')
+    for domain in turn:
+        if turn[domain]['book']['booked']:
+            for slot in turn[domain]['book']['booked'][0]:
+                if slot == 'reference':
+                    val = '[' + domain + '_' + slot + ']'
+                else:
+                    val = '[' + domain + '_' + slot + ']'
+                key = normalize(turn[domain]['book']['booked'][0][slot])
+                sent = (' ' + sent + ' ').replace(' ' + key + ' ', ' ' + val + ' ')
 
-                    # try reference with hashtag
-                    key = normalize("#" + turn['metadata'][domain]['book']['booked'][0][slot])
-                    sent = (' ' + sent + ' ').replace(' ' + key + ' ', ' ' + val + ' ')
+                # try reference with hashtag
+                key = normalize("#" + turn[domain]['book']['booked'][0][slot])
+                sent = (' ' + sent + ' ').replace(' ' + key + ' ', ' ' + val + ' ')
 
-                    # try reference with ref#
-                    key = normalize("ref#" + turn['metadata'][domain]['book']['booked'][0][slot])
-                    sent = (' ' + sent + ' ').replace(' ' + key + ' ', ' ' + val + ' ')
+                # try reference with ref#
+                key = normalize("ref#" + turn[domain]['book']['booked'][0][slot])
+                sent = (' ' + sent + ' ').replace(' ' + key + ' ', ' ' + val + ' ')
+    return sent
 
 def delexicalise(utt, dictionary):
     for key, val in dictionary:
@@ -240,7 +240,7 @@ class HDSA_generator():
         usr = delexicalise(' '.join(usr_post.split()), self.dic)
     
         # parsing reference number GIVEN belief state
-        usr = delexicaliseReferenceNumber(usr, state)
+        usr = delexicaliseReferenceNumber(usr, state['belief_state'])
     
         # changes to numbers only here
         digitpat = re.compile('\d+')
@@ -254,6 +254,8 @@ class HDSA_generator():
         tokens = [Constants.CLS_WORD] + tokens + [Constants.SEP_WORD]
         input_ids = self.tokenizer.convert_tokens_to_ids(tokens)
         
+        pred_hierachical_act_vecs = torch.tensor([pred_hierachical_act_vecs], dtype=torch.float32).to(self.device)
+        input_ids = torch.tensor([input_ids], dtype=torch.long).to(self.device)
         hyps = self.decoder.translate_batch(act_vecs=pred_hierachical_act_vecs, src_seq=input_ids, 
                                        n_bm=2, max_token_seq_len=40)
         pred = self.tokenizer.convert_id_to_tokens(hyps[0])

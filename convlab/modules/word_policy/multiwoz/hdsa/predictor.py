@@ -158,8 +158,8 @@ class HDSA_predictor():
         act = state['user_action']
         for w in act:
             d, f = w.split('-')
-            if Constants.domains.index(d) < 8:
-                self.domain = d
+            if Constants.domains.index(d.lower()) < 8:
+                self.domain = d.lower()
         hierarchical_act_vecs = [0 for _ in range(44)] # fake target
         
         meta = state['belief_state']
@@ -239,15 +239,12 @@ class HDSA_predictor():
         example, kb = self.gen_example(state)
         feature = self.gen_feature(example)
         
-        input_ids = torch.tensor([f.input_ids for f in feature], dtype=torch.long)
-        input_masks = torch.tensor([f.input_mask for f in feature], dtype=torch.long)
-        segment_ids = torch.tensor([f.segment_ids for f in feature], dtype=torch.long)
+        input_ids = torch.tensor([feature.input_ids], dtype=torch.long).to(self.device)
+        input_masks = torch.tensor([feature.input_mask], dtype=torch.long).to(self.device)
+        segment_ids = torch.tensor([feature.segment_ids], dtype=torch.long).to(self.device)
 
-        input_ids = input_ids.to(self.device)
-        input_mask = input_masks.to(self.device)
-        segment_ids = segment_ids.to(self.device)
         with torch.no_grad():
-            logits = self.model(input_ids, segment_ids, input_mask, labels=None)
+            logits = self.model(input_ids, segment_ids, input_masks, labels=None)
             logits = torch.sigmoid(logits)
         preds = (logits > 0.4).float()
         preds_numpy = preds.cpu().nonzero().squeeze().numpy()
