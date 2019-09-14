@@ -177,7 +177,7 @@ class HDSA_predictor():
             src = []
             for k, v in kb.items():
                 k = examine(self.domain, k.lower())
-                if k != 'illegal':
+                if k != 'illegal' and isinstance(v, str):
                     src.extend([k, 'is', v])
             src = " ".join(src)
         
@@ -258,4 +258,4 @@ class HDSA_predictor():
 #                print(Constants.arguments[i-17], end=' ')
 #        print()
         
-        return preds_numpy, kb
+        return preds, kb

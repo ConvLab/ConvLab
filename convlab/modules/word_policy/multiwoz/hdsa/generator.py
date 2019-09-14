@@ -253,17 +253,16 @@ class HDSA_generator():
             tokens = tokens[-(self.max_seq_length - 2):]
         tokens = [Constants.CLS_WORD] + tokens + [Constants.SEP_WORD]
         input_ids = self.tokenizer.convert_tokens_to_ids(tokens)
-        
-        pred_hierachical_act_vecs = torch.tensor([pred_hierachical_act_vecs], dtype=torch.float32).to(self.device)
         input_ids = torch.tensor([input_ids], dtype=torch.long).to(self.device)
+
         hyps = self.decoder.translate_batch(act_vecs=pred_hierachical_act_vecs, src_seq=input_ids, 
                                        n_bm=2, max_token_seq_len=40)
         pred = self.tokenizer.convert_id_to_tokens(hyps[0])
         
         if not self.history:
-            self.history = tokens[1:-1] + [Constants.SEP_WORD] + pred
+            self.history = tokens[1:-1] + [Constants.SEP_WORD] + self.tokenizer.tokenize(pred)
         else:
-            self.history = self.history + [Constants.SEP_WORD] + tokens[1:-1] + [Constants.SEP_WORD] + pred
+            self.history = self.history + [Constants.SEP_WORD] + tokens[1:-1] + [Constants.SEP_WORD] + self.tokenizer.tokenize(pred)
         
         words = pred.split(' ')
         for i in range(len(words)):
