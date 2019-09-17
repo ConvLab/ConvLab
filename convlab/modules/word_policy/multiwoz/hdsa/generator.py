@@ -220,7 +220,7 @@ class HDSA_generator():
         
         vocab, ivocab = vocabulary['vocab'], vocabulary['rev']
         self.tokenizer = Tokenizer(vocab, ivocab, False)
-        self.max_seq_length = 200
+        self.max_seq_length = 50
             
         self.decoder = TableSemanticDecoder(vocab_size=self.tokenizer.vocab_len, d_word_vec=128, n_layers=3, 
                               d_model=128, n_head=4, dropout=0.2)
