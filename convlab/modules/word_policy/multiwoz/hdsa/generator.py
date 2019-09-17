@@ -267,12 +267,13 @@ class HDSA_generator():
         words = pred.split(' ')
         for i in range(len(words)):
             if "[" in words[i] and "]" in words[i]:
-                if words[i] in kb:
-                    words[i] = kb[words[i]]
+                key = words[i].split('_')[-1][:-1]
+                if key in kb:
+                    words[i] = kb[key]
                 elif "taxi" in words[i] and "taxi_colors" in kb:
-                    if words[i] == "[taxi_type]":
+                    if key == "type":
                         words[i] = " ".join(kb["taxi_colors"], kb["taxi_types"])
-                    elif words[i] == "[taxi_phone]":
+                    elif key == "phone":
                         words[i] = "".join(map(lambda x:str(x), kb["taxi_phone"]))
                         
         return " ".join(words)
