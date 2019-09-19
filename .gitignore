@@ -47,6 +47,10 @@ convlab/modules/nlg/multiwoz/sc_lstm/resource_usr
 convlab/modules/nlg/multiwoz/sc_lstm/sclstm_usr.pt
 convlab/modules/nlg/multiwoz/sc_lstm/sclstm_usr.res
 
+# transformer
+convlab/modules/nlg/multiwoz/transformer/data/
+convlab/modules/nlg/multiwoz/transformer/checkpoints/
+
 # svm
 convlab/modules/nlu/multiwoz/svm/model/
 
