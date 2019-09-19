@@ -176,7 +176,7 @@ def evaluateDialogue(dialog, realDialogue):
                 match_stat = 1
             elif venue_offered[domain]:
                 groundtruth = queryResultVenues(domain, goal[domain]['informable'], real_belief=True)
-                if issubset(venue_offered[domain], groundtruth):
+                if len(venue_offered[domain]) > 0 and venue_offered[domain][0] in groundtruth:
                     match += 1
                     match_stat = 1
         else:
