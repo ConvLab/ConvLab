@@ -574,7 +574,7 @@ class LaRLPolicy(SysPolicy):
                             else:
                                 response.append(token)
                     elif slot == 'time':
-                        if 'arrive' in ' '.join(response[-3:]) or 'arrival' in ' '.join(response[-3:]):
+                        if 'arrive' in ' '.join(response[-3:]) or 'arrival' in ' '.join(response[-3:]) or 'arriving' in ' '.join(response[-3:]):
                             if active_domain is not None and 'arriveBy' in top_results[active_domain]:
                                 # print('{} -> {}'.format(token, top_results[active_domain]['arriveBy']))
                                 response.append(
