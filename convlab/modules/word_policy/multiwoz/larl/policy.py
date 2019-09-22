@@ -337,6 +337,7 @@ class LaRLPolicy(SysPolicy):
         if config.use_gpu:
             self.model.load_state_dict(torch.load(
                 os.path.join(temp_path, 'larl_model/best-model')))
+            self.model.cuda()
         else:
             self.model.load_state_dict(torch.load(os.path.join(
                 temp_path, 'larl_model/best-model'), map_location=lambda storage, loc: storage))
@@ -462,24 +463,14 @@ class LaRLPolicy(SysPolicy):
             # changes to numbers only here
             digitpat = re.compile('\d+')
             usr = re.sub(digitpat, '[value_count]', usr)
-            # dialogue = fixDelex(dialogue_name, dialogue, data2, idx, idx_acts)
             # add database pointer
             pointer_vector, top_results, num_results = addDBPointer(bstate)
             # add booking pointer
             pointer_vector = addBookingPointer(bstate, pointer_vector)
             belief_summary = get_summary_bstate(bstate)
 
-            # tensor = [self.input_word2index(word) for word in normalize(usr).strip(' ').split(' ')] + [util.EOS_token]
-
             usr_utt = [BOS] + usr.split() + [EOS]
-            # input_tensor.append(torch.LongTensor(tensor))
-            # bs_tensor.append(belief_summary) #
-            # db_tensor.append(pointer_vector) # db results and booking
             packed_val = {}
-            # input_tensor = [torch.LongTensor(tensor)]
-            # input_tensor, _ = util.padSequence(input_tensor)
-
-            # packed_val['bs'] = torch.LongTensor(tensor)
             packed_val['bs'] = belief_summary
             packed_val['db'] = pointer_vector
             packed_val['utt'] = self.corpus._sent2id(usr_utt)
