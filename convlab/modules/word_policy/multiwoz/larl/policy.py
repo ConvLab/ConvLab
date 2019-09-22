@@ -840,7 +840,7 @@ if __name__ == '__main__':
         max_dec_len=50,
         backward_size=2,
         batch_size=1,
-        use_gpu=False,
+        use_gpu=True,
         op='adam',
         init_lr=0.001,
         l2_norm=1e-05,
