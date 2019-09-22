@@ -253,29 +253,28 @@ class LaRLPolicy(SysPolicy):
         zip_ref.extractall(temp_path)
         zip_ref.close()
 
-        # model_dir = os.path.dirname(os.path.abspath(__file__))
-        # if not os.path.exists(os.path.join(model_dir, 'data')):
-        #     archive = zipfile.ZipFile(archive_file, 'r')
-        #     archive.extractall(model_dir)
-
-        with open(os.path.join(temp_path, 'larl_model/input_lang.index2word.json')) as f:
-            self.input_lang_index2word = json.load(f)
-        with open(os.path.join(temp_path, 'larl_model/input_lang.word2index.json')) as f:
-            self.input_lang_word2index = json.load(f)
-        with open(os.path.join(temp_path, 'larl_model/output_lang.index2word.json')) as f:
-            self.output_lang_index2word = json.load(f)
-        with open(os.path.join(temp_path, 'larl_model/output_lang.word2index.json')) as f:
-            self.output_lang_word2index = json.load(f)
-
-        # shutil.rmtree(temp_path)
-
         self.prev_state = init_state()
         self.prev_active_domain = None
 
         domain_name = 'object_division'
         domain_info = domain.get_domain(domain_name)
-        
-        train_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data/norm-multi-woz/train_dials.json')
+
+        data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
+        train_data_path = os.path.join(data_path, 'norm-multi-woz', 'train_dials.json')
+        if not os.path.exists(train_data_path):
+            zipped_file = os.path.join(data_path, 'norm-multi-woz.zip')
+            archive = zipfile.ZipFile(zipped_file, 'r')
+            archive.extractall(data_path)
+
+        norm_multiwoz_path = os.path.join(data_path, 'norm-multi-woz')
+        with open(os.path.join(norm_multiwoz_path, 'input_lang.index2word.json')) as f:
+            self.input_lang_index2word = json.load(f)
+        with open(os.path.join(norm_multiwoz_path, 'input_lang.word2index.json')) as f:
+            self.input_lang_word2index = json.load(f)
+        with open(os.path.join(norm_multiwoz_path, 'output_lang.index2word.json')) as f:
+            self.output_lang_index2word = json.load(f)
+        with open(os.path.join(norm_multiwoz_path, 'output_lang.word2index.json')) as f:
+            self.output_lang_word2index = json.load(f)
 
         config = Pack(
             seed=10,
