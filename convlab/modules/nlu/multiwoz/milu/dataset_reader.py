@@ -75,6 +75,11 @@ class MILUDatasetReader(DatasetReader):
             dialog = dialogs[dial_name]["log"]
             context_tokens_list = []
             for i, turn in enumerate(dialog):
+                if self._agent and self._agent == "user" and i % 2 != 1: 
+                    continue
+                if self._agent and self._agent == "system" and i % 2 != 0: 
+                    continue
+
                 tokens = turn["text"].split()
 
                 dialog_act = {}
@@ -85,12 +90,12 @@ class MILUDatasetReader(DatasetReader):
 
                 spans = turn["span_info"]
                 tags = []
-                for i in range(len(tokens)):
+                for j in range(len(tokens)):
                     for span in spans:
-                        if i == span[3]:
+                        if j == span[3]:
                             tags.append("B-"+span[0]+"+"+span[1])
                             break
-                        if i > span[3] and i <= span[4]:
+                        if j > span[3] and j <= span[4]:
                             tags.append("I-"+span[0]+"+"+span[1])
                             break
                     else:
@@ -119,10 +124,6 @@ class MILUDatasetReader(DatasetReader):
                 wrapped_tokens = [Token(token) for token in tokens]
                 context_tokens_list.append(tokens + ["SENT_END"])
 
-                if self._agent and self._agent == "user" and i % 2 != 1: 
-                    continue
-                if self._agent and self._agent == "system" and i % 2 != 0: 
-                    continue
                 yield self.text_to_instance(wrapped_context_tokens, wrapped_tokens, tags, intents, dialog_act)
 
 
