@@ -76,6 +76,9 @@ data/nrg
 convlab/modules/word_policy/multiwoz/mdrg/data
 convlab/modules/word_policy/multiwoz/mdrg/model/model
 
+# larl
+convlab/modules/word_policy/multiwoz/larl/data/norm-multi-woz
+
 # sequicity
 convlab/modules/e2e/multiwoz/Sequicity/data
 convlab/modules/e2e/multiwoz/Sequicity/log
