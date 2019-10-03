@@ -14,6 +14,7 @@ import copy
 from flask import Flask, request, jsonify
 from queue import PriorityQueue
 from threading import Thread
+import time
 
 rgi_queue = PriorityQueue(maxsize=0)
 rgo_queue = PriorityQueue(maxsize=0)
@@ -58,7 +59,7 @@ def process():
         print(in_request)
     except:
         return "invalid input: {}".format(in_request)
-    rgi_queue.put(in_request)
+    rgi_queue.put((time.time(), in_request))
     rgi_queue.join()
     output = rgo_queue.get()
     print(output['response'])
