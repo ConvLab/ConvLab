@@ -469,6 +469,10 @@ class GoalGenerator:
                 del user_goal['train']
                 domain_ordering = tuple(list(domain_ordering).remove('train'))
 
+        for domain in user_goal:
+            if not user_goal[domain]['info']:
+                user_goal[domain]['info'] = {'none':'none'}
+
         user_goal['domain_ordering'] = domain_ordering
 
         return user_goal

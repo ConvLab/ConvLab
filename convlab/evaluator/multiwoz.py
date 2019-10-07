@@ -211,7 +211,7 @@ class MultiWozEvaluator(Evaluator):
         elif key == "phone":
             return re.match(r'^\d{11}$', value)
         elif key == "price" or key == "entrance fee":
-            return 'pound' in value or value == "free"
+            return 'pound' in value or value == "free" or value == '?'
         elif key == "pricerange":
             return value in ["cheap", "expensive", "moderate", "free"]
         elif key == "postcode":

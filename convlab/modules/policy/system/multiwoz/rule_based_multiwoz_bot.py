@@ -28,8 +28,8 @@ booking_info = {'Train': ['People'],
                 'Restaurant': ['Time', 'Day', 'People'],
                 'Hotel': ['Stay', 'Day', 'People']}
 
-# Alphabet used to generate Ref number
-alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+# Alphabet used to generate phone number
+digit = '0123456789'
 
 # Judge if user has confirmed a unique choice, according to different domain
 token = {'Attraction': ['Name', 'Addr', ''],
@@ -166,7 +166,7 @@ class RuleBasedMultiwozBot(SysPolicy):
             if 'Taxi-Inform' not in DA:
                 DA['Taxi-Inform'] = []
             car = generate_car()
-            phone_num = generate_ref_num(11)
+            phone_num = generate_phone_num(11)
             DA['Taxi-Inform'].append(['Car', car])
             DA['Taxi-Inform'].append(['Phone', phone_num])
             return
@@ -493,11 +493,11 @@ def deduplicate(lst):
         i += 1
     return lst
 
-def generate_ref_num(length):
-    """ Generate a ref num for booking. """
+def generate_phone_num(length):
+    """ Generate a phone num. """
     string = ""
     while len(string) < length:
-        string += alphabet[random.randint(0, 999999) % 36]
+        string += digit[random.randint(0, 999999) % 36]
     return string
 
 def generate_car():

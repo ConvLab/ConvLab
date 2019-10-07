@@ -5,7 +5,7 @@ import json
 import os
 
 from convlab.modules.policy.system.multiwoz.rule_based_multiwoz_bot import REF_SYS_DA, REF_USR_DA, generate_car, \
-    generate_ref_num
+    generate_phone_num
 from convlab.modules.util.multiwoz.dbquery import query
 
 DEFAULT_VOCAB_FILE=os.path.join(os.path.dirname(os.path.dirname(
@@ -106,7 +106,7 @@ class MultiWozVocabActionDecoder(object):
                         if info_slot in state['belief_state']['taxi']['semi'] and \
                             state['belief_state']['taxi']['semi'][info_slot] != "":
                             car = generate_car()
-                            phone_num = generate_ref_num(11)
+                            phone_num = generate_phone_num(11)
                             action[act] = []
                             action[act].append(['Car', car])
                             action[act].append(['Phone', phone_num])
