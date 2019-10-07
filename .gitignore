@@ -25,6 +25,9 @@ test_result/
 # nltk
 nltk_data/
 
+# trade
+data/trade/
+
 # mdbt data
 data/mdbt/
 data/mdbt.tar.gz
@@ -76,6 +79,7 @@ convlab/modules/word_policy/multiwoz/mdrg/model/model
 # hdsa
 convlab/modules/word_policy/multiwoz/hdsa/data
 convlab/modules/word_policy/multiwoz/hdsa/checkpoints
+convlab/modules/word_policy/multiwoz/larl/data/norm-multi-woz
 
 # sequicity
 convlab/modules/e2e/multiwoz/Sequicity/data
