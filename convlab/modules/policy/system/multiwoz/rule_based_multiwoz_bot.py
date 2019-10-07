@@ -497,7 +497,7 @@ def generate_phone_num(length):
     """ Generate a phone num. """
     string = ""
     while len(string) < length:
-        string += digit[random.randint(0, 999999) % 36]
+        string += digit[random.randint(0, 999999) % 10]
     return string
 
 def generate_car():
