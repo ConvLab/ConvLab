@@ -272,9 +272,9 @@ class HDSA_generator():
                     words[i] = kb[key]
                 elif "taxi" in words[i] and "taxi_colors" in kb:
                     if key == "type":
-                        words[i] = " ".join(kb["taxi_colors"], kb["taxi_types"])
+                        words[i] = " ".join((kb["taxi_colors"], kb["taxi_types"]))
                     elif key == "phone":
                         words[i] = "".join(map(lambda x:str(x), kb["taxi_phone"]))
-                        
+        
         return " ".join(words)
 

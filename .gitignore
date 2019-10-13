@@ -25,6 +25,9 @@ test_result/
 # nltk
 nltk_data/
 
+# E2E evaluation
+convlab/spec/eval.json
+
 # trade
 data/trade/
 
