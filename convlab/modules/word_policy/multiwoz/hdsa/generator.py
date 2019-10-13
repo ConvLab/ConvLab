@@ -268,7 +268,7 @@ class HDSA_generator():
         for i in range(len(words)):
             if "[" in words[i] and "]" in words[i]:
                 key = words[i].split('_')[-1][:-1]
-                if key in kb:
+                if key in kb and isinstance(kb[key], str):
                     words[i] = kb[key]
                 elif "taxi" in words[i] and "taxi_colors" in kb:
                     if key == "type":
