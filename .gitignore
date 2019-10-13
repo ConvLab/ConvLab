@@ -76,7 +76,9 @@ data/nrg
 convlab/modules/word_policy/multiwoz/mdrg/data
 convlab/modules/word_policy/multiwoz/mdrg/model/model
 
-# larl
+# hdsa
+convlab/modules/word_policy/multiwoz/hdsa/data
+convlab/modules/word_policy/multiwoz/hdsa/checkpoints
 convlab/modules/word_policy/multiwoz/larl/data/norm-multi-woz
 
 # sequicity

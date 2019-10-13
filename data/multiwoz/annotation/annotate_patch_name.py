@@ -16,8 +16,7 @@ def write_zipped_json(filepath, filename, json_data):
     json.dump(json_data, open(filename, 'w', encoding='utf-8'), indent=4, ensure_ascii=False)
     with zipfile.ZipFile(filepath, 'w', zipfile.ZIP_DEFLATED) as zf:
         zf.write(filename)
-    # TODO: remove file
-    # os.remove(filename)
+    os.remove(filename)
 
 
 def add_name_annotation(data, database):
