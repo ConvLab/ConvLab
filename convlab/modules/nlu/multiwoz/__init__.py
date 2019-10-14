@@ -5,3 +5,4 @@ from convlab.modules.nlu.multiwoz.error import ErrorNLU
 from convlab.modules.nlu.multiwoz.milu.nlu import MILU
 from convlab.modules.nlu.multiwoz.onenet.nlu import OneNetLU
 from convlab.modules.nlu.multiwoz.svm.nlu import SVMNLU
+from convlab.modules.nlu.multiwoz.bert import BERTNLU
