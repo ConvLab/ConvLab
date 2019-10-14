@@ -266,7 +266,7 @@ class HDSA_generator():
         
         words = pred.split(' ')
         for i in range(len(words)):
-            if "[" in words[i] and "]" in words[i]:
+            if words[i].startswith('[') and words[i].endswith(']') and words[i] != '[UNK]':
                 domain, key = words[i][1:-1].split('_')
                 if key == 'reference':
                     key = 'Ref'
@@ -289,7 +289,7 @@ class HDSA_generator():
                             key = 'arriveBy'
                         elif 'leave' in pred:
                             key = 'leaveAt'
-                if key in kb and isinstance(kb[key], str):
+                if key in kb and domain == kb['domain']:
                     words[i] = kb[key]
                 else:
                     if domain == 'hospital':

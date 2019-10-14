@@ -174,7 +174,7 @@
         "lr_scheduler_spec": {
           "name": "StepLR",
           "step_size": 1000,
-          "gamma": 0.999,
+          "gamma": 0.999
         },
         "update_type": "replace",
         "update_frequency": 300,
@@ -278,7 +278,7 @@
         "lr_scheduler_spec": {
           "name": "StepLR",
           "step_size": 1000,
-          "gamma": 0.999,
+          "gamma": 0.999
         },
         "update_type": "replace",
         "update_frequency": 300,
@@ -322,5 +322,5 @@
         "num_gpus": 0
       }
     }
-  },
+  }
 }
