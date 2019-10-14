@@ -1,0 +1,16 @@
+{
+  "data_dir": "multiwoz/data/usr_data",
+  "output_dir": "multiwoz/output/usr",
+  "zipped_model_path": "multiwoz/output/usr/bert_multiwoz_usr.zip",
+  "log_dir": "multiwoz/log/usr",
+  "DEVICE": "cuda:1",
+  "model": {
+    "pre-trained": "bert-base-uncased",
+    "lr": 0.001,
+    "dropout": 0.0,
+    "optimizer": "Adam"
+  },
+  "check_step": 100,
+  "max_step": 30000,
+  "batch_size": 100
+}
