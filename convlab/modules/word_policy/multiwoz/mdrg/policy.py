@@ -23,8 +23,9 @@ from convlab.lib.file_util import cached_path
 from convlab.modules.dst.multiwoz.dst_util import init_state
 from convlab.modules.policy.system.policy import SysPolicy
 from convlab.modules.word_policy.multiwoz.mdrg.model import Model
-from convlab.modules.word_policy.multiwoz.mdrg.utils import util, dbquery, delexicalize
+from convlab.modules.word_policy.multiwoz.mdrg.utils import util, delexicalize
 from convlab.modules.word_policy.multiwoz.mdrg.utils.nlp import normalize
+from convlab.modules.util.multiwoz import dbquery
 
 DATA_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))), 'data/nrg/mdrg')
@@ -278,6 +279,10 @@ def populate_template(template, top_results, num_results, state):
             slot = token[1:-1].split('_')[1]
             if domain == 'train' and slot == 'id':
                 slot = 'trainID'
+            elif domain != 'train' and slot == 'price':
+                slot = 'pricerange'
+            elif slot == 'reference':
+                slot = 'Ref'
             if domain in top_results and len(top_results[domain]) > 0 and slot in top_results[domain]:
                 # print('{} -> {}'.format(token, top_results[domain][slot]))
                 response.append(top_results[domain][slot])

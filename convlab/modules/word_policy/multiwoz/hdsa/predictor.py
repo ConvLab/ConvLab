@@ -170,10 +170,11 @@ class HDSA_predictor():
                     constraints.append([slot, meta[self.domain]['semi'][slot]])
         query_result = query(self.domain, constraints)
         if not query_result:
-            kb = {}
+            kb = {'count':0}
             src = "no information"
         else:
             kb = query_result[0]
+            kb['count'] = len(query_result)
             src = []
             for k, v in kb.items():
                 k = examine(self.domain, k.lower())

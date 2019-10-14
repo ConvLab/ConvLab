@@ -267,14 +267,50 @@ class HDSA_generator():
         words = pred.split(' ')
         for i in range(len(words)):
             if "[" in words[i] and "]" in words[i]:
-                key = words[i].split('_')[-1][:-1]
+                domain, key = words[i][1:-1].split('_')
+                if key == 'reference':
+                    key = 'Ref'
+                elif key == 'trainid':
+                    key = 'trainID'
+                elif key == 'leaveat':
+                    key = 'leaveAt'
+                elif key == 'arriveby':
+                    key = 'arriveBy'
+                elif key == 'price' and domain != 'train':
+                    key = 'pricerange'
+                elif domain == 'value':
+                    if key == 'place':
+                        if 'arrive' in pred:
+                            key = 'destination'
+                        elif 'leave' in pred:
+                            key = 'departure'
+                    elif key == 'time':
+                        if 'arrive' in pred:
+                            key = 'arriveBy'
+                        elif 'leave' in pred:
+                            key = 'leaveAt'
                 if key in kb and isinstance(kb[key], str):
                     words[i] = kb[key]
-                elif "taxi" in words[i] and "taxi_colors" in kb:
-                    if key == "type":
-                        words[i] = " ".join((kb["taxi_colors"], kb["taxi_types"]))
-                    elif key == "phone":
-                        words[i] = "".join(map(lambda x:str(x), kb["taxi_phone"]))
+                else:
+                    if domain == 'hospital':
+                        if key == 'phone':
+                            words[i] = '01223216297'
+                        elif key == 'department':
+                            words[i] = 'neurosciences critical care unit'
+                    elif domain == 'police':
+                        if key == 'phone':
+                            words[i] = '01223358966'
+                        elif key == 'name':
+                            words[i] = 'Parkside Police Station'
+                        elif key == 'address':
+                            words[i] = 'Parkside, Cambridge'
+                    elif domain == 'taxi':
+                        if key == 'phone':
+                            words[i] = '01223358966'
+                        elif key == 'color':
+                            words[i] = 'white'
+                        elif key == 'type':
+                            words[i] = 'toyota'
         
         return " ".join(words)
 

@@ -7,10 +7,11 @@ from convlab.modules.word_policy.multiwoz.larl.latent_dialog.enc2dec.decoders im
 from convlab.modules.word_policy.multiwoz.larl.latent_dialog.utils import INT, FLOAT, LONG, Pack, cast_type
 from convlab.modules.word_policy.multiwoz.larl.latent_dialog.utils import get_detokenize
 from convlab.modules.word_policy.multiwoz.larl.utils.nlp import normalize
-from convlab.modules.word_policy.multiwoz.larl.utils import util, dbquery, delexicalize
+from convlab.modules.word_policy.multiwoz.larl.utils import util, delexicalize
 from convlab.modules.word_policy.multiwoz.larl import corpora_inference
 from convlab.modules.word_policy.multiwoz.larl.latent_dialog import domain
 from convlab.modules.word_policy.multiwoz.larl.latent_dialog.models_task import SysPerfectBD2Cat
+from convlab.modules.util.multiwoz import dbquery
 from convlab.modules.policy.system.policy import SysPolicy
 from convlab.modules.dst.multiwoz.dst_util import init_state
 from convlab.lib.file_util import cached_path
@@ -500,14 +501,14 @@ class LaRLPolicy(SysPolicy):
         state_with_history['history'] = deepcopy(state_history)
         response = self.populate_template(
             outputs, top_results, num_results, state_with_history)
-        import pprint
-        pprint.pprint("============")
-        pprint.pprint('usr:')
-        pprint.pprint(context[-1])
+        #import pprint
+        #pprint.pprint("============")
+        #pprint.pprint('usr:')
+        #pprint.pprint(context[-1])
         # pprint.pprint(outputs)
-        pprint.pprint('agent:')
-        pprint.pprint(response)
-        pprint.pprint("============")
+        #pprint.pprint('agent:')
+        #pprint.pprint(response)
+        #pprint.pprint("============")
 
         return response, active_domain
 
@@ -526,6 +527,10 @@ class LaRLPolicy(SysPolicy):
                     slot = slot[:-1]
                 if domain == 'train' and slot == 'id':
                     slot = 'trainID'
+                elif domain != 'train' and slot == 'price':
+                    slot = 'pricerange'
+                elif slot == 'reference':
+                    slot = 'Ref'
                 if domain in top_results and len(top_results[domain]) > 0 and slot in top_results[domain]:
                     # print('{} -> {}'.format(token, top_results[domain][slot]))
                     response.append(top_results[domain][slot])
@@ -660,9 +665,6 @@ class LaRLPolicy(SysPolicy):
                             response.append('Korean BBQ')        
                         elif slot == 'postcode':
                             response.append('533482')
-                    elif domain == 'train':
-                        if slot == 'reference':
-                            response.append("axd5sxt")
                     else:
                         # print(token)
                         response.append(token)
