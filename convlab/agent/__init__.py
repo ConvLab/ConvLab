@@ -160,10 +160,10 @@ class DialogAgent(Agent):
 
         # NLU parsing
         input_act = self.nlu.parse(obs, sum(self.dst.state['history'], []) if self.dst else []) if self.nlu else obs
-        input_act = da_normalize(input_act, role='usr')
+        input_act = da_normalize(input_act, role='usr') if self.nlu else input_act
 
         # state tracking
-        state = self.dst.update(input_act) if self.dst else input_act 
+        state = self.dst.update(input_act) if self.dst else input_act
 
         # update history 
         if self.dst:
