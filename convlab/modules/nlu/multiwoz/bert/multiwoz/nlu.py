@@ -27,7 +27,7 @@ from convlab.modules.nlu.multiwoz.bert.multiwoz.preprocess import preprocess
 
 
 class BERTNLU(NLU):
-    def __init__(self, mode):
+    def __init__(self, mode, model_file):
         """
         BERT NLU initialization.
 
@@ -39,7 +39,6 @@ class BERTNLU(NLU):
             nlu = BERTNLU(mode='usr')
         """
         assert mode == 'usr' or mode == 'sys' or mode == 'all'
-        model_file = 'https://tatk-data.s3-ap-northeast-1.amazonaws.com/bert_multiwoz_{}.zip'.format(mode)
         config_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'configs/multiwoz_{}.json'.format(mode))
         config = json.load(open(config_file))
         DEVICE = config['DEVICE']
@@ -116,7 +115,7 @@ class BERTNLU(NLU):
 
 
 if __name__ == '__main__':
-    nlu = BERTNLU(mode='usr')
+    nlu = BERTNLU(mode='usr', model_file='https://tatk-data.s3-ap-northeast-1.amazonaws.com/bert_multiwoz_usr.zip')
     test_utterances = [
         "What type of accommodations are they. No , i just need their address . Can you tell me if the hotel has internet available ?",
         "What type of accommodations are they.",

@@ -29,12 +29,6 @@ $ python train.py --config_path multiwoz/configs/multiwoz_[mode].json
 
 The model will be saved on `output/[mode]/bestcheckpoint.tar`. Also, it will be zipped as `output/[mode]/bert_multiwoz_[mode].zip`. 
 
-Trained models can be download on: 
-
-- Trained on all data: [mode=all](https://tatk-data.s3-ap-northeast-1.amazonaws.com/bert_multiwoz_all.zip)
-- Trained on user utterances only: [mode=usr](https://tatk-data.s3-ap-northeast-1.amazonaws.com/bert_multiwoz_usr.zip)
-- Trained on system utterances only: [mode=sys](https://tatk-data.s3-ap-northeast-1.amazonaws.com/bert_multiwoz_usr.zip)
-
 #### Evaluate
 
 On `bert/multiwoz` dir:
@@ -50,11 +44,9 @@ In `nlu.py` , the `BERTNLU` class inherits the NLU interface and adapts to multi
 ```python
 from convlab.modules.nlu import BERTNLU
 
-model = BERTNLU(mode, model_file=PATH_TO_ZIPPED_MODEL)
+model = BERTNLU(mode, model_file=PATH_TO_ZIPPED_MODEL_OR_MODEL_URL)
 dialog_act = model.predict(utterance)
 ```
-
-You can refer to `evaluate.py` for specific usage.
 
 ## Data
 
