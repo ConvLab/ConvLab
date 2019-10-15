@@ -5,6 +5,8 @@ Based on pre-trained bert, BERTNLU use a linear layer for slot tagging and anoth
 - For those dialog acts that the value appears in the utterance, they are translated to BIO tags. For example, `"Find me a cheap hotel"`, its dialog act is `{"Hotel-Inform":[["Price", "cheap"]]}`, and translated tag sequence is `["O", "O", "O", "B-Hotel-Inform+Price", "O"]`. A linear layer takes pre-trained bert word embeddings as input and classify the tag label.
 - For each of the other dialog acts, such as `(Hotel-Request, Address, ?)`, another linear layer takes pre-trained bert embeddings of `[CLS]` as input and do the binary classification.
 
+We fixed BERT parameters currently.
+
 ## Usage
 
 Determine which data you want to use: if **mode**='usr', use user utterances to train; if **mode**='sys', use system utterances to train; if **mode**='all', use both user and system utterances to train.
@@ -29,12 +31,6 @@ $ python train.py --config_path multiwoz/configs/multiwoz_[mode].json
 
 The model will be saved on `output/[mode]/bestcheckpoint.tar`. Also, it will be zipped as `output/[mode]/bert_multiwoz_[mode].zip`. 
 
-Trained models can be download on: 
-
-- Trained on all data: [mode=all](https://tatk-data.s3-ap-northeast-1.amazonaws.com/bert_multiwoz_all.zip)
-- Trained on user utterances only: [mode=usr](https://tatk-data.s3-ap-northeast-1.amazonaws.com/bert_multiwoz_usr.zip)
-- Trained on system utterances only: [mode=sys](https://tatk-data.s3-ap-northeast-1.amazonaws.com/bert_multiwoz_usr.zip)
-
 #### Evaluate
 
 On `bert/multiwoz` dir:
@@ -50,11 +46,9 @@ In `nlu.py` , the `BERTNLU` class inherits the NLU interface and adapts to multi
 ```python
 from convlab.modules.nlu import BERTNLU
 
-model = BERTNLU(mode, model_file=PATH_TO_ZIPPED_MODEL)
+model = BERTNLU(mode, model_file=PATH_TO_ZIPPED_MODEL_OR_MODEL_URL)
 dialog_act = model.predict(utterance)
 ```
-
-You can refer to `evaluate.py` for specific usage.
 
 ## Data
 
