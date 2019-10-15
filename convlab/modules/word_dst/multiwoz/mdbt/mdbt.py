@@ -165,6 +165,10 @@ class MDBTTracker(Tracker):
                 if 'book' in slot:
                     assert slot.startswith('book ')
                     slot = slot.strip().split()[1]
+                if slot == 'arriveby':
+                    slot = 'arriveBy'
+                elif slot == 'leaveat':
+                    slot = 'leaveAt'
                 domain_dic = new_belief_state[domain]
                 if slot in domain_dic['semi']:
                     new_belief_state[domain]['semi'][slot] = normalize_value(self.value_dict, domain, slot, value)
