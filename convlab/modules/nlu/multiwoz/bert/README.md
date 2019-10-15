@@ -5,6 +5,8 @@ Based on pre-trained bert, BERTNLU use a linear layer for slot tagging and anoth
 - For those dialog acts that the value appears in the utterance, they are translated to BIO tags. For example, `"Find me a cheap hotel"`, its dialog act is `{"Hotel-Inform":[["Price", "cheap"]]}`, and translated tag sequence is `["O", "O", "O", "B-Hotel-Inform+Price", "O"]`. A linear layer takes pre-trained bert word embeddings as input and classify the tag label.
 - For each of the other dialog acts, such as `(Hotel-Request, Address, ?)`, another linear layer takes pre-trained bert embeddings of `[CLS]` as input and do the binary classification.
 
+We fixed BERT parameters currently.
+
 ## Usage
 
 Determine which data you want to use: if **mode**='usr', use user utterances to train; if **mode**='sys', use system utterances to train; if **mode**='all', use both user and system utterances to train.
