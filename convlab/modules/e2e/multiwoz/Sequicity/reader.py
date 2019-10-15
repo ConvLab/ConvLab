@@ -927,7 +927,10 @@ class MultiWozReader(_ReaderBase):
         db_data = list()
         for domain_db_json_path in db_json_path:
             with open(domain_db_json_path) as f:
-                db_data += json.loads(f.read().lower())
+                db_data_domain = json.loads(f.read().lower())
+                for i, item in enumerate(db_data_domain):
+                    item['ref'] = f'{i:08d}'
+                db_data += db_data_domain
         self._get_clean_db(db_data)
         self.db = db_data
         
