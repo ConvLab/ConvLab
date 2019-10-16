@@ -8,6 +8,8 @@ import os
 import sys
 import time
 from random import shuffle
+import shutil
+import zipfile
 
 import numpy as np
 import tensorflow as tf
@@ -18,6 +20,16 @@ from convlab.modules.util.multiwoz.multiwoz_slot_trans import REF_SYS_DA, REF_US
 from convlab.modules.word_dst.multiwoz.mdbt.mdbt_util import model_definition, load_word_vectors, load_ontology, \
     load_woz_data, \
     track_dialogue, generate_batch, process_history, evaluate_model
+
+from pathlib import Path
+from convlab.modules.word_dst.multiwoz.mdbt.allennlp_file_utils import cached_path as allennlp_cached_path
+
+
+def cached_path(file_path, cached_dir=None):
+    if not cached_dir:
+        cached_dir = str(Path(Path.home() / '.tatk') / "cache")
+
+    return allennlp_cached_path(file_path, cached_dir)
 
 # DATA_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))), 'data/mdbt')
 # VALIDATION_URL = os.path.join(DATA_PATH, "data/validate.json")
@@ -43,10 +55,14 @@ class MDBTTracker(Tracker):
     """
     A multi-domain belief tracker, adopted from https://github.com/osmanio2/multi-domain-belief-tracking.
     """
-    def __init__(self, data_dir='data/mdbt'):
+    def __init__(self, data_dir='configs'):
         Tracker.__init__(self)
         # data profile
-        self.data_dir = data_dir
+        # self.data_dir = data_dir
+        local_path = os.path.dirname(os.path.abspath(__file__))
+        self.data_dir = os.path.join(local_path, data_dir)
+        self.file_url = 'https://tatk-data.s3-ap-northeast-1.amazonaws.com/mdbt_multiwoz_sys.zip'
+
         self.validation_url = os.path.join(self.data_dir, 'data/validate.json')
         self.word_vectors_url = os.path.join(self.data_dir, 'word-vectors/paragram_300_sl999.txt')
         self.training_url = os.path.join(self.data_dir, 'data/train.json')
@@ -58,6 +74,8 @@ class MDBTTracker(Tracker):
         self.kb_url = os.path.join(self.data_dir, 'data/')  # not used
         self.train_model_url = os.path.join(self.data_dir, 'train_models/model-1')
         self.train_graph_url = os.path.join(self.data_dir, 'train_graph/graph-1')
+
+        self.auto_download()
 
         print('Configuring MDBT model...')
         self.word_vectors = load_word_vectors(self.word_vectors_url)
@@ -84,6 +102,31 @@ class MDBTTracker(Tracker):
                 self.det_dic[key.lower()] = key + '-' + domain
                 self.det_dic[value.lower()] = key + '-' + domain
         self.value_dict = json.load(open(os.path.join(self.data_dir, '../multiwoz/value_dict.json')))
+
+    def auto_download(self):
+        """Automatically download the pretrained model and necessary data."""
+        if not os.path.exists(self.data_dir):
+            os.mkdir(self.data_dir)
+        if os.path.exists(os.path.join(self.data_dir, 'models')) and \
+            os.path.exists(os.path.join(self.data_dir, 'data')) and \
+            os.path.exists(os.path.join(self.data_dir, 'word-vectors')):
+            return
+        cached_path(self.file_url, self.data_dir)
+        files = os.listdir(self.data_dir)
+        target_file = ''
+        for name in files:
+            if name.endswith('.json'):
+                target_file = name[:-5]
+        try:
+            assert target_file in files
+        except Exception as e:
+            print('allennlp download file error: MDBT Multiwoz data download failed.')
+            raise e
+        zip_file_path = os.path.join(self.data_dir, target_file+'.zip')
+        shutil.copyfile(os.path.join(self.data_dir, target_file), zip_file_path)
+        with zipfile.ZipFile(zip_file_path, 'r') as zip_ref:
+            zip_ref.extractall(self.data_dir)
+
 
     def init_session(self):
         self.state = init_state()
@@ -486,6 +529,12 @@ def evaluate_model():
     saver = tf.train.Saver()
     mdbt.restore_model(mdbt.sess, saver)
     mdbt.test(mdbt.sess)
+
+def cached_path(file_path, cached_dir=None):
+    if not cached_dir:
+        cached_dir = str(Path(Path.home() / '.tatk') / "cache")
+
+    return allennlp_cached_path(file_path, cached_dir)
 
 if __name__ == '__main__':
     evaluate_model()
