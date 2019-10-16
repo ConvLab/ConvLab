@@ -45,6 +45,8 @@ data/multiwoz/annoted_bio_all_20k.txt
 data/multiwoz/annotated_user_utts_v2.txt
 data/multiwoz/annotated_user_utts_v2_20k.txt
 data/multiwoz/test.json
+convlab/modules/word_dst/multiwoz/mdbt/configs
+
 
 # sclstm
 convlab/modules/nlg/multiwoz/sc_lstm/resource

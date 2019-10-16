@@ -13,6 +13,7 @@ import zipfile
 
 import numpy as np
 import tensorflow as tf
+from os.path import dirname, abspath
 
 from convlab.modules.dst.multiwoz.dst_util import init_state, init_belief_state, normalize_value
 from convlab.modules.dst.state_tracker import Tracker
@@ -101,7 +102,7 @@ class MDBTTracker(Tracker):
                 assert '-' not in key
                 self.det_dic[key.lower()] = key + '-' + domain
                 self.det_dic[value.lower()] = key + '-' + domain
-        self.value_dict = json.load(open(os.path.join(self.data_dir, '../multiwoz/value_dict.json')))
+        self.value_dict = json.load(open(os.path.join(dirname(dirname(dirname(dirname(dirname(dirname(abspath(__file__))))))), 'data/multiwoz/value_dict.json')))
 
     def auto_download(self):
         """Automatically download the pretrained model and necessary data."""
@@ -124,6 +125,7 @@ class MDBTTracker(Tracker):
             raise e
         zip_file_path = os.path.join(self.data_dir, target_file+'.zip')
         shutil.copyfile(os.path.join(self.data_dir, target_file), zip_file_path)
+        # zip_file_path = os.path.join(self.data_dir, 'mdbt_multiwoz_sys.zip')
         with zipfile.ZipFile(zip_file_path, 'r') as zip_ref:
             zip_ref.extractall(self.data_dir)
 
