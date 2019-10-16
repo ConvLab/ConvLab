@@ -57,6 +57,9 @@ convlab/modules/nlg/multiwoz/sc_lstm/sclstm_usr.res
 # svm
 convlab/modules/nlu/multiwoz/svm/model/
 
+# bert
+convlab/modules/nlu/multiwoz/bert/multiwoz/data/
+
 # private test script
 private_test.py
 
