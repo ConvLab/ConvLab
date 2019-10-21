@@ -14,9 +14,9 @@
     "context_size": 3,
     "agent": "user" 
   },
-  "train_data_path": "/home/sule/projects/research/ConvLab/data/multiwoz/train.json.zip",
-  "validation_data_path": "/home/sule/projects/research/ConvLab/data/multiwoz/val.json.zip",
-  "test_data_path": "/home/sule/projects/research/ConvLab/data/multiwoz/test.json.zip",
+  "train_data_path": "../../../../../data/multiwoz/train.json.zip",
+  "validation_data_path": "../../../../../data/multiwoz/val.json.zip",
+  "test_data_path": "../../../../../data/multiwoz/test.json.zip",
   "model": {
     "type": "milu",
     "label_encoding": "BIO",

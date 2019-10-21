@@ -77,7 +77,7 @@ class MILU(NLU):
 
 
 if __name__ == "__main__":
-    nlu = MILU()
+    nlu = MILU(model_file="https://convlab.blob.core.windows.net/models/milu.tar.gz")
     test_contexts = [
         "SENT_END",
         "SENT_END",
