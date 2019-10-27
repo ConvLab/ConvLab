@@ -16,6 +16,7 @@ class UserPolicyVHUS(UserPolicy):
 
     def __init__(self):
         self.user = UserNeural()
+        self.max_turn = 40
         path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))), 
                             'usr/multiwoz/vhus_user/model/best')
         self.user.load(path)

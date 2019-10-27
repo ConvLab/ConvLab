@@ -30,3 +30,6 @@ best = float('inf')
 for e in range(10):
     env.imitating(e)
     best = env.imit_test(e, best)
+
+#env.load('model/best_simulator.mdl')
+env.test()

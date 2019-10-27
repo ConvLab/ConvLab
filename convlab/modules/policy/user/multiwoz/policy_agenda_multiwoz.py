@@ -47,7 +47,7 @@ class UserPolicyAgendaMultiWoz(UserPolicy):
                 os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))),
                 'data/value_set.json')))
 
-    def __init__(self, max_goal_num=100, seed=2019):
+    def __init__(self, max_goal_num=1005, seed=2019):
         """
         Constructor for User_Policy_Agenda class.
         """
@@ -69,7 +69,7 @@ class UserPolicyAgendaMultiWoz(UserPolicy):
     def init_session(self):
         """ Build new Goal and Agenda for next session """
         self.__turn = 0
-        if len(self.goal_seeds)>1:
+        if len(self.goal_seeds)>=1:
             self.goal = Goal(self.goal_generator, self.goal_seeds[0])
             self.goal_seeds = self.goal_seeds[1:]
         else:

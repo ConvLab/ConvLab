@@ -129,10 +129,11 @@ def extend_meta_spec(spec):
         # ckpt extends prepath, e.g. ckpt_str = ckpt-epi10-totalt1000
         'ckpt': None,
         'git_sha': util.get_git_sha(),
-        'random_seed': None,
-        'eval_model_prepath': None,
+        'random_seed': None
     }
     spec['meta'].update(extended_meta_spec)
+    if 'eval_model_prepath' not in spec['meta']:
+        spec['meta']['eval_model_prepath'] = None
     return spec
 
 
