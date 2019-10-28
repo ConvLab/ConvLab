@@ -28,10 +28,10 @@ np.random.seed(9102)
 
 if __name__ == '__main__':
     mode = sys.argv[1]
-    config_path = 'configs/multiwoz_{}.json'.format(mode)
+    root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    config_path = os.path.join(root_dir, 'multiwoz/configs/multiwoz_{}.json'.format(mode))
     config = json.load(open(config_path))
     DEVICE = config['DEVICE']
-    root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     data_dir = os.path.join(root_dir, config['data_dir'])
     output_dir = os.path.join(root_dir, config['output_dir'])
     log_dir = os.path.join(root_dir, config['log_dir'])
