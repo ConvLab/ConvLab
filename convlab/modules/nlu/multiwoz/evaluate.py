@@ -78,7 +78,6 @@ if __name__ == '__main__':
 
     archive = zipfile.ZipFile('../../../../data/multiwoz/test.json.zip', 'r')
     test_data = json.load(archive.open('test.json'))
-    TP, FP, FN = 0, 0, 0
     sen_num = 0
     sess_num = 0
     predict_golden_intents = []

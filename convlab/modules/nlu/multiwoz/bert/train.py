@@ -2,18 +2,26 @@ import argparse
 import pickle
 import os
 import json
-from tatk.nlu.bert.dataloader import Dataloader
-from tatk.nlu.bert.model import BertNLU
 import torch
 from torch.utils.tensorboard import SummaryWriter
 import random
 import numpy as np
 import zipfile
 from copy import deepcopy
+from pprint import pprint
+from transformers import BertConfig, AdamW, WarmupLinearSchedule
+from convlab.modules.nlu.multiwoz.bert.dataloader import Dataloader
+from convlab.modules.nlu.multiwoz.bert.model import BertNLU
+from convlab.modules.nlu.multiwoz.bert.intentBERT import IntentBERT
+from convlab.modules.nlu.multiwoz.bert.slotBERT import SlotBERT
+from convlab.modules.nlu.multiwoz.bert.jointBERT import JointBERT
+from convlab.modules.nlu.multiwoz.bert.multiwoz.postprocess import *
 
-torch.manual_seed(9102)
-random.seed(9102)
-np.random.seed(9102)
+
+def set_seed(seed):
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
 
 
 parser = argparse.ArgumentParser(description="Train a model.")
@@ -29,13 +37,15 @@ if __name__ == '__main__':
     log_dir = config['log_dir']
     DEVICE = config['DEVICE']
 
-    data = pickle.load(open(os.path.join(data_dir,'data.pkl'),'rb'))
-    intent_vocab = pickle.load(open(os.path.join(data_dir,'intent_vocab.pkl'),'rb'))
-    tag_vocab = pickle.load(open(os.path.join(data_dir,'tag_vocab.pkl'),'rb'))
-    for key in data:
-        print('{} set size: {}'.format(key,len(data[key])))
+    intent_vocab = json.load(open(os.path.join(data_dir, 'intent_vocab.json')))
+    tag_vocab = json.load(open(os.path.join(data_dir, 'tag_vocab.json')))
+    dataloader = Dataloader(intent_vocab=intent_vocab, tag_vocab=tag_vocab,
+                            pretrained_weights=config['model']['pretrained_weights'])
     print('intent num:', len(intent_vocab))
     print('tag num:', len(tag_vocab))
+    for data_key in ['train', 'val', 'test']:
+        dataloader.load_data(json.load(open(os.path.join(data_dir, '{}_data.json'.format(data_key)))), data_key)
+        print('{} set size: {}'.format(data_key, len(dataloader.data[data_key])))
 
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
@@ -44,152 +54,160 @@ if __name__ == '__main__':
 
     writer = SummaryWriter(log_dir)
 
-    dataloader = Dataloader(data, intent_vocab, tag_vocab, config['model']["pre-trained"])
+    bert_config = BertConfig.from_pretrained(config['model']['pretrained_weights'])
 
-    model = BertNLU(config['model'], dataloader.intent_dim, dataloader.tag_dim,
-                    DEVICE=DEVICE,
-                    intent_weight=dataloader.intent_weight)
+    model = JointBERT(bert_config, DEVICE, dataloader.tag_dim, dataloader.intent_dim, dataloader.intent_weight)
     model.to(DEVICE)
-    intent_save_params = []
-    tag_save_params = []
+
     for name, param in model.named_parameters():
-        if param.requires_grad:
-            print(name, param.shape, param.device)
-            if 'intent' in name:
-                intent_save_params.append(name)
-            elif 'tag' in name:
-                tag_save_params.append(name)
-            else:
-                # Not support finetune bert params yet
-                assert 0
-    print('intent params:',intent_save_params)
-    print('tag params:',tag_save_params)
+        print(name, param.shape, param.device, param.requires_grad)
 
-    max_step = config['max_step']
-    check_step = config['check_step']
-    batch_size = config['batch_size']
-    train_loss = 0
-    train_intent_loss = 0
-    train_tag_loss = 0
-    best_val_intent_loss = np.inf
-    best_val_tag_loss = np.inf
-    best_intent_step = 0
-    best_tag_step = 0
-    best_intent_params = None
-    best_tag_params = None
+    no_decay = ['bias', 'LayerNorm.weight']
+    optimizer_grouped_parameters = [
+        {'params': [p for n, p in model.named_parameters() if not any(nd in n for nd in no_decay)],
+         'weight_decay': config['model']['weight_decay']},
+        {'params': [p for n, p in model.named_parameters() if any(nd in n for nd in no_decay)], 'weight_decay': 0.0}
+    ]
+    optimizer = AdamW(optimizer_grouped_parameters, lr=config['model']['learning_rate'], eps=config['model']['adam_epsilon'])
+    scheduler = WarmupLinearSchedule(optimizer, warmup_steps=config['model']['warmup_steps'], t_total=config['model']['max_step'])
 
-    for step in range(1,max_step+1):
-        # batched_data = word_seq_tensor, tag_seq_tensor, intent_tensor, word_mask_tensor, tag_mask_tensor, word_seq_len
+    max_step = config['model']['max_step']
+    check_step = config['model']['check_step']
+    batch_size = config['model']['batch_size']
+    model.zero_grad()
+    set_seed(config['seed'])
+    train_slot_loss, train_intent_loss = 0, 0
+    best_val_f1 = 0.
+
+    writer.add_text('config', json.dumps(config))
+
+    for step in range(1, max_step + 1):
+        model.train()
         batched_data = dataloader.get_train_batch(batch_size)
-        intent_loss, tag_loss, total_loss, intent_logits, tag_logits = model.train_batch(*batched_data)
-        train_intent_loss += intent_loss
-        train_tag_loss += tag_loss
-        train_loss += total_loss
-
+        batched_data = tuple(t.to(DEVICE) for t in batched_data)
+        word_seq_tensor, tag_seq_tensor, intent_tensor, word_mask_tensor, tag_mask_tensor = batched_data
+        _, _, slot_loss, intent_loss = model.forward(word_seq_tensor, word_mask_tensor, tag_seq_tensor, tag_mask_tensor,
+                                                     intent_tensor)
+        train_slot_loss += slot_loss.item()
+        train_intent_loss += intent_loss.item()
+        loss = slot_loss + intent_loss
+        loss.backward()
+        optimizer.step()
+        scheduler.step()  # Update learning rate schedule
+        model.zero_grad()
         if step % check_step == 0:
-            train_loss = train_loss / check_step
+            train_slot_loss = train_slot_loss / check_step
             train_intent_loss = train_intent_loss / check_step
-            train_tag_loss = train_tag_loss / check_step
-            print('[%d|%d] step train loss: %f' % (step, max_step, train_loss))
-            print('\t intent loss:',train_intent_loss)
-            print('\t tag loss:', train_tag_loss)
+            print('[%d|%d] step' % (step, max_step))
+            print('\t slot loss:', train_slot_loss)
+            print('\t intent loss:', train_intent_loss)
 
-            val_loss = 0
-            val_intent_loss = 0
-            val_tag_loss = 0
-            for batched_data, real_batch_size in dataloader.yield_batches(batch_size, data_key='val'):
-                intent_loss, tag_loss, total_loss, intent_logits, tag_logits = model.eval_batch(*batched_data)
-                val_intent_loss += intent_loss * real_batch_size
-                val_tag_loss += tag_loss * real_batch_size
-                val_loss += total_loss * real_batch_size
+            predict_golden_intents = []
+            predict_golden_slots = []
+            predict_golden_all = []
+
+            val_slot_loss, val_intent_loss = 0, 0
+            model.eval()
+            for pad_batch, ori_batch, real_batch_size in dataloader.yield_batches(batch_size, data_key='val'):
+                pad_batch = tuple(t.to(DEVICE) for t in pad_batch)
+                word_seq_tensor, tag_seq_tensor, intent_tensor, word_mask_tensor, tag_mask_tensor = pad_batch
+
+                with torch.no_grad():
+                    slot_logits, intent_logits, slot_loss, intent_loss = model.forward(word_seq_tensor,
+                                                                                       word_mask_tensor,
+                                                                                       tag_seq_tensor,
+                                                                                       tag_mask_tensor,
+                                                                                       intent_tensor)
+                val_slot_loss += slot_loss.item() * real_batch_size
+                val_intent_loss += intent_loss.item() * real_batch_size
+                for j in range(real_batch_size):
+                    predicts = recover_intent(dataloader, intent_logits[j], slot_logits[j], tag_mask_tensor[j],
+                                              ori_batch[j][0], ori_batch[j][-4])
+                    predicts = [[x[0], x[1], x[2].lower()] for x in predicts]
+                    labels = ori_batch[j][3]
+
+                    predict_golden_all.append({
+                        'predict': predicts,
+                        'golden': labels
+                    })
+                    predict_golden_slots.append({
+                        'predict': [x for x in predicts if is_slot_da(x)],
+                        'golden': [x for x in labels if is_slot_da(x)]
+                    })
+                    predict_golden_intents.append({
+                        'predict': [x for x in predicts if not is_slot_da(x)],
+                        'golden': [x for x in labels if not is_slot_da(x)]
+                    })
+
+            for j in range(10):
+                writer.add_text('val_sample_{}'.format(j), json.dumps(predict_golden_all[j]), global_step=step)
+
             total = len(dataloader.data['val'])
-            val_loss /= total
+            val_slot_loss /= total
             val_intent_loss /= total
-            val_tag_loss /= total
-            print('%d samples val loss: %f' % (total, val_loss))
+            print('%d samples val' % total)
+            print('\t slot loss:', val_slot_loss)
             print('\t intent loss:', val_intent_loss)
-            print('\t tag loss:', val_tag_loss)
 
-            test_loss = 0
-            test_intent_loss = 0
-            test_tag_loss = 0
-            for batched_data, real_batch_size in dataloader.yield_batches(batch_size, data_key='test'):
-                intent_loss, tag_loss, total_loss, intent_logits, tag_logits = model.eval_batch(*batched_data)
-                test_intent_loss += intent_loss * real_batch_size
-                test_tag_loss += tag_loss * real_batch_size
-                test_loss += total_loss * real_batch_size
-            total = len(dataloader.data['test'])
-            test_loss /= total
-            test_intent_loss /= total
-            test_tag_loss /= total
-            print('%d samples test loss: %f' % (total, test_loss))
-            print('\t intent loss:', test_intent_loss)
-            print('\t tag loss:', test_tag_loss)
-
-            update_flag = False
-            if val_intent_loss < best_val_intent_loss:
-                best_val_intent_loss = val_intent_loss
-                best_intent_params = deepcopy({k: v for k, v in model.state_dict().items() if k in intent_save_params})
-                update_flag = True
-                best_intent_step = step
-                print('best_intent_step', best_intent_step)
-                print('best_val_intent_loss', best_val_intent_loss)
-            if val_tag_loss < best_val_tag_loss:
-                best_val_tag_loss = val_tag_loss
-                best_tag_params = deepcopy({k: v for k, v in model.state_dict().items() if k in tag_save_params})
-                update_flag = True
-                best_tag_step = step
-                print('best_tag_step', best_tag_step)
-                print('best_val_tag_loss', best_val_tag_loss)
-
-            if update_flag:
-                print("Update best checkpoint")
-                model_state_dict = {}
-                model_state_dict.update(best_intent_params)
-                model_state_dict.update(best_tag_params)
-                best_model_path = os.path.join(output_dir, 'bestcheckpoint_step-{}.tar'.format(step))
-                torch.save({
-                    'best_intent_step': best_intent_step,
-                    'best_tag_step': best_tag_step,
-                    'step': step,
-                    'model_state_dict': model_state_dict,
-                    # 'optimizer_state_dict': model.optim.state_dict(),
-                }, best_model_path)
-                best_model_path = os.path.join(output_dir, 'bestcheckpoint.tar')
-                torch.save({
-                    'best_intent_step': best_intent_step,
-                    'best_tag_step': best_tag_step,
-                    'step': step,
-                    'model_state_dict': model_state_dict,
-                    # 'optimizer_state_dict': model.optim.state_dict(),
-                }, best_model_path)
-                print('save on', best_model_path)
-
-            writer.add_scalars('total loss', {
-                'train': train_loss,
-                'val': val_loss,
-                'test': test_loss
-            }, global_step=step)
-
-            writer.add_scalars('intent loss', {
+            writer.add_scalars('intent_loss', {
                 'train': train_intent_loss,
                 'val': val_intent_loss,
-                'test': test_intent_loss
+                # 'test': test_intent_loss
             }, global_step=step)
 
-            writer.add_scalars('tag loss', {
-                'train': train_tag_loss,
-                'val': val_tag_loss,
-                'test': test_tag_loss
+            writer.add_scalars('slot_loss', {
+                'train': train_slot_loss,
+                'val': val_slot_loss,
+                # 'test': test_tag_loss
             }, global_step=step)
 
-            train_loss = 0.0
-            train_intent_loss = 0.0
-            train_tag_loss = 0.0
+            precision, recall, F1 = calculateF1(predict_golden_intents)
+            print('-' * 20 + 'intent' + '-' * 20)
+            print('\t Precision: %.2f' % (100 * precision))
+            print('\t Recall: %.2f' % (100 * recall))
+            print('\t F1: %.2f' % (100 * F1))
+
+            writer.add_scalars('val_intent', {
+                'precision': precision,
+                'recall': recall,
+                'F1': F1
+            }, global_step=step)
+
+            precision, recall, F1 = calculateF1(predict_golden_slots)
+            print('-' * 20 + 'slot' + '-' * 20)
+            print('\t Precision: %.2f' % (100 * precision))
+            print('\t Recall: %.2f' % (100 * recall))
+            print('\t F1: %.2f' % (100 * F1))
+
+            writer.add_scalars('val_slot', {
+                'precision': precision,
+                'recall': recall,
+                'F1': F1
+            }, global_step=step)
+
+            precision, recall, F1 = calculateF1(predict_golden_all)
+            print('-' * 20 + 'overall' + '-' * 20)
+            print('\t Precision: %.2f' % (100 * precision))
+            print('\t Recall: %.2f' % (100 * recall))
+            print('\t F1: %.2f' % (100 * F1))
+
+            writer.add_scalars('val_overall', {
+                'precision': precision,
+                'recall': recall,
+                'F1': F1
+            }, global_step=step)
+
+            if F1 > best_val_f1:
+                best_val_f1 = F1
+                model.save_pretrained(output_dir)
+                print('best val F1 %.4f' % best_val_f1)
+                print('save on', output_dir)
+
+            train_slot_loss, train_intent_loss = 0, 0
 
     writer.close()
 
-    model_path = os.path.join(output_dir, 'bestcheckpoint.tar')
+    model_path = os.path.join(output_dir, 'pytorch_model.bin')
     zip_path = config['zipped_model_path']
     print('zip model to', zip_path)
 

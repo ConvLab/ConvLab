@@ -2,6 +2,42 @@ import re
 import torch
 
 
+def da2triples(dialog_act):
+    triples = []
+    for intent, svs in dialog_act.items():
+        for slot, value in svs:
+            triples.append((intent, slot, value.lower()))
+    return triples
+
+
+def calculateF1(predict_golden):
+    TP, FP, FN = 0, 0, 0
+    for item in predict_golden:
+        predicts = item['predict']
+        labels = item['golden']
+        for ele in predicts:
+            if ele in labels:
+                TP += 1
+            else:
+                FP += 1
+        for ele in labels:
+            if ele not in predicts:
+                FN += 1
+    # print(TP, FP, FN)
+    precision = 1.0 * TP / (TP + FP) if TP + FP else 0.
+    recall = 1.0 * TP / (TP + FN) if TP + FN else 0.
+    F1 = 2.0 * precision * recall / (precision + recall) if precision + recall else 0.
+    return precision, recall, F1
+
+
+def is_slot_da(da):
+    tag_da = {'Inform', 'Select', 'Recommend', 'NoOffer', 'NoBook', 'OfferBook', 'OfferBooked', 'Book'}
+    not_tag_slot = {'Internet', 'Parking', 'none'}
+    if da[0].split('-')[1] in tag_da and da[1] not in not_tag_slot:
+        return True
+    return False
+
+
 def tag2triples(word_seq, tag_seq):
     assert len(word_seq)==len(tag_seq)
     triples = []
@@ -44,7 +80,7 @@ def recover_intent(dataloader, intent_logits, tag_logits, tag_mask_tensor, ori_w
             intent, slot, value = re.split('[+*]', dataloader.id2intent[j])
             intents.append((intent, slot, value))
     tags = []
-    for j in range(1 , max_seq_len -1):
+    for j in range(1, max_seq_len-1):
         if tag_mask_tensor[j] == 1:
             value, tag_id = torch.max(tag_logits[j], dim=-1)
             tags.append(dataloader.id2tag[tag_id.item()])

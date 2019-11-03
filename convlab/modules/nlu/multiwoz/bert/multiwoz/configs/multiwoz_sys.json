@@ -5,7 +5,7 @@
   "log_dir": "multiwoz/log/sys",
   "DEVICE": "cpu",
   "model": {
-    "pre-trained": "bert-base-uncased",
+    "pretrained_weights": "bert-base-uncased",
     "lr": 0.001,
     "dropout": 0.0,
     "optimizer": "Adam"

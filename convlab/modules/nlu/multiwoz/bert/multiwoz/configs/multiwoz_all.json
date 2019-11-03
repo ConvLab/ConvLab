@@ -3,14 +3,18 @@
   "output_dir": "multiwoz/output/all",
   "zipped_model_path": "multiwoz/output/all/bert_multiwoz_all.zip",
   "log_dir": "multiwoz/log/all",
-  "DEVICE": "cpu",
+  "DEVICE": "cuda:1",
+  "seed": 2019,
   "model": {
-    "pre-trained": "bert-base-uncased",
-    "lr": 0.001,
-    "dropout": 0.0,
-    "optimizer": "Adam"
-  },
-  "check_step": 100,
-  "max_step": 30000,
-  "batch_size": 100
+    "joint": true,
+    "finetune": true,
+    "pretrained_weights": "/home/data/zhuqi/pre-trained-models/bert-base-uncased",
+    "check_step": 1000,
+    "max_step": 30000,
+    "batch_size": 50,
+    "learning_rate": 2e-5,
+    "adam_epsilon": 1e-8,
+    "warmup_steps": 0,
+    "weight_decay": 0.0
+  }
 }
