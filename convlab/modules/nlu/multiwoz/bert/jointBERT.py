@@ -4,12 +4,12 @@ from transformers import BertPreTrainedModel, BertModel
 
 
 class JointBERT(BertPreTrainedModel):
-    def __init__(self, config, device, slot_dim, intent_dim, intent_weight):
+    def __init__(self, config, device, slot_dim, intent_dim, intent_weight=None):
         super(JointBERT, self).__init__(config)
         self.slot_num_labels = slot_dim
         self.intent_num_labels = intent_dim
         self.device = device
-        self.intent_weight = intent_weight
+        self.intent_weight = intent_weight if intent_weight else torch.tensor([1.]*intent_dim)
 
         self.bert = BertModel(config)
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
@@ -20,7 +20,7 @@ class JointBERT(BertPreTrainedModel):
 
         self.init_weights()
 
-    def forward(self, word_seq_tensor, word_mask_tensor, tag_seq_tensor, tag_mask_tensor, intent_tensor):
+    def forward(self, word_seq_tensor, word_mask_tensor, tag_seq_tensor=None, tag_mask_tensor=None, intent_tensor=None):
         outputs = self.bert(input_ids=word_seq_tensor,
                             attention_mask=word_mask_tensor)
 
