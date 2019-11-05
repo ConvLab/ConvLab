@@ -9,7 +9,7 @@ class JointBERT(BertPreTrainedModel):
         self.slot_num_labels = slot_dim
         self.intent_num_labels = intent_dim
         self.device = device
-        self.intent_weight = intent_weight if intent_weight else torch.tensor([1.]*intent_dim)
+        self.intent_weight = intent_weight if intent_weight is not None else torch.tensor([1.]*intent_dim)
 
         self.bert = BertModel(config)
         self.dropout = nn.Dropout(config.hidden_dropout_prob)

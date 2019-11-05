@@ -59,15 +59,19 @@ if __name__ == '__main__':
     model = JointBERT(bert_config, DEVICE, dataloader.tag_dim, dataloader.intent_dim, dataloader.intent_weight)
     model.to(DEVICE)
 
+    no_decay = ['bias', 'LayerNorm.weight']
+    if not config['model']['finetune']:
+        for n, p in model.named_parameters():
+            if 'bert' in n:
+                p.requires_grad = False
+    optimizer_grouped_parameters = [
+        {'params': [p for n, p in model.named_parameters() if not any(nd in n for nd in no_decay) and p.requires_grad],
+         'weight_decay': config['model']['weight_decay']},
+        {'params': [p for n, p in model.named_parameters() if any(nd in n for nd in no_decay) and p.requires_grad],
+         'weight_decay': 0.0}
+    ]
     for name, param in model.named_parameters():
         print(name, param.shape, param.device, param.requires_grad)
-
-    no_decay = ['bias', 'LayerNorm.weight']
-    optimizer_grouped_parameters = [
-        {'params': [p for n, p in model.named_parameters() if not any(nd in n for nd in no_decay)],
-         'weight_decay': config['model']['weight_decay']},
-        {'params': [p for n, p in model.named_parameters() if any(nd in n for nd in no_decay)], 'weight_decay': 0.0}
-    ]
     optimizer = AdamW(optimizer_grouped_parameters, lr=config['model']['learning_rate'], eps=config['model']['adam_epsilon'])
     scheduler = WarmupLinearSchedule(optimizer, warmup_steps=config['model']['warmup_steps'], t_total=config['model']['max_step'])
 
