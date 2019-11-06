@@ -1,9 +1,9 @@
 {
   "data_dir": "multiwoz/data/all_data",
-  "output_dir": "multiwoz/output/all",
-  "zipped_model_path": "multiwoz/output/all/bert_multiwoz_all.zip",
-  "log_dir": "multiwoz/log/all",
-  "DEVICE": "cuda:1",
+  "output_dir": "multiwoz/output/all_lr5e-5",
+  "zipped_model_path": "multiwoz/output/all_lr5e-5/bert_multiwoz_all.zip",
+  "log_dir": "multiwoz/log/all_lr5e-5",
+  "DEVICE": "cuda:2",
   "seed": 2019,
   "model": {
     "joint": true,
@@ -12,7 +12,7 @@
     "check_step": 1000,
     "max_step": 30000,
     "batch_size": 50,
-    "learning_rate": 2e-5,
+    "learning_rate": 5e-5,
     "adam_epsilon": 1e-8,
     "warmup_steps": 0,
     "weight_decay": 0.0

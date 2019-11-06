@@ -85,13 +85,15 @@ if __name__ == '__main__':
     predict_golden_all = []
     for no, session in test_data.items():
         sess_num += 1
+        context = []
         for i, turn in enumerate(session['log']):
             if i % 2 == 1:
                 # system action
+                context.append(turn['text'])
                 continue
             sen_num += 1
             labels = da2triples(turn['dialog_act'])
-            predicts = da2triples(model.parse(turn['text']))
+            predicts = da2triples(model.parse(turn['text'],context=context[-3:]))
             predict_golden_all.append({
                 'predict': predicts,
                 'golden': labels
@@ -104,6 +106,7 @@ if __name__ == '__main__':
                 'predict': [x for x in predicts if not is_slot_da(x)],
                 'golden': [x for x in labels if not is_slot_da(x)]
             })
+            context.append(turn['text'])
         if sess_num%100==0:
             precision, recall, F1 = calculateF1(predict_golden_all)
             print('Model {} on [{}|{}] session {} sentences:'.format(model_name, sess_num, len(test_data), sen_num))
