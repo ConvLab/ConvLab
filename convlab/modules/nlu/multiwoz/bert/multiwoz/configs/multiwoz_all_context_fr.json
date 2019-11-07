@@ -1,14 +1,14 @@
 {
   "data_dir": "multiwoz/data/all_data",
-  "output_dir": "multiwoz/output/all_fr",
-  "zipped_model_path": "multiwoz/output/all_fr/bert_multiwoz_all_fr.zip",
-  "log_dir": "multiwoz/log/all_fr",
+  "output_dir": "multiwoz/output/all_context_fr",
+  "zipped_model_path": "multiwoz/output/all_context_fr/bert_multiwoz_all_fr.zip",
+  "log_dir": "multiwoz/log/all_context_fr",
   "DEVICE": "cuda:3",
   "seed": 2019,
   "model": {
     "joint": true,
     "finetune": false,
-    "context": false,
+    "context": true,
     "pretrained_weights": "/home/data/zhuqi/pre-trained-models/bert-base-uncased",
     "check_step": 1000,
     "max_step": 30000,

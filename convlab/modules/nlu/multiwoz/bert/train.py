@@ -57,21 +57,28 @@ if __name__ == '__main__':
                       config['model']['context'])
     model.to(DEVICE)
 
-    no_decay = ['bias', 'LayerNorm.weight']
-    if not config['model']['finetune']:
+    if config['model']['finetune']:
+        no_decay = ['bias', 'LayerNorm.weight']
+        optimizer_grouped_parameters = [
+            {'params': [p for n, p in model.named_parameters() if
+                        not any(nd in n for nd in no_decay) and p.requires_grad],
+             'weight_decay': config['model']['weight_decay']},
+            {'params': [p for n, p in model.named_parameters() if any(nd in n for nd in no_decay) and p.requires_grad],
+             'weight_decay': 0.0}
+        ]
+        optimizer = AdamW(optimizer_grouped_parameters, lr=config['model']['learning_rate'],
+                          eps=config['model']['adam_epsilon'])
+        scheduler = WarmupLinearSchedule(optimizer, warmup_steps=config['model']['warmup_steps'],
+                                         t_total=config['model']['max_step'])
+    else:
         for n, p in model.named_parameters():
             if 'bert' in n:
                 p.requires_grad = False
-    optimizer_grouped_parameters = [
-        {'params': [p for n, p in model.named_parameters() if not any(nd in n for nd in no_decay) and p.requires_grad],
-         'weight_decay': config['model']['weight_decay']},
-        {'params': [p for n, p in model.named_parameters() if any(nd in n for nd in no_decay) and p.requires_grad],
-         'weight_decay': 0.0}
-    ]
+        optimizer = torch.optim.Adam(filter(lambda p: p.requires_grad, model.parameters()),
+                                     lr=config['model']['learning_rate'])
+
     for name, param in model.named_parameters():
         print(name, param.shape, param.device, param.requires_grad)
-    optimizer = AdamW(optimizer_grouped_parameters, lr=config['model']['learning_rate'], eps=config['model']['adam_epsilon'])
-    scheduler = WarmupLinearSchedule(optimizer, warmup_steps=config['model']['warmup_steps'], t_total=config['model']['max_step'])
 
     max_step = config['model']['max_step']
     check_step = config['model']['check_step']
@@ -97,7 +104,8 @@ if __name__ == '__main__':
         loss = slot_loss + intent_loss
         loss.backward()
         optimizer.step()
-        scheduler.step()  # Update learning rate schedule
+        if config['model']['finetune']:
+            scheduler.step()  # Update learning rate schedule
         model.zero_grad()
         if step % check_step == 0:
             train_slot_loss = train_slot_loss / check_step
