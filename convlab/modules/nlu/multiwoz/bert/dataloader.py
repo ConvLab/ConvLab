@@ -3,6 +3,7 @@ import torch
 import random
 from transformers import *
 import math
+from collections import Counter
 
 
 class Dataloader:
@@ -32,14 +33,28 @@ class Dataloader:
         :return:
         """
         self.data[data_key] = data
+        max_sen_len, max_context_len = 0, 0
+        sen_len = []
+        context_len = []
+        cut_sen_len = 40
+        cut_context_len = 110
         for d in self.data[data_key]:
-            # d = (tokens, tags, intents, da2triples(turn["dialog_act"]))
+            max_sen_len = max(max_sen_len, len(d[0]))
+            sen_len.append(len(d[0]))
+            # d = (tokens, tags, intents, da2triples(turn["dialog_act"], context(list of str))
+            d[4] = self.tokenizer.encode('[CLS] ' + ' [SEP] '.join(d[4]))
+            max_context_len = max(max_context_len, len(d[4]))
+            context_len.append(len(d[4]))
+
+            d[0] = d[0][:cut_sen_len]
+            d[1] = d[1][:cut_sen_len]
+            d[4] = d[4][:cut_context_len]
             word_seq, tag_seq, new2ori = self.bert_tokenize(d[0], d[1])
             d.append(new2ori)
             d.append(word_seq)
             d.append(self.seq_tag2id(tag_seq))
             d.append(self.seq_intent2id(d[2]))
-            # d = (tokens, tags, intents, da2triples(turn["dialog_act"]), new2ori, new_word_seq, tag2id_seq, intent2id_seq)
+            # d = (tokens, tags, intents, da2triples(turn["dialog_act"]), context(token id), new2ori, new_word_seq, tag2id_seq, intent2id_seq)
             if data_key=='train':
                 for intent_id in d[-1]:
                     self.intent_weight[intent_id] += 1
@@ -49,6 +64,10 @@ class Dataloader:
                 neg_pos = (train_size - self.intent_weight[intent_id]) / self.intent_weight[intent_id]
                 self.intent_weight[intent_id] = np.log10(neg_pos)
             self.intent_weight = torch.tensor(self.intent_weight)
+        print('max sen bert len', max_sen_len)
+        print(sorted(Counter(sen_len).items()))
+        print('max context bert len', max_context_len)
+        print(sorted(Counter(context_len).items()))
 
     def bert_tokenize(self, word_seq, tag_seq):
         split_tokens = []
@@ -85,12 +104,14 @@ class Dataloader:
     def _pad_batch(self, batch_data):
         batch_size = len(batch_data)
         max_seq_len = max([len(x[-3]) for x in batch_data]) + 2
-        word_seq_len = torch.zeros((batch_size), dtype=torch.long)
         word_mask_tensor = torch.zeros((batch_size, max_seq_len), dtype=torch.long)
         word_seq_tensor = torch.zeros((batch_size, max_seq_len), dtype=torch.long)
         tag_mask_tensor = torch.zeros((batch_size, max_seq_len), dtype=torch.long)
         tag_seq_tensor = torch.zeros((batch_size, max_seq_len), dtype=torch.long)
         intent_tensor = torch.zeros((batch_size, self.intent_dim), dtype=torch.float)
+        context_max_seq_len = max([len(x[-5]) for x in batch_data])
+        context_mask_tensor = torch.zeros((batch_size, context_max_seq_len), dtype=torch.long)
+        context_seq_tensor = torch.zeros((batch_size, context_max_seq_len), dtype=torch.long)
         for i in range(batch_size):
             words = batch_data[i][-3]
             tags = batch_data[i][-2]
@@ -98,14 +119,17 @@ class Dataloader:
             words = ['[CLS]'] + words + ['[SEP]']
             indexed_tokens = self.tokenizer.convert_tokens_to_ids(words)
             sen_len = len(words)
-            word_seq_len[i] = sen_len
             word_seq_tensor[i, :sen_len] = torch.LongTensor([indexed_tokens])
             tag_seq_tensor[i, 1:sen_len-1] = torch.LongTensor(tags)
             word_mask_tensor[i, :sen_len] = torch.LongTensor([1] * sen_len)
             tag_mask_tensor[i, 1:sen_len-1] = torch.LongTensor([1] * (sen_len-2))
             for j in intents:
                 intent_tensor[i, j] = 1.
-        return word_seq_tensor, tag_seq_tensor, intent_tensor, word_mask_tensor, tag_mask_tensor
+            context_len = len(batch_data[i][-5])
+            context_seq_tensor[i, :context_len] = torch.LongTensor([batch_data[i][-5]])
+            context_mask_tensor[i, :context_len] = torch.LongTensor([1] * context_len)
+
+        return word_seq_tensor, tag_seq_tensor, intent_tensor, word_mask_tensor, tag_mask_tensor, context_seq_tensor, context_mask_tensor
 
     def get_train_batch(self, batch_size):
         batch_data = random.choices(self.data['train'], k=batch_size)

@@ -8,6 +8,7 @@
   "model": {
     "joint": true,
     "finetune": false,
+    "context": true,
     "pretrained_weights": "/home/data/zhuqi/pre-trained-models/bert-base-uncased",
     "check_step": 1000,
     "max_step": 30000,

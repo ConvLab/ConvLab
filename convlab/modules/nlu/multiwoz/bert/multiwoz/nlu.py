@@ -22,7 +22,6 @@ from transformers import BertConfig
 from convlab.lib.file_util import cached_path
 from convlab.modules.nlu.nlu import NLU
 from convlab.modules.nlu.multiwoz.bert.dataloader import Dataloader
-from convlab.modules.nlu.multiwoz.bert.model import BertNLU
 from convlab.modules.nlu.multiwoz.bert.jointBERT import JointBERT
 from convlab.modules.nlu.multiwoz.bert.multiwoz.postprocess import recover_intent
 from convlab.modules.nlu.multiwoz.bert.multiwoz.preprocess import preprocess

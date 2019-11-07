@@ -53,13 +53,17 @@ def preprocess(mode):
     all_da = []
     all_intent = []
     all_tag = []
+    context_size = 3
     for key in data_key:
         processed_data[key] = []
         for no, sess in data[key].items():
+            context = []
             for is_sys, turn in enumerate(sess['log']):
                 if mode == 'usr' and is_sys % 2 == 1:
+                    context.append(turn['text'])
                     continue
                 elif mode == 'sys' and is_sys % 2 == 0:
+                    context.append(turn['text'])
                     continue
                 tokens = turn["text"].split()
                 dialog_act = {}
@@ -87,10 +91,13 @@ def preprocess(mode):
                         if dacts not in dialog_act or dact[0] not in [sv[0] for sv in dialog_act[dacts]]:
                             if dact[1] in ["none", "?", "yes", "no", "do nt care", "do n't care"]:
                                 intents.append(dacts + "+" + dact[0] + "*" + dact[1])
-                processed_data[key].append([tokens, tags, intents, da2triples(turn["dialog_act"])])
+                processed_data[key].append([tokens, tags, intents, da2triples(turn["dialog_act"]), context[-context_size:]])
                 all_da += [da for da in turn['dialog_act']]
                 all_intent += intents
                 all_tag += tags
+
+                context.append(turn['text'])
+
         all_da = [x[0] for x in dict(Counter(all_da)).items() if x[1]]
         all_intent = [x[0] for x in dict(Counter(all_intent)).items() if x[1]]
         all_tag = [x[0] for x in dict(Counter(all_tag)).items() if x[1]]

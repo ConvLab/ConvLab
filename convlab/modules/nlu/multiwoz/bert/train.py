@@ -11,9 +11,6 @@ from copy import deepcopy
 from pprint import pprint
 from transformers import BertConfig, AdamW, WarmupLinearSchedule
 from convlab.modules.nlu.multiwoz.bert.dataloader import Dataloader
-from convlab.modules.nlu.multiwoz.bert.model import BertNLU
-from convlab.modules.nlu.multiwoz.bert.intentBERT import IntentBERT
-from convlab.modules.nlu.multiwoz.bert.slotBERT import SlotBERT
 from convlab.modules.nlu.multiwoz.bert.jointBERT import JointBERT
 from convlab.modules.nlu.multiwoz.bert.multiwoz.postprocess import *
 
@@ -56,7 +53,8 @@ if __name__ == '__main__':
 
     bert_config = BertConfig.from_pretrained(config['model']['pretrained_weights'])
 
-    model = JointBERT(bert_config, DEVICE, dataloader.tag_dim, dataloader.intent_dim, dataloader.intent_weight)
+    model = JointBERT(bert_config, DEVICE, dataloader.tag_dim, dataloader.intent_dim, dataloader.intent_weight,
+                      config['model']['context'])
     model.to(DEVICE)
 
     no_decay = ['bias', 'LayerNorm.weight']
@@ -89,9 +87,11 @@ if __name__ == '__main__':
         model.train()
         batched_data = dataloader.get_train_batch(batch_size)
         batched_data = tuple(t.to(DEVICE) for t in batched_data)
-        word_seq_tensor, tag_seq_tensor, intent_tensor, word_mask_tensor, tag_mask_tensor = batched_data
+        word_seq_tensor, tag_seq_tensor, intent_tensor, word_mask_tensor, tag_mask_tensor, context_seq_tensor, context_mask_tensor = batched_data
+        if not config['model']['context']:
+            context_seq_tensor, context_mask_tensor = None, None
         _, _, slot_loss, intent_loss = model.forward(word_seq_tensor, word_mask_tensor, tag_seq_tensor, tag_mask_tensor,
-                                                     intent_tensor)
+                                                     intent_tensor, context_seq_tensor, context_mask_tensor)
         train_slot_loss += slot_loss.item()
         train_intent_loss += intent_loss.item()
         loss = slot_loss + intent_loss
@@ -114,14 +114,18 @@ if __name__ == '__main__':
             model.eval()
             for pad_batch, ori_batch, real_batch_size in dataloader.yield_batches(batch_size, data_key='val'):
                 pad_batch = tuple(t.to(DEVICE) for t in pad_batch)
-                word_seq_tensor, tag_seq_tensor, intent_tensor, word_mask_tensor, tag_mask_tensor = pad_batch
+                word_seq_tensor, tag_seq_tensor, intent_tensor, word_mask_tensor, tag_mask_tensor, context_seq_tensor, context_mask_tensor = pad_batch
+                if not config['model']['context']:
+                    context_seq_tensor, context_mask_tensor = None, None
 
                 with torch.no_grad():
                     slot_logits, intent_logits, slot_loss, intent_loss = model.forward(word_seq_tensor,
                                                                                        word_mask_tensor,
                                                                                        tag_seq_tensor,
                                                                                        tag_mask_tensor,
-                                                                                       intent_tensor)
+                                                                                       intent_tensor,
+                                                                                       context_seq_tensor,
+                                                                                       context_mask_tensor)
                 val_slot_loss += slot_loss.item() * real_batch_size
                 val_intent_loss += intent_loss.item() * real_batch_size
                 for j in range(real_batch_size):
