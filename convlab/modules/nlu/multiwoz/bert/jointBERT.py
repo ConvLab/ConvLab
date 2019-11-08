@@ -13,6 +13,7 @@ class JointBERT(BertPreTrainedModel):
 
         self.bert = BertModel(config)
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
+        self.context = context
         if context:
             self.intent_classifier = nn.Linear(2 * config.hidden_size, self.intent_num_labels)
         else:
@@ -35,7 +36,7 @@ class JointBERT(BertPreTrainedModel):
         slot_logits = self.slot_classifier(sequence_output)
         outputs = (slot_logits,)
 
-        if context_seq_tensor is not None:
+        if self.context and context_seq_tensor is not None:
             context_output = self.bert(input_ids=context_seq_tensor, attention_mask=context_mask_tensor)[1]
             pooled_output = torch.cat([context_output, pooled_output], dim=-1)
         pooled_output = self.dropout(pooled_output)

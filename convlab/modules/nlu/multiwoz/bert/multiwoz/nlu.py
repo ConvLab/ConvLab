@@ -43,7 +43,7 @@ class BERTNLU(NLU):
             nlu = BERTNLU(mode='usr', model_file='https://convlab.blob.core.windows.net/models/bert_multiwoz_usr.zip')
         """
         assert mode == 'usr' or mode == 'sys' or mode == 'all'
-        config_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'configs/multiwoz_{}.json'.format(mode))
+        config_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'configs/multiwoz_{}_context.json'.format(mode))
         config = json.load(open(config_file))
         DEVICE = config['DEVICE']
         root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -60,9 +60,9 @@ class BERTNLU(NLU):
 
         bert_config = BertConfig.from_pretrained(config['model']['pretrained_weights'])
 
-        model = JointBERT(bert_config, DEVICE, dataloader.tag_dim, dataloader.intent_dim)
-        model.load_state_dict(torch.load(os.path.join(output_dir, 'pytorch_model.bin'), DEVICE))
-        model.to(DEVICE)
+        # model = JointBERT(bert_config, DEVICE, dataloader.tag_dim, dataloader.intent_dim, context=config['model']['context'])
+        # model.load_state_dict(torch.load(os.path.join(output_dir, 'pytorch_model.bin'), DEVICE))
+        # model.to(DEVICE)
 
         best_model_path = os.path.join(output_dir, 'pytorch_model.bin')
         if not os.path.exists(best_model_path):
@@ -74,7 +74,7 @@ class BERTNLU(NLU):
             archive.extractall(root_dir)
             archive.close()
         print('Load from', best_model_path)
-        model = JointBERT(bert_config, DEVICE, dataloader.tag_dim, dataloader.intent_dim)
+        model = JointBERT(bert_config, DEVICE, dataloader.tag_dim, dataloader.intent_dim, context=config['model']['context'])
         model.load_state_dict(torch.load(os.path.join(output_dir, 'pytorch_model.bin'), DEVICE))
         model.to(DEVICE)
         model.eval()
@@ -97,19 +97,22 @@ class BERTNLU(NLU):
         """
         ori_word_seq = utterance.split()
         ori_tag_seq = ['O'] * len(ori_word_seq)
+        context_seq = self.dataloader.tokenizer.encode('[CLS] ' + ' [SEP] '.join(context))
         intents = []
         da = {}
 
         word_seq, tag_seq, new2ori = self.dataloader.bert_tokenize(ori_word_seq, ori_tag_seq)
-        batch_data = [[ori_word_seq, ori_tag_seq, intents, da, new2ori, word_seq, self.dataloader.seq_tag2id(tag_seq),
-                       self.dataloader.seq_intent2id(intents)]]
+        batch_data = [[ori_word_seq, ori_tag_seq, intents, da, context_seq,
+                       new2ori, word_seq, self.dataloader.seq_tag2id(tag_seq), self.dataloader.seq_intent2id(intents)]]
 
         pad_batch = self.dataloader._pad_batch(batch_data)
         pad_batch = tuple(t.to(self.model.device) for t in pad_batch)
-        word_seq_tensor, tag_seq_tensor, intent_tensor, word_mask_tensor, tag_mask_tensor = pad_batch
-        slot_logits, intent_logits = self.model.forward(word_seq_tensor, word_mask_tensor)
+        word_seq_tensor, tag_seq_tensor, intent_tensor, word_mask_tensor, tag_mask_tensor, context_seq_tensor, context_mask_tensor = pad_batch
+        slot_logits, intent_logits = self.model.forward(word_seq_tensor, word_mask_tensor,
+                                                        context_seq_tensor=context_seq_tensor,
+                                                        context_mask_tensor=context_mask_tensor)
         intent = recover_intent(self.dataloader, intent_logits[0], slot_logits[0], tag_mask_tensor[0],
-                                batch_data[0][0], batch_data[0][4])
+                                batch_data[0][0], batch_data[0][-4])
         dialog_act = {}
         for act, slot, value in intent:
             dialog_act.setdefault(act, [])
