@@ -1,14 +1,14 @@
 {
   "data_dir": "multiwoz/data/all_data",
-  "output_dir": "multiwoz/output/all",
-  "zipped_model_path": "multiwoz/output/all/bert_multiwoz_all.zip",
-  "log_dir": "multiwoz/log/all",
+  "output_dir": "multiwoz/output/all_context",
+  "zipped_model_path": "multiwoz/output/all_context/bert_multiwoz_all_context.zip",
+  "log_dir": "multiwoz/log/all_context",
   "DEVICE": "cuda:0",
   "seed": 2019,
   "model": {
     "joint": true,
     "finetune": true,
-    "context": false,
+    "context": true,
     "pretrained_weights": "bert-base-uncased",
     "check_step": 1000,
     "max_step": 30000,

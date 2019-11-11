@@ -28,6 +28,14 @@ def read_zipped_json(filepath, filename):
     return json.load(archive.open(filename))
 
 
+def da2triples(dialog_act):
+    triples = []
+    for intent, svs in dialog_act.items():
+        for slot, value in svs:
+            triples.append((intent, slot, value))
+    return triples
+
+
 def preprocess(mode):
     assert mode == 'all' or mode == 'usr' or mode == 'sys'
     cur_dir = os.path.dirname(os.path.abspath(__file__))
@@ -45,13 +53,17 @@ def preprocess(mode):
     all_da = []
     all_intent = []
     all_tag = []
+    context_size = 3
     for key in data_key:
         processed_data[key] = []
         for no, sess in data[key].items():
+            context = []
             for is_sys, turn in enumerate(sess['log']):
                 if mode == 'usr' and is_sys % 2 == 1:
+                    context.append(turn['text'])
                     continue
                 elif mode == 'sys' and is_sys % 2 == 0:
+                    context.append(turn['text'])
                     continue
                 tokens = turn["text"].split()
                 dialog_act = {}
@@ -65,18 +77,10 @@ def preprocess(mode):
                 for i, _ in enumerate(tokens):
                     for span in spans:
                         if i == span[3]:
-                            tag = "B-" + span[0] + "+" + span[1]
-                            if key != 'train' and tag not in all_tag:
-                                tags.append('O')
-                            else:
-                                tags.append(tag)
+                            tags.append("B-" + span[0] + "+" + span[1])
                             break
                         if span[3] < i <= span[4]:
-                            tag = "I-" + span[0] + "+" + span[1]
-                            if key != 'train' and tag not in all_tag:
-                                tags.append('O')
-                            else:
-                                tags.append(tag)
+                            tags.append("I-" + span[0] + "+" + span[1])
                             break
                     else:
                         tags.append("O")
@@ -87,24 +91,26 @@ def preprocess(mode):
                         if dacts not in dialog_act or dact[0] not in [sv[0] for sv in dialog_act[dacts]]:
                             if dact[1] in ["none", "?", "yes", "no", "do nt care", "do n't care"]:
                                 intents.append(dacts + "+" + dact[0] + "*" + dact[1])
-                processed_data[key].append([tokens, tags, intents, turn["dialog_act"]])
-                if key == 'train':
-                    all_da += [da for da in turn['dialog_act']]
-                    all_intent += intents
-                    all_tag += tags
-        if key == 'train':
-            all_da = [x[0] for x in dict(Counter(all_da)).items() if x[1]]
-            all_intent = [x[0] for x in dict(Counter(all_intent)).items() if x[1]]
-            all_tag = [x[0] for x in dict(Counter(all_tag)).items() if x[1]]
+                processed_data[key].append([tokens, tags, intents, da2triples(turn["dialog_act"]), context[-context_size:]])
+                all_da += [da for da in turn['dialog_act']]
+                all_intent += intents
+                all_tag += tags
 
-    for key in data_key:
+                context.append(turn['text'])
+
+        all_da = [x[0] for x in dict(Counter(all_da)).items() if x[1]]
+        all_intent = [x[0] for x in dict(Counter(all_intent)).items() if x[1]]
+        all_tag = [x[0] for x in dict(Counter(all_tag)).items() if x[1]]
+
         print('loaded {}, size {}'.format(key, len(processed_data[key])))
+        json.dump(processed_data[key], open(os.path.join(processed_data_dir, '{}_data.json'.format(key)), 'w'), indent=2)
+
     print('dialog act num:', len(all_da))
     print('sentence label num:', len(all_intent))
     print('tag num:', len(all_tag))
-    pickle.dump(processed_data, open(os.path.join(processed_data_dir, 'data.pkl'), 'wb'))
-    pickle.dump(all_intent, open(os.path.join(processed_data_dir, 'intent_vocab.pkl'), 'wb'))
-    pickle.dump(all_tag, open(os.path.join(processed_data_dir, 'tag_vocab.pkl'), 'wb'))
+    json.dump(all_da, open(os.path.join(processed_data_dir, 'all_act.json'), 'w'), indent=2)
+    json.dump(all_intent, open(os.path.join(processed_data_dir, 'intent_vocab.json'), 'w'), indent=2)
+    json.dump(all_tag, open(os.path.join(processed_data_dir, 'tag_vocab.json'), 'w'), indent=2)
 
 
 if __name__ == '__main__':
