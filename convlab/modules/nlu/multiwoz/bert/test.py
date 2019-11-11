@@ -54,10 +54,12 @@ if __name__ == '__main__':
 
     bert_config = BertConfig.from_pretrained(config['model']['pretrained_weights'])
 
-    model = JointBERT(bert_config, DEVICE, dataloader.tag_dim, dataloader.intent_dim)
+    model = JointBERT(bert_config, DEVICE, dataloader.tag_dim, dataloader.intent_dim,
+                      context=config['model']['context'])
     # model.from_pretrained(os.path.join(output_dir, 'pytorch_model.bin'))
-    model.load_state_dict(torch.load(os.path.join(output_dir, 'pytorch_model.bin'),DEVICE))
+    model.load_state_dict(torch.load(os.path.join(output_dir, 'pytorch_model.bin'), DEVICE))
     model.to(DEVICE)
+    model.eval()
 
     batch_size = config['model']['batch_size']
 
@@ -66,17 +68,20 @@ if __name__ == '__main__':
         predict_golden_slots = []
         predict_golden_all = []
         slot_loss, intent_loss = 0, 0
-        model.eval()
         for pad_batch, ori_batch, real_batch_size in dataloader.yield_batches(batch_size, data_key=data_key):
             pad_batch = tuple(t.to(DEVICE) for t in pad_batch)
-            word_seq_tensor, tag_seq_tensor, intent_tensor, word_mask_tensor, tag_mask_tensor = pad_batch
+            word_seq_tensor, tag_seq_tensor, intent_tensor, word_mask_tensor, tag_mask_tensor, context_seq_tensor, context_mask_tensor = pad_batch
+            if not config['model']['context']:
+                context_seq_tensor, context_mask_tensor = None, None
 
             with torch.no_grad():
                 slot_logits, intent_logits, batch_slot_loss, batch_intent_loss = model.forward(word_seq_tensor,
-                                                                                   word_mask_tensor,
-                                                                                   tag_seq_tensor,
-                                                                                   tag_mask_tensor,
-                                                                                   intent_tensor)
+                                                                                               word_mask_tensor,
+                                                                                               tag_seq_tensor,
+                                                                                               tag_mask_tensor,
+                                                                                               intent_tensor,
+                                                                                               context_seq_tensor,
+                                                                                               context_mask_tensor)
             slot_loss += batch_slot_loss.item() * real_batch_size
             intent_loss += batch_intent_loss.item() * real_batch_size
             for j in range(real_batch_size):
