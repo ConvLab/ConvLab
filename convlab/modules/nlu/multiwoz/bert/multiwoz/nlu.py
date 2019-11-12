@@ -26,7 +26,7 @@ from convlab.modules.nlu.multiwoz.bert.multiwoz.preprocess import preprocess
 
 
 class BERTNLU(NLU):
-    def __init__(self, mode, model_file):
+    def __init__(self, mode, config_file, model_file):
         """
         BERT NLU initialization.
 
@@ -41,7 +41,7 @@ class BERTNLU(NLU):
             nlu = BERTNLU(mode='all', model_file='https://convlab.blob.core.windows.net/models/bert_multiwoz_all_context.zip')
         """
         assert mode == 'usr' or mode == 'sys' or mode == 'all'
-        config_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'configs/multiwoz_{}_context.json'.format(mode))
+        config_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'configs/{}'.format(config_file))
         config = json.load(open(config_file))
         DEVICE = config['DEVICE']
         root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -59,6 +59,8 @@ class BERTNLU(NLU):
         print('intent num:', len(intent_vocab))
         print('tag num:', len(tag_vocab))
 
+        bert_config = BertConfig.from_pretrained(config['model']['pretrained_weights'])
+
         # model = JointBERT(bert_config, DEVICE, dataloader.tag_dim, dataloader.intent_dim, context=config['model']['context'])
         # model.load_state_dict(torch.load(os.path.join(output_dir, 'pytorch_model.bin'), DEVICE))
         # model.to(DEVICE)
@@ -73,8 +75,6 @@ class BERTNLU(NLU):
             archive.extractall(root_dir)
             archive.close()
         print('Load from', best_model_path)
-
-        bert_config = BertConfig.from_pretrained(output_dir)
         model = JointBERT(bert_config, DEVICE, dataloader.tag_dim, dataloader.intent_dim, context=config['model']['context'])
         model.load_state_dict(torch.load(os.path.join(output_dir, 'pytorch_model.bin'), DEVICE))
         model.to(DEVICE)
@@ -98,7 +98,7 @@ class BERTNLU(NLU):
         """
         ori_word_seq = utterance.split()
         ori_tag_seq = ['O'] * len(ori_word_seq)
-        context_seq = self.dataloader.tokenizer.encode('[CLS] ' + ' [SEP] '.join(context))
+        context_seq = self.dataloader.tokenizer.encode('[CLS] ' + ' [SEP] '.join(context[-3:]))
         intents = []
         da = {}
 
@@ -122,7 +122,7 @@ class BERTNLU(NLU):
 
 
 if __name__ == '__main__':
-    nlu = BERTNLU(mode='all', model_file='https://convlab.blob.core.windows.net/models/bert_multiwoz_all_context.zip')
+    nlu = BERTNLU(mode='all', config_file='multiwoz_all_context.json', model_file='https://convlab.blob.core.windows.net/models/bert_multiwoz_all_context.zip')
     test_utterances = [
         "What type of accommodations are they. No , i just need their address . Can you tell me if the hotel has internet available ?",
         "What type of accommodations are they.",
