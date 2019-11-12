@@ -59,6 +59,8 @@ class BERTNLU(NLU):
         print('intent num:', len(intent_vocab))
         print('tag num:', len(tag_vocab))
 
+        bert_config = BertConfig.from_pretrained(config['model']['pretrained_weights'])
+
         # model = JointBERT(bert_config, DEVICE, dataloader.tag_dim, dataloader.intent_dim, context=config['model']['context'])
         # model.load_state_dict(torch.load(os.path.join(output_dir, 'pytorch_model.bin'), DEVICE))
         # model.to(DEVICE)
@@ -73,8 +75,6 @@ class BERTNLU(NLU):
             archive.extractall(root_dir)
             archive.close()
         print('Load from', best_model_path)
-
-        bert_config = BertConfig.from_pretrained(output_dir)
         model = JointBERT(bert_config, DEVICE, dataloader.tag_dim, dataloader.intent_dim, context=config['model']['context'])
         model.load_state_dict(torch.load(os.path.join(output_dir, 'pytorch_model.bin'), DEVICE))
         model.to(DEVICE)
@@ -84,7 +84,7 @@ class BERTNLU(NLU):
         self.dataloader = dataloader
         print("BERTNLU loaded")
 
-    def parse(self, utterance, context=[]):
+    def parse(self, utterance, context=None):
         """
         Predict the dialog act of a natural language utterance.
 
