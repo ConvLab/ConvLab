@@ -52,7 +52,7 @@ if __name__ == '__main__':
     if not os.path.exists(log_dir):
         os.makedirs(log_dir)
 
-    bert_config = BertConfig.from_pretrained(config['model']['pretrained_weights'])
+    bert_config = BertConfig.from_pretrained(output_dir)
 
     model = JointBERT(bert_config, DEVICE, dataloader.tag_dim, dataloader.intent_dim,
                       context=config['model']['context'])
