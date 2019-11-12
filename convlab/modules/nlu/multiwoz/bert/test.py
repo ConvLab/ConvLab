@@ -40,7 +40,7 @@ if __name__ == '__main__':
     intent_vocab = json.load(open(os.path.join(data_dir, 'intent_vocab.json')))
     tag_vocab = json.load(open(os.path.join(data_dir, 'tag_vocab.json')))
     dataloader = Dataloader(intent_vocab=intent_vocab, tag_vocab=tag_vocab,
-                            pretrained_weights=config['model']['pretrained_weights'])
+                            pretrained_weights=output_dir)
     print('intent num:', len(intent_vocab))
     print('tag num:', len(tag_vocab))
     for data_key in ['val', 'test']:
@@ -52,7 +52,7 @@ if __name__ == '__main__':
     if not os.path.exists(log_dir):
         os.makedirs(log_dir)
 
-    bert_config = BertConfig.from_pretrained(config['model']['pretrained_weights'])
+    bert_config = BertConfig.from_pretrained(output_dir)
 
     model = JointBERT(bert_config, DEVICE, dataloader.tag_dim, dataloader.intent_dim,
                       context=config['model']['context'])
