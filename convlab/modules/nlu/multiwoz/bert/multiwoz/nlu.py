@@ -84,7 +84,7 @@ class BERTNLU(NLU):
         self.dataloader = dataloader
         print("BERTNLU loaded")
 
-    def parse(self, utterance, context=None):
+    def parse(self, utterance, context=[]):
         """
         Predict the dialog act of a natural language utterance.
 
@@ -98,7 +98,7 @@ class BERTNLU(NLU):
         """
         ori_word_seq = utterance.split()
         ori_tag_seq = ['O'] * len(ori_word_seq)
-        context_seq = self.dataloader.tokenizer.encode('[CLS] ' + ' [SEP] '.join(context))
+        context_seq = self.dataloader.tokenizer.encode('[CLS] ' + ' [SEP] '.join(context[-3:]))
         intents = []
         da = {}
 
