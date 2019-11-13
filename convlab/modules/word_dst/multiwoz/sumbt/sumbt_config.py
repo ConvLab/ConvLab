@@ -33,7 +33,6 @@ args.do_eval = True
 args.no_cuda = True
 args.num_train_epochs = 300
 args.data_dir = 'data/sumbt/data'
-args.bert_dir = '/mnt/c/Users/bapeng/.pytorch_pretrained_bert'
 args.bert_model = 'bert-base-uncased'
 args.do_lower_case = True
 args.task_name = 'bert-gru-sumbt'

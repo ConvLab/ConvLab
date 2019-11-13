@@ -7,9 +7,7 @@ import urllib
 import tarfile
 from pprint import pprint
 import random
-import sys
 from itertools import chain
-sys.path.append('D:\\bapeng\\research\\convlab_sumbt\\')
 import numpy as np
 
 import torch
