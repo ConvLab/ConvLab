@@ -154,7 +154,7 @@ class SUMBTTracker(Tracker):
 
         new_belief_state = copy.deepcopy(prev_state['belief_state'])
         for state in pred_states:
-            domain, slot, value = state.split('-')
+            domain, slot, value = state.split('-', 2)
             value = '' if value == 'none' else value
             if slot not in ['name', 'book']:
                 if domain not in new_belief_state:

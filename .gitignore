@@ -32,6 +32,9 @@ convlab/spec/eval.json
 # trade
 data/trade/
 
+# sumbt
+data/sumbt/
+
 # mdbt data
 data/mdbt/
 data/mdbt.tar.gz
