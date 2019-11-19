@@ -12,7 +12,7 @@
     "pretrained_weights": "/home/data/zhuqi/pre-trained-models/bert-base-uncased",
     "check_step": 1000,
     "max_step": 30000,
-    "batch_size": 40,
+    "batch_size": 20,
     "learning_rate": 5e-5,
     "adam_epsilon": 1e-8,
     "warmup_steps": 0,
