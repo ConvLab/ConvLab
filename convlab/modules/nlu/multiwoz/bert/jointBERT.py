@@ -16,9 +16,10 @@ class JointBERT(BertPreTrainedModel):
         self.context = context
         if context:
             self.intent_classifier = nn.Linear(2 * config.hidden_size, self.intent_num_labels)
+            self.slot_classifier = nn.Linear(2 * config.hidden_size, self.slot_num_labels)
         else:
             self.intent_classifier = nn.Linear(config.hidden_size, self.intent_num_labels)
-        self.slot_classifier = nn.Linear(config.hidden_size, self.slot_num_labels)
+            self.slot_classifier = nn.Linear(config.hidden_size, self.slot_num_labels)
         self.intent_loss_fct = torch.nn.BCEWithLogitsLoss(pos_weight=self.intent_weight)
         self.slot_loss_fct = torch.nn.CrossEntropyLoss()
 
@@ -32,13 +33,16 @@ class JointBERT(BertPreTrainedModel):
         sequence_output = outputs[0]
         pooled_output = outputs[1]
 
+        if self.context and context_seq_tensor is not None:
+            context_output = self.bert(input_ids=context_seq_tensor, attention_mask=context_mask_tensor)[1]
+            sequence_output = torch.cat(
+                [context_output.unsqueeze(1).repeat(1, sequence_output.size(1), 1), sequence_output], dim=-1)
+            pooled_output = torch.cat([context_output, pooled_output], dim=-1)
+
         sequence_output = self.dropout(sequence_output)
         slot_logits = self.slot_classifier(sequence_output)
         outputs = (slot_logits,)
 
-        if self.context and context_seq_tensor is not None:
-            context_output = self.bert(input_ids=context_seq_tensor, attention_mask=context_mask_tensor)[1]
-            pooled_output = torch.cat([context_output, pooled_output], dim=-1)
         pooled_output = self.dropout(pooled_output)
         intent_logits = self.intent_classifier(pooled_output)
         outputs = outputs + (intent_logits,)
