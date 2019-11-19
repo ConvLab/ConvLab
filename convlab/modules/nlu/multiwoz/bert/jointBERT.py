@@ -40,11 +40,11 @@ class JointBERT(BertPreTrainedModel):
                 [context_output.unsqueeze(1).repeat(1, sequence_output.size(1), 1), sequence_output], dim=-1)
             pooled_output = torch.cat([context_output, pooled_output], dim=-1)
 
-        sequence_output = self.dropout(sequence_output)
+        # sequence_output = self.dropout(sequence_output)
         slot_logits = self.slot_classifier(sequence_output)
         outputs = (slot_logits,)
 
-        pooled_output = self.dropout(pooled_output)
+        # pooled_output = self.dropout(pooled_output)
         intent_logits = self.intent_classifier(pooled_output)
         outputs = outputs + (intent_logits,)
 
