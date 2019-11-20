@@ -13,6 +13,7 @@ from transformers import BertConfig, AdamW, WarmupLinearSchedule
 from convlab.modules.nlu.multiwoz.bert.dataloader import Dataloader
 from convlab.modules.nlu.multiwoz.bert.jointBERT import JointBERT
 from convlab.modules.nlu.multiwoz.bert.multiwoz.postprocess import *
+from convlab.modules.nlu.multiwoz.bert.multiwoz.nlu import BERTNLU
 
 
 def set_seed(seed):
@@ -229,3 +230,69 @@ if __name__ == '__main__':
 
     with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zf:
         zf.write(model_path)
+
+    model = BERTNLU(mode='all', config_file=args.config_path.split('/')[-1], model_file='')
+
+    archive = zipfile.ZipFile('../../../../../data/multiwoz/test.json.zip', 'r')
+    test_data = json.load(archive.open('test.json'))
+    sen_num = 0
+    sess_num = 0
+    predict_golden_intents = []
+    predict_golden_slots = []
+    predict_golden_all = []
+    for no, session in test_data.items():
+        sess_num += 1
+        context = []
+        for i, turn in enumerate(session['log']):
+            if i % 2 == 1:
+                # system action
+                context.append(turn['text'])
+                continue
+            sen_num += 1
+            labels = da2triples(turn['dialog_act'])
+            predicts = da2triples(model.parse(turn['text'], context=context[-3:]))
+            predict_golden_all.append({
+                'predict': predicts,
+                'golden': labels
+            })
+            predict_golden_slots.append({
+                'predict': [x for x in predicts if is_slot_da(x)],
+                'golden': [x for x in labels if is_slot_da(x)]
+            })
+            predict_golden_intents.append({
+                'predict': [x for x in predicts if not is_slot_da(x)],
+                'golden': [x for x in labels if not is_slot_da(x)]
+            })
+            context.append(turn['text'])
+        if sess_num % 100 == 0:
+            precision, recall, F1 = calculateF1(predict_golden_all)
+            print('Model on [{}|{}] session {} sentences:'.format(sess_num, len(test_data), sen_num))
+            print('\t Precision: %.2f' % (100 * precision))
+            print('\t Recall: %.2f' % (100 * recall))
+            print('\t F1: %.2f' % (100 * F1))
+            precision, recall, F1 = calculateF1(predict_golden_intents)
+            print('-' * 20 + 'intent' + '-' * 20)
+            print('\t Precision: %.2f' % (100 * precision))
+            print('\t Recall: %.2f' % (100 * recall))
+            print('\t F1: %.2f' % (100 * F1))
+            precision, recall, F1 = calculateF1(predict_golden_slots)
+            print('-' * 20 + 'slot' + '-' * 20)
+            print('\t Precision: %.2f' % (100 * precision))
+            print('\t Recall: %.2f' % (100 * recall))
+            print('\t F1: %.2f' % (100 * F1))
+
+    precision, recall, F1 = calculateF1(predict_golden_all)
+    print('Model on {} session {} sentences:'.format(sess_num, sen_num))
+    print('\t Precision: %.2f' % (100 * precision))
+    print('\t Recall: %.2f' % (100 * recall))
+    print('\t F1: %.2f' % (100 * F1))
+    precision, recall, F1 = calculateF1(predict_golden_intents)
+    print('-' * 20 + 'intent' + '-' * 20)
+    print('\t Precision: %.2f' % (100 * precision))
+    print('\t Recall: %.2f' % (100 * recall))
+    print('\t F1: %.2f' % (100 * F1))
+    precision, recall, F1 = calculateF1(predict_golden_slots)
+    print('-' * 20 + 'slot' + '-' * 20)
+    print('\t Precision: %.2f' % (100 * precision))
+    print('\t Recall: %.2f' % (100 * recall))
+    print('\t F1: %.2f' % (100 * F1))
