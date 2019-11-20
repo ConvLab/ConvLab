@@ -54,8 +54,7 @@ if __name__ == '__main__':
 
     bert_config = BertConfig.from_pretrained(config['model']['pretrained_weights'])
 
-    model = JointBERT(bert_config, DEVICE, dataloader.tag_dim, dataloader.intent_dim,
-                      context=config['model']['context'])
+    model = JointBERT(bert_config, config['model'], DEVICE, dataloader.tag_dim, dataloader.intent_dim)
     # model.from_pretrained(os.path.join(output_dir, 'pytorch_model.bin'))
     model.load_state_dict(torch.load(os.path.join(output_dir, 'pytorch_model.bin'), DEVICE))
     model.to(DEVICE)
