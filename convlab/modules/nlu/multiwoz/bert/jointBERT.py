@@ -15,6 +15,7 @@ class JointBERT(BertPreTrainedModel):
         self.dropout = nn.Dropout(model_config['dropout'])
         self.context = model_config['context']
         self.finetune = model_config['finetune']
+        self.context_grad = model_config['context_grad']
         if self.context:
             self.intent_classifier = nn.Linear(2 * bert_config.hidden_size, self.intent_num_labels)
             self.slot_classifier = nn.Linear(2 * bert_config.hidden_size, self.slot_num_labels)
@@ -41,7 +42,7 @@ class JointBERT(BertPreTrainedModel):
         pooled_output = outputs[1]
 
         if self.context and context_seq_tensor is not None:
-            if not self.finetune:
+            if not self.finetune or not self.context_grad:
                 with torch.no_grad():
                     context_output = self.bert(input_ids=context_seq_tensor, attention_mask=context_mask_tensor)[1]
             else:

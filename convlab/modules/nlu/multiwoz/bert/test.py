@@ -11,9 +11,6 @@ from copy import deepcopy
 from pprint import pprint
 from transformers import BertConfig, AdamW, WarmupLinearSchedule
 from convlab.modules.nlu.multiwoz.bert.dataloader import Dataloader
-from convlab.modules.nlu.multiwoz.bert.model import BertNLU
-from convlab.modules.nlu.multiwoz.bert.intentBERT import IntentBERT
-from convlab.modules.nlu.multiwoz.bert.slotBERT import SlotBERT
 from convlab.modules.nlu.multiwoz.bert.jointBERT import JointBERT
 from convlab.modules.nlu.multiwoz.bert.multiwoz.postprocess import *
 
@@ -55,14 +52,13 @@ if __name__ == '__main__':
     bert_config = BertConfig.from_pretrained(config['model']['pretrained_weights'])
 
     model = JointBERT(bert_config, config['model'], DEVICE, dataloader.tag_dim, dataloader.intent_dim)
-    # model.from_pretrained(os.path.join(output_dir, 'pytorch_model.bin'))
     model.load_state_dict(torch.load(os.path.join(output_dir, 'pytorch_model.bin'), DEVICE))
     model.to(DEVICE)
     model.eval()
 
     batch_size = config['model']['batch_size']
 
-    for data_key in ['val', 'test']:
+    for data_key in ['test']:
         predict_golden_intents = []
         predict_golden_slots = []
         predict_golden_all = []
