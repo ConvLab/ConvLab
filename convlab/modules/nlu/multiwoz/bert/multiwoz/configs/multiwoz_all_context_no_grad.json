@@ -1,8 +1,8 @@
 {
   "data_dir": "multiwoz/data/all_data",
-  "output_dir": "multiwoz/output/all_context_slot",
-  "zipped_model_path": "multiwoz/output/all_context/bert_multiwoz_all_context_slot.zip",
-  "log_dir": "multiwoz/log/all_context_slot",
+  "output_dir": "multiwoz/output/all_context_no_grad",
+  "zipped_model_path": "multiwoz/output/all_context/bert_multiwoz_all_context_no_grad.zip",
+  "log_dir": "multiwoz/log/all_context_no_grad",
   "DEVICE": "cuda:0",
   "seed": 2019,
   "model": {
