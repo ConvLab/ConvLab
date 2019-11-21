@@ -54,6 +54,8 @@ if __name__ == '__main__':
 
     bert_config = BertConfig.from_pretrained(config['model']['pretrained_weights'])
 
+    torch.cuda.set_device(DEVICE)
+
     model = JointBERT(bert_config, config['model'], DEVICE, dataloader.tag_dim, dataloader.intent_dim,
                       dataloader.intent_weight)
     model.to(DEVICE)
@@ -71,6 +73,12 @@ if __name__ == '__main__':
                           eps=config['model']['adam_epsilon'])
         scheduler = WarmupLinearSchedule(optimizer, warmup_steps=config['model']['warmup_steps'],
                                          t_total=config['model']['max_step'])
+        if config['model']['fp16']:
+            try:
+                from apex import amp
+            except ImportError:
+                raise ImportError("Please install apex from https://www.github.com/nvidia/apex to use fp16 training.")
+            model, optimizer = amp.initialize(model, optimizer, opt_level=config['model']['fp16_opt_level'])
     else:
         for n, p in model.named_parameters():
             if 'bert' in n:
@@ -103,7 +111,11 @@ if __name__ == '__main__':
         train_slot_loss += slot_loss.item()
         train_intent_loss += intent_loss.item()
         loss = slot_loss + intent_loss
-        loss.backward()
+        if config['model']['fp16']:
+            with amp.scale_loss(loss, optimizer) as scaled_loss:
+                scaled_loss.backward()
+        else:
+            loss.backward()
         optimizer.step()
         if config['model']['finetune']:
             scheduler.step()  # Update learning rate schedule
