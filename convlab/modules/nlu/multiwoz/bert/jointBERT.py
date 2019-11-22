@@ -18,7 +18,7 @@ class JointBERT(BertPreTrainedModel):
         self.context_grad = model_config['context_grad']
         if self.context:
             self.intent_classifier = nn.Linear(2 * bert_config.hidden_size, self.intent_num_labels)
-            self.slot_classifier = nn.Linear(2 * bert_config.hidden_size, self.slot_num_labels)
+            self.slot_classifier = nn.Linear(3 * bert_config.hidden_size, self.slot_num_labels)
         else:
             self.intent_classifier = nn.Linear(bert_config.hidden_size, self.intent_num_labels)
             self.slot_classifier = nn.Linear(bert_config.hidden_size, self.slot_num_labels)
