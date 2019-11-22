@@ -48,7 +48,9 @@ class JointBERT(BertPreTrainedModel):
             else:
                 context_output = self.bert(input_ids=context_seq_tensor, attention_mask=context_mask_tensor)[1]
             sequence_output = torch.cat(
-                [context_output.unsqueeze(1).repeat(1, sequence_output.size(1), 1), sequence_output], dim=-1)
+                [context_output.unsqueeze(1).repeat(1, sequence_output.size(1), 1),
+                 pooled_output.unsqueeze(1).repeat(1, sequence_output.size(1), 1),
+                 sequence_output], dim=-1)
             pooled_output = torch.cat([context_output, pooled_output], dim=-1)
 
         sequence_output = self.dropout(sequence_output)
