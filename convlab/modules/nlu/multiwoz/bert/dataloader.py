@@ -62,7 +62,7 @@ class Dataloader:
             train_size = len(self.data['train'])
             for intent, intent_id in self.intent2id.items():
                 neg_pos = (train_size - self.intent_weight[intent_id]) / self.intent_weight[intent_id]
-                self.intent_weight[intent_id] = np.log10(neg_pos)
+                self.intent_weight[intent_id] = np.log(neg_pos)
             self.intent_weight = torch.tensor(self.intent_weight)
         print('max sen bert len', max_sen_len)
         print(sorted(Counter(sen_len).items()))
