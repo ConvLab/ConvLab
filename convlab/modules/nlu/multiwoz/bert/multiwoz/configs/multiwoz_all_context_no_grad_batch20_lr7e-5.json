@@ -18,8 +18,6 @@
     "adam_epsilon": 1e-8,
     "warmup_steps": 0,
     "weight_decay": 0.0,
-    "dropout": 0.1,
-    "fp16": false,
-    "fp16_opt_level": "O1"
+    "dropout": 0.1
   }
 }

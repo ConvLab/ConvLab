@@ -1,10 +1,10 @@
 {
   "data_dir": "multiwoz/data/all_data",
-  "output_dir": "multiwoz/output/all_context_batch20_fp16",
-  "zipped_model_path": "multiwoz/output/all_context/bert_multiwoz_all_context_batch20_fp16.zip",
-  "log_dir": "multiwoz/log/all_context_batch20_fp16",
-  "DEVICE": "cuda:3",
-  "seed": 2019,
+  "output_dir": "multiwoz/output/all_context_batch20_lr8e-5_seed2020",
+  "zipped_model_path": "multiwoz/output/all_context/bert_multiwoz_all_context_batch20_lr8e-5_seed2020.zip",
+  "log_dir": "multiwoz/log/all_context_batch20_lr8e-5_seed2020",
+  "DEVICE": "cuda:1",
+  "seed": 2020,
   "model": {
     "joint": true,
     "finetune": true,
@@ -14,12 +14,10 @@
     "check_step": 1000,
     "max_step": 50000,
     "batch_size": 20,
-    "learning_rate": 5e-5,
+    "learning_rate": 8e-5,
     "adam_epsilon": 1e-8,
     "warmup_steps": 0,
     "weight_decay": 0.0,
-    "dropout": 0.1,
-    "fp16": true,
-    "fp16_opt_level": "O1"
+    "dropout": 0.1
   }
 }
