@@ -19,9 +19,13 @@ class JointBERT(BertPreTrainedModel):
         if self.context:
             self.intent_classifier = nn.Linear(2 * bert_config.hidden_size, self.intent_num_labels)
             self.slot_classifier = nn.Linear(2 * bert_config.hidden_size, self.slot_num_labels)
+            self.intent_hidden = nn.Linear(2 * bert_config.hidden_size, 2 * bert_config.hidden_size)
+            self.slot_hidden = nn.Linear(2 * bert_config.hidden_size, 2 * bert_config.hidden_size)
         else:
             self.intent_classifier = nn.Linear(bert_config.hidden_size, self.intent_num_labels)
             self.slot_classifier = nn.Linear(bert_config.hidden_size, self.slot_num_labels)
+            self.intent_hidden = nn.Linear(bert_config.hidden_size, bert_config.hidden_size)
+            self.slot_hidden = nn.Linear(bert_config.hidden_size, bert_config.hidden_size)
         self.intent_loss_fct = torch.nn.BCEWithLogitsLoss(pos_weight=self.intent_weight)
         self.slot_loss_fct = torch.nn.CrossEntropyLoss()
 
@@ -51,6 +55,9 @@ class JointBERT(BertPreTrainedModel):
                 [context_output.unsqueeze(1).repeat(1, sequence_output.size(1), 1),
                  sequence_output], dim=-1)
             pooled_output = torch.cat([context_output, pooled_output], dim=-1)
+
+        sequence_output = nn.functional.relu(self.dropout(self.slot_hidden(sequence_output)))
+        pooled_output = nn.functional.relu(self.dropout(self.intent_hidden(pooled_output)))
 
         sequence_output = self.dropout(sequence_output)
         slot_logits = self.slot_classifier(sequence_output)
