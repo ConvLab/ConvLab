@@ -1,8 +1,8 @@
 {
   "data_dir": "multiwoz/data/all_data",
-  "output_dir": "multiwoz/output/bert-large-batch20-lr5e-5-step50k-no-grad",
-  "zipped_model_path": "multiwoz/output/bert-large-batch20-lr5e-5-step50k-no-grad/bert_large_multiwoz_all_context.zip",
-  "log_dir": "multiwoz/log/bert-large-batch20-lr5e-5-step50k-no-grad",
+  "output_dir": "multiwoz/output/bert-large_batch20_step50k_no-grad_lr2e-5_warmup5k",
+  "zipped_model_path": "multiwoz/output/bert-large_batch20_step50k_no-grad_lr2e-5_warmup5k/bert_large_multiwoz_all_context.zip",
+  "log_dir": "multiwoz/log/bert-large_batch20_step50k_no-grad_lr2e-5_warmup5k",
   "DEVICE": "cuda:0",
   "seed": 2019,
   "model": {
@@ -14,9 +14,9 @@
     "check_step": 1000,
     "max_step": 50000,
     "batch_size": 20,
-    "learning_rate": 5e-5,
+    "learning_rate": 2e-5,
     "adam_epsilon": 1e-8,
-    "warmup_steps": 0,
+    "warmup_steps": 5000,
     "weight_decay": 0.0,
     "dropout": 0.1
   }
