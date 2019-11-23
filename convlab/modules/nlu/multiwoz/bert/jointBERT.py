@@ -18,7 +18,7 @@ class JointBERT(BertPreTrainedModel):
         self.context_grad = model_config['context_grad']
         if self.context:
             self.intent_classifier = nn.Linear(2 * bert_config.hidden_size, self.intent_num_labels)
-            self.slot_classifier = nn.Linear(3 * bert_config.hidden_size, self.slot_num_labels)
+            self.slot_classifier = nn.Linear(2 * bert_config.hidden_size, self.slot_num_labels)
         else:
             self.intent_classifier = nn.Linear(bert_config.hidden_size, self.intent_num_labels)
             self.slot_classifier = nn.Linear(bert_config.hidden_size, self.slot_num_labels)
@@ -49,7 +49,6 @@ class JointBERT(BertPreTrainedModel):
                 context_output = self.bert(input_ids=context_seq_tensor, attention_mask=context_mask_tensor)[1]
             sequence_output = torch.cat(
                 [context_output.unsqueeze(1).repeat(1, sequence_output.size(1), 1),
-                 pooled_output.unsqueeze(1).repeat(1, sequence_output.size(1), 1),
                  sequence_output], dim=-1)
             pooled_output = torch.cat([context_output, pooled_output], dim=-1)
 
