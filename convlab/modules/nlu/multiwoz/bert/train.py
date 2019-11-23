@@ -286,5 +286,5 @@ if __name__ == '__main__':
     print('\t Recall: %.2f' % (100 * recall))
     print('\t F1: %.2f' % (100 * F1))
 
-    writer.add_text('performance', '%.2f & %.2f & %.2f' % (slot_f1, intent_f1, overall_f1))
+    writer.add_text('performance', '%.2f & %.2f & %.2f' % (100 * slot_f1, 100 * intent_f1, 100 * overall_f1))
     writer.close()
