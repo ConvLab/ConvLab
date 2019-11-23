@@ -156,8 +156,8 @@ if __name__ == '__main__':
                         'golden': [x for x in labels if not is_slot_da(x)]
                     })
 
-            for j in range(10):
-                writer.add_text('val_sample_{}'.format(j), json.dumps(predict_golden_all[j]), global_step=step)
+            # for j in range(10):
+            #     writer.add_text('val_sample_{}'.format(j), json.dumps(predict_golden_all[j]), global_step=step)
 
             total = len(dataloader.data['val'])
             val_slot_loss /= total
@@ -166,17 +166,11 @@ if __name__ == '__main__':
             print('\t slot loss:', val_slot_loss)
             print('\t intent loss:', val_intent_loss)
 
-            writer.add_scalars('intent_loss', {
-                'train': train_intent_loss,
-                'val': val_intent_loss,
-                # 'test': test_intent_loss
-            }, global_step=step)
+            writer.add_scalar('intent_loss/train', train_intent_loss, global_step=step)
+            writer.add_scalar('intent_loss/val', val_intent_loss, global_step=step)
 
-            writer.add_scalars('slot_loss', {
-                'train': train_slot_loss,
-                'val': val_slot_loss,
-                # 'test': test_tag_loss
-            }, global_step=step)
+            writer.add_scalar('slot_loss/train', train_slot_loss, global_step=step)
+            writer.add_scalar('slot_loss/val', val_slot_loss, global_step=step)
 
             precision, recall, F1 = calculateF1(predict_golden_intents)
             print('-' * 20 + 'intent' + '-' * 20)
@@ -184,11 +178,9 @@ if __name__ == '__main__':
             print('\t Recall: %.2f' % (100 * recall))
             print('\t F1: %.2f' % (100 * F1))
 
-            writer.add_scalars('val_intent', {
-                'precision': precision,
-                'recall': recall,
-                'F1': F1
-            }, global_step=step)
+            writer.add_scalar('val_intent/precision', precision, global_step=step)
+            writer.add_scalar('val_intent/recall', recall, global_step=step)
+            writer.add_scalar('val_intent/F1', F1, global_step=step)
 
             precision, recall, F1 = calculateF1(predict_golden_slots)
             print('-' * 20 + 'slot' + '-' * 20)
@@ -196,11 +188,9 @@ if __name__ == '__main__':
             print('\t Recall: %.2f' % (100 * recall))
             print('\t F1: %.2f' % (100 * F1))
 
-            writer.add_scalars('val_slot', {
-                'precision': precision,
-                'recall': recall,
-                'F1': F1
-            }, global_step=step)
+            writer.add_scalar('val_slot/precision', precision, global_step=step)
+            writer.add_scalar('val_slot/recall', recall, global_step=step)
+            writer.add_scalar('val_slot/F1', F1, global_step=step)
 
             precision, recall, F1 = calculateF1(predict_golden_all)
             print('-' * 20 + 'overall' + '-' * 20)
@@ -208,11 +198,9 @@ if __name__ == '__main__':
             print('\t Recall: %.2f' % (100 * recall))
             print('\t F1: %.2f' % (100 * F1))
 
-            writer.add_scalars('val_overall', {
-                'precision': precision,
-                'recall': recall,
-                'F1': F1
-            }, global_step=step)
+            writer.add_scalar('val_overall/precision', precision, global_step=step)
+            writer.add_scalar('val_overall/recall', recall, global_step=step)
+            writer.add_scalar('val_overall/F1', F1, global_step=step)
 
             if F1 > best_val_f1:
                 best_val_f1 = F1
@@ -221,8 +209,6 @@ if __name__ == '__main__':
                 print('save on', output_dir)
 
             train_slot_loss, train_intent_loss = 0, 0
-
-    writer.close()
 
     model_path = os.path.join(output_dir, 'pytorch_model.bin')
     zip_path = config['zipped_model_path']
@@ -282,17 +268,23 @@ if __name__ == '__main__':
             print('\t F1: %.2f' % (100 * F1))
 
     precision, recall, F1 = calculateF1(predict_golden_all)
+    overall_f1 = F1
     print('Model on {} session {} sentences:'.format(sess_num, sen_num))
     print('\t Precision: %.2f' % (100 * precision))
     print('\t Recall: %.2f' % (100 * recall))
     print('\t F1: %.2f' % (100 * F1))
     precision, recall, F1 = calculateF1(predict_golden_intents)
+    intent_f1 = F1
     print('-' * 20 + 'intent' + '-' * 20)
     print('\t Precision: %.2f' % (100 * precision))
     print('\t Recall: %.2f' % (100 * recall))
     print('\t F1: %.2f' % (100 * F1))
     precision, recall, F1 = calculateF1(predict_golden_slots)
+    slot_f1 = F1
     print('-' * 20 + 'slot' + '-' * 20)
     print('\t Precision: %.2f' % (100 * precision))
     print('\t Recall: %.2f' % (100 * recall))
     print('\t F1: %.2f' % (100 * F1))
+
+    writer.add_text('performance', '%.2f & %.2f & %.2f' % (slot_f1, intent_f1, overall_f1))
+    writer.close()
