@@ -104,6 +104,7 @@ if __name__ == '__main__':
         train_intent_loss += intent_loss.item()
         loss = slot_loss + intent_loss
         loss.backward()
+        torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
         optimizer.step()
         if config['model']['finetune']:
             scheduler.step()  # Update learning rate schedule
@@ -209,6 +210,8 @@ if __name__ == '__main__':
                 print('save on', output_dir)
 
             train_slot_loss, train_intent_loss = 0, 0
+
+    writer.add_text('val performance', '%.2f' % (100 * best_val_f1))
 
     model_path = os.path.join(output_dir, 'pytorch_model.bin')
     zip_path = config['zipped_model_path']
