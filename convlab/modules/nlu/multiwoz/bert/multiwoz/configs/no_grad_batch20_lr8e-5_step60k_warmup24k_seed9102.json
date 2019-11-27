@@ -1,10 +1,10 @@
 {
   "data_dir": "multiwoz/data/all_data",
-  "output_dir": "multiwoz/output/no_grad_batch20_lr8e-5_step60k_warmup3k",
-  "zipped_model_path": "multiwoz/output/no_grad_batch20_lr8e-5_step60k_warmup3k/bert_multiwoz_all_context.zip",
-  "log_dir": "multiwoz/log/no_grad_batch20_lr8e-5_step60k_warmup3k",
+  "output_dir": "multiwoz/output/no_grad_batch20_lr8e-5_step60k_warmup24k_seed9102",
+  "zipped_model_path": "multiwoz/output/no_grad_batch20_lr8e-5_step60k_warmup24k_seed9102/bert_multiwoz_all_context.zip",
+  "log_dir": "multiwoz/log/no_grad_batch20_lr8e-5_step60k_warmup24k_seed9102",
   "DEVICE": "cuda:0",
-  "seed": 2019,
+  "seed": 9102,
   "model": {
     "joint": true,
     "finetune": true,
@@ -16,7 +16,7 @@
     "batch_size": 20,
     "learning_rate": 8e-5,
     "adam_epsilon": 1e-8,
-    "warmup_steps": 3000,
+    "warmup_steps": 24000,
     "weight_decay": 0.0,
     "dropout": 0.1
   }

@@ -1,8 +1,8 @@
 {
   "data_dir": "multiwoz/data/all_data",
-  "output_dir": "multiwoz/output/no_grad_batch20_lr8e-5_step60k_warmup3k",
-  "zipped_model_path": "multiwoz/output/no_grad_batch20_lr8e-5_step60k_warmup3k/bert_multiwoz_all_context.zip",
-  "log_dir": "multiwoz/log/no_grad_batch20_lr8e-5_step60k_warmup3k",
+  "output_dir": "multiwoz/output/no_grad_batch20_lr1e-4_step80k_warmup40k",
+  "zipped_model_path": "multiwoz/output/no_grad_batch20_lr1e-4_step80k_warmup40k/bert_multiwoz_all_context.zip",
+  "log_dir": "multiwoz/log/no_grad_batch20_lr1e-4_step80k_warmup40k",
   "DEVICE": "cuda:0",
   "seed": 2019,
   "model": {
@@ -11,12 +11,12 @@
     "context": true,
     "context_grad": false,
     "pretrained_weights": "/home/data/zhuqi/pre-trained-models/bert-base-uncased",
-    "check_step": 1000,
-    "max_step": 60000,
+    "check_step": 2000,
+    "max_step": 80000,
     "batch_size": 20,
-    "learning_rate": 8e-5,
+    "learning_rate": 1e-4,
     "adam_epsilon": 1e-8,
-    "warmup_steps": 3000,
+    "warmup_steps": 40000,
     "weight_decay": 0.0,
     "dropout": 0.1
   }
