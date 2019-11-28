@@ -219,7 +219,6 @@ if __name__ == '__main__':
 
     with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zf:
         zf.write(model_path)
-
     print('test on multiwoz user utterance')
 
     model = BERTNLU(mode='all', config_file=args.config_path.split('/')[-1], model_file='')

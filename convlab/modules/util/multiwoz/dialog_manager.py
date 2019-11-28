@@ -62,34 +62,62 @@ class Preprocessor(object):
         return sent
 
 class Dialog_manager(object):
-    def __init__(self):
+    def __init__(self, use_nlu):
         self.total_states = {dom:{} for dom in domains}   # the belief state for the dialogue
         self.cur_result = {dom:None for dom in domains}   # the query result from the database
         self.cur_result_lower = {dom:None for dom in domains}  # query result, lower case version
         self.number = 0      # the number of all results that satisfies the user goal
         
         self.preprocessor = Preprocessor()
-        self.domain = domains[7] # unk
+        self.domain = 'unk'
+        self.use_nlu = use_nlu
 
     def reset(self):
         self.total_states = {dom:{} for dom in domains}
         self.cur_result = {dom:None for dom in domains}
         self.cur_result_lower = {dom:None for dom in domains}
         self.number = 0
-        self.domain = domains[7] # unk
+        self.domain = 'unk'
 
     def parse(self, states):
         parsed_states = {}
         domain = 'unk'
-        for dom, info in states.items():
-            for slot, value in info['semi'].items():
-                if value !='' and dom+'-'+slot in self.preprocessor.slots:
-                    parsed_states[dom+'-'+slot]=value
-                    domain = dom
-            for slot, value in info['book'].items():
-                if value !='' and slot in ['people', 'stay']:
-                    parsed_states[dom+'-'+slot]=value
-                    domain = dom
+        if self.use_nlu:
+            da = states['user_action']
+            for action, slots in da.items():
+                splits = action.lower().split('-')
+                if len(splits) == 2:
+                    dom, act = splits
+                    if dom in domains:
+                        if act=="inform":
+                            domain = dom
+                            for slot, value in slots:
+                                slot = slot.lower()
+                                if slot == "leave":
+                                    slot = "leaveAt"
+                                elif slot == "arrive":
+                                    slot = "arriveBy"
+                                elif slot == "depart":
+                                    slot = "departure"
+                                elif slot == "dest":
+                                    slot = "destination"
+                                elif slot == "price" and dom in ("restaurant", "hotel"):
+                                    slot += "range"
+                                if dom+'-'+slot in self.preprocessor.slots:
+                                    parsed_states[dom+'-'+slot] = value
+                                elif slot in ["day", "people", "stay"]:
+                                    parsed_states[dom+'-'+slot] = value
+        else:
+            belief = states['belief_state']
+            for dom, info in belief.items():
+                for slot, value in info['semi'].items():
+                    if value !='' and dom+'-'+slot in self.preprocessor.slots:
+                        parsed_states[dom+'-'+slot]=value
+                        domain = dom
+                for slot, value in info['book'].items():
+                    if value !='' and slot in ['people', 'stay']:
+                        parsed_states[dom+'-'+slot]=value
+                        domain = dom
         return parsed_states, domain
 
     def process(self, sentence, state_info, domain):
@@ -130,7 +158,7 @@ class Dialog_manager(object):
 
         # update belief states
         if domain=="unk":
-            return self.total_states, 0, None
+            return 0, None
         self.total_states[domain].update(states)
 
         # generate query constraints
@@ -265,9 +293,4 @@ class Dialog_manager(object):
         sentence = denormalize(sentence)
 
         return sentence
-
-
-
-
-
 

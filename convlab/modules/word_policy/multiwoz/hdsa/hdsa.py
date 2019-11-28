@@ -15,10 +15,10 @@ DEFAULT_ARCHIVE_FILE = os.path.join(DEFAULT_DIRECTORY, "hdsa.zip")
 
 class HDSA(SysPolicy):
     
-    def __init__(self, archive_file=DEFAULT_ARCHIVE_FILE, model_file=None, use_cuda=False):
+    def __init__(self, archive_file=DEFAULT_ARCHIVE_FILE, model_file=None, use_cuda=False, use_nlu=False):
         self.predictor = HDSA_predictor(archive_file, model_file, use_cuda)
         self.generator = HDSA_generator(archive_file, model_file, use_cuda)
-        self.manager = Dialog_manager()
+        self.manager = Dialog_manager(use_nlu)
         
     def init_session(self):
         self.generator.init_session()

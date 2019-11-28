@@ -114,7 +114,7 @@ class HDSA_predictor():
         self.model.to(self.device)
     
     def _db_to_sentence(self, db_result, domain):
-        if len(db_result)==0:
+        if not db_result:
             return "no information"
         else:
             src = []
