@@ -72,7 +72,7 @@ if __name__ == '__main__':
     elif model_name == 'SVMNLU':
         model = SVMNLU(model_file="https://convlab.blob.core.windows.net/models/svm_multiwoz.zip")
     elif model_name == 'BERTNLU':
-        model = BERTNLU(mode='all', model_file='https://convlab.blob.core.windows.net/models/bert_multiwoz_all.zip')
+        model = BERTNLU(mode='all', config_file='multiwoz_all_context.json', model_file='https://convlab.blob.core.windows.net/models/bert_multiwoz_all_context.zip')
     else:
         raise Exception("Available model: OneNetLU, MILU, SVMNLU")
 
