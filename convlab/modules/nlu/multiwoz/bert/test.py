@@ -105,6 +105,12 @@ if __name__ == '__main__':
         print('\t slot loss:', slot_loss)
         print('\t intent loss:', intent_loss)
 
+        precision, recall, F1 = calculateF1(predict_golden_all)
+        print('-' * 20 + 'overall' + '-' * 20)
+        print('\t Precision: %.2f' % (100 * precision))
+        print('\t Recall: %.2f' % (100 * recall))
+        print('\t F1: %.2f' % (100 * F1))
+
         precision, recall, F1 = calculateF1(predict_golden_intents)
         print('-' * 20 + 'intent' + '-' * 20)
         print('\t Precision: %.2f' % (100 * precision))
@@ -113,12 +119,6 @@ if __name__ == '__main__':
 
         precision, recall, F1 = calculateF1(predict_golden_slots)
         print('-' * 20 + 'slot' + '-' * 20)
-        print('\t Precision: %.2f' % (100 * precision))
-        print('\t Recall: %.2f' % (100 * recall))
-        print('\t F1: %.2f' % (100 * F1))
-
-        precision, recall, F1 = calculateF1(predict_golden_all)
-        print('-' * 20 + 'overall' + '-' * 20)
         print('\t Precision: %.2f' % (100 * precision))
         print('\t Recall: %.2f' % (100 * recall))
         print('\t F1: %.2f' % (100 * F1))
