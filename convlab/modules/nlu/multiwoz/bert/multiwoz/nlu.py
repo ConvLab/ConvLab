@@ -61,10 +61,6 @@ class BERTNLU(NLU):
 
         bert_config = BertConfig.from_pretrained(config['model']['pretrained_weights'])
 
-        # model = JointBERT(bert_config, DEVICE, dataloader.tag_dim, dataloader.intent_dim, context=config['model']['context'])
-        # model.load_state_dict(torch.load(os.path.join(output_dir, 'pytorch_model.bin'), DEVICE))
-        # model.to(DEVICE)
-
         best_model_path = os.path.join(output_dir, 'pytorch_model.bin')
         if not os.path.exists(best_model_path):
             if not os.path.exists(output_dir):
