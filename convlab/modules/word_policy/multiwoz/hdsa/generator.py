@@ -17,12 +17,6 @@ from convlab.lib.file_util import cached_path
 timepat = re.compile("\d{1,2}[:]\d{1,2}")
 pricepat = re.compile("\d{1,3}[.]\d{1,2}")
 
-fin = open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'data/mapping.pair'))
-replacements = []
-for line in fin.readlines():
-    tok_from, tok_to = line.replace('\n', '').split('\t')
-    replacements.append((' ' + tok_from + ' ', ' ' + tok_to + ' '))
-fin.close()
 
 def insertSpace(token, text):
     sidx = 0
@@ -42,7 +36,7 @@ def insertSpace(token, text):
         sidx += 1
     return text
 
-def normalize(text, sub=True):
+def normalize(text, replacements, sub=True):
     # lower case every word
     text = text.lower()
 
@@ -125,7 +119,7 @@ def normalize(text, sub=True):
 
     return text
 
-def delexicaliseReferenceNumber(sent, turn):
+def delexicaliseReferenceNumber(sent, turn, replacements):
     """Based on the belief state, we can find reference number that
     during data gathering was created randomly."""
     for domain in turn:
@@ -135,15 +129,15 @@ def delexicaliseReferenceNumber(sent, turn):
                     val = '[' + domain + '_' + slot + ']'
                 else:
                     val = '[' + domain + '_' + slot + ']'
-                key = normalize(turn[domain]['book']['booked'][0][slot])
+                key = normalize(turn[domain]['book']['booked'][0][slot], replacements)
                 sent = (' ' + sent + ' ').replace(' ' + key + ' ', ' ' + val + ' ')
 
                 # try reference with hashtag
-                key = normalize("#" + turn[domain]['book']['booked'][0][slot])
+                key = normalize("#" + turn[domain]['book']['booked'][0][slot], replacements)
                 sent = (' ' + sent + ' ').replace(' ' + key + ' ', ' ' + val + ' ')
 
                 # try reference with ref#
-                key = normalize("ref#" + turn[domain]['book']['booked'][0][slot])
+                key = normalize("ref#" + turn[domain]['book']['booked'][0][slot], replacements)
                 sent = (' ' + sent + ' ').replace(' ' + key + ' ', ' ' + val + ' ')
     return sent
 
@@ -250,6 +244,12 @@ class HDSA_generator():
         
         with open(os.path.join(model_dir, 'data/svdic.pkl'), 'rb') as f:
             self.dic = pickle.load(f)
+            
+        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'data/mapping.pair')) as f
+            self.replacements = []
+            for line in f:
+                tok_from, tok_to = line.replace('\n', '').split('\t')
+                self.replacements.append((' ' + tok_from + ' ', ' ' + tok_to + ' '))
     
     def init_session(self):
         self.history = []
@@ -259,7 +259,7 @@ class HDSA_generator():
         usr = delexicalise(' '.join(usr_post.split()), self.dic)
     
         # parsing reference number GIVEN belief state
-        usr = delexicaliseReferenceNumber(usr, state['belief_state'])
+        usr = delexicaliseReferenceNumber(usr, state['belief_state'], self.replacements)
     
         # changes to numbers only here
         digitpat = re.compile('\d+')
