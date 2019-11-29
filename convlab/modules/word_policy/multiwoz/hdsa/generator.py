@@ -245,7 +245,7 @@ class HDSA_generator():
         with open(os.path.join(model_dir, 'data/svdic.pkl'), 'rb') as f:
             self.dic = pickle.load(f)
             
-        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'data/mapping.pair')) as f:
+        with open(os.path.join(model_dir, 'data/mapping.pair')) as f:
             self.replacements = []
             for line in f:
                 tok_from, tok_to = line.replace('\n', '').split('\t')
