@@ -442,7 +442,6 @@
         "name": "ExternalPolicy",
         "word_policy": {
           "name": "HDSA",
-          "use_nlu": true,
           "model_file": "https://convlab.blob.core.windows.net/models/hdsa.zip"
         },
         "action_pdtype": "Argmax",

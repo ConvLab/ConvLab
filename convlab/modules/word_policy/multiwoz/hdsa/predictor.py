@@ -29,7 +29,9 @@ from pytorch_pretrained_bert.file_utils import PYTORCH_PRETRAINED_BERT_CACHE
 from pytorch_pretrained_bert.modeling import BertForSequenceClassification
 from pytorch_pretrained_bert.tokenization import BertTokenizer
 
+from convlab.modules.word_policy.multiwoz.hdsa.transformer import Constants
 from convlab.lib.file_util import cached_path
+from convlab.modules.util.multiwoz.dbquery import query
 
 def examine(domain, slot):
     if slot == "addr":
@@ -90,6 +92,40 @@ def truncate_seq_pair(tokens_a, tokens_b, max_length):
         else:
             tokens_b.pop()
 
+class InputExample(object):
+    """A single training/test example for simple sequence classification."""
+
+    def __init__(self, file, turn, guid, text_m, text_a, text_b=None, label=None):
+        """Constructs a InputExample.
+
+        Args:
+            guid: Unique id for the example.
+            text_a: string. The untokenized text of the first sequence. For single
+            sequence tasks, only this sequence must be specified.
+            text_b: (Optional) string. The untokenized text of the second sequence.
+            Only must be specified for sequence pair tasks.
+            label: (Optional) string. The label of the example. This should be
+            specified for train and dev examples, but not for test examples.
+        """
+        self.file = file
+        self.turn = turn
+        self.guid = guid
+        self.text_m = text_m
+        self.text_a = text_a
+        self.text_b = text_b
+        self.label = label
+
+class InputFeatures(object):
+    """A single set of features of data."""
+
+    def __init__(self, file, turn, input_ids, input_mask, segment_ids, label_id):
+        self.file = file
+        self.turn = turn
+        self.input_ids = input_ids
+        self.input_mask = input_mask
+        self.segment_ids = segment_ids
+        self.label_id = label_id
+
 class HDSA_predictor():
     def __init__(self, archive_file, model_file=None, use_cuda=False):
         if not os.path.isfile(archive_file):
@@ -108,27 +144,55 @@ class HDSA_predictor():
         
         self.tokenizer = BertTokenizer.from_pretrained("bert-base-uncased", do_lower_case=False)
         self.max_seq_length = 256
+        self.domain = 'restaurant'
         self.model = BertForSequenceClassification.from_pretrained(load_dir, 
             cache_dir=os.path.join(str(PYTORCH_PRETRAINED_BERT_CACHE), 'distributed_{}'.format(-1)), num_labels=44)
         self.device = 'cuda' if use_cuda else 'cpu'
         self.model.to(self.device)
-    
-    def _db_to_sentence(self, db_result, domain):
-        if not db_result:
-            return "no information"
+        
+    def gen_example(self, state):
+        file = ''
+        turn = 0
+        guid = 'infer'
+        
+        act = state['user_action']
+        for w in act:
+            d, f = w.split('-')
+            if Constants.domains.index(d.lower()) < 8:
+                self.domain = d.lower()
+        hierarchical_act_vecs = [0 for _ in range(44)] # fake target
+        
+        meta = state['belief_state']
+        constraints = []
+        if self.domain != 'bus':
+            for slot in meta[self.domain]['semi']:
+                if meta[self.domain]['semi'][slot] != "":
+                    constraints.append([slot, meta[self.domain]['semi'][slot]])
+        query_result = query(self.domain, constraints)
+        if not query_result:
+            kb = {'count':'0'}
+            src = "no information"
         else:
+            kb = query_result[0]
+            kb['count'] = str(len(query_result))
             src = []
-            for k, v in db_result.items():
-                k = examine(domain, k.lower())
+            for k, v in kb.items():
+                k = examine(self.domain, k.lower())
                 if k != 'illegal' and isinstance(v, str):
                     src.extend([k, 'is', v])
             src = " ".join(src)
-            return src
+        
+        usr = state['history'][-1][-1]
+        sys = state['history'][-1][-2] if len(state['history'][-1]) > 1 else None
+        
+        example = InputExample(file, turn, guid, src, usr, sys, hierarchical_act_vecs)
+        kb['domain'] = self.domain
+        return example, kb
 
-    def gen_feature(self,  usr_orig, sys_orig, db_result, domain):
-        tokens_a = self.tokenizer.tokenize(usr_orig)
-        tokens_b = self.tokenizer.tokenize(sys_orig)
-        tokens_m = self.tokenizer.tokenize(self._db_to_sentence(db_result, domain))
+    def gen_feature(self, example):
+        tokens_a = self.tokenizer.tokenize(example.text_a)
+        tokens_b = self.tokenizer.tokenize(example.text_b)
+        tokens_m = self.tokenizer.tokenize(example.text_m)
         # Modifies `tokens_a` and `tokens_b` in place so that the total
         # length is less than the specified length.
         # Account for [CLS], [SEP], [SEP] with "- 3"
@@ -164,22 +228,29 @@ class HDSA_predictor():
         assert len(input_mask) == self.max_seq_length
         assert len(segment_ids) == self.max_seq_length
 
-        return input_ids, input_mask, segment_ids
+        feature = InputFeatures(file=example.file,
+                          turn=example.turn,
+                          input_ids=input_ids,
+                          input_mask=input_mask,
+                          segment_ids=segment_ids,
+                          label_id=example.label)
+        return feature
 
-    def predict(self, usr_orig, sys_orig, db_result, domain):
+    def predict(self, state):
         
-        input_ids, input_mask, segment_ids = self.gen_feature(usr_orig, sys_orig, db_result, domain)
+        example, kb = self.gen_example(state)
+        feature = self.gen_feature(example)
         
-        input_ids = torch.tensor([input_ids], dtype=torch.long).to(self.device)
-        input_masks = torch.tensor([input_mask], dtype=torch.long).to(self.device)
-        segment_ids = torch.tensor([segment_ids], dtype=torch.long).to(self.device)
+        input_ids = torch.tensor([feature.input_ids], dtype=torch.long).to(self.device)
+        input_masks = torch.tensor([feature.input_mask], dtype=torch.long).to(self.device)
+        segment_ids = torch.tensor([feature.segment_ids], dtype=torch.long).to(self.device)
 
         with torch.no_grad():
             logits = self.model(input_ids, segment_ids, input_masks, labels=None)
             logits = torch.sigmoid(logits)
         preds = (logits > 0.4).float()
-#        preds_numpy = preds.cpu().nonzero().squeeze().numpy()
-#        
+        preds_numpy = preds.cpu().nonzero().squeeze().numpy()
+        
 #        for i in preds_numpy:
 #            if i < 10:
 #                print(Constants.domains[i], end=' ')
@@ -189,4 +260,4 @@ class HDSA_predictor():
 #                print(Constants.arguments[i-17], end=' ')
 #        print()
         
-        return preds
+        return preds, kb

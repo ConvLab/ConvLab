@@ -4,6 +4,7 @@ Created on Tue Sep 10 18:56:40 2019
 
 @author: truthless
 """
+import re
 import json
 import torch
 import os
@@ -12,6 +13,155 @@ import pickle
 from convlab.modules.word_policy.multiwoz.hdsa.transformer.Transformer import TableSemanticDecoder
 from convlab.modules.word_policy.multiwoz.hdsa.transformer import Constants
 from convlab.lib.file_util import cached_path
+
+timepat = re.compile("\d{1,2}[:]\d{1,2}")
+pricepat = re.compile("\d{1,3}[.]\d{1,2}")
+
+fin = open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'data/mapping.pair'))
+replacements = []
+for line in fin.readlines():
+    tok_from, tok_to = line.replace('\n', '').split('\t')
+    replacements.append((' ' + tok_from + ' ', ' ' + tok_to + ' '))
+fin.close()
+
+def insertSpace(token, text):
+    sidx = 0
+    while True:
+        sidx = text.find(token, sidx)
+        if sidx == -1:
+            break
+        if sidx + 1 < len(text) and re.match('[0-9]', text[sidx - 1]) and \
+                re.match('[0-9]', text[sidx + 1]):
+            sidx += 1
+            continue
+        if text[sidx - 1] != ' ':
+            text = text[:sidx] + ' ' + text[sidx:]
+            sidx += 1
+        if sidx + len(token) < len(text) and text[sidx + len(token)] != ' ':
+            text = text[:sidx + 1] + ' ' + text[sidx + 1:]
+        sidx += 1
+    return text
+
+def normalize(text, sub=True):
+    # lower case every word
+    text = text.lower()
+
+    # replace white spaces in front and end
+    text = re.sub(r'^\s*|\s*$', '', text)
+
+    # hotel domain pfb30
+    text = re.sub(r"b&b", "bed and breakfast", text)
+    text = re.sub(r"b and b", "bed and breakfast", text)
+
+    # normalize phone number
+    ms = re.findall('\(?(\d{3})\)?[-.\s]?(\d{3})[-.\s]?(\d{4,5})', text)
+    if ms:
+        sidx = 0
+        for m in ms:
+            sidx = text.find(m[0], sidx)
+            if text[sidx - 1] == '(':
+                sidx -= 1
+            eidx = text.find(m[-1], sidx) + len(m[-1])
+            text = text.replace(text[sidx:eidx], ''.join(m))
+
+    # normalize postcode
+    ms = re.findall('([a-z]{1}[\. ]?[a-z]{1}[\. ]?\d{1,2}[, ]+\d{1}[\. ]?[a-z]{1}[\. ]?[a-z]{1}|[a-z]{2}\d{2}[a-z]{2})',
+                    text)
+    if ms:
+        sidx = 0
+        for m in ms:
+            sidx = text.find(m, sidx)
+            eidx = sidx + len(m)
+            text = text[:sidx] + re.sub('[,\. ]', '', m) + text[eidx:]
+
+    # weird unicode bug
+    text = re.sub(u"(\u2018|\u2019)", "'", text)
+
+    # replace time and and price
+    if sub:
+        text = re.sub(timepat, ' [value_time] ', text)
+        text = re.sub(pricepat, ' [train_price] ', text)
+        #text = re.sub(pricepat2, '[value_price]', text)
+
+    # replace st.
+    text = text.replace(';', ',')
+    text = re.sub('$\/', '', text)
+    text = text.replace('/', ' and ')
+
+    # replace other special characters
+    text = text.replace('-', ' ')
+    text = re.sub('[\":\<>@\(\)]', '', text)
+
+    # insert white space before and after tokens:
+    for token in ['?', '.', ',', '!']:
+        text = insertSpace(token, text)
+
+    # insert white space for 's
+    text = insertSpace('\'s', text)
+
+    # replace it's, does't, you'd ... etc
+    text = re.sub('^\'', '', text)
+    text = re.sub('\'$', '', text)
+    text = re.sub('\'\s', ' ', text)
+    text = re.sub('\s\'', ' ', text)
+    for fromx, tox in replacements:
+        text = ' ' + text + ' '
+        text = text.replace(fromx, tox)[1:-1]
+
+    # remove multiple spaces
+    text = re.sub(' +', ' ', text)
+
+    # concatenate numbers
+    tokens = text.split()
+    i = 1
+    while i < len(tokens):
+        if re.match(u'^\d+$', tokens[i]) and \
+                re.match(u'\d+$', tokens[i - 1]):
+            tokens[i - 1] += tokens[i]
+            del tokens[i]
+        else:
+            i += 1
+    text = ' '.join(tokens)
+
+    return text
+
+def delexicaliseReferenceNumber(sent, turn):
+    """Based on the belief state, we can find reference number that
+    during data gathering was created randomly."""
+    for domain in turn:
+        if turn[domain]['book']['booked']:
+            for slot in turn[domain]['book']['booked'][0]:
+                if slot == 'reference':
+                    val = '[' + domain + '_' + slot + ']'
+                else:
+                    val = '[' + domain + '_' + slot + ']'
+                key = normalize(turn[domain]['book']['booked'][0][slot])
+                sent = (' ' + sent + ' ').replace(' ' + key + ' ', ' ' + val + ' ')
+
+                # try reference with hashtag
+                key = normalize("#" + turn[domain]['book']['booked'][0][slot])
+                sent = (' ' + sent + ' ').replace(' ' + key + ' ', ' ' + val + ' ')
+
+                # try reference with ref#
+                key = normalize("ref#" + turn[domain]['book']['booked'][0][slot])
+                sent = (' ' + sent + ' ').replace(' ' + key + ' ', ' ' + val + ' ')
+    return sent
+
+def delexicalise(utt, dictionary):
+    for key, val in dictionary:
+        utt = (' ' + utt + ' ').replace(' ' + key + ' ', ' ' + val + ' ')
+        utt = utt[1:-1]  # why this?
+
+    return utt
+
+def denormalize(uttr):
+    uttr = uttr.replace(' -s', 's')
+    uttr = uttr.replace('expensive -ly', 'expensive')
+    uttr = uttr.replace('cheap -ly', 'cheap')
+    uttr = uttr.replace('moderate -ly', 'moderately')
+    uttr = uttr.replace(' -er', 'er')
+    uttr = uttr.replace('_UNK', 'unknown')
+    return uttr
 
 class Tokenizer(object):
     def __init__(self, vocab, ivocab, use_field, lower_case=True):
@@ -104,7 +254,16 @@ class HDSA_generator():
     def init_session(self):
         self.history = []
 
-    def generate(self, usr, pred_hierachical_act_vecs):        
+    def generate(self, state, pred_hierachical_act_vecs, kb):        
+        usr_post = state['history'][-1][-1]
+        usr = delexicalise(' '.join(usr_post.split()), self.dic)
+    
+        # parsing reference number GIVEN belief state
+        usr = delexicaliseReferenceNumber(usr, state['belief_state'])
+    
+        # changes to numbers only here
+        digitpat = re.compile('\d+')
+        usr = re.sub(digitpat, '[value_count]', usr)
         
         tokens = self.tokenizer.tokenize(usr)
         if self.history:
@@ -124,5 +283,59 @@ class HDSA_generator():
         else:
             self.history = self.history + [Constants.SEP_WORD] + tokens[1:-1] + [Constants.SEP_WORD] + self.tokenizer.tokenize(pred)
         
-        return pred
+        words = pred.split(' ')
+        for i in range(len(words)):
+            if words[i].startswith('[') and words[i].endswith(']') and words[i] != '[UNK]':
+                domain, key = words[i][1:-1].split('_')
+                if key == 'reference':
+                    key = 'Ref'
+                elif key == 'trainid':
+                    key = 'trainID'
+                elif key == 'leaveat':
+                    key = 'leaveAt'
+                elif key == 'arriveby':
+                    key = 'arriveBy'
+                elif key == 'price' and domain != 'train':
+                    key = 'pricerange'
+                elif domain == 'value':
+                    if key == 'place':
+                        if 'arrive' in pred or 'to' in pred or 'arriving' in pred:
+                            key = 'destination'
+                        elif 'leave' in pred or 'from' in pred or 'leaving' in pred:
+                            key = 'departure'
+                    elif key == 'time':
+                        if 'arrive' in pred or 'arrival' in pred or 'arriving' in pred:
+                            key = 'arriveBy'
+                        elif 'leave' in pred or 'departure' in pred or 'leaving' in pred:
+                            key = 'leaveAt'
+                    elif key == 'count':
+                        if 'minute' in pred:
+                            key = 'duration'
+                        elif 'star' in pred:
+                            key = 'stars'
+                if key in kb and (domain == kb['domain'] or domain == 'value'):
+                    words[i] = kb[key]
+                else:
+                    if domain == 'hospital':
+                        if key == 'phone':
+                            words[i] = '01223216297'
+                        elif key == 'department':
+                            words[i] = 'neurosciences critical care unit'
+                    elif domain == 'police':
+                        if key == 'phone':
+                            words[i] = '01223358966'
+                        elif key == 'name':
+                            words[i] = 'Parkside Police Station'
+                        elif key == 'address':
+                            words[i] = 'Parkside, Cambridge'
+                    elif domain == 'taxi':
+                        if key == 'phone':
+                            words[i] = '01223358966'
+                        elif key == 'color':
+                            words[i] = 'white'
+                        elif key == 'type':
+                            words[i] = 'toyota'
+        sentence = denormalize(" ".join(words))
+        
+        return sentence
 
