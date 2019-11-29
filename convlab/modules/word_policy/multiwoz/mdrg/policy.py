@@ -273,7 +273,7 @@ def populate_template(template, top_results, num_results, state):
     template = template.replace('book [value_count] of them', 'book one of them')
     tokens = template.split()
     response = []
-    for token in tokens:
+    for index, token in enumerate(tokens):
         if token.startswith('[') and token.endswith(']'):
             domain = token[1:-1].split('_')[0]
             slot = token[1:-1].split('_')[1]
