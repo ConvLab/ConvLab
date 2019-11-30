@@ -17,6 +17,7 @@ from convlab.lib.file_util import cached_path
 timepat = re.compile("\d{1,2}[:]\d{1,2}")
 pricepat = re.compile("\d{1,3}[.]\d{1,2}")
 
+
 def insertSpace(token, text):
     sidx = 0
     while True:
@@ -35,7 +36,7 @@ def insertSpace(token, text):
         sidx += 1
     return text
 
-def normalize(text, sub=True):
+def normalize(text, replacements, sub=True):
     # lower case every word
     text = text.lower()
 
@@ -97,6 +98,9 @@ def normalize(text, sub=True):
     text = re.sub('\'$', '', text)
     text = re.sub('\'\s', ' ', text)
     text = re.sub('\s\'', ' ', text)
+    for fromx, tox in replacements:
+        text = ' ' + text + ' '
+        text = text.replace(fromx, tox)[1:-1]
 
     # remove multiple spaces
     text = re.sub(' +', ' ', text)
@@ -115,7 +119,7 @@ def normalize(text, sub=True):
 
     return text
 
-def delexicaliseReferenceNumber(sent, turn):
+def delexicaliseReferenceNumber(sent, turn, replacements):
     """Based on the belief state, we can find reference number that
     during data gathering was created randomly."""
     for domain in turn:
@@ -125,15 +129,15 @@ def delexicaliseReferenceNumber(sent, turn):
                     val = '[' + domain + '_' + slot + ']'
                 else:
                     val = '[' + domain + '_' + slot + ']'
-                key = normalize(turn[domain]['book']['booked'][0][slot])
+                key = normalize(turn[domain]['book']['booked'][0][slot], replacements)
                 sent = (' ' + sent + ' ').replace(' ' + key + ' ', ' ' + val + ' ')
 
                 # try reference with hashtag
-                key = normalize("#" + turn[domain]['book']['booked'][0][slot])
+                key = normalize("#" + turn[domain]['book']['booked'][0][slot], replacements)
                 sent = (' ' + sent + ' ').replace(' ' + key + ' ', ' ' + val + ' ')
 
                 # try reference with ref#
-                key = normalize("ref#" + turn[domain]['book']['booked'][0][slot])
+                key = normalize("ref#" + turn[domain]['book']['booked'][0][slot], replacements)
                 sent = (' ' + sent + ' ').replace(' ' + key + ' ', ' ' + val + ' ')
     return sent
 
@@ -143,6 +147,15 @@ def delexicalise(utt, dictionary):
         utt = utt[1:-1]  # why this?
 
     return utt
+
+def denormalize(uttr):
+    uttr = uttr.replace(' -s', 's')
+    uttr = uttr.replace('expensive -ly', 'expensive')
+    uttr = uttr.replace('cheap -ly', 'cheap')
+    uttr = uttr.replace('moderate -ly', 'moderately')
+    uttr = uttr.replace(' -er', 'er')
+    uttr = uttr.replace('_UNK', 'unknown')
+    return uttr
 
 class Tokenizer(object):
     def __init__(self, vocab, ivocab, use_field, lower_case=True):
@@ -231,6 +244,12 @@ class HDSA_generator():
         
         with open(os.path.join(model_dir, 'data/svdic.pkl'), 'rb') as f:
             self.dic = pickle.load(f)
+            
+        with open(os.path.join(model_dir, 'data/mapping.pair')) as f:
+            self.replacements = []
+            for line in f:
+                tok_from, tok_to = line.replace('\n', '').split('\t')
+                self.replacements.append((' ' + tok_from + ' ', ' ' + tok_to + ' '))
     
     def init_session(self):
         self.history = []
@@ -240,7 +259,7 @@ class HDSA_generator():
         usr = delexicalise(' '.join(usr_post.split()), self.dic)
     
         # parsing reference number GIVEN belief state
-        usr = delexicaliseReferenceNumber(usr, state['belief_state'])
+        usr = delexicaliseReferenceNumber(usr, state['belief_state'], self.replacements)
     
         # changes to numbers only here
         digitpat = re.compile('\d+')
@@ -280,16 +299,21 @@ class HDSA_generator():
                     key = 'pricerange'
                 elif domain == 'value':
                     if key == 'place':
-                        if 'arrive' in pred:
+                        if 'arrive' in pred or 'to' in pred or 'arriving' in pred:
                             key = 'destination'
-                        elif 'leave' in pred:
+                        elif 'leave' in pred or 'from' in pred or 'leaving' in pred:
                             key = 'departure'
                     elif key == 'time':
-                        if 'arrive' in pred:
+                        if 'arrive' in pred or 'arrival' in pred or 'arriving' in pred:
                             key = 'arriveBy'
-                        elif 'leave' in pred:
+                        elif 'leave' in pred or 'departure' in pred or 'leaving' in pred:
                             key = 'leaveAt'
-                if key in kb and domain == kb['domain']:
+                    elif key == 'count':
+                        if 'minute' in pred:
+                            key = 'duration'
+                        elif 'star' in pred:
+                            key = 'stars'
+                if key in kb and (domain == kb['domain'] or domain == 'value'):
                     words[i] = kb[key]
                 else:
                     if domain == 'hospital':
@@ -311,6 +335,7 @@ class HDSA_generator():
                             words[i] = 'white'
                         elif key == 'type':
                             words[i] = 'toyota'
+        sentence = denormalize(" ".join(words))
         
-        return " ".join(words)
+        return sentence
 

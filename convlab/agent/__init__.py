@@ -174,7 +174,7 @@ class DialogAgent(Agent):
 
         if self.nlu and self.dst:  
             self.dst.state['user_action'] = input_act 
-        elif self.dst and not isinstance(self.dst, (word_dst.MDBTTracker, word_dst.TRADETracker)):  # for act-in act-out agent
+        elif self.dst and not isinstance(self.dst, (word_dst.MDBTTracker, word_dst.TRADETracker, word_dst.SUMBTTracker)):  # for act-in act-out agent
             self.dst.state['user_action'] = obs
 
         logger.nl(f'User utterance: {obs}')

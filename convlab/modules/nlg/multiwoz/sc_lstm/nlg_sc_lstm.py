@@ -43,6 +43,14 @@ def parse(is_user):
 
     return args, config
 
+def denormalize(uttr):
+    uttr = uttr.replace(' -s', 's')
+    uttr = uttr.replace('expensive -ly', 'expensive')
+    uttr = uttr.replace('cheap -ly', 'cheap')
+    uttr = uttr.replace('moderate -ly', 'moderately')
+    uttr = uttr.replace(' -er', 'er')
+    uttr = uttr.replace('_UNK', 'unknown')
+    return uttr
 
 class SCLSTM(NLG):
     def __init__(self, 
@@ -194,5 +202,5 @@ class SCLSTM(NLG):
         #     print(i, delex[i])
         #     print(i, recover[i])
 
-        return recover[0]
+        return denormalize(recover[0])
 

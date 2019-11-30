@@ -68,8 +68,8 @@ class ActionVocab(object):
 
 
 class MultiWozVocabActionDecoder(object):
-    def __init__(self, vocab_path=None):
-        self.action_vocab = ActionVocab(num_actions=300)
+    def __init__(self, vocab_path=None, num_actions=300):
+        self.action_vocab = ActionVocab(num_actions=num_actions)
         self.current_domain = 'Restaurant'
 
     def decode(self, action_index, state):

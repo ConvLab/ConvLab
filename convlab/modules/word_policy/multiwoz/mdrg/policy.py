@@ -273,7 +273,7 @@ def populate_template(template, top_results, num_results, state):
     template = template.replace('book [value_count] of them', 'book one of them')
     tokens = template.split()
     response = []
-    for token in tokens:
+    for index, token in enumerate(tokens):
         if token.startswith('[') and token.endswith(']'):
             domain = token[1:-1].split('_')[0]
             slot = token[1:-1].split('_')[1]
@@ -288,7 +288,15 @@ def populate_template(template, top_results, num_results, state):
                 response.append(top_results[domain][slot])
             elif domain == 'value':
                 if slot == 'count':
-                    response.append(str(num_results))
+                    if index + 1 < len(tokens):
+                        if 'minute' in tokens[index+1] and active_domain == 'train':
+                            response.append(top_results['train']['duration'].split()[0])
+                        elif 'star' in tokens[index+1] and active_domain == 'hotel':
+                            response.append(top_results['hotel']['stars'])
+                        else:
+                            response.append(str(num_results))
+                    else:
+                        response.append(str(num_results))
                 elif slot == 'place':
                     if 'arrive' in response:
                         for d in state: 
@@ -356,6 +364,13 @@ def populate_template(template, top_results, num_results, state):
                             pass
                         else:
                             response.append(token)
+                elif slot == 'price' and active_domain == 'attraction':
+                    value = top_results['attraction']['entrance fee'].split()[0]
+                    try: 
+                        value = str(int(value))
+                    except:
+                        value = 'free'
+                    response.append(value)
                 else:
                     # slot-filling based on query results 
                     for d in top_results:
