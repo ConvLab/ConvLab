@@ -16,6 +16,7 @@ import json
 import pickle
 import torch
 from transformers import BertConfig
+from unidecode import unidecode
 
 from convlab.lib.file_util import cached_path
 from convlab.modules.nlu.nlu import NLU
@@ -92,7 +93,7 @@ class BERTNLU(NLU):
             output (dict):
                 The dialog act of utterance.
         """
-        ori_word_seq = utterance.split()
+        ori_word_seq = unidecode(utterance).split()
         ori_tag_seq = ['O'] * len(ori_word_seq)
         context_seq = self.dataloader.tokenizer.encode('[CLS] ' + ' [SEP] '.join(context[-3:]))
         intents = []
