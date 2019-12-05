@@ -253,8 +253,11 @@ class HDSA_generator():
     
     def init_session(self):
         self.history = []
+        self.kbs = {}
 
-    def generate(self, state, pred_hierachical_act_vecs, kb):        
+    def generate(self, state, pred_hierachical_act_vecs, kb):
+        self.kbs[kb['domain']] = kb
+        
         usr_post = state['history'][-1][-1]
         usr = delexicalise(' '.join(usr_post.split()), self.dic)
     
@@ -315,12 +318,16 @@ class HDSA_generator():
                             key = 'stars'
                 if key in kb and (domain == kb['domain'] or domain == 'value'):
                     words[i] = kb[key]
+                elif domain in self.kbs and key in self.kbs[domain]:
+                    words[i] = self.kbs[domain][key]
                 else:
                     if domain == 'hospital':
                         if key == 'phone':
                             words[i] = '01223216297'
                         elif key == 'department':
                             words[i] = 'neurosciences critical care unit'
+                        elif key == 'address':
+                            words[i] = "Lincoln street"
                     elif domain == 'police':
                         if key == 'phone':
                             words[i] = '01223358966'
@@ -328,6 +335,8 @@ class HDSA_generator():
                             words[i] = 'Parkside Police Station'
                         elif key == 'address':
                             words[i] = 'Parkside, Cambridge'
+                        elif key == 'postcode':
+                            words[i] = '533420'
                     elif domain == 'taxi':
                         if key == 'phone':
                             words[i] = '01223358966'
