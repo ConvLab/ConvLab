@@ -52,10 +52,7 @@ if __name__ == '__main__':
 
     writer = SummaryWriter(log_dir)
 
-    bert_config = BertConfig.from_pretrained(config['model']['pretrained_weights'])
-
-    model = JointBERT(bert_config, config['model'], DEVICE, dataloader.tag_dim, dataloader.intent_dim,
-                      dataloader.intent_weight)
+    model = JointBERT(config['model'], DEVICE, dataloader.tag_dim, dataloader.intent_dim, dataloader.intent_weight)
     model.to(DEVICE)
 
     if config['model']['finetune']:
@@ -157,8 +154,8 @@ if __name__ == '__main__':
                         'golden': [x for x in labels if not is_slot_da(x)]
                     })
 
-            # for j in range(10):
-            #     writer.add_text('val_sample_{}'.format(j), json.dumps(predict_golden_all[j]), global_step=step)
+            for j in range(10):
+                writer.add_text('val_sample_{}'.format(j), json.dumps(predict_golden_all[j]), global_step=step)
 
             total = len(dataloader.data['val'])
             val_slot_loss /= total
@@ -205,7 +202,7 @@ if __name__ == '__main__':
 
             if F1 > best_val_f1:
                 best_val_f1 = F1
-                model.save_pretrained(output_dir)
+                torch.save(model.state_dict(), os.path.join(output_dir, 'pytorch_model.bin'))
                 print('best val F1 %.4f' % best_val_f1)
                 print('save on', output_dir)
 
