@@ -1,6 +1,6 @@
 import torch
 from torch import nn
-from transformers import BertPreTrainedModel, BertModel
+from transformers import BertModel
 
 
 class JointBERT(nn.Module):

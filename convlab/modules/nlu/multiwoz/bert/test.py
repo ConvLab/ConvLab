@@ -1,18 +1,12 @@
 import argparse
-import pickle
 import os
 import json
 import torch
-from torch.utils.tensorboard import SummaryWriter
 import random
 import numpy as np
-import zipfile
-from copy import deepcopy
-from pprint import pprint
-from transformers import BertConfig, AdamW, WarmupLinearSchedule
 from convlab.modules.nlu.multiwoz.bert.dataloader import Dataloader
 from convlab.modules.nlu.multiwoz.bert.jointBERT import JointBERT
-from convlab.modules.nlu.multiwoz.bert.multiwoz.postprocess import *
+from convlab.modules.nlu.multiwoz.bert.multiwoz.postprocess import is_slot_da, calculateF1, recover_intent
 
 
 def set_seed(seed):
@@ -80,7 +74,6 @@ if __name__ == '__main__':
             for j in range(real_batch_size):
                 predicts = recover_intent(dataloader, intent_logits[j], slot_logits[j], tag_mask_tensor[j],
                                           ori_batch[j][0], ori_batch[j][-4])
-                predicts = [[x[0], x[1], x[2].lower()] for x in predicts]
                 labels = ori_batch[j][3]
 
                 predict_golden_all.append({

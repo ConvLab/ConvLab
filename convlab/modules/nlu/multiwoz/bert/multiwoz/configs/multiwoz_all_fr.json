@@ -10,13 +10,13 @@
     "context": false,
     "context_grad": false,
     "pretrained_weights": "bert-base-uncased",
-    "check_step": 100,
+    "check_step": 1000,
     "max_step": 30000,
     "batch_size": 100,
     "learning_rate": 1e-3,
     "adam_epsilon": 1e-8,
     "warmup_steps": 0,
     "weight_decay": 0.0,
-    "dropout": 0.0
+    "dropout": 0.1
   }
 }

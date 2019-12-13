@@ -13,9 +13,7 @@ Devlin, J., Chang, M. W., Lee, K., & Toutanova, K. (2019, June). BERT: Pre-train
 import os
 import zipfile
 import json
-import pickle
 import torch
-from transformers import BertConfig
 from unidecode import unidecode
 
 from convlab.lib.file_util import cached_path

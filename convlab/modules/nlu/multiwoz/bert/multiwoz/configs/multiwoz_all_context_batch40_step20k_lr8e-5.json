@@ -1,0 +1,22 @@
+{
+  "data_dir": "multiwoz/data/all_data",
+  "output_dir": "multiwoz/output/all_context_batch40_step20k_lr8e-5",
+  "zipped_model_path": "multiwoz/output/all_context_batch40_step20k_lr8e-5/bert_multiwoz_all_context.zip",
+  "log_dir": "multiwoz/log/all_context_batch40_step20k_lr8e-5",
+  "DEVICE": "cuda:1",
+  "seed": 2019,
+  "model": {
+    "finetune": true,
+    "context": true,
+    "context_grad": false,
+    "pretrained_weights": "bert-base-uncased",
+    "check_step": 2000,
+    "max_step": 20000,
+    "batch_size": 40,
+    "learning_rate": 8e-5,
+    "adam_epsilon": 1e-8,
+    "warmup_steps": 0,
+    "weight_decay": 0.0,
+    "dropout": 0.1
+  }
+}
