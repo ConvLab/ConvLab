@@ -3,7 +3,7 @@
   "output_dir": "multiwoz/output/all",
   "zipped_model_path": "multiwoz/output/all/bert_multiwoz_all.zip",
   "log_dir": "multiwoz/log/all",
-  "DEVICE": "cuda:1",
+  "DEVICE": "cuda:2",
   "seed": 2019,
   "model": {
     "finetune": true,

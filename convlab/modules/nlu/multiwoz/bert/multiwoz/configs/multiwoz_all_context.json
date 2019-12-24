@@ -2,8 +2,8 @@
   "data_dir": "multiwoz/data/all_data",
   "output_dir": "multiwoz/output/all_context",
   "zipped_model_path": "multiwoz/output/all_context/bert_multiwoz_all_context.zip",
-  "log_dir": "multiwoz/log/all_context",
-  "DEVICE": "cuda:3",
+  "log_dir": "multiwoz/log/all_context_batch40_step10k_lr1e-4",
+  "DEVICE": "cuda:1",
   "seed": 2019,
   "model": {
     "finetune": true,
