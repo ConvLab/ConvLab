@@ -88,6 +88,14 @@ if __name__ == '__main__':
                     'predict': [x for x in predicts if not is_slot_da(x)],
                     'golden': [x for x in labels if not is_slot_da(x)]
                 })
+                #
+                # predicts = sorted([[x[0], x[1], x[2].lower()] for x in predicts])
+                # labels = sorted([[x[0], x[1], x[2].lower()] for x in labels])
+                # if predicts != labels:
+                #     print(' '.join(ori_batch[j][0]))
+                #     print(predicts)
+                #     print(labels)
+                #     print()
 
         total = len(dataloader.data[data_key])
         slot_loss /= total
@@ -95,12 +103,6 @@ if __name__ == '__main__':
         print('%d samples %s' % (total, data_key))
         print('\t slot loss:', slot_loss)
         print('\t intent loss:', intent_loss)
-
-        precision, recall, F1 = calculateF1(predict_golden_all)
-        print('-' * 20 + 'overall' + '-' * 20)
-        print('\t Precision: %.2f' % (100 * precision))
-        print('\t Recall: %.2f' % (100 * recall))
-        print('\t F1: %.2f' % (100 * F1))
 
         precision, recall, F1 = calculateF1(predict_golden_intents)
         print('-' * 20 + 'intent' + '-' * 20)
@@ -110,6 +112,12 @@ if __name__ == '__main__':
 
         precision, recall, F1 = calculateF1(predict_golden_slots)
         print('-' * 20 + 'slot' + '-' * 20)
+        print('\t Precision: %.2f' % (100 * precision))
+        print('\t Recall: %.2f' % (100 * recall))
+        print('\t F1: %.2f' % (100 * F1))
+
+        precision, recall, F1 = calculateF1(predict_golden_all)
+        print('-' * 20 + 'overall' + '-' * 20)
         print('\t Precision: %.2f' % (100 * precision))
         print('\t Recall: %.2f' % (100 * recall))
         print('\t F1: %.2f' % (100 * F1))

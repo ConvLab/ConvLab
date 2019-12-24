@@ -6,7 +6,7 @@ def da2triples(dialog_act):
     triples = []
     for intent, svs in dialog_act.items():
         for slot, value in svs:
-            triples.append((intent, slot, value.lower()))
+            triples.append((intent, slot, value))
     return triples
 
 

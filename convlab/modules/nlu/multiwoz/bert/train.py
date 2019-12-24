@@ -9,7 +9,7 @@ import zipfile
 from transformers import AdamW, WarmupLinearSchedule
 from convlab.modules.nlu.multiwoz.bert.dataloader import Dataloader
 from convlab.modules.nlu.multiwoz.bert.jointBERT import JointBERT
-from convlab.modules.nlu.multiwoz.bert.multiwoz.postprocess import is_slot_da, calculateF1, recover_intent
+from convlab.modules.nlu.multiwoz.bert.multiwoz.postprocess import is_slot_da, calculateF1, recover_intent, da2triples
 from convlab.modules.nlu.multiwoz.bert.multiwoz.nlu import BERTNLU
 
 
@@ -248,11 +248,7 @@ if __name__ == '__main__':
             })
             context.append(turn['text'])
         if sess_num % 100 == 0:
-            precision, recall, F1 = calculateF1(predict_golden_all)
             print('Model on [{}|{}] session {} sentences:'.format(sess_num, len(test_data), sen_num))
-            print('\t Precision: %.2f' % (100 * precision))
-            print('\t Recall: %.2f' % (100 * recall))
-            print('\t F1: %.2f' % (100 * F1))
             precision, recall, F1 = calculateF1(predict_golden_intents)
             print('-' * 20 + 'intent' + '-' * 20)
             print('\t Precision: %.2f' % (100 * precision))
@@ -263,13 +259,13 @@ if __name__ == '__main__':
             print('\t Precision: %.2f' % (100 * precision))
             print('\t Recall: %.2f' % (100 * recall))
             print('\t F1: %.2f' % (100 * F1))
+            precision, recall, F1 = calculateF1(predict_golden_all)
+            print('-' * 20 + 'overall' + '-' * 20)
+            print('\t Precision: %.2f' % (100 * precision))
+            print('\t Recall: %.2f' % (100 * recall))
+            print('\t F1: %.2f' % (100 * F1))
 
-    precision, recall, F1 = calculateF1(predict_golden_all)
-    overall_f1 = F1
     print('Model on {} session {} sentences:'.format(sess_num, sen_num))
-    print('\t Precision: %.2f' % (100 * precision))
-    print('\t Recall: %.2f' % (100 * recall))
-    print('\t F1: %.2f' % (100 * F1))
     precision, recall, F1 = calculateF1(predict_golden_intents)
     intent_f1 = F1
     print('-' * 20 + 'intent' + '-' * 20)
@@ -279,6 +275,12 @@ if __name__ == '__main__':
     precision, recall, F1 = calculateF1(predict_golden_slots)
     slot_f1 = F1
     print('-' * 20 + 'slot' + '-' * 20)
+    print('\t Precision: %.2f' % (100 * precision))
+    print('\t Recall: %.2f' % (100 * recall))
+    print('\t F1: %.2f' % (100 * F1))
+    precision, recall, F1 = calculateF1(predict_golden_all)
+    overall_f1 = F1
+    print('-' * 20 + 'overall' + '-' * 20)
     print('\t Precision: %.2f' % (100 * precision))
     print('\t Recall: %.2f' % (100 * recall))
     print('\t F1: %.2f' % (100 * F1))

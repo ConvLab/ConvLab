@@ -22,6 +22,7 @@ from convlab.modules.nlu.multiwoz.bert.dataloader import Dataloader
 from convlab.modules.nlu.multiwoz.bert.jointBERT import JointBERT
 from convlab.modules.nlu.multiwoz.bert.multiwoz.postprocess import recover_intent
 from convlab.modules.nlu.multiwoz.bert.multiwoz.preprocess import preprocess
+import nltk
 
 
 class BERTNLU(NLU):
@@ -90,6 +91,7 @@ class BERTNLU(NLU):
                 The dialog act of utterance.
         """
         ori_word_seq = unidecode(utterance).split()
+        # ori_word_seq = nltk.word_tokenize(unidecode(utterance))
         ori_tag_seq = ['O'] * len(ori_word_seq)
         context_seq = self.dataloader.tokenizer.encode('[CLS] ' + ' [SEP] '.join(context[-3:]))
         intents = []
@@ -115,20 +117,36 @@ class BERTNLU(NLU):
 
 
 if __name__ == '__main__':
-    nlu = BERTNLU(mode='all', config_file='multiwoz_all_context.json', model_file='https://convlab.blob.core.windows.net/models/bert_multiwoz_all_context.zip')
+    nlu = BERTNLU(mode='all', config_file='multiwoz_all_context_batch40_step10k_lr1e-4.json', model_file='https://convlab.blob.core.windows.net/models/bert_multiwoz_all_context.zip')
     test_utterances = [
-        "What type of accommodations are they. No , i just need their address . Can you tell me if the hotel has internet available ?",
-        "What type of accommodations are they.",
-        "No , i just need their address .",
-        "Can you tell me if the hotel has internet available ?"
-        "you're welcome! enjoy your visit! goodbye.",
-        "yes. it should be moderately priced.",
-        "i want to book a table for 6 at 18:45 on thursday",
-        "i will be departing out of stevenage.",
-        "What is the Name of attraction ?",
-        "Can I get the name of restaurant?",
-        "Can I get the address and phone number of the restaurant?",
-        "do you have a specific area you want to stay in?"
+        "How much does it cost per night?",
+        "I am looking for somewhere to stay",
+        "is it expensive",
+        "anything in the centre",
+        "What attraction can I vidit in Cambridge?",
+        "Can you give me info about the museum?",
+        "Scott Polar is fine",
+        "what is the address of the train station?",
+        "yes please book the train tickets. ",
+        "yes book that. ",
+        "I need to leave on Monday anytime after 13:15. I need to depart from leicester",
+        "are there any hotels that are 4 star available in orlando?",
+        "are there any architecture to see in orlando?",
+        "what type of hotel is the leverton house and what area is it in?",
+        "does the worth house have free parking?",
+        "Which is the cheapest?",
+        "I would like to stay at gonville hotel.",
+        "is la raza expensive",
+        "i want a restaurant in the centre with Spanish food",
+        "what expensive spanish restaurants are in the centre",
+        "is there an expensive restaurant with spanish food in the centre",
+        "is la raza in the moderate price range",
+        "when does it leave",
+        "Yes",
+        "I'm thinking of somewhere expensive",
+        "What is the most expensive hotel?",
+        "Does it include Free Wifi?",
+        "Does University Arms Hotel have free wifi?"
     ]
     for utt in test_utterances:
         print(utt)
