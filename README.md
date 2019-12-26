@@ -1,6 +1,31 @@
 # ConvLab
 ConvLab is an open-source multi-domain end-to-end dialog system platform, aiming to enable researchers to quickly set up experiments with reusable components and compare a large set of different approaches, ranging from conventional pipeline systems to end-to-end neural models, in common environments.
 
+## 调用方法
+
+DQN:
+```bash
+# to train a DQN policy with NLU(OneNet), DST(Rule), NLG(Template) on the MultiWOZ environment
+$ python run.py experiment.json onenet_rule_dqn_template train
+```
+
+DDQ:
+```bash
+# to train a DQN policy with NLU(OneNet), DST(Rule), NLG(Template) on the MultiWOZ environment
+$ python run.py experiment.json onenet_rule_ddq_template train
+```
+
+DDQ的主要参数:
+experiment.json文件内，"world_model_net"存储了dyna中world_model的结构和训练参数，该模型的输入为states, actions，输出分成3个heads没有激活函数。"planning_steps"控制planning训练策略的次数。
+
+algorithm/ddq.py函数:
+train_world_model函数训练world_model，分成3个loss函数，states和terminal都是0，1表示的，使用BCELoss，reward使用MSELoss        
+planning函数使用world_model创造新的训练数据，注意world_model的输出都是不带激活函数的，需要加入sigmoid等。
+
+
+
+
+
 ## Package Overview
 <table>
 <tr>
