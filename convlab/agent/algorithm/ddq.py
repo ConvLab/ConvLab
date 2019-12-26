@@ -3,6 +3,7 @@
 
 import numpy as np
 import torch
+import torch.nn.functional as F
 
 from convlab.agent import memory
 from convlab.agent import net
@@ -45,25 +46,23 @@ class DDQ(DQN):
     @lab_api
     def init_nets(self, global_nets=None):
         '''Initialize the neural network used to learn the Q function from the spec'''
-        if self.algorithm_spec['name'] == 'VanillaDQN':
-            assert all(k not in self.net_spec for k in ['update_type', 'update_frequency', 'polyak_coef']), 'Network update not available for VanillaDQN; use DQN.'
-        in_dim = self.body.state_dim
-        out_dim = net_util.get_out_dim(self.body)
-        NetClass = getattr(net, self.net_spec['type'])
-        self.net = NetClass(self.net_spec, in_dim, out_dim)
-        self.net_names = ['net']
-        # init net optimizer and its lr scheduler
-        self.optim = net_util.get_optim(self.net, self.net.optim_spec)
-        self.lr_scheduler = net_util.get_lr_scheduler(self.optim, self.net.lr_scheduler_spec)
-        net_util.set_global_nets(self, global_nets)
-        self.post_init_nets()
 
+        # [model-based] init world_model_nets
+        self.state_dim = self.body.state_dim
+        self.action_dim = net_util.get_out_dim(self.body)
+        in_dim = [self.state_dim, self.action_dim]
+        out_dim = [self.state_dim, 1, 1]
+        
+        WorldNetClass = getattr(net, self.world_net_spec['type'])
+        self.world_net = WorldNetClass(self.world_net_spec,in_dim, out_dim)
+        self.world_net_names = ['world_net']
+        self.world_optim = net_util.get_optim(self.world_net, self.world_net.optim_spec)
+        self.world_lr_scheduler = net_util.get_lr_scheduler(self.world_optim, self.world_net.lr_scheduler_spec)
+         
+        print(self.world_net)
 
-        # load a pre-trained world model
-        # TODO: 
-        # 1. This pre-trained model is pretty good at fisrt. Should change to initialize randomly
-        # 2. This model restricted to MultiWoz data. Should expand to any type
-        self.world_model = WorldModel(self.body)
+        # initialize policy net 
+        super().init_nets(global_nets)
 
     @lab_api
     def train(self):
@@ -88,7 +87,7 @@ class DDQ(DQN):
                     total_loss += loss
 
                     # [model-based]: train world_model on real data
-                    self.world_model.train(batch)
+                    self.train_world_model(batch)
 
             # [model-based]: plan more steps with world_model
             for _ in range(self.planning_steps):
@@ -96,7 +95,7 @@ class DDQ(DQN):
                     batch = self.sample()
                     clock.set_batch_size(len(batch))
                     for _ in range(self.training_batch_iter):
-                        fake_batch = self.world_model.create_batch(batch)
+                        fake_batch = self.planning(batch)
                         loss = self.calc_q_loss(fake_batch) # this also inluences the priority in memory
                         self.net.train_step(loss, self.optim, self.lr_scheduler, clock=clock, global_net=self.global_net)
     
@@ -108,93 +107,53 @@ class DDQ(DQN):
             return np.nan
 
 
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-import torch.optim as optim
-class WorldModel(nn.Module):
+    def train_world_model(self, batch):
+        # zero_grad
+        self.world_optim.zero_grad()
 
-    def __init__(self, body, pretrain=False):
-        self.body = body
-        self.init_nets()
-        
-        # load pretrain models
-
-    def init_nets(self):
-        '''Initialize the neural network used to learn the Q function from the spec'''
-
-        # build world_model nets
-        # its a multi-task model
-        state_dim = self.body.state_dim
-        action_dim = self.body.action_dim
-
-        hidden_dim = 12
-        self.state_encoder = nn.Linear(state_dim, hidden_dim)
-        self.action_encoder = nn.Linear(action_dim, hidden_dim)
-        self.hidden_layer = nn.Linear(2*hidden_dim, hidden_dim)
-        self.state_head = nn.Linear(hidden_dim, state_dim)
-        self.reward_head = nn.Linear(hidden_dim, 1)
-        self.terminal_head = nn.Linear(state_dim, 1)
-
-        # init net optimizer and its lr scheduler
-        self.optim = optim.Adam(lr=0.01)
-
-    def forward(self, s, a):
-        se = self.state_encoder(s)
-        ae = self.action_encoder(a)
-        hid = self.hidden_layer(torch.cat([se,ae]))
-        r = self.reward_head(hid)
-        ns = self.state_head(hid)
-        d =  self.terminal_head(hid)
-        return ns, r, d
-
-
-    def predict(self, states, actions)
-        """
-        Predict an user act based on state and preorder system action.
-        Args:
-        Returns:
-        """
-        ns, r, t = self.forward(states, actions)
-        return ns, r, F.sigmoid(t)
-
-    def train(self, batch):
-        self.optim.zero_grad()
-        states = batch["states"]
-        actions = batch["actions"]
-        next_states, rewards, dones = self.predict(states, actions)
+        # get predictions
+        states_raw  = batch["states"]
+        actions_raw = batch["actions"]
+        states = states_raw
+        actions = F.one_hot(actions_raw.long(), self.action_dim).float()
+        next_states, rewards, dones = self.world_net([states, actions])
+        rewards = rewards.view(-1)
+        dones = dones.view(-1)
 
         # compute loss
-        loss_s = F.mse_loss(batch["next_states"], next_states) # TODO: state loss
-        loss_r = F.mse_loss(batch["rewards"], rewards)
-        loss_t = F.binary_cross_entropy_with_logits(batch["dones"], dones)
+        loss_func_state = torch.nn.BCEWithLogitsLoss()
+        loss_s = loss_func_state(next_states, batch["next_states"])
+        loss_func_reward = torch.nn.MSELoss()
+        loss_r = loss_func_reward(rewards, batch["rewards"])
+        loss_func_terminal = torch.nn.BCEWithLogitsLoss()
+        loss_t = loss_func_terminal(dones, batch["dones"])
         loss = loss_s + loss_r + loss_t
 
+        # update
         loss.backward()
-        self.optim.step()
+        self.world_optim.step()
 
-    def create_batch(self, batch):
-        states = batch["states"]
-        actions = batch["actions"]
-        next_states, rewards, dones = self.predict(states, actions)
+    def planning(self, batch):
+        # get predictions
+        states_raw  = batch["states"]
+        actions_raw = batch["actions"]
+        states = states_raw
+        actions = F.one_hot(actions_raw.long(), self.action_dim).float()
+        next_states, rewards, dones = self.world_net([states, actions])
+        rewards = rewards.view(-1)
+        dones = dones.view(-1)
+
+        # sample next_states/dones to [0,1]
+        m = torch.distributions.Bernoulli(torch.sigmoid(next_states))
+        next_states = m.sample()
+        m = torch.distributions.Bernoulli(torch.sigmoid(dones))
+        dones = m.sample()
+
+        # create new batch
         new_batch = {}
-        new_batch["states"] = states
+        new_batch["states"] = states_raw
         new_batch["next_states"] = next_states
-        new_batch["actions"] = actions 
+        new_batch["actions"] = actions_raw
         new_batch["rewards"] = rewards
         new_batch["dones"] = dones
         return new_batch
-
-    def save(self, directory, epoch):
-        if not os.path.exists(directory):
-            os.makedirs(directory)
-            
-        torch.save(self.user.state_dict(), directory + '/' + str(epoch) + '_simulator.mdl')
-        logging.info('<<user simulator>> epoch {}: saved network to mdl'.format(epoch))
-    
-    def load(self, filename):
-        user_mdl = filename + '_simulator.mdl'
-        if os.path.exists(user_mdl):
-            self.user.load_state_dict(torch.load(user_mdl))
-            logging.info('<<user simulator>> loaded checkpoint from file: {}'.format(user_mdl))
-

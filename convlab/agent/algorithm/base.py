@@ -27,6 +27,7 @@ class Algorithm(ABC):
         self.algorithm_spec = agent.agent_spec['algorithm']
         self.name = self.algorithm_spec['name']
         self.net_spec = agent.agent_spec.get('net', None)
+        self.world_net_spec = agent.agent_spec.get('world_model_net', None)
         if ps.get(agent.agent_spec, 'memory'):
             self.memory_spec = agent.agent_spec['memory']
         self.body = self.agent.body

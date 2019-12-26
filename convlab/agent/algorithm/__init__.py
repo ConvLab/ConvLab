@@ -16,3 +16,4 @@ from .random import *
 from .reinforce import *
 from .sarsa import *
 from .sil import *
+from .ddq import *

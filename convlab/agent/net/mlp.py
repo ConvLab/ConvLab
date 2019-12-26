@@ -257,7 +257,7 @@ class HydraMLPNet(Net, nn.Module):
         else:
             assert len(self.tail_hid_layers) == len(out_dim), 'Hydra tail hid_params inconsistent with number out dims'
             for out_d, out_activ, hid_layers in zip(out_dim, out_layer_activation, self.tail_hid_layers):
-                dims = hid_layers
+                dims = [self.body_hid_layers[-1]] + hid_layers
                 model_tail = net_util.build_fc_model(dims, self.hid_layers_activation)
                 tail_out = net_util.build_fc_model([dims[-1], out_d], out_activ)
                 model_tail.add_module(str(len(model_tail)), tail_out)
