@@ -39,10 +39,10 @@ See `nlu.py` for usage
 
 We have trained two models: one use context information (`configs/multiwoz_all_context.json`) and the other doesn't (`configs/multiwoz_all.json`) on **all** utterances of multiwoz dataset (`data/multiwoz/[train|val|test].json.zip`). Performance:
 
-|                 | All Data (Slot/Intent/Overall F1) | User Data (Slot/Intent/Overall F1) |
-| --------------- | --------------------------------- | ---------------------------------- |
-| without context | 62.83 / 83.01 / 70.37             | 82.15 / 82.23 / 82.18              |
-| with context    | 63.72 / 87.35 / 72.45             | 83.74 / 89.33 / 85.70              |
+|                 | All Data (Slot/Intent/Overall F1) |
+| --------------- | --------------------------------- |
+| without context | 80.94 / 82.71 / 81.61             |
+| with context    | 82.04 / 87.49 / 84.07             |
 
 Models can be download form:
 

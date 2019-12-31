@@ -117,7 +117,7 @@ class BERTNLU(NLU):
 
 
 if __name__ == '__main__':
-    nlu = BERTNLU(mode='all', config_file='multiwoz_all_context_batch40_step10k_lr1e-4.json', model_file='https://convlab.blob.core.windows.net/models/bert_multiwoz_all_context.zip')
+    nlu = BERTNLU(mode='all', config_file='multiwoz_all_context.json', model_file='https://convlab.blob.core.windows.net/models/bert_multiwoz_all_context.zip')
     test_utterances = [
         "How much does it cost per night?",
         "I am looking for somewhere to stay",
