@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 import random
-from transformers import *
+from transformers import BertTokenizer
 import math
 from collections import Counter
 

@@ -1,35 +1,39 @@
 import torch
 from torch import nn
-from transformers import BertPreTrainedModel, BertModel
+from transformers import BertModel
 
 
-class JointBERT(BertPreTrainedModel):
-    def __init__(self, bert_config, model_config, device, slot_dim, intent_dim, intent_weight=None):
-        super(JointBERT, self).__init__(bert_config)
+class JointBERT(nn.Module):
+    def __init__(self, model_config, device, slot_dim, intent_dim, intent_weight=None):
+        super(JointBERT, self).__init__()
         self.slot_num_labels = slot_dim
         self.intent_num_labels = intent_dim
         self.device = device
         self.intent_weight = intent_weight if intent_weight is not None else torch.tensor([1.]*intent_dim)
 
-        self.bert = BertModel(bert_config)
+        self.bert = BertModel.from_pretrained(model_config['pretrained_weights'])
         self.dropout = nn.Dropout(model_config['dropout'])
         self.context = model_config['context']
         self.finetune = model_config['finetune']
         self.context_grad = model_config['context_grad']
         if self.context:
-            self.intent_classifier = nn.Linear(2 * bert_config.hidden_size, self.intent_num_labels)
-            self.slot_classifier = nn.Linear(2 * bert_config.hidden_size, self.slot_num_labels)
-            self.intent_hidden = nn.Linear(2 * bert_config.hidden_size, 2 * bert_config.hidden_size)
-            self.slot_hidden = nn.Linear(2 * bert_config.hidden_size, 2 * bert_config.hidden_size)
+            self.intent_classifier = nn.Linear(2 * self.bert.config.hidden_size, self.intent_num_labels)
+            self.slot_classifier = nn.Linear(2 * self.bert.config.hidden_size, self.slot_num_labels)
+            self.intent_hidden = nn.Linear(2 * self.bert.config.hidden_size, 2 * self.bert.config.hidden_size)
+            self.slot_hidden = nn.Linear(2 * self.bert.config.hidden_size, 2 * self.bert.config.hidden_size)
         else:
-            self.intent_classifier = nn.Linear(bert_config.hidden_size, self.intent_num_labels)
-            self.slot_classifier = nn.Linear(bert_config.hidden_size, self.slot_num_labels)
-            self.intent_hidden = nn.Linear(bert_config.hidden_size, bert_config.hidden_size)
-            self.slot_hidden = nn.Linear(bert_config.hidden_size, bert_config.hidden_size)
+            self.intent_classifier = nn.Linear(self.bert.config.hidden_size, self.intent_num_labels)
+            self.slot_classifier = nn.Linear(self.bert.config.hidden_size, self.slot_num_labels)
+            self.intent_hidden = nn.Linear(self.bert.config.hidden_size, self.bert.config.hidden_size)
+            self.slot_hidden = nn.Linear(self.bert.config.hidden_size, self.bert.config.hidden_size)
+
+        nn.init.xavier_uniform_(self.intent_hidden.weight)
+        nn.init.xavier_uniform_(self.slot_hidden.weight)
+        nn.init.xavier_uniform_(self.intent_classifier.weight)
+        nn.init.xavier_uniform_(self.slot_classifier.weight)
+
         self.intent_loss_fct = torch.nn.BCEWithLogitsLoss(pos_weight=self.intent_weight)
         self.slot_loss_fct = torch.nn.CrossEntropyLoss()
-
-        self.init_weights()
 
     def forward(self, word_seq_tensor, word_mask_tensor, tag_seq_tensor=None, tag_mask_tensor=None,
                 intent_tensor=None, context_seq_tensor=None, context_mask_tensor=None):
@@ -56,8 +60,8 @@ class JointBERT(BertPreTrainedModel):
                  sequence_output], dim=-1)
             pooled_output = torch.cat([context_output, pooled_output], dim=-1)
 
-        sequence_output = nn.functional.relu(self.dropout(self.slot_hidden(sequence_output)))
-        pooled_output = nn.functional.relu(self.dropout(self.intent_hidden(pooled_output)))
+        sequence_output = nn.functional.relu(self.slot_hidden(self.dropout(sequence_output)))
+        pooled_output = nn.functional.relu(self.intent_hidden(self.dropout(pooled_output)))
 
         sequence_output = self.dropout(sequence_output)
         slot_logits = self.slot_classifier(sequence_output)

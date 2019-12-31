@@ -19,7 +19,6 @@ import json
 import os
 import zipfile
 import sys
-import pickle
 from collections import Counter
 
 

@@ -1,18 +1,12 @@
 import argparse
-import pickle
 import os
 import json
 import torch
-from torch.utils.tensorboard import SummaryWriter
 import random
 import numpy as np
-import zipfile
-from copy import deepcopy
-from pprint import pprint
-from transformers import BertConfig, AdamW, WarmupLinearSchedule
 from convlab.modules.nlu.multiwoz.bert.dataloader import Dataloader
 from convlab.modules.nlu.multiwoz.bert.jointBERT import JointBERT
-from convlab.modules.nlu.multiwoz.bert.multiwoz.postprocess import *
+from convlab.modules.nlu.multiwoz.bert.multiwoz.postprocess import is_slot_da, calculateF1, recover_intent
 
 
 def set_seed(seed):
@@ -34,6 +28,8 @@ if __name__ == '__main__':
     log_dir = config['log_dir']
     DEVICE = config['DEVICE']
 
+    set_seed(config['seed'])
+
     intent_vocab = json.load(open(os.path.join(data_dir, 'intent_vocab.json')))
     tag_vocab = json.load(open(os.path.join(data_dir, 'tag_vocab.json')))
     dataloader = Dataloader(intent_vocab=intent_vocab, tag_vocab=tag_vocab,
@@ -49,9 +45,7 @@ if __name__ == '__main__':
     if not os.path.exists(log_dir):
         os.makedirs(log_dir)
 
-    bert_config = BertConfig.from_pretrained(config['model']['pretrained_weights'])
-
-    model = JointBERT(bert_config, config['model'], DEVICE, dataloader.tag_dim, dataloader.intent_dim)
+    model = JointBERT(config['model'], DEVICE, dataloader.tag_dim, dataloader.intent_dim)
     model.load_state_dict(torch.load(os.path.join(output_dir, 'pytorch_model.bin'), DEVICE))
     model.to(DEVICE)
     model.eval()
@@ -82,7 +76,6 @@ if __name__ == '__main__':
             for j in range(real_batch_size):
                 predicts = recover_intent(dataloader, intent_logits[j], slot_logits[j], tag_mask_tensor[j],
                                           ori_batch[j][0], ori_batch[j][-4])
-                predicts = [[x[0], x[1], x[2].lower()] for x in predicts]
                 labels = ori_batch[j][3]
 
                 predict_golden_all.append({
@@ -97,6 +90,14 @@ if __name__ == '__main__':
                     'predict': [x for x in predicts if not is_slot_da(x)],
                     'golden': [x for x in labels if not is_slot_da(x)]
                 })
+                #
+                # predicts = sorted([[x[0], x[1], x[2].lower()] for x in predicts])
+                # labels = sorted([[x[0], x[1], x[2].lower()] for x in labels])
+                # if predicts != labels:
+                #     print(' '.join(ori_batch[j][0]))
+                #     print(predicts)
+                #     print(labels)
+                #     print()
 
         total = len(dataloader.data[data_key])
         slot_loss /= total
@@ -104,12 +105,6 @@ if __name__ == '__main__':
         print('%d samples %s' % (total, data_key))
         print('\t slot loss:', slot_loss)
         print('\t intent loss:', intent_loss)
-
-        precision, recall, F1 = calculateF1(predict_golden_all)
-        print('-' * 20 + 'overall' + '-' * 20)
-        print('\t Precision: %.2f' % (100 * precision))
-        print('\t Recall: %.2f' % (100 * recall))
-        print('\t F1: %.2f' % (100 * F1))
 
         precision, recall, F1 = calculateF1(predict_golden_intents)
         print('-' * 20 + 'intent' + '-' * 20)
@@ -119,6 +114,12 @@ if __name__ == '__main__':
 
         precision, recall, F1 = calculateF1(predict_golden_slots)
         print('-' * 20 + 'slot' + '-' * 20)
+        print('\t Precision: %.2f' % (100 * precision))
+        print('\t Recall: %.2f' % (100 * recall))
+        print('\t F1: %.2f' % (100 * F1))
+
+        precision, recall, F1 = calculateF1(predict_golden_all)
+        print('-' * 20 + 'overall' + '-' * 20)
         print('\t Precision: %.2f' % (100 * precision))
         print('\t Recall: %.2f' % (100 * recall))
         print('\t F1: %.2f' % (100 * F1))

@@ -1,5 +1,4 @@
 import argparse
-import pickle
 import os
 import json
 import torch
@@ -7,12 +6,10 @@ from torch.utils.tensorboard import SummaryWriter
 import random
 import numpy as np
 import zipfile
-from copy import deepcopy
-from pprint import pprint
-from transformers import BertConfig, AdamW, WarmupLinearSchedule
+from transformers import AdamW, WarmupLinearSchedule
 from convlab.modules.nlu.multiwoz.bert.dataloader import Dataloader
 from convlab.modules.nlu.multiwoz.bert.jointBERT import JointBERT
-from convlab.modules.nlu.multiwoz.bert.multiwoz.postprocess import *
+from convlab.modules.nlu.multiwoz.bert.multiwoz.postprocess import is_slot_da, calculateF1, recover_intent, da2triples
 from convlab.modules.nlu.multiwoz.bert.multiwoz.nlu import BERTNLU
 
 
@@ -35,6 +32,8 @@ if __name__ == '__main__':
     log_dir = config['log_dir']
     DEVICE = config['DEVICE']
 
+    set_seed(config['seed'])
+
     intent_vocab = json.load(open(os.path.join(data_dir, 'intent_vocab.json')))
     tag_vocab = json.load(open(os.path.join(data_dir, 'tag_vocab.json')))
     dataloader = Dataloader(intent_vocab=intent_vocab, tag_vocab=tag_vocab,
@@ -52,10 +51,7 @@ if __name__ == '__main__':
 
     writer = SummaryWriter(log_dir)
 
-    bert_config = BertConfig.from_pretrained(config['model']['pretrained_weights'])
-
-    model = JointBERT(bert_config, config['model'], DEVICE, dataloader.tag_dim, dataloader.intent_dim,
-                      dataloader.intent_weight)
+    model = JointBERT(config['model'], DEVICE, dataloader.tag_dim, dataloader.intent_dim, dataloader.intent_weight)
     model.to(DEVICE)
 
     if config['model']['finetune']:
@@ -85,7 +81,7 @@ if __name__ == '__main__':
     check_step = config['model']['check_step']
     batch_size = config['model']['batch_size']
     model.zero_grad()
-    set_seed(config['seed'])
+
     train_slot_loss, train_intent_loss = 0, 0
     best_val_f1 = 0.
 
@@ -141,7 +137,6 @@ if __name__ == '__main__':
                 for j in range(real_batch_size):
                     predicts = recover_intent(dataloader, intent_logits[j], slot_logits[j], tag_mask_tensor[j],
                                               ori_batch[j][0], ori_batch[j][-4])
-                    predicts = [[x[0], x[1], x[2].lower()] for x in predicts]
                     labels = ori_batch[j][3]
 
                     predict_golden_all.append({
@@ -157,8 +152,8 @@ if __name__ == '__main__':
                         'golden': [x for x in labels if not is_slot_da(x)]
                     })
 
-            # for j in range(10):
-            #     writer.add_text('val_sample_{}'.format(j), json.dumps(predict_golden_all[j]), global_step=step)
+            for j in range(10):
+                writer.add_text('val_sample_{}'.format(j), json.dumps(predict_golden_all[j]), global_step=step)
 
             total = len(dataloader.data['val'])
             val_slot_loss /= total
@@ -205,7 +200,7 @@ if __name__ == '__main__':
 
             if F1 > best_val_f1:
                 best_val_f1 = F1
-                model.save_pretrained(output_dir)
+                torch.save(model.state_dict(), os.path.join(output_dir, 'pytorch_model.bin'))
                 print('best val F1 %.4f' % best_val_f1)
                 print('save on', output_dir)
 
@@ -255,11 +250,7 @@ if __name__ == '__main__':
             })
             context.append(turn['text'])
         if sess_num % 100 == 0:
-            precision, recall, F1 = calculateF1(predict_golden_all)
             print('Model on [{}|{}] session {} sentences:'.format(sess_num, len(test_data), sen_num))
-            print('\t Precision: %.2f' % (100 * precision))
-            print('\t Recall: %.2f' % (100 * recall))
-            print('\t F1: %.2f' % (100 * F1))
             precision, recall, F1 = calculateF1(predict_golden_intents)
             print('-' * 20 + 'intent' + '-' * 20)
             print('\t Precision: %.2f' % (100 * precision))
@@ -270,13 +261,13 @@ if __name__ == '__main__':
             print('\t Precision: %.2f' % (100 * precision))
             print('\t Recall: %.2f' % (100 * recall))
             print('\t F1: %.2f' % (100 * F1))
+            precision, recall, F1 = calculateF1(predict_golden_all)
+            print('-' * 20 + 'overall' + '-' * 20)
+            print('\t Precision: %.2f' % (100 * precision))
+            print('\t Recall: %.2f' % (100 * recall))
+            print('\t F1: %.2f' % (100 * F1))
 
-    precision, recall, F1 = calculateF1(predict_golden_all)
-    overall_f1 = F1
     print('Model on {} session {} sentences:'.format(sess_num, sen_num))
-    print('\t Precision: %.2f' % (100 * precision))
-    print('\t Recall: %.2f' % (100 * recall))
-    print('\t F1: %.2f' % (100 * F1))
     precision, recall, F1 = calculateF1(predict_golden_intents)
     intent_f1 = F1
     print('-' * 20 + 'intent' + '-' * 20)
@@ -286,6 +277,12 @@ if __name__ == '__main__':
     precision, recall, F1 = calculateF1(predict_golden_slots)
     slot_f1 = F1
     print('-' * 20 + 'slot' + '-' * 20)
+    print('\t Precision: %.2f' % (100 * precision))
+    print('\t Recall: %.2f' % (100 * recall))
+    print('\t F1: %.2f' % (100 * F1))
+    precision, recall, F1 = calculateF1(predict_golden_all)
+    overall_f1 = F1
+    print('-' * 20 + 'overall' + '-' * 20)
     print('\t Precision: %.2f' % (100 * precision))
     print('\t Recall: %.2f' % (100 * recall))
     print('\t F1: %.2f' % (100 * F1))
