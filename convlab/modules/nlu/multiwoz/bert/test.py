@@ -28,6 +28,8 @@ if __name__ == '__main__':
     log_dir = config['log_dir']
     DEVICE = config['DEVICE']
 
+    set_seed(config['seed'])
+
     intent_vocab = json.load(open(os.path.join(data_dir, 'intent_vocab.json')))
     tag_vocab = json.load(open(os.path.join(data_dir, 'tag_vocab.json')))
     dataloader = Dataloader(intent_vocab=intent_vocab, tag_vocab=tag_vocab,

@@ -32,6 +32,8 @@ if __name__ == '__main__':
     log_dir = config['log_dir']
     DEVICE = config['DEVICE']
 
+    set_seed(config['seed'])
+
     intent_vocab = json.load(open(os.path.join(data_dir, 'intent_vocab.json')))
     tag_vocab = json.load(open(os.path.join(data_dir, 'tag_vocab.json')))
     dataloader = Dataloader(intent_vocab=intent_vocab, tag_vocab=tag_vocab,
@@ -79,7 +81,7 @@ if __name__ == '__main__':
     check_step = config['model']['check_step']
     batch_size = config['model']['batch_size']
     model.zero_grad()
-    set_seed(config['seed'])
+
     train_slot_loss, train_intent_loss = 0, 0
     best_val_f1 = 0.
 
