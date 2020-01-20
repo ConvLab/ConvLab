@@ -1,0 +1,124 @@
+{
+  "bertnlu_rule_rule_template_bertnlu":{
+    "agent": [{
+      "name": "DialogAgent",
+      "nlu": {
+        "name": "BERTNLU",
+        "mode": "all",
+        "config_file": "multiwoz_all_context.json",
+        "model_file": "https://convlab.blob.core.windows.net/models/bert_multiwoz_all_context.zip"
+      },
+      "dst": {
+        "name": "RuleDST"
+      },
+      "nlg": {
+        "name": "MultiwozTemplateNLG",
+        "is_user": false
+      },
+      "algorithm": {
+        "name": "ExternalPolicy",
+        "policy": {
+          "name": "RuleBasedMultiwozBot"
+        },
+        "action_pdtype": "Argmax",
+        "action_policy": "default"
+      }
+    }],
+    "env": [{
+      "name": "multiwoz",
+      "user_policy": {
+        "name": "UserPolicyAgendaMultiWoz"
+      },
+      "sys_policy": {
+        "name": "RuleBasedMultiwozBot"
+      },
+      "nlu": {
+        "name": "BERTNLU",
+        "mode": "all",
+        "config_file": "multiwoz_all_context.json",
+        "model_file": "https://convlab.blob.core.windows.net/models/bert_multiwoz_all_context.zip"
+      },
+      "nlg": {
+        "name": "MultiwozTemplateNLG",
+        "is_user": true
+      },
+      "evaluator": {
+        "name": "MultiWozEvaluator"
+      },
+      "max_t": 40,
+      "max_frame": 1000
+    }],
+    "meta": {
+      "distributed": false,
+      "eval_frequency": 1000,
+      "num_eval": 100,
+      "max_tick_unit": "total_t",
+      "max_trial": 1,
+      "max_session": 1,
+      "resources": {
+        "num_cpus": 1,
+        "num_gpus": 0
+      }
+    }
+  },
+  "bertnlu_rule_rule_template":{
+    "agent": [{
+      "name": "DialogAgent",
+      "nlu": {
+        "name": "BERTNLU",
+        "mode": "all",
+        "config_file": "multiwoz_all_context.json",
+        "model_file": "https://convlab.blob.core.windows.net/models/bert_multiwoz_all_context.zip"
+      },
+      "dst": {
+        "name": "RuleDST"
+      },
+      "nlg": {
+        "name": "MultiwozTemplateNLG",
+        "is_user": false
+      },
+      "algorithm": {
+        "name": "ExternalPolicy",
+        "policy": {
+          "name": "RuleBasedMultiwozBot"
+        },
+        "action_pdtype": "Argmax",
+        "action_policy": "default"
+      }
+    }],
+    "env": [{
+      "name": "multiwoz",
+      "user_policy": {
+        "name": "UserPolicyAgendaMultiWoz"
+      },
+      "sys_policy": {
+        "name": "RuleBasedMultiwozBot"
+      },
+      "nlu": {
+        "name": "MILU",
+        "model_file": "https://convlab.blob.core.windows.net/models/milu.tar.gz"
+      },
+      "nlg": {
+        "name": "MultiwozTemplateNLG",
+        "is_user": true
+      },
+      "evaluator": {
+        "name": "MultiWozEvaluator"
+      },
+      "max_t": 40,
+      "max_frame": 1000
+    }],
+    "meta": {
+      "distributed": false,
+      "eval_frequency": 1000,
+      "num_eval": 100,
+      "max_tick_unit": "total_t",
+      "max_trial": 1,
+      "max_session": 1,
+      "resources": {
+        "num_cpus": 1,
+        "num_gpus": 0
+      }
+    }
+  }
+}
