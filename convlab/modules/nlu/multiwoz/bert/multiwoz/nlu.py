@@ -22,7 +22,7 @@ from convlab.modules.nlu.multiwoz.bert.dataloader import Dataloader
 from convlab.modules.nlu.multiwoz.bert.jointBERT import JointBERT
 from convlab.modules.nlu.multiwoz.bert.multiwoz.postprocess import recover_intent
 from convlab.modules.nlu.multiwoz.bert.multiwoz.preprocess import preprocess
-import nltk
+import spacy
 
 
 class BERTNLU(NLU):
@@ -76,6 +76,7 @@ class BERTNLU(NLU):
 
         self.model = model
         self.dataloader = dataloader
+        self.nlp = spacy.load('en_core_web_sm')
         print("BERTNLU loaded")
 
     def parse(self, utterance, context=[]):
@@ -90,8 +91,8 @@ class BERTNLU(NLU):
             output (dict):
                 The dialog act of utterance.
         """
-        ori_word_seq = unidecode(utterance).split()
-        # ori_word_seq = nltk.word_tokenize(unidecode(utterance))
+        # ori_word_seq = unidecode(utterance).split()
+        ori_word_seq = [token.text for token in self.nlp(unidecode(utterance))]
         ori_tag_seq = ['O'] * len(ori_word_seq)
         context_seq = self.dataloader.tokenizer.encode('[CLS] ' + ' [SEP] '.join(context[-3:]))
         intents = []
@@ -117,7 +118,7 @@ class BERTNLU(NLU):
 
 
 if __name__ == '__main__':
-    nlu = BERTNLU(mode='all', config_file='multiwoz_all_context_batch40_step10k_lr1e-4.json', model_file='https://convlab.blob.core.windows.net/models/bert_multiwoz_all_context.zip')
+    nlu = BERTNLU(mode='all', config_file='multiwoz_all_context.json', model_file='https://convlab.blob.core.windows.net/models/bert_multiwoz_all_context.zip')
     test_utterances = [
         "How much does it cost per night?",
         "I am looking for somewhere to stay",
