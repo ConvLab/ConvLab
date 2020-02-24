@@ -133,7 +133,7 @@ For other components, ConvLab supports offline supervise learning. For example, 
 ## Creating a new spec file
 A spec file is used to fully specify experiments including a dialog agent and a user simulator. It is a JSON of multiple experiment specs, each containing the keys agent, env, body, meta, search.
 
-We based our implementation on [SLM-Lab](https://github.com/kengz/SLM-Lab/tree/master/slm_lab). For an introduction to these concepts, you should check [these docs](https://kengz.gitbooks.io/slm-lab/content/).
+We based our implementation on [SLM-Lab](https://github.com/kengz/SLM-Lab/tree/master/slm_lab).
 
 Instead of writing one from scratch, you are welcome to modify the `convlab/spec/demo.json` file. Once you have created a new spec file, place it under `convlab/spec` directory and run your experiments. Note that you don't have to prepend `convlab/spec/` before your spec file name.
 
