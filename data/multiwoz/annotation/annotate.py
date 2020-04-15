@@ -206,7 +206,9 @@ def phrase_idx_utt(phrase, utt):
     elif phrase_low in word2digit:
         phrases.append(word2digit[phrase_low])
     else:
-        if ' '+phrase_low in utt_low or utt_low.startswith(phrase_low):
+        if ' '+phrase_low in utt_low:
+            return get_idx(' '+phrase_low, utt_low)
+        elif utt_low.startswith(phrase_low):
             return get_idx(phrase_low, utt_low)
         else:
             return None
