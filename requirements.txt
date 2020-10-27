@@ -20,7 +20,7 @@ colorlog==4.0.2
 colorlover==0.3.0
 conllu==0.11
 cookies==2.2.1
-cryptography==2.6.1
+cryptography==3.2
 cycler==0.10.0
 cymem==2.0.2
 cytoolz==0.9.0.1
