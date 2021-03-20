@@ -51,7 +51,7 @@ idna==2.8
 imagesize==1.1.0
 ipython-genutils==0.2.0
 itsdangerous==1.1.0
-Jinja2==2.10.1
+Jinja2==2.11.3
 jmespath==0.9.4
 jsondiff==1.1.1
 jsonnet==0.10.0
