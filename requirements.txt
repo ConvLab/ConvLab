@@ -99,7 +99,7 @@ python-dateutil==2.8.0
 python-jose==2.0.2
 pytorch-pretrained-bert==0.6.2
 pytz==2019.1
-PyYAML==5.1
+PyYAML==5.4
 ray==0.6.5
 redis==3.2.1
 regex
