@@ -36,7 +36,7 @@ editdistance==0.5.3
 filelock==3.0.10
 flaky==3.5.3
 Flask==1.0.2
-Flask-Cors==3.0.7
+Flask-Cors==3.0.9
 flatbuffers==1.10
 ftfy==5.5.1
 funcsigs==1.0.2
