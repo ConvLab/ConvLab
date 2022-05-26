@@ -129,7 +129,7 @@ tqdm==4.31.1
 traitlets==4.3.2
 transformers==2.2.1
 typing==3.6.6
-ujson==1.35
+ujson==5.2.0
 Unidecode==1.0.23
 urllib3==1.24.2
 wcwidth==0.1.7
